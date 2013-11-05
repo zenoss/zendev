@@ -1,3 +1,6 @@
+import json
+import py
+
 
 class Manifest(object):
     """
@@ -6,17 +9,26 @@ class Manifest(object):
     _path = None
     _data = None
 
-    def __init__(self, data):
-        self._data = data
+    def __init__(self, path):
+        self._path = py.path.local(path)
+        if self._path.check():
+            with self._path.open() as f:
+                self._data = json.load(f)
+        else:
+            self._data = {
+                'repos':{}
+            }
 
-    @staticmethod
-    def load(path):
-        with open(path) as f:
-            json.load(f)
-        mf = Manifest()
-        mf._path = path
+    def repos(self, raw=True):
+        return self._data.setdefault('repos', {})
 
-    def repos(self):
-        repos = self._data.get('repos', {})
-        for path, info in repos.iteritems():
-            yield path, info
+    def save(self):
+        self._path.write(json.dumps(self._data, 
+            indent=4))
+
+    def freeze(self):
+        return json.dumps(self._data, indent=4)
+
+    def merge(self, manifest):
+        assert isinstance(manifest, Manifest)
+        self.repos().update(manifest.repos())
