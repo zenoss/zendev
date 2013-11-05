@@ -1,2 +1,3 @@
+nose
 gitflow
 termcolor
