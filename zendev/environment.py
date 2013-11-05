@@ -27,3 +27,11 @@ def get_config_dir():
     return cfgdir
 
 
+class ZenDevEnvironment(object):
+
+    _root = None
+
+    def __init__(self):
+        cfg_dir = get_config_dir()
+        self._root = cfg_dir.parts(reverse=True)[1]
+

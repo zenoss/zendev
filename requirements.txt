@@ -2,3 +2,4 @@ nose
 py
 gitflow
 termcolor
+argcomplete

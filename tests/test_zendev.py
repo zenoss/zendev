@@ -9,20 +9,38 @@ Tests for `zendev` module.
 """
 
 import unittest
+import tempfile
+import py
 
-from zendev import zendev
+from zendev.environment import init_config_dir, get_config_dir
 
 
-class TestZendev(unittest.TestCase):
+
+class TestConfigDir(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self._tempdir = py.path.local(tempfile.mkdtemp())
 
-    def test_something(self):
-        pass
+    def test_init_config_dir(self):
+        """
+        Verify that a config dir is initialized.
+        """
+        with self._tempdir.as_cwd():
+            init_config_dir()
+        if not self._tempdir.join('.zendev').check():
+            self.fail("Directory was not created")
+
+    def test_get_config_dir(self):
+        target = self._tempdir.join('.zendev')
+        with self._tempdir.as_cwd():
+            init_config_dir()
+        child = self._tempdir.ensure('child/a/b/c', dir=True)
+        with child.as_cwd():
+            self.assertEquals(target.realpath(), get_config_dir())
+
 
     def tearDown(self):
-        pass
+        self._tempdir.remove()
 
 if __name__ == '__main__':
     unittest.main()
