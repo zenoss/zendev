@@ -4,7 +4,6 @@ import gitflow.core
 import py
 
 from .utils import is_git_repo
-from .progress import GitProgress
 
 
 is_github = re.compile('^[^\/\s@]+\/[^\/\s]+$').match
@@ -56,3 +55,4 @@ class Repository(object):
         """
         if self.repo is None:
             self.clone()
+        self._repo.pull()

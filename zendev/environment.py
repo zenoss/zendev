@@ -1,9 +1,13 @@
 import sys
 import py
+import time
+from multiprocessing import Queue, Pool
+from Queue import Empty
 
 from .manifest import Manifest
 from .repo import Repository
-from .progress import MultiGit
+from .utils import Reprinter
+from .progress import GitProgressBar
 from git.remote import RemoteProgress
 
 
@@ -15,20 +19,21 @@ class NotInitialized(Exception): pass
 
 
 class MultiprocessingProgress(RemoteProgress):
-    def __init__(self, queue):
-        self.queue = queue
+
+    QUEUE = Queue()
+
+    def __init__(self, path):
+        self.path = path
         super(MultiprocessingProgress, self).__init__()
 
     def update(self, *args, **kwargs):
-        print args, kwargs
-        self.queue.put((args, kwargs))
+        self.QUEUE.put((args, kwargs, self.path))
 
 
-QUEUES = {}
 
 def doit(path, info, fname):
     repo = Repository(path, **info)
-    repo.progress = MultiprocessingProgress(QUEUES[path])
+    repo.progress = MultiprocessingProgress(path)
     getattr(repo, fname)()
 
 
@@ -92,34 +97,59 @@ class ZenDevEnvironment(object):
         self.foreach('sync')
 
     def foreach(self, fname):
-        from multiprocessing import Queue, Pool
-        queues = QUEUES
 
-
-        for path, info in self.manifest.repos().iteritems():
-            q = Queue()
-            path = self._srcroot.join(path).strpath
-            queues[path] = q
+        repos = self.manifest.repos().items()
 
         _pool = Pool()
 
-        results = []
+        results = {}
+        bars = {}
+        barlist = []
 
-        for path, info in self.manifest.repos().iteritems():
+        justification = max(len(p) for p in self.manifest.repos())
+
+        for path, info in repos:
+            name = path
             path = self._srcroot.join(path).strpath
             result = _pool.apply_async(doit, (path, info, fname))
-            results.append(result)
+            results[path] = result
+            bars[path] = GitProgressBar(name, justification)
+            barlist.append(bars[path])
 
         _pool.close()
 
         def ready():
-            return all(x.ready() for x in results)
+            return all(x.ready() for x in results.itervalues())
 
-        while not ready():
-            for queue in queues.values():
-                try:
-                    print queue.get(timeout=0.01)
-                except Exception:
-                    pass
+        printer = Reprinter()
+        start = time.time()
 
+        REFRESHINTERVAL = 0.1
 
+        def printscreen():
+            text = ''
+            for bar in barlist:
+                text += bar.get() + '\n'
+            printer.reprint(text)
+
+        updated = False
+
+        while True:
+            text = ''
+            try:
+                qresult = MultiprocessingProgress.QUEUE.get(timeout=0.5)
+                (op_code, cur_count, max_count, message), _, path = qresult
+                bars[path].update(op_code, cur_count, max_count, message)
+                updated = True
+            except Empty:
+                if ready():
+                    break
+                continue
+
+            now = time.time()
+            if now - start > REFRESHINTERVAL:
+                printscreen()
+                start = now
+
+        if updated:
+            printscreen()

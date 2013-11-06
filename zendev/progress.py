@@ -1,55 +1,54 @@
-
 import py
-from multiprocessing import Pool, Queue
-from collections import defaultdict
 from termcolor import colored
-from progressbar import ETA, Bar, ProgressBar, RotatingMarker
-from git.remote import RemoteProgress
+from progressbar import ETA, Bar, ProgressBar, Percentage, Timer
 
 
-class GitProgress(RemoteProgress):
-    def __init__(self, name):
+_translation = {
+    None: ('Waiting', 'blue'),
+    4:    ('Counting objects', 'white'),
+    8:    ('Compressing objects', 'white'),
+    16:   ('Writing objects', 'white'),
+    32:   ('Receiving objects', 'white'),
+    34:   ('Error', 'red'),
+    64:   ('Resolving deltas', 'white'),
+    66:   ('Done!', 'green')
+}
+
+def _translate(op_code):
+    s, color = _translation.get(op_code, _translation[34])
+    return colored(s.ljust(19), color)
+
+
+def progress(name, message, max_count, just=20):
+    widgets = [
+        colored(name.rjust(just), 'cyan'),
+        ' ',
+        Bar(marker='=', left='[', right=']'),
+        ' ',
+        message,
+    ]
+    return ProgressBar(int(max_count), widgets=widgets)
+
+
+class GitProgressBar(object):
+    def __init__(self, name, justification=20):
+        self.justification = justification
         self.name = name
-        self.progress = {}
-        self.err = ''
-        super(GitProgress, self).__init__()
+        self.op_code = None
+        self.bar = progress(self.name, _translate(None), 10, just=self.justification)
+        res, out, self._err = py.io.StdCaptureFD.call(self.bar.start)
 
-    def _update(self, op_code, cur_count, max_count=None, message=''):
-        prog = self.progress.get(op_code)
-        if not prog:
-            print
-            widgets = [
-                colored(self.name, 'white'),
-                Bar(
-                    marker=colored('=', 'blue'),
-                    left=colored('  [', 'blue'),
-                    right=colored(']  ', 'blue'),
-                    ),
-                ETA()
-            ]
-            prog = self.progress[op_code] = ProgressBar(int(max_count), widgets=widgets)
-            prog.start()
-        prog.update(int(cur_count))
+    def get(self):
+        return self._err
 
-    def update(self, *args, **kwargs):
-        res, self.out, self.err = py.io.StdCaptureFD.call(self._update, *args, **kwargs)
-
-
-
-
-class MultiGit(object):
-    def __init__(self, repos, concurrency=1):
-        self.repos = list(repos)
-        self.pool = Pool(concurrency)
-    
-    def sync(self):
-        d = defaultdict(Queue)
-        for repo in self.repos:
-            repo.progress = MultiprocessingProgress(d[repo])
-        def doit(repo):
-            repo.sync()
-        self.pool.map(doit, self.repos)
-        for queue in d.values():
-            print queue.get()
-
+    def update(self, op_code, cur_count, max_count, message=None):
+        if op_code != self.op_code:
+            self.op_code = op_code
+            self.bar = progress(self.name, _translate(op_code), int(max_count),
+                    just=self.justification)
+            py.io.StdCaptureFD.call(self.bar.start)
+        res, out, err = py.io.StdCaptureFD.call(
+                self.bar.update, int(cur_count))
+        if err:
+            self._err = err
 
