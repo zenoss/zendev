@@ -1,8 +1,10 @@
 import sys
 import py
 import time
+import itertools
 from multiprocessing import Queue, Pool
 from Queue import Empty
+from termcolor import colored
 
 from .manifest import Manifest
 from .repo import Repository
@@ -31,9 +33,8 @@ class MultiprocessingProgress(RemoteProgress):
 
 
 
-def doit(path, info, fname):
-    repo = Repository(path, **info)
-    repo.progress = MultiprocessingProgress(path)
+def doit(repo, fname):
+    repo.progress = MultiprocessingProgress(repo.path)
     getattr(repo, fname)()
 
 
@@ -79,13 +80,18 @@ class ZenDevEnvironment(object):
         """
         return self._manifest
 
-    def repos(self):
+    def _repos(self):
+        for path, info in self.manifest.repos().iteritems():
+            fullpath = self._srcroot.join(path)
+            repo = Repository(path, fullpath, **info)
+            yield repo
+
+    def repos(self, filter_=None, key=None):
         """
         Get Repository objects for all repos in the system.
         """
-        for path, info in self.manifest.repos().iteritems():
-            path = self._srcroot.join(path)
-            yield Repository(path, **info)
+        return sorted(itertools.ifilter(filter_, self._repos()), 
+                key=key or (lambda r:r.name.count('/')))
 
     def freeze(self):
         """
@@ -93,33 +99,70 @@ class ZenDevEnvironment(object):
         """
         return self.manifest.freeze()
 
+    def message(self, msg):
+        print colored('==>', 'blue'), colored(msg, 'white')
+
+    def clone(self):
+        self.message("Cloning repositories...")
+        self.foreach('clone', lambda r:not r.repo)
+        self.message("All repositories are cloned!")
+
+    def fetch(self):
+        self.message("Checking for remote changes...")
+        self.foreach('fetch', silent=True)
+
     def sync(self):
-        self.foreach('sync')
+        self.clone()
+        self.fetch()
+        for repo in self.repos():
+            repo.merge_from_remote()
+        self.message("All remote changes have been merged.")
+        for repo in self.repos():
+            repo.push()
+        self.message("Up to date!")
 
-    def foreach(self, fname):
+    def status(self, filter_=None):
+        for repo in self.repos(filter_):
+            pass
 
-        repos = self.manifest.repos().items()
+    def foreach(self, fname, filter_=None, silent=False):
+        """
+        Execute a method on all repositories in subprocesses.
+        """
+        repos = list(self.repos(filter_))
 
-        _pool = Pool()
+        if not repos:
+            return
+
+        _pool = Pool(len(repos))
 
         results = {}
         bars = {}
         barlist = []
 
-        justification = max(len(p) for p in self.manifest.repos())
+        justification = max(len(p.name) for p in repos)
 
-        for path, info in repos:
-            name = path
-            path = self._srcroot.join(path).strpath
-            result = _pool.apply_async(doit, (path, info, fname))
+        for repo in repos:
+            name = repo.name
+            path = repo.path
+            result = _pool.apply_async(doit, (repo, fname))
             results[path] = result
             bars[path] = GitProgressBar(name, justification)
             barlist.append(bars[path])
 
         _pool.close()
 
+        barlist.sort(key=lambda bar:bar.name.count('/'))
+
         def ready():
-            return all(x.ready() for x in results.itervalues())
+            done = []
+            for path, result in results.iteritems():
+                if result.ready():
+                    bars[path].done()
+                    done.append(path)
+            for d in done:
+                del results[d]
+            return not results
 
         printer = Reprinter()
         start = time.time()
@@ -130,16 +173,19 @@ class ZenDevEnvironment(object):
             text = ''
             for bar in barlist:
                 text += bar.get() + '\n'
-            printer.reprint(text)
+            if not silent:
+                printer.reprint(text)
 
-        updated = False
+        updated = True
+
+        printscreen()
 
         while True:
             text = ''
             try:
-                qresult = MultiprocessingProgress.QUEUE.get(timeout=0.5)
+                qresult = MultiprocessingProgress.QUEUE.get(timeout=0.1)
                 (op_code, cur_count, max_count, message), _, path = qresult
-                bars[path].update(op_code, cur_count, max_count, message)
+                bars[path].update(op_code, cur_count, max_count)
                 updated = True
             except Empty:
                 if ready():

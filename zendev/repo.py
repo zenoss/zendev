@@ -1,5 +1,7 @@
 import re
+import sys
 
+from termcolor import colored
 import gitflow.core
 import py
 
@@ -13,9 +15,10 @@ class Repository(object):
     """
     A repository.
     """
-    def __init__(self, path, repo, ref="develop"):
-        self.name = str(repo)
+    def __init__(self, localname, path, repo, ref="develop"):
+        self.name = localname
         self.path = py.path.local(path)
+        self.reponame = str(repo)
         self.url = self._proper_url(repo)
         self.ref = ref
         self.progress = None
@@ -42,17 +45,38 @@ class Repository(object):
                     str(self.path), 
                     progress=self.progress)
             self._repo = gitflow.core.GitFlow(gitrepo)
+            self.initialize()
+
+    def fetch(self):
+        self.repo.git.fetch(all=True)
+
+    def message(self, msg):
+        print colored('==>', 'blue'), colored(msg, 'white')
+
+    def merge_from_remote(self):
+        active_branch = self.repo.repo.active_branch
+        remote_name = active_branch.tracking_branch().name
+        local_name = active_branch.name
+
+        if self.repo.is_merged_into(remote_name, local_name):
+            # Nothing to do
+            return
+        self.message("Changes found in %s:%s! Rebasing %s..." % (
+            self.name, remote_name, local_name))
+        self.repo.git.rebase(remote_name, output_stream=sys.stderr)
+
+    def push(self):
+        active_branch = self.repo.repo.active_branch
+        local_name = active_branch.name
+        output = self.repo.git.rev_list(local_name, '--not', '--remotes')
+        if output:
+            self.message(
+                    "%s local commits in %s:%s need to be pushed. Pushing..." % (
+                output.count('\n')+1, self.name, local_name))
+            self.repo.git.push(output_stream=sys.stderr)
 
     def initialize(self):
         if not self._repo and is_git_repo(self.path):
             self._repo = gitflow.core.GitFlow(self.path.strpath)
-            if not self._repo.is_initialized():
-                self._repo.init()
-
-    def sync(self):
-        """
-        Either clone or update, and push all commits.
-        """
-        if self.repo is None:
-            self.clone()
-        self._repo.pull()
+        if self._repo and not self._repo.is_initialized():
+            py.io.StdCaptureFD.call(self._repo.init)

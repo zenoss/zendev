@@ -41,10 +41,14 @@ class GitProgressBar(object):
     def get(self):
         return self._err
 
-    def update(self, op_code, cur_count, max_count, message=None):
+    def done(self):
+        self.update(66, 1, 1)
+
+    def update(self, op_code, cur_count, max_count):
         if op_code != self.op_code:
             self.op_code = op_code
-            self.bar = progress(self.name, _translate(op_code), int(max_count),
+            max_count = int(max_count) if max_count else int(cur_count)
+            self.bar = progress(self.name, _translate(op_code), max_count,
                     just=self.justification)
             py.io.StdCaptureFD.call(self.bar.start)
         res, out, err = py.io.StdCaptureFD.call(
