@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import re
 import argparse
 import argcomplete
 
@@ -18,6 +19,19 @@ def check_env():
         sys.exit(1)
 
 
+def repofilter(repos=()):
+    """
+    Create a function that will return only those repos specified, or all if
+    nothing was specified.
+    """
+    patterns = [re.compile(r, re.I) for r in repos]
+    def filter_(repo):
+        if repos:
+            return any(p.search(repo.name) for p in patterns)
+        return True
+    return filter_
+
+
 def init(args):
     """
     Initialize an environment.
@@ -26,9 +40,8 @@ def init(args):
         env = ZenDevEnvironment()
     except NotInitialized:
         init_config_dir()
-    else:
-        print "You're already in an environment."
-        sys.exit(1)
+        env = ZenDevEnvironment()
+    env.initialize()
 
 
 def add(args):
@@ -51,7 +64,24 @@ def sync(args):
     """
     Clone or update any existing repositories, push any commits.
     """
-    ZenDevEnvironment().sync()
+    ZenDevEnvironment().sync(args.repofilter)
+
+
+def status(args):
+    """
+    Print status.
+    """
+    if args.repos:
+        filter_ = args.repofilter
+    elif args.all:
+        filter_ = None
+    else:
+        filter_ = lambda r:any(r.changes)
+    ZenDevEnvironment().status(filter_)
+
+
+def add_repo_narg(parser):
+    parser.add_argument('repos', nargs='*')
 
 
 def parse_args():
@@ -70,11 +100,22 @@ def parse_args():
     freeze_parser.set_defaults(functor=freeze)
 
     sync_parser = subparsers.add_parser('sync')
+    add_repo_narg(sync_parser)
     sync_parser.set_defaults(functor=sync)
+
+    status_parser = subparsers.add_parser('status')
+    status_parser.add_argument('-a', '--all', action='store_true', 
+        help="Display all repos, whether or not they have changes.")
+    add_repo_narg(status_parser)
+    status_parser.set_defaults(functor=status)
 
     argcomplete.autocomplete(parser)
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    if hasattr(args, 'repos'):
+        args.repofilter = repofilter(args.repos)
+    return args
+
 
 
 def main():

@@ -53,3 +53,10 @@ class Reprinter(object):
         sys.stdout.write(text)
         self.text = text
 
+
+def memoize(f):
+    class memodict(dict):
+        def __missing__(self, key):
+            ret = self[key] = f(key)
+            return ret 
+    return memodict().__getitem__

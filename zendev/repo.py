@@ -5,7 +5,7 @@ from termcolor import colored
 import gitflow.core
 import py
 
-from .utils import is_git_repo
+from .utils import is_git_repo, memoize
 
 
 is_github = re.compile('^[^\/\s@]+\/[^\/\s]+$').match
@@ -30,6 +30,32 @@ class Repository(object):
         return url
 
     @property
+    @memoize
+    def branch(self):
+        return self.repo.repo.active_branch.name
+
+    @property
+    @memoize
+    def remote_branch(self):
+        return self.repo.repo.active_branch.tracking_branch().name
+
+    @property
+    @memoize
+    def changes(self):
+        staged = unstaged = untracked = False
+        output = self.repo.repo.git.status(porcelain=True)
+        lines = self.repo.repo.git.status('-z', porcelain=True).split('\x00')
+        for char in (x[:2] for x in lines):
+            if char.startswith('?'):
+                untracked = True
+            elif char.startswith(' '):
+                unstaged = True
+            elif char:
+                staged = True
+        return staged, unstaged, untracked
+
+    @property
+    @memoize
     def repo(self):
         self.initialize()
         return self._repo

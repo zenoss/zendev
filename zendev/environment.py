@@ -5,16 +5,20 @@ import itertools
 from multiprocessing import Queue, Pool
 from Queue import Empty
 from termcolor import colored
+from tabulate import tabulate
 
+from .log import info, error
 from .manifest import Manifest
 from .repo import Repository
 from .utils import Reprinter
-from .progress import GitProgressBar
+from .utils import is_git_repo
+from .progress import GitProgressBar, SimpleGitProgressBar
 from git.remote import RemoteProgress
 
 
 
 CONFIG_DIR = '.zendev'
+STATUS_HEADERS = ["Path", "Branch", "Staged", "Unstaged", "Untracked"]
 
 
 class NotInitialized(Exception): pass
@@ -99,31 +103,59 @@ class ZenDevEnvironment(object):
         """
         return self.manifest.freeze()
 
-    def message(self, msg):
-        print colored('==>', 'blue'), colored(msg, 'white')
+    def ensure_build(self):
+        builddir = self._root.join('build')
+        if builddir.check() and not is_git_repo(builddir):
+            error("%s exists but isn't a git repository. Not sure "
+                    "what to do." % builddir)
+        else:
+            if not builddir.check(dir=True):
+                repo = Repository('build', builddir, 
+                        repo='zenoss/platform-build',
+                        ref='develop')
+                info("Checking out build repository")
+                repo.progress = SimpleGitProgressBar('build')
+                repo.clone()
+                print
+            else:
+                info("Build repository exists")
+
+    def initialize(self):
+        # Clone build directory
+        self.ensure_build()
 
     def clone(self):
-        self.message("Cloning repositories...")
+        info("Cloning repositories")
         self.foreach('clone', lambda r:not r.repo)
-        self.message("All repositories are cloned!")
+        info("All repositories are cloned!")
 
     def fetch(self):
-        self.message("Checking for remote changes...")
+        info("Checking for remote changes")
         self.foreach('fetch', silent=True)
 
-    def sync(self):
+    def sync(self, filter_=None):
         self.clone()
         self.fetch()
-        for repo in self.repos():
+        for repo in self.repos(filter_):
             repo.merge_from_remote()
-        self.message("All remote changes have been merged.")
-        for repo in self.repos():
+        info("Remote changes have been merged")
+        for repo in self.repos(filter_):
             repo.push()
-        self.message("Up to date!")
+        info("Up to date!")
 
     def status(self, filter_=None):
+        table = []
         for repo in self.repos(filter_):
-            pass
+            staged, unstaged, untracked = repo.changes
+            color = 'green' if staged else 'blue' if unstaged else None
+            table.append([colored(x, color) for x in [
+                repo.name,
+                repo.branch,
+                '*' if staged else '',
+                '*' if unstaged else '',
+                '*' if untracked else ''
+            ]])
+        print tabulate(table, headers=STATUS_HEADERS)
 
     def foreach(self, fname, filter_=None, silent=False):
         """
@@ -184,7 +216,7 @@ class ZenDevEnvironment(object):
             text = ''
             try:
                 qresult = MultiprocessingProgress.QUEUE.get(timeout=0.1)
-                (op_code, cur_count, max_count, message), _, path = qresult
+                (op_code, cur_count, max_count, msg), _, path = qresult
                 bars[path].update(op_code, cur_count, max_count)
                 updated = True
             except Empty:

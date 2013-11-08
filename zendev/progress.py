@@ -1,6 +1,7 @@
 import py
 from termcolor import colored
 from progressbar import ETA, Bar, ProgressBar, Percentage, Timer
+from git.remote import RemoteProgress
 
 
 _translation = {
@@ -28,6 +29,25 @@ def progress(name, message, max_count, just=20):
         message,
     ]
     return ProgressBar(int(max_count), widgets=widgets)
+
+
+
+class SimpleGitProgressBar(RemoteProgress):
+    def __init__(self, name):
+        super(SimpleGitProgressBar, self).__init__()
+        self.name = name
+        self.op_code = None
+        self.bar = progress(self.name, _translate(None), 10, just=len(self.name))
+        self.bar.start()
+
+    def update(self, op_code, cur_count, max_count, message=None):
+        if op_code != self.op_code:
+            self.op_code = op_code
+            max_count = int(max_count) if max_count else int(cur_count)
+            self.bar = progress(self.name, _translate(op_code), max_count,
+                    just=len(self.name))
+            self.bar.start()
+        self.bar.update(int(cur_count))
 
 
 class GitProgressBar(object):
