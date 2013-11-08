@@ -5,6 +5,7 @@ import sys
 import re
 import argparse
 import argcomplete
+import subprocess
 
 from .manifest import Manifest
 from .environment import ZenDevEnvironment, get_config_dir, init_config_dir
@@ -80,6 +81,16 @@ def status(args):
     ZenDevEnvironment().status(filter_)
 
 
+def each(args):
+    """
+    Execute a command in each repo's directory.
+    """
+    for repo in ZenDevEnvironment().repos(args.repofilter):
+        print repo.name
+        with repo.path.as_cwd():
+            subprocess.call(args.command, shell=True)
+
+
 def add_repo_narg(parser):
     parser.add_argument('repos', nargs='*')
 
@@ -108,6 +119,11 @@ def parse_args():
         help="Display all repos, whether or not they have changes.")
     add_repo_narg(status_parser)
     status_parser.set_defaults(functor=status)
+
+    each_parser = subparsers.add_parser('each')
+    add_repo_narg(each_parser)
+    each_parser.add_argument('-c', dest="command")
+    each_parser.set_defaults(functor=each)
 
     argcomplete.autocomplete(parser)
 
