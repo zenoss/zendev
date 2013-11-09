@@ -32,7 +32,8 @@ setup(
     include_package_data=True,
     install_requires=[
         "gitflow",
-        "termcolor"
+        "termcolor",
+        "py"
     ],
     license="Commercial",
     zip_safe=False,
