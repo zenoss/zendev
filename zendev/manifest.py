@@ -19,7 +19,7 @@ class Manifest(object):
                 'repos':{}
             }
 
-    def repos(self, raw=True):
+    def repos(self):
         return self._data.setdefault('repos', {})
 
     def save(self):

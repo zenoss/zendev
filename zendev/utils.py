@@ -1,8 +1,13 @@
 import re
 import sys
+import os
 import py
 import git
 import json
+
+from termcolor import colored as colored_orig
+
+_COLORS = not os.environ.get("ZENDEV_COLORS", '').lower() in ('0', 'false', 'no', 'none')
 
 
 def is_git_repo(path):
@@ -60,3 +65,18 @@ def memoize(f):
             ret = self[key] = f(key)
             return ret 
     return memodict().__getitem__
+
+
+def colored(s, color=None):
+    return s if not _COLORS else colored_orig(s, color)
+
+
+def home():
+    try:
+        from win32com.shell import shellcon, shell
+    except ImportError:
+        home = os.path.expanduser("~")
+    else:
+        home = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
+    return py.path.local(home)
+
