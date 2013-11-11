@@ -34,7 +34,8 @@ setup(
         "gitflow",
         "termcolor",
         "py",
-        "argcomplete"
+        "argcomplete",
+        "tabulate"
     ],
     license="Commercial",
     zip_safe=False,

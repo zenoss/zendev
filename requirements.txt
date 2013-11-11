@@ -3,3 +3,4 @@ py
 gitflow
 termcolor
 argcomplete
+tabulate
