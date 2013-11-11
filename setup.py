@@ -33,7 +33,8 @@ setup(
     install_requires=[
         "gitflow",
         "termcolor",
-        "py"
+        "py",
+        "argcomplete"
     ],
     license="Commercial",
     zip_safe=False,
