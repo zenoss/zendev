@@ -30,6 +30,7 @@ setup(
     ],
     package_dir={'zendev': 'zendev'},
     include_package_data=True,
+    package_data={'zendev': ['*.sh']},
     install_requires=[
         "gitflow",
         "termcolor",
