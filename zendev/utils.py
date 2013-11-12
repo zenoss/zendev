@@ -80,3 +80,5 @@ def home():
         home = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
     return py.path.local(home)
 
+
+here = py.path.local(__file__).dirpath().join

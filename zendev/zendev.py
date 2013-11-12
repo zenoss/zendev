@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# PYTHON_ARGCOMPLETE_OK
 
 import os
 import sys
@@ -13,7 +14,7 @@ import py
 from .log import error
 from .config import get_config
 from .repo import Repository
-from .utils import colored
+from .utils import colored, here
 from .manifest import Manifest
 from .environment import ZenDevEnvironment, get_config_dir, init_config_dir
 from .environment import NotInitialized
@@ -49,6 +50,10 @@ def repofilter(repos=()):
     return filter_
 
 
+def bootstrap(args):
+    print here("bootstrap.sh").strpath
+
+
 def init(args):
     """
     Initialize an environment.
@@ -65,14 +70,17 @@ def init(args):
             env = ZenDevEnvironment(path=path)
         env.initialize()
         env.use()
+    if args.default_repos:
+        args.manifest = env.root.join('build/manifests').listdir()
 
 
-def add(args):
+def add(args, paths=()):
     """
     Add a manifest.
     """
     manifest = check_env().manifest
-    manifest.merge(Manifest(args.manifest))
+    for manifestpath in args.manifest or ():
+        manifest.merge(Manifest(manifestpath))
     manifest.save()
 
 
@@ -113,26 +121,33 @@ def box_create(args):
     env.vagrant.provision(args.name)
     env.vagrant.ssh(args.name)
 
+
 def box_remove(args):
     env = check_env()
     env.vagrant.remove(args.name)
+
 
 def box_ssh(args):
     check_env().vagrant.ssh(args.name)
 
 
-def dir_(args):
+def box_ls(args):
+    check_env().vagrant.ls()
+
+
+def cd(args):
     """
     Print the directory of the repository if specified or the environment if not.
     """
+    env = check_env()
     if args.repo:
         repos = check_env().repos(repofilter([args.repo]))
         if not repos:
             error("No repo matching %s found" % args.repo)
             sys.exit(1)
-        print repos[0].path.strpath
+        env.bash("cd " + repos[0].path.strpath)
     else:
-        print check_env()._root.strpath
+        env.bash("cd " + env._root.strpath)
 
 
 def sync(args):
@@ -186,10 +201,14 @@ def add_repo_narg(parser):
 def parse_args():
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('--script', action='store_true',
+            help=argparse.SUPPRESS)
+
     subparsers = parser.add_subparsers()
 
     init_parser = subparsers.add_parser('init')
     init_parser.add_argument('path', metavar="PATH")
+    init_parser.add_argument('-d', '--default-repos', action="store_true")
     init_parser.set_defaults(functor=init)
 
     use_parser = subparsers.add_parser('use')
@@ -202,7 +221,7 @@ def parse_args():
     drop_parser.set_defaults(functor=drop)
 
     add_parser = subparsers.add_parser('add')
-    add_parser.add_argument('manifest', metavar="MANIFEST")
+    add_parser.add_argument('manifest', nargs='*', metavar="MANIFEST")
     add_parser.set_defaults(functor=add)
 
     rm_parser = subparsers.add_parser('rm')
@@ -212,9 +231,9 @@ def parse_args():
     ls_parser = subparsers.add_parser('ls')
     ls_parser.set_defaults(functor=ls)
 
-    dir_parser = subparsers.add_parser('dir')
-    dir_parser.add_argument('repo', nargs='?', metavar="REPO")
-    dir_parser.set_defaults(functor=dir_)
+    cd_parser = subparsers.add_parser('cd')
+    cd_parser.add_argument('repo', nargs='?', metavar="REPO")
+    cd_parser.set_defaults(functor=cd)
 
     freeze_parser = subparsers.add_parser('freeze')
     freeze_parser.set_defaults(functor=freeze)
@@ -251,13 +270,19 @@ def parse_args():
     box_ssh_parser.add_argument('name', metavar="NAME")
     box_ssh_parser.set_defaults(functor=box_ssh)
 
+    box_ls_parser = box_subparsers.add_parser('ls')
+    box_ls_parser.set_defaults(functor=box_ls)
+
+    bootstrap_parser = subparsers.add_parser('bootstrap')
+    bootstrap_parser.set_defaults(functor=bootstrap)
+
+
     argcomplete.autocomplete(parser)
 
     args = parser.parse_args()
     if hasattr(args, 'repos'):
         args.repofilter = repofilter(args.repos)
     return args
-
 
 
 def main():

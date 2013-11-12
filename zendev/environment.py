@@ -90,6 +90,7 @@ class ZenDevEnvironment(object):
         self._vroot = self._root.ensure('vagrant', dir=True)
         self._manifest = Manifest(self._config.join('manifest'))
         self._vagrant = VagrantManager(self)
+        self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
 
     @property
     def srcroot(self):
@@ -116,6 +117,9 @@ class ZenDevEnvironment(object):
         Get the Vagrant manager.
         """
         return self._vagrant
+
+    def bash(self, command):
+        self._bash.write(command)
 
     def _repos(self):
         for path, info in self.manifest.repos().iteritems():
@@ -192,6 +196,10 @@ class ZenDevEnvironment(object):
 
     def use(self):
         get_config().current = self.name
+        self.bash("cd %s" % self.root.strpath)
+
+    def cd(self):
+        pass
 
     def status(self, filter_=None):
         table = []

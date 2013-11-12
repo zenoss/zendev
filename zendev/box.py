@@ -4,7 +4,8 @@ import py
 import subprocess
 from jinja2 import Template
 
-here = py.path.local(__file__).dirpath().join
+from .utils import colored, here
+
 
 VAGRANT = Template("""
 # -*- mode: ruby -*-
@@ -58,7 +59,9 @@ class VagrantManager(object):
             shared_folders=shared,
             provision_script="""
 su - zenoss -c "cd /home/zenoss && zendev init %s"
-echo "zendev use %s" >> /home/zenoss/.bashrc""" % (
+echo "zendev use %s" >> /home/zenoss/.bashrc
+echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
+""" % (
                 self.env.name, self.env.name)))
 
     def remove(self, name):
@@ -79,5 +82,8 @@ echo "zendev use %s" >> /home/zenoss/.bashrc""" % (
         import vagrant
         with self._root.join(name).as_cwd():
             subprocess.call([vagrant.VAGRANT_EXE, 'ssh'])
-        
 
+    def ls(self):
+        for d in self._root.listdir(lambda p:p.join('Vagrantfile').check()):
+            print "%s/%s" % (d.dirname, colored(d.basename, 'white'))
+        
