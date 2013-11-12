@@ -10,16 +10,17 @@ VAGRANT = Template("""
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+$script = <<SCRIPT
+{{ provision_script }} 
+SCRIPT
+
 Vagrant.configure("2") do |config|
   config.vm.box = "{{ box_name }}"
+  config.vm.hostname = "{{ instance_name }}"
   {% for root, target in shared_folders %}
   config.vm.synced_folder "{{ root }}", "{{ target }}"
   {% endfor %}
-  {% if provision_script %}
-  config.vm.provision "shell", inline: <<EOF
-{{ provision_script }} 
-EOF
-  {% endif %}
+  {% if provision_script %}config.vm.provision "shell", inline: $script{% endif %}
 end
 """)
 
@@ -52,10 +53,13 @@ class VagrantManager(object):
             (self.env.root.strpath, "/home/zenoss/" + self.env.name),
         )
         vbox_dir.ensure("Vagrantfile").write(VAGRANT.render(
+            instance_name=name,
             box_name=BOXES.get(purpose),
             shared_folders=shared,
-            provision_script="cd /home/zenoss && zendev init %s" % self.env.name
-        ))
+            provision_script="""
+su - zenoss -c "cd /home/zenoss && zendev init %s"
+echo "zendev use %s" >> /home/zenoss/.bashrc""" % (
+                self.env.name, self.env.name)))
 
     def remove(self, name):
         box = self._get_box(name)

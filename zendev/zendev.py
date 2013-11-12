@@ -64,7 +64,7 @@ def init(args):
             init_config_dir()
             env = ZenDevEnvironment(path=path)
         env.initialize()
-    env.use()
+        env.use()
 
 
 def add(args):
