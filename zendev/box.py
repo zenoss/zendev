@@ -1,7 +1,6 @@
 from cStringIO import StringIO
 
 import py
-import vagrant
 import subprocess
 from jinja2 import Template
 
@@ -18,7 +17,7 @@ Vagrant.configure("2") do |config|
   {% endfor %}
   {% if provision_script %}
   config.vm.provision "shell", inline: <<EOF
-{{ provision_script }}
+{{ provision_script }} 
 EOF
   {% endif %}
 end
@@ -42,6 +41,7 @@ class VagrantManager(object):
         self._root = self.env.vagrantroot
 
     def _get_box(self, name):
+        import vagrant
         return vagrant.Vagrant(self._root.join(name).strpath)
 
     def create(self, name, purpose=CONTROLPLANE):
@@ -54,10 +54,7 @@ class VagrantManager(object):
         vbox_dir.ensure("Vagrantfile").write(VAGRANT.render(
             box_name=BOXES.get(purpose),
             shared_folders=shared,
-            provision_script="""
-            pip install git+ssh://git@github.com/zenoss/zendev.git@develop
-            cd /home/zenoss && zendev init %s
-            """ % self.env.name
+            provision_script="cd /home/zenoss && zendev init %s" % self.env.name
         ))
 
     def remove(self, name):
@@ -66,6 +63,7 @@ class VagrantManager(object):
         self._root.join(name).remove()
 
     def provision(self, name):
+        import vagrant
         provision_script = subprocess.check_output(["bash", 
             here("provision.sh").strpath])
         with self._root.join(name).as_cwd():
@@ -74,6 +72,7 @@ class VagrantManager(object):
             stdout, stderr = proc.communicate(provision_script)
 
     def ssh(self, name):
+        import vagrant
         with self._root.join(name).as_cwd():
             subprocess.call([vagrant.VAGRANT_EXE, 'ssh'])
         

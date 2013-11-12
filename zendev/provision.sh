@@ -28,4 +28,6 @@ echo "fi"
 echo "which easy_install > /dev/null 2>&1 || wget -O- https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py | python"
 echo "which pip > /dev/null 2>&1 || wget -O- https://raw.github.com/pypa/pip/master/contrib/get-pip.py | python"
 echo "which zendev > /dev/null 2>&1 || pip install git+ssh://git@github.com/zenoss/zendev.git@develop"
+echo "apt-get -y install git"
+echo "pip install git+ssh://git@github.com/zenoss/zendev.git@develop"
 
