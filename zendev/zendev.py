@@ -179,6 +179,11 @@ def each(args):
         with repo.path.as_cwd():
             subprocess.call(args.command, shell=True)
 
+def build(args):
+    with check_env().buildroot.as_cwd():
+        target = 'srcbuild' if args.target == 'src' else args.target
+        subprocess.call(["make", target])
+
 
 def use(args):
     """
@@ -214,6 +219,11 @@ def parse_args():
     use_parser = subparsers.add_parser('use')
     use_parser.add_argument('name', metavar='ENVIRONMENT')
     use_parser.set_defaults(functor=use)
+
+    build_parser = subparsers.add_parser('build')
+    build_parser.add_argument('target', metavar='TARGET', 
+            choices=['src', 'rpm'])
+    build_parser.set_defaults(functor=build)
 
     drop_parser = subparsers.add_parser('drop')
     drop_parser.add_argument('name', metavar='ENVIRONMENT')

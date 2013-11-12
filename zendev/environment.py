@@ -92,6 +92,7 @@ class ZenDevEnvironment(object):
         self._manifest = Manifest(self._config.join('manifest'))
         self._vagrant = VagrantManager(self)
         self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
+        self._buildroot = self._root.join('build')
 
     def _export_env(self):
         self.bash('export ZENHOME="%s"' % self._zenhome)
@@ -100,6 +101,10 @@ class ZenDevEnvironment(object):
     @property
     def srcroot(self):
         return self._srcroot
+
+    @property
+    def buildroot(self):
+        return self._buildroot
 
     @property
     def root(self):
