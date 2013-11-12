@@ -88,9 +88,14 @@ class ZenDevEnvironment(object):
         self._root = py.path.local(cfg_dir.dirname)
         self._srcroot = self._root.ensure('src', dir=True)
         self._vroot = self._root.ensure('vagrant', dir=True)
+        self._zenhome = self._root.ensure('zenhome', dir=True)
         self._manifest = Manifest(self._config.join('manifest'))
         self._vagrant = VagrantManager(self)
         self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
+
+    def _export_env(self):
+        self.bash('export ZENHOME="%s"' % self._zenhome)
+        self.bash('export SRCROOT="%s"' % self._srcroot)
 
     @property
     def srcroot(self):
@@ -119,7 +124,7 @@ class ZenDevEnvironment(object):
         return self._vagrant
 
     def bash(self, command):
-        self._bash.write(command)
+        print >>self._bash, command
 
     def _repos(self):
         for path, info in self.manifest.repos().iteritems():
@@ -197,9 +202,7 @@ class ZenDevEnvironment(object):
     def use(self):
         get_config().current = self.name
         self.bash("cd %s" % self.root.strpath)
-
-    def cd(self):
-        pass
+        self._export_env()
 
     def status(self, filter_=None):
         table = []
