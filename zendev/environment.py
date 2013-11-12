@@ -11,6 +11,7 @@ from .log import info, error
 from .config import get_config
 from .manifest import Manifest
 from .repo import Repository
+from .box import VagrantManager
 from .utils import Reprinter, colored
 from .utils import is_git_repo
 from .progress import GitProgressBar, SimpleGitProgressBar
@@ -35,7 +36,6 @@ class MultiprocessingProgress(RemoteProgress):
 
     def update(self, *args, **kwargs):
         self.QUEUE.put((args, kwargs, self.path))
-
 
 
 def doit(repo, fname):
@@ -87,7 +87,21 @@ class ZenDevEnvironment(object):
         self._config = cfg_dir
         self._root = py.path.local(cfg_dir.dirname)
         self._srcroot = self._root.ensure('src', dir=True)
+        self._vroot = self._root.ensure('vagrant', dir=True)
         self._manifest = Manifest(self._config.join('manifest'))
+        self._vagrant = VagrantManager(self)
+
+    @property
+    def srcroot(self):
+        return self._srcroot
+
+    @property
+    def root(self):
+        return self._root
+
+    @property
+    def vagrantroot(self):
+        return self._vroot
 
     @property
     def manifest(self):
@@ -95,6 +109,13 @@ class ZenDevEnvironment(object):
         Get the manifest associated with this environment.
         """
         return self._manifest
+
+    @property
+    def vagrant(self):
+        """
+        Get the Vagrant manager.
+        """
+        return self._vagrant
 
     def _repos(self):
         for path, info in self.manifest.repos().iteritems():

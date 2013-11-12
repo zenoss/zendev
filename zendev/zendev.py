@@ -17,6 +17,7 @@ from .utils import colored
 from .manifest import Manifest
 from .environment import ZenDevEnvironment, get_config_dir, init_config_dir
 from .environment import NotInitialized
+from .box import CONTROLPLANE, SOURCEBUILD
 
 
 def get_envname():
@@ -102,6 +103,22 @@ def ls(args):
     for env in config.environments:
         prefix = colored('*', 'blue') if env==cur else ' '
         print prefix, env
+
+
+def box_create(args):
+    """
+    """
+    env = check_env()
+    env.vagrant.create(args.name, args.type)
+    env.vagrant.provision(args.name)
+    env.vagrant.ssh(args.name)
+
+def box_remove(args):
+    env = check_env()
+    env.vagrant.remove(args.name)
+
+def box_ssh(args):
+    check_env().vagrant.ssh(args.name)
 
 
 def dir_(args):
@@ -216,6 +233,23 @@ def parse_args():
     add_repo_narg(each_parser)
     each_parser.add_argument('-c', dest="command")
     each_parser.set_defaults(functor=each)
+
+    box_parser = subparsers.add_parser('box')
+    box_subparsers = box_parser.add_subparsers()
+
+    box_create_parser = box_subparsers.add_parser('create')
+    box_create_parser.add_argument('name', metavar="NAME")
+    box_create_parser.add_argument('--type', required=True,
+            choices=[CONTROLPLANE, SOURCEBUILD])
+    box_create_parser.set_defaults(functor=box_create)
+
+    box_remove_parser = box_subparsers.add_parser('destroy')
+    box_remove_parser.add_argument('name', metavar="NAME")
+    box_remove_parser.set_defaults(functor=box_remove)
+
+    box_ssh_parser = box_subparsers.add_parser('ssh')
+    box_ssh_parser.add_argument('name', metavar="NAME")
+    box_ssh_parser.set_defaults(functor=box_ssh)
 
     argcomplete.autocomplete(parser)
 

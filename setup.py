@@ -35,7 +35,9 @@ setup(
         "termcolor",
         "py",
         "argcomplete",
-        "tabulate"
+        "tabulate",
+        "progressbar2",
+        "python-vagrant"
     ],
     license="Commercial",
     zip_safe=False,
