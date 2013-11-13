@@ -95,8 +95,11 @@ class ZenDevEnvironment(object):
         self._buildroot = self._root.join('build')
 
     def _export_env(self):
+        origpath = os.environ.get('ZD_ORIGPATH', os.environ.get('PATH'))
         self.bash('export ZENHOME="%s"' % self._zenhome)
         self.bash('export SRCROOT="%s"' % self._srcroot)
+        self.bash('export ZD_ORIGPATH="%s"' % origpath)
+        self.bash('export PATH="$ZENHOME/bin:$ZD_ORIGPATH"')
 
     @property
     def srcroot(self):

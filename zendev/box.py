@@ -18,8 +18,9 @@ SCRIPT
 Vagrant.configure("2") do |config|
   config.vm.box = "{{ box_name }}"
   config.vm.hostname = "{{ instance_name }}"
+  config.vm.network :private_network, ip: "10.0.5.10"
   {% for root, target in shared_folders %}
-  config.vm.synced_folder "{{ root }}", "{{ target }}"
+  config.vm.synced_folder "{{ root }}", "{{ target }}", :nfs => true
   {% endfor %}
   {% if provision_script %}config.vm.provision "shell", inline: $script{% endif %}
 end
