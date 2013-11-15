@@ -213,7 +213,8 @@ def parse_args():
 
     init_parser = subparsers.add_parser('init')
     init_parser.add_argument('path', metavar="PATH")
-    init_parser.add_argument('-d', '--default-repos', action="store_true")
+    init_parser.add_argument('-d', '--default-repos', dest="default_repos",
+            action="store_true")
     init_parser.set_defaults(functor=init)
 
     use_parser = subparsers.add_parser('use')
