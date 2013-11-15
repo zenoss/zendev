@@ -18,7 +18,7 @@ SCRIPT
 Vagrant.configure("2") do |config|
   config.vm.box = "{{ box_name }}"
   config.vm.box_url = "http://vagrant.zendev.org/boxes/{{ box_name }}.box"
-  config.vm.hostname = "{{ instance_name }}"
+  #config.vm.hostname = "{{ instance_name }}"
   {% for root, target in shared_folders %}
   config.vm.synced_folder "{{ root }}", "{{ target }}"
   {% endfor %}
