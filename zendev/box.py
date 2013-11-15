@@ -17,7 +17,7 @@ SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.box = "{{ box_name }}"
-  config.vm.url = "http://vagrant.zendev.org/boxes/{{ box_name }}.box"
+  config.vm.box_url = "http://vagrant.zendev.org/boxes/{{ box_name }}.box"
   config.vm.hostname = "{{ instance_name }}"
   config.vm.network :private_network, ip: "10.0.5.10"
   {% for root, target in shared_folders %}
