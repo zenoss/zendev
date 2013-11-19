@@ -68,6 +68,14 @@ echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
 echo "zendev use %s" >> /home/zenoss/.bashrc
 """ % (self.env.name, self.env.name, self.env.name)))
 
+    def up(self, name):
+        box = self._get_box(name)
+        box.up()
+
+    def halt(self, name):
+        box = self._get_box(name)
+        box.halt()
+
     def remove(self, name):
         box = self._get_box(name)
         box.destroy()
