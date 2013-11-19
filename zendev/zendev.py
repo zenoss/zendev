@@ -281,8 +281,13 @@ def parse_args():
     box_ssh_parser.add_argument('name', metavar="NAME")
     box_ssh_parser.set_defaults(functor=box_ssh)
 
+
     box_ls_parser = box_subparsers.add_parser('ls')
     box_ls_parser.set_defaults(functor=box_ls)
+
+    ssh_parser = subparsers.add_parser('ssh')
+    ssh_parser.add_argument('name', metavar="NAME")
+    ssh_parser.set_defaults(functor=box_ssh)
 
     bootstrap_parser = subparsers.add_parser('bootstrap')
     bootstrap_parser.set_defaults(functor=bootstrap)
