@@ -1,10 +1,15 @@
 import re
 import sys
 
+from pprint import pprint
 from termcolor import colored
 import gitflow.core
 import py
+import github
+import time
+import json
 
+from .log import error, info
 from .utils import is_git_repo, memoize
 
 
@@ -41,6 +46,18 @@ class Repository(object):
 
     @property
     @memoize
+    def remote_branches(self):
+        """ return a list of all remote branches """
+        return self.repo.branch_names(remote=True)
+
+    @property
+    @memoize
+    def local_branches(self):
+        """ return a list of all local branches """
+        return self.repo.branch_names()
+
+    @property
+    @memoize
     def changes(self):
         staged = unstaged = untracked = False
         output = self.repo.repo.git.status(porcelain=True)
@@ -60,6 +77,7 @@ class Repository(object):
         self.initialize()
         return self._repo
 
+
     def clone(self):
         if self.path.check():
             raise Exception("Something already exists at %s. "
@@ -72,6 +90,31 @@ class Repository(object):
                     progress=self.progress)
             self._repo = gitflow.core.GitFlow(gitrepo)
             self.initialize()
+
+    def start_feature(self, name):
+        self.repo.create('feature', name, None, None)
+
+    def publish_feature(self, name):
+        self.repo.publish('feature', name)
+
+    def finish_feature(self, name):
+        feature_name = "feature/%s" % name
+        origin_feature_name = "origin/feature/%s" % name
+
+        if feature_name in self.local_branches:
+          self.repo.finish( 'feature', name,
+              fetch=True, rebase=False, keep=False,
+              force_delete=True, tagging_info=None)
+
+        #XXX repo (GitFlow) doesn't push remote repo delete currently :(
+        if origin_feature_name in self.remote_branches:
+          self.repo.origin().push( ":" + feature_name)
+
+    def stash(self):
+        self.repo.git.stash( )
+
+    def apply_stash(self):
+        self.repo.git.stash( 'apply')
 
     def fetch(self):
         self.repo.git.fetch(all=True)
@@ -100,6 +143,62 @@ class Repository(object):
                     "%s local commits in %s:%s need to be pushed. Pushing..." % (
                 output.count('\n')+1, self.name, local_name))
             self.repo.git.push(output_stream=sys.stderr)
+
+    def create_feature(self, name):
+        fname = "feature/%s" % name
+        ofname = "origin/feature/%s" % name
+
+        local = fname in self.local_branches
+        remote = ofname in self.remote_branches
+
+        if local and remote:
+            return
+
+        if not local and remote:
+            self.fetch()
+        elif local and not remote:
+            self.publish_feature( name)
+        else:
+            self.start_feature( name)
+            self.publish_feature( name)
+
+
+    def create_pull_request(self, feature_name, body=''):
+        staged, unstaged, untracked = self.changes
+
+        if unstaged:
+          error( "uncommited changes in: %s" % self.name)
+          return
+
+        branch = "feature/%s" % feature_name
+        url = self.repo.repo.remote().url
+        line = url.rsplit(":", 1)[-1]
+        owner, repo = line.split('/')[-2:]
+        repo = repo.split()[0]
+        if repo.endswith('.git'):
+            repo= repo[:-4]
+
+        self.push()
+        time.sleep(1)
+        response = github.perform(
+            "POST",
+            "/repos/{0}/{1}/pulls".format(owner, repo),
+            data=json.dumps({
+                "title": "Please review branch %s" % branch,
+                "body": body,
+                "head": branch,
+                "base": "develop"
+            }))
+        if 'html_url' in response:
+            info ("Pull Request: %s" % response['html_url'])
+        elif response['message'] == 'Validation Failed':
+            for e in response['errors']:
+                if e ['message'].startswith("No commits between"):
+                    error("You have to commit some code first!")
+                    return
+                else:
+                    error("You have to commit some code first!")
+                    error( e.get('message'))
 
     def initialize(self):
         if not self._repo and is_git_repo(self.path):

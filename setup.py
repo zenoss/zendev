@@ -39,7 +39,8 @@ setup(
         "tabulate",
         "progressbar2",
         "python-vagrant",
-        "jinja2"
+        "jinja2",
+        "requests"
     ],
     license="Commercial",
     zip_safe=False,

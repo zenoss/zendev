@@ -54,6 +54,42 @@ def bootstrap(args):
     print here("bootstrap.sh").strpath
 
 
+def feature_start(args):
+    """
+    Start git flow feature for all requested repositories.
+    """
+    filter_ = None
+    if args.repos:
+    	  filter_ = args.repofilter
+    check_env().start_feature(args.name, filter_)
+
+
+def feature_list(args):
+    """
+    List git flow feature for all repositories.
+    """
+    check_env().list_feature(args.name)
+
+
+def feature_pull(args):
+    """
+    Request github pull-request for repositories with feature name
+    """
+    filter_ = None
+    if args.repos:
+    	  filter_ = args.repofilter
+    check_env().pull_feature(args.name, filter_)
+
+
+def feature_finish(args):
+    """
+    finish all git repositories with feature name
+    """
+    filter_ = None
+    if args.repos: filter_ = args.repofilter
+    check_env().finish_feature(args.name, filter_)
+
+
 def init(args):
     """
     Initialize an environment.
@@ -257,6 +293,29 @@ def parse_args():
         help="Display all repos, whether or not they have changes.")
     add_repo_narg(status_parser)
     status_parser.set_defaults(functor=status)
+
+    #feature parser
+    feature_parser = subparsers.add_parser('feature')
+    feature_subparser = feature_parser.add_subparsers()
+
+    feature_start_parser = feature_subparser.add_parser('start')
+    feature_start_parser.add_argument('name')
+    add_repo_narg(feature_start_parser)
+    feature_start_parser.set_defaults(functor=feature_start)
+
+    feature_start_parser = feature_subparser.add_parser('list')
+    feature_start_parser.add_argument('name')
+    feature_start_parser.set_defaults(functor=feature_list)
+
+    feature_pull_parser = feature_subparser.add_parser('pull')
+    feature_pull_parser.add_argument('name')
+    add_repo_narg(feature_pull_parser)
+    feature_pull_parser.set_defaults(functor=feature_pull)
+
+    feature_finish_parser = feature_subparser.add_parser('finish')
+    feature_finish_parser.add_argument('name')
+    add_repo_narg(feature_finish_parser)
+    feature_finish_parser.set_defaults(functor=feature_finish)
 
     each_parser = subparsers.add_parser('each')
     add_repo_narg(each_parser)
