@@ -87,7 +87,7 @@ class ZenDevEnvironment(object):
         self._config = cfg_dir
         self._root = py.path.local(cfg_dir.dirname)
         self._srcroot = self._root.ensure('src', dir=True)
-        self._vroot = self._root.ensure('vagrant', dir=True)
+        self._vroot = self._root.join('vagrant')
         self._zenhome = self._root.ensure('zenhome', dir=True)
         self._manifest = Manifest(self._config.join('manifest'))
         self._vagrant = VagrantManager(self)
@@ -95,12 +95,19 @@ class ZenDevEnvironment(object):
         self._buildroot = self._root.join('build')
 
     def _export_env(self):
+        origpath = os.environ.get('ZD_ORIGPATH', os.environ.get('PATH'))
         self.bash('export ZENHOME="%s"' % self._zenhome)
         self.bash('export SRCROOT="%s"' % self._srcroot)
+        self.bash('export ZD_ORIGPATH="%s"' % origpath)
+        self.bash('export PATH="$ZENHOME/bin:$ZD_ORIGPATH"')
 
     @property
     def srcroot(self):
         return self._srcroot
+
+    @property
+    def configroot(self):
+        return self._config
 
     @property
     def buildroot(self):

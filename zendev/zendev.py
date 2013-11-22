@@ -167,6 +167,14 @@ def box_ssh(args):
     check_env().vagrant.ssh(args.name)
 
 
+def box_up(args):
+    check_env().vagrant.up(args.name)
+
+
+def box_halt(args):
+    check_env().vagrant.halt(args.name)
+
+
 def box_ls(args):
     check_env().vagrant.ls()
 
@@ -249,7 +257,8 @@ def parse_args():
 
     init_parser = subparsers.add_parser('init')
     init_parser.add_argument('path', metavar="PATH")
-    init_parser.add_argument('-d', '--default-repos', action="store_true")
+    init_parser.add_argument('-d', '--default-repos', dest="default_repos",
+            action="store_true")
     init_parser.set_defaults(functor=init)
 
     use_parser = subparsers.add_parser('use')
@@ -331,6 +340,14 @@ def parse_args():
             choices=[CONTROLPLANE, SOURCEBUILD])
     box_create_parser.set_defaults(functor=box_create)
 
+    box_up_parser = box_subparsers.add_parser('up')
+    box_up_parser.add_argument('name', metavar="NAME")
+    box_up_parser.set_defaults(functor=box_up)
+
+    box_halt_parser = box_subparsers.add_parser('halt')
+    box_halt_parser.add_argument('name', metavar="NAME")
+    box_halt_parser.set_defaults(functor=box_halt)
+
     box_remove_parser = box_subparsers.add_parser('destroy')
     box_remove_parser.add_argument('name', metavar="NAME")
     box_remove_parser.set_defaults(functor=box_remove)
@@ -341,6 +358,10 @@ def parse_args():
 
     box_ls_parser = box_subparsers.add_parser('ls')
     box_ls_parser.set_defaults(functor=box_ls)
+
+    ssh_parser = subparsers.add_parser('ssh')
+    ssh_parser.add_argument('name', metavar="NAME")
+    ssh_parser.set_defaults(functor=box_ssh)
 
     bootstrap_parser = subparsers.add_parser('bootstrap')
     bootstrap_parser.set_defaults(functor=bootstrap)

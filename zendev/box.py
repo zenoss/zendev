@@ -17,7 +17,8 @@ SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.box = "{{ box_name }}"
-  config.vm.hostname = "{{ instance_name }}"
+  config.vm.box_url = "http://vagrant.zendev.org/boxes/{{ box_name }}.box"
+  #config.vm.hostname = "{{ instance_name }}"
   {% for root, target in shared_folders %}
   config.vm.synced_folder "{{ root }}", "{{ target }}"
   {% endfor %}
@@ -51,18 +52,29 @@ class VagrantManager(object):
             raise Exception("Vagrant box %s already exists" % name)
         vbox_dir = self._root.ensure(name, dir=True)
         shared = (
-            (self.env.root.strpath, "/home/zenoss/" + self.env.name),
+            (self.env.srcroot.strpath, "/home/zenoss/%s/src" % self.env.name),
+            (self.env.buildroot.strpath, "/home/zenoss/%s/build" % self.env.name),
+            (self.env.configroot.strpath, "/home/zenoss/%s/%s" % (
+                self.env.name, self.env.configroot.basename)),
         )
         vbox_dir.ensure("Vagrantfile").write(VAGRANT.render(
             instance_name=name,
             box_name=BOXES.get(purpose),
             shared_folders=shared,
             provision_script="""
+chown zenoss:zenoss /home/zenoss/%s
 su - zenoss -c "cd /home/zenoss && zendev init %s"
 echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
 echo "zendev use %s" >> /home/zenoss/.bashrc
-""" % (
-                self.env.name, self.env.name)))
+""" % (self.env.name, self.env.name, self.env.name)))
+
+    def up(self, name):
+        box = self._get_box(name)
+        box.up()
+
+    def halt(self, name):
+        box = self._get_box(name)
+        box.halt()
 
     def remove(self, name):
         box = self._get_box(name)
