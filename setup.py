@@ -38,7 +38,8 @@ setup(
         "argcomplete",
         "tabulate",
         "progressbar2",
-        "python-vagrant",
+        "git+https://github.com/todddeluca/python-vagrant",
+        #"python-vagrant",
         "jinja2",
         "requests"
     ],
