@@ -22,7 +22,6 @@ Instructions
 * sudo pip install -e .
 * echo "source $(zendev bootstrap)" >> ~/.bashrc
 * source ~/.bashrc
-* sudo pip install git+https://github.com/todddeluca/python-vagrant
 * zendev init europa-dev
 * zendev use europa-dev
 * cd build/manifests
