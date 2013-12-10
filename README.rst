@@ -13,7 +13,20 @@ Zenoss Dev Environment
 
 * Documentation: http://zendev.rtfd.org.
 
-Features
+Instructions
 --------
 
-* TODO
+* git clone https://github.com/zenoss/zendev.git
+* cd zendev
+* git checkout develop
+* sudo pip install -e .
+* echo "source $(zendev bootstrap)" >> ~/.bashrc
+* source ~/.bashrc
+* sudo pip install git+https://github.com/todddeluca/python-vagrant
+* zendev init europa-dev
+* zendev use europa-dev
+* cd build/manifests
+* zendev add *
+* zendev box create --type sourcebuild europa-vm
+* zendev sync
+* zendev build src
