@@ -38,11 +38,11 @@ setup(
         "argcomplete",
         "tabulate",
         "progressbar2",
-        "git+https://github.com/todddeluca/python-vagrant",
-        #"python-vagrant",
+        "python-vagrant",
         "jinja2",
         "requests"
     ],
+    dependency_links=['https://github.com/todddeluca/python-vagrant/archive/master.zip#egg=python-vagrant-0.4.2'],
     license="Commercial",
     zip_safe=False,
     keywords='zendev',
