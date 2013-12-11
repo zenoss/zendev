@@ -37,7 +37,9 @@ class Repository(object):
     @property
     @memoize
     def remote_branch(self):
-        return self.repo.repo.active_branch.tracking_branch().name
+        tracking = self.repo.repo.active_branch.tracking_branch()
+        if tracking:
+            return tracking.name
 
     @property
     @memoize
@@ -81,8 +83,9 @@ class Repository(object):
 
     def merge_from_remote(self):
         active_branch = self.repo.repo.active_branch
-        remote_name = active_branch.tracking_branch().name
         local_name = active_branch.name
+        tracking = active_branch.tracking_branch()
+        remote_name = tracking.name if tracking else local_name
 
         if self.repo.is_merged_into(remote_name, local_name):
             # Nothing to do

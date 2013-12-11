@@ -38,7 +38,7 @@ setup(
         "argcomplete",
         "tabulate",
         "progressbar2",
-        "python-vagrant",
+        "python-vagrant==0.4.0",
         "jinja2"
     ],
     license="Commercial",
