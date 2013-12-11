@@ -7,7 +7,7 @@ from multiprocessing import Queue, Pool
 from Queue import Empty
 from tabulate import tabulate
 
-from .log import info, error
+from .log import ask, info, error
 from .config import get_config
 from .manifest import Manifest
 from .repo import Repository
@@ -229,6 +229,90 @@ class ZenDevEnvironment(object):
                 '*' if untracked else ''
             ]])
         print tabulate(table, headers=STATUS_HEADERS)
+
+    def feature_filter(self, name, filter_):
+        fname = "feature/%s" % name
+        ofname = "origin/feature/%s" % name
+        feature_filter = lambda r: fname in r.local_branches or ofname in r.remote_branches
+        if filter_ is None:
+          return feature_filter
+        else:
+          return lambda r : filter_(r) and feature_filter(r)
+
+
+    def start_feature(self, name, filter_=None):
+        info("Starting feature: %s" % name)
+        repos = self.repos(filter_)
+        repo_names = [r.name for r in repos]
+        response = ask("Start feature in these repositories?\n  " + "\n  ".join( repo_names), "(y/n)")
+        response = response.lower().strip()
+
+        if not response in ('n','no', 'y', 'yes'):
+            error( "illegal response: %s" % response)
+            return
+
+        if response in ('n','no'):
+            return
+
+        for r in repos:
+            info( " Starting feature for repo: %s" % r.name)
+            r.create_feature( name)
+
+
+    def list_feature(self, name):
+        info("Repositores with feature: %s" % name)
+        fname = "feature/%s" % name
+        ofname = "origin/feature/%s" % name
+        for r in self.repos(): 
+            local = fname in r.local_branches
+            remote = ofname in r.remote_branches
+            if local and remote:
+                info( " %s - local and remote" % r.name)
+            elif not local and remote:
+                info( " %s - remote" % r.name)
+            elif local and not remote:
+                info( " %s - local" % r.name)
+
+    def pull_feature(self, name, filter_=None):
+        info("Creating pull requests for feature: %s" % name)
+        fname = "feature/%s" % name
+        ofname = "origin/feature/%s" % name
+        filter_ = self.feature_filter(name, filter_)
+        repos = self.repos(filter_)
+        if len( repos) == 0: return
+        repo_names = [r.name for r in repos]
+        response = ask("Pull request for feature in these repositories?\n  " + "\n  ".join( repo_names), "(y/n)")
+        response = response.lower().strip()
+
+        if not response in ('n','no', 'y', 'yes'):
+          error( "illegal response: %s" % response)
+          return
+
+        if response in ('n','no'):
+          return
+
+        for r in repos:
+          r.create_pull_request(name)
+
+    def finish_feature(self, name, filter_=None):
+        info("Finish feature: %s" % name)
+        filter_ = self.feature_filter(name, filter_)
+        repos = self.repos(filter_)
+        if len( repos) == 0: return
+        repo_names = [r.name for r in repos]
+        response = ask("Finish feature in these repositories?\n  " + "\n  ".join( repo_names), "(y/n)")
+        response = response.lower().strip()
+
+        if not response in ('n','no', 'y', 'yes'):
+          error( "illegal response: %s" % response)
+          return
+
+        if response in ('n','no'):
+          return
+
+        for r in repos:
+            info(" finish feature for repository: %s" % r.name)
+            r.finish_feature( name)
 
     def foreach(self, fname, filter_=None, silent=False):
         """
