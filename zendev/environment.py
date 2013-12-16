@@ -87,6 +87,7 @@ class ZenDevEnvironment(object):
         self._config = cfg_dir
         self._root = py.path.local(cfg_dir.dirname)
         self._srcroot = self._root.ensure('src', dir=True)
+        self._gopath = self._root.ensure('src/golang', dir=True)
         self._vroot = self._root.join('vagrant')
         self._zenhome = self._root.ensure('zenhome', dir=True)
         self._manifest = Manifest(self._config.join('manifest'))
@@ -98,12 +99,17 @@ class ZenDevEnvironment(object):
         origpath = os.environ.get('ZD_ORIGPATH', os.environ.get('PATH'))
         self.bash('export ZENHOME="%s"' % self._zenhome)
         self.bash('export SRCROOT="%s"' % self._srcroot)
+        self.bash('export GOPATH="%s"' % self._gopath)
         self.bash('export ZD_ORIGPATH="%s"' % origpath)
         self.bash('export PATH="$ZENHOME/bin:$ZD_ORIGPATH"')
 
     @property
     def srcroot(self):
         return self._srcroot
+
+    @property
+    def gopath(self):
+        return self._gopath
 
     @property
     def configroot(self):
