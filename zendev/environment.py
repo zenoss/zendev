@@ -219,7 +219,7 @@ class ZenDevEnvironment(object):
 
     def use(self):
         get_config().current = self.name
-        self.bash("cd %s" % self.root.strpath)
+        self.bash('cd "%s"' % self.root.strpath)
         self._export_env()
 
     def status(self, filter_=None):

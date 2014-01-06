@@ -189,9 +189,9 @@ def cd(args):
         if not repos:
             error("No repo matching %s found" % args.repo)
             sys.exit(1)
-        env.bash("cd " + repos[0].path.strpath)
+        env.bash('cd "%s"' % repos[0].path.strpath)
     else:
-        env.bash("cd " + env._root.strpath)
+        env.bash('cd "%s"' % env._root.strpath)
 
 
 def sync(args):
