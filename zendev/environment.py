@@ -100,6 +100,7 @@ class ZenDevEnvironment(object):
         self.bash('export ZENHOME="%s"' % self._zenhome)
         self.bash('export SRCROOT="%s"' % self._srcroot)
         self.bash('export GOPATH="%s"' % self._gopath)
+        self.bash('export GOBIN="%s/bin"' % self._gopath)
         self.bash('export ZD_ORIGPATH="%s"' % origpath)
         self.bash('export PATH="$ZENHOME/bin:$ZD_ORIGPATH"')
 
