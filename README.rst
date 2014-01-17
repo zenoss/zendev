@@ -21,6 +21,7 @@ Instructions
 * git checkout develop
 * sudo pip install -e .
 * echo "source $(zendev bootstrap)" >> ~/.bashrc
+    if your macosx /bin/bash is old (older than 4.2), use brew install bash and change your login shell to /usr/local/bin/bash
 * source ~/.bashrc
 * zendev init europa-dev
 * zendev use europa-dev
