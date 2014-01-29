@@ -286,7 +286,11 @@ class ZenDevEnvironment(object):
         ofname = "origin/feature/%s" % name
         filter_ = self.feature_filter(name, filter_)
         repos = self.repos(filter_)
-        if len( repos) == 0: return
+
+        if len( repos) == 0:
+          error("No repos found with feature: %s" % name)
+          return
+
         repo_names = [r.name for r in repos]
         response = ask("Pull request for feature in these repositories?\n  " + "\n  ".join( repo_names), "(y/n)")
         response = response.lower().strip()
