@@ -102,7 +102,7 @@ class ZenDevEnvironment(object):
         self.bash('export GOPATH="%s"' % self._gopath)
         self.bash('export GOBIN="%s/bin"' % self._gopath)
         self.bash('export ZD_ORIGPATH="%s"' % origpath)
-        self.bash('export PATH="$ZENHOME/bin:$ZD_ORIGPATH"')
+        self.bash('export PATH="$GOPATH/bin:$ZENHOME/bin:$ZD_ORIGPATH"')
 
     @property
     def srcroot(self):
