@@ -59,6 +59,10 @@ def root(args):
     print env.root.strpath
 
 
+def resetserviced(args):
+    subprocess.call(["bash", "-c", here("resetserviced.sh").strpath])
+
+
 def feature_start(args):
     """
     Start git flow feature for all requested repositories.
@@ -373,6 +377,9 @@ def parse_args():
 
     root_parser = subparsers.add_parser('root')
     root_parser.set_defaults(functor=root)
+
+    serviced_parser = subparsers.add_parser('resetserviced')
+    serviced_parser.set_defaults(functor=resetserviced)
 
 
     argcomplete.autocomplete(parser)
