@@ -54,6 +54,11 @@ def bootstrap(args):
     print here("bootstrap.sh").strpath
 
 
+def root(args):
+    env = check_env()
+    print env.root.strpath
+
+
 def feature_start(args):
     """
     Start git flow feature for all requested repositories.
@@ -365,6 +370,9 @@ def parse_args():
 
     bootstrap_parser = subparsers.add_parser('bootstrap')
     bootstrap_parser.set_defaults(functor=bootstrap)
+
+    root_parser = subparsers.add_parser('root')
+    root_parser.set_defaults(functor=root)
 
 
     argcomplete.autocomplete(parser)
