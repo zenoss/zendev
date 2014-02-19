@@ -147,7 +147,29 @@ good.
 
 10. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
     and (if you install Vagrant_ and VirtualBox_) create Vagrant boxes to run
-    serviced or Resource Manager.
+    serviced or Resource Manager. As an example, here's how you build serviced
+    and run it:
+
+.. code-block:: bash
+
+    # Ensure you're in the europa environment (you can also use "zendev ls" 
+    # to check)
+    zendev use europa
+
+    # Go to the serviced source root. cdz is an alias for "zendev cd",
+    # automatically set up by the boostrap you sourced in ~/.bashrc.
+    cdz serviced
+
+    # Build serviced (may take a while if it's the first time)
+    make install
+
+    # Build the Zenoss Docker repo (also may take a while)
+    cdz && cd build/repos && make
+
+    # Run a totally clean instance of serviced, automatically adding localhost
+    # as a host, adding the Zenoss template, and deploying an instance of
+    # Zenoss (warning: blows away state!) 
+    zendev resetserviced
 
 
 .. _Ubuntu Vagrant box:
