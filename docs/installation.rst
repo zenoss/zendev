@@ -60,9 +60,29 @@ Then log out and back in so it will take effect. If you're doing this in a GUI e
     docker ps
 
 If you see an empty list of containers (i.e., a row of column names), you're
-good.
+good. Now modify the Docker upstart script to handle resolution of local DNS:
 
-4. Install Go_:
+.. code-block:: bash
+
+    cat <<EOF | sudo bash -c "cat > /etc/init/docker.conf"
+    start on filesystem and started lxc-net
+    stop on runlevel [!2345]
+
+    respawn
+
+    limit nofile 65536 65536
+
+    script
+            DOCKER=/usr/bin/\$UPSTART_JOB
+            DOCKER_OPTS="-dns=10.87.110.13 -dns=10.87.113.13 -dns=10.88.102.13"
+            if [ -f /etc/default/\$UPSTART_JOB ]; then
+                    . /etc/default/\$UPSTART_JOB
+            fi
+            "\$DOCKER" -d \$DOCKER_OPTS
+    end script 
+    EOF
+
+5. Install Go_:
 
 .. code-block:: bash
 
@@ -78,7 +98,7 @@ good.
     # Source the new profile
     source /etc/profile.d/golang.sh
 
-5. Install other dependencies:
+6. Install other dependencies:
 
 .. code-block:: bash
 
