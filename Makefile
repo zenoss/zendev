@@ -59,6 +59,15 @@ docker-docs:
 	docker build -t zenoss/zendev-docs-build .
 	docker run -rm -v $${PWD}:/zendev zenoss/zendev-docs-build bash -c "cd /zendev; make _docs; chown -R $$(id -u) /zendev/docs"
 
+publish-docs: docker-docs
+	mv docs/_build/html /tmp/zendev-docs
+	git checkout gh-pages
+	rm -rf *
+	mv /tmp/zendev-docs/* .
+	touch .nojekyll && git add .nojekyll
+	git add --all && git commit -m "Docs update" && git push origin gh-pages
+	git checkout develop
+
 #release: clean
 #	python setup.py sdist upload
 
