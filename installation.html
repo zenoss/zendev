@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="prev" title="zendev" href="readme.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">zendev</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#ubuntu">Ubuntu</a></li>
+<li><a class="reference internal" href="#id1">Ubuntu Vagrant box</a></li>
+<li><a class="reference internal" href="#os-x">OS X</a></li>
+<li><a class="reference internal" href="#windows">Windows</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+          
+          
+            
+  <li><a href="readme.html"
+         title="previous chapter">&laquo; zendev</a></li>
+  <li><a href="usage.html"
+         title="next chapter">Usage &raquo;</a></li>
+          
+          
+            <li>
+  <a href="_sources/installation.txt"
+     rel="nofollow">Source</a></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Other things being equal, Zenoss development as a whole is easiest on Ubuntu.
+That said, zendev can work on any platform that isn&#8217;t Windows, and includes an
+Ubuntu Vagrant box already set up with the proper dependencies.</p>
+<p>Here&#8217;s how to set up a full Zenoss development environment on Ubuntu (in case
+you were wondering, these instructions go far beyond the requirements for
+zendev itself, which are basically git and Python).</p>
+<div class="section" id="ubuntu">
+<h2>Ubuntu<a class="headerlink" href="#ubuntu" title="Permalink to this headline">¶</a></h2>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">Ubuntu 12.04 or higher is required.</p>
+</div>
+<ol class="arabic simple">
+<li>Make sure the universe and multiverse repos are enabled and updated:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the repository</span>
+sudo add-apt-repository <span class="s2">&quot;deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse&quot;</span>
+
+<span class="c"># Update the repos</span>
+sudo apt-get update
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>Install <a class="reference external" href="http://docker.io/">Docker</a> (<a class="reference external" href="http://docs.docker.io/en/latest/installation/ubuntulinux/#ubuntu-raring-saucy">source</a>):</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Make sure AUFS is installed</span>
+sudo apt-get install linux-image-extra-<span class="sb">`</span>uname -r<span class="sb">`</span>
+
+<span class="c"># Add the repository key</span>
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
+
+<span class="c"># Add the Docker repository</span>
+sudo sh -c <span class="s2">&quot;echo deb http://get.docker.io/ubuntu docker main\</span>
+<span class="s2">    &gt; /etc/apt/sources.list.d/docker.list&quot;</span>
+
+<span class="c"># Install Docker</span>
+sudo apt-get install lxc-docker-0.7.6
+</pre></div>
+</div>
+<p>Notice that we install Docker 0.7.6. We don&#8217;t support Docker &gt;= 0.8 yet.</p>
+<ol class="arabic simple" start="3">
+<li>Add your user to the <tt class="docutils literal"><span class="pre">docker</span></tt> group:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the current user to the docker group</span>
+sudo usermod -a -G docker <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
+
+<span class="c"># Restart Docker</span>
+sudo service docker restart
+</pre></div>
+</div>
+<p>Then log out and back in so it will take effect. If you&#8217;re doing this in a GUI environment, you may need to log out of and back into your window manager as well. Test that you can communicate with the docker daemon:</p>
+<div class="highlight-bash"><div class="highlight"><pre>docker ps
+</pre></div>
+</div>
+<p>If you see an empty list of containers (i.e., a row of column names), you&#8217;re
+good.</p>
+<ol class="arabic simple" start="4">
+<li>Install <a class="reference external" href="http://golang.org/">Go</a>:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Download Go 1.2 and unpack it into /usr/local</span>
+wget -qO- http://go.googlecode.com/files/go1.2.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
+
+<span class="c"># Set GOROOT and PATH appropriately</span>
+cat <span class="s">&lt;&lt;EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/golang.sh&quot;</span>
+<span class="s">    export GOROOT=/usr/local/go</span>
+<span class="s">    export PATH=\$GOROOT/bin:\$PATH</span>
+<span class="s">EOF</span>
+
+<span class="c"># Source the new profile</span>
+<span class="nb">source</span> /etc/profile.d/golang.sh
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li>Install other dependencies:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Python, pip</span>
+sudo apt-get install python-dev python-pip
+pip install --upgrade pip
+
+<span class="c"># Source control</span>
+sudo apt-get install mercurial bzr git
+
+<span class="c"># libpam (necessary for control plane)</span>
+sudo apt-get install libpam0g-dev
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li>At this point, you need to <a class="reference external" href="https://help.github.com/articles/generating-ssh-keys">set up GitHub for SSH access</a>. Also, make sure
+you&#8217;ve been added to the appropriate Zenoss teams.</li>
+<li>Now it&#8217;s time to install zendev:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Path to wherever you keep your source. I like ~/src.</span>
+<span class="nv">SRCDIR</span><span class="o">=</span>~/src
+
+<span class="c"># Switch to your source directory</span>
+<span class="nb">cd</span> <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>
+
+<span class="c"># Clone zendev</span>
+git clone git@github.com:zenoss/zendev
+
+<span class="c"># Install zendev in place. This means that changes to zendev source will</span>
+<span class="c"># take effect without reinstalling the package.</span>
+sudo pip install -e <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>/zendev
+
+<span class="c"># Bootstrap zendev so it can modify the shell environment (i.e., change</span>
+<span class="c"># directories, set environment variables)</span>
+<span class="nb">echo</span> <span class="s1">&#39;source $(zendev bootstrap)&#39;</span> &gt;&gt; ~/.bashrc
+
+<span class="c"># Source it in the current shell</span>
+<span class="nb">source</span> <span class="k">$(</span>zendev bootstrap<span class="k">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="8">
+<li>Create your Europa zendev environment:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Get back to source directory</span>
+<span class="nb">cd</span> <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>
+
+<span class="c"># Create the environment</span>
+zendev init europa
+
+<span class="c"># Start using the environment</span>
+zendev use europa
+</pre></div>
+</div>
+<ol class="arabic simple" start="9">
+<li>Add some repositories to the <tt class="docutils literal"><span class="pre">europa</span></tt> environment:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add core and serviced repositories from manifests used by the build,</span>
+<span class="c"># which have conveniently been checked out into</span>
+<span class="c"># ~/src/europa/build/manifests</span>
+zendev add <span class="k">$(</span>zendev root<span class="k">)</span>/build/manifests/<span class="o">{</span>core,serviced<span class="o">}</span>.json
+
+<span class="c"># Clone everything</span>
+zendev sync
+</pre></div>
+</div>
+<ol class="arabic simple" start="10">
+<li>You can now use zendev to edit source, build Zenoss RPMs, build serviced,
+and (if you install <a class="reference external" href="http://www.vagrantup.com/downloads.html">Vagrant</a> and <a class="reference external" href="https://www.virtualbox.org/wiki/Downloads">VirtualBox</a>) create Vagrant boxes to run
+serviced or Resource Manager. As an example, here&#8217;s how you build serviced
+and run it:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Ensure you&#39;re in the europa environment (you can also use &quot;zendev ls&quot;</span>
+<span class="c"># to check)</span>
+zendev use europa
+
+<span class="c"># Go to the serviced source root. cdz is an alias for &quot;zendev cd&quot;,</span>
+<span class="c"># automatically set up by the boostrap you sourced in ~/.bashrc.</span>
+cdz serviced
+
+<span class="c"># Build serviced (may take a while if it&#39;s the first time)</span>
+make install
+
+<span class="c"># Build the Zenoss repos (also may take a while)</span>
+cdz <span class="o">&amp;&amp;</span> <span class="nb">cd </span>build/repos <span class="o">&amp;&amp;</span> make
+
+<span class="c"># Run a totally clean instance of serviced, automatically adding localhost</span>
+<span class="c"># as a host, adding the Zenoss template, and deploying an instance of</span>
+<span class="c"># Zenoss (warning: blows away state!)</span>
+zendev resetserviced
+</pre></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>Ubuntu Vagrant box<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Essentially, this is a Vagrant box that has already had steps 1-5 applied.
+zendev has the capability to create and manage instances of this box within an
+environment, but it&#8217;s also perfectly good just to start up a VM for
+development.</p>
+<ol class="arabic simple">
+<li>Install <a class="reference external" href="http://www.vagrantup.com/downloads.html">Vagrant</a> and <a class="reference external" href="https://www.virtualbox.org/wiki/Downloads">VirtualBox</a> (don&#8217;t use old versions, please).</li>
+<li>Make a directory, somewhere, anywhere. <tt class="docutils literal"><span class="pre">cd</span></tt> into it.</li>
+<li>Create the box:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre>vagrant init ubuntu-13.04-docker
+</pre></div>
+</div>
+<p>As the pretty words will tell you, a Vagrantfile will have been created in that
+directory. Edit it, uncomment the line specifying the box URL, and set it to
+the one we have hosted:</p>
+<div class="highlight-ruby"><div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box_url</span> <span class="o">=</span> <span class="s2">&quot;http://vagrant.zendev.org/boxes/ubuntu-13.04-docker.box&quot;</span>
+</pre></div>
+</div>
+<p>You should also probably uncomment either the private or public networking line
+so you can actually interact with the things running thereon:</p>
+<div class="highlight-ruby"><div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">network</span> <span class="ss">:public_network</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li>Start the box:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre>vagrant up
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li>SSH in and execute steps 6-10, above:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre>vagrant ssh
+<span class="c"># etc.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="os-x">
+<h2>OS X<a class="headerlink" href="#os-x" title="Permalink to this headline">¶</a></h2>
+<p>OS X doesn&#8217;t support Docker natively (although Docker 0.8 ostensibly <a class="reference external" href="http://docs.docker.io/en/latest/installation/mac/">adds OS
+X support, via boot2docker</a>). Even if it did, the default case-insensitive filesystem presents a problem if you&#8217;re doing core Zenoss development (this isn&#8217;t a problem with serviced). You&#8217;ll be running things in an Ubuntu Vagrant box in either case.</p>
+<p>That said, zendev can still manage your source locally, which will, for
+example, allow you to use an IDE in OS X. zendev mounts the environment&#8217;s
+source tree into the Vagrant boxes it creates, so you can modify code directly.
+If you don&#8217;t care about this, you should probably just use the <a class="reference internal" href="#ubuntu-vagrant-box">Ubuntu Vagrant
+box</a> to save yourself some effort. Otherwise:</p>
+<ol class="arabic simple">
+<li>Fire up Disk Utility. Create a partition (mine&#8217;s 50G) formatted with
+a case-sensitive filesystem. Name it, e.g., &#8220;Source&#8221;.</li>
+<li>Perform steps 6-10, above, with <tt class="docutils literal"><span class="pre">/Volumes/Source</span></tt> (if you named your
+partition &#8220;Source&#8221;) as the value of <tt class="docutils literal"><span class="pre">SRCDIR</span></tt>.</li>
+<li>Create an Ubuntu development box and go to town:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre>zendev box create --type ubuntu europa
+</pre></div>
+</div>
+</div>
+<div class="section" id="windows">
+<h2>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h2>
+<p>Forget it, man. This will only end in tears. Use the <a class="reference internal" href="#ubuntu-vagrant-box">Ubuntu Vagrant box</a>.</p>
+</div>
+</div>
+
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

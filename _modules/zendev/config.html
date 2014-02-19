@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>zendev.config &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="../../index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="../../index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"></ul>
+</li>
+          
+          
+            
+          
+          
+            <li></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <h1>Source code for zendev.config</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">py</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">home</span>
+<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">info</span><span class="p">,</span> <span class="n">error</span>
+
+
+<div class="viewcode-block" id="ZendevConfig"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig">[docs]</a><span class="k">class</span> <span class="nc">ZendevConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="o">.</span><span class="n">check</span><span class="p">():</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;environments&#39;</span><span class="p">:{}</span>
+            <span class="p">}</span>
+
+<div class="viewcode-block" id="ZendevConfig.save"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ZendevConfig.environments"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.environments">[docs]</a>    <span class="k">def</span> <span class="nf">environments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;environments&#39;</span><span class="p">,</span> <span class="p">{})</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;current&#39;</span><span class="p">)</span>
+
+    <span class="nd">@current.setter</span>
+<div class="viewcode-block" id="ZendevConfig.current"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.current">[docs]</a>    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;current&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="ZendevConfig.exists"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.exists">[docs]</a>    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environments</span>
+</div>
+<div class="viewcode-block" id="ZendevConfig.add"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="o">.</span><span class="n">strpath</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="ZendevConfig.remove"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">keepdata</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environments</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">env</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">keepdata</span><span class="p">:</span>
+                <span class="n">info</span><span class="p">(</span><span class="s">&quot;Environment {name} removed. Data still lives at {path}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">locals</span><span class="p">()))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+                    <span class="n">info</span><span class="p">(</span><span class="s">&quot;Environment {name} and all data at {path} removed.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">locals</span><span class="p">()))</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">error</span><span class="p">(</span><span class="s">&quot;Environment {name} removed, but unable to remove data at {path}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">locals</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+</div></div>
+<div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../zendev.html#zendev.config.get_config">[docs]</a><span class="k">def</span> <span class="nf">get_config</span><span class="p">():</span>
+    <span class="n">zendevhome</span> <span class="o">=</span> <span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&#39;.zendev&#39;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">ZendevConfig</span><span class="p">(</span><span class="n">zendevhome</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;environments.json&#39;</span><span class="p">))</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">config</span>
+</pre></div></div>
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

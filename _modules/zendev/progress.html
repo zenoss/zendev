@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>zendev.progress &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="../../index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="../../index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"></ul>
+</li>
+          
+          
+            
+          
+          
+            <li></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <h1>Source code for zendev.progress</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">py</span>
+<span class="kn">from</span> <span class="nn">termcolor</span> <span class="kn">import</span> <span class="n">colored</span>
+<span class="kn">from</span> <span class="nn">progressbar</span> <span class="kn">import</span> <span class="n">ETA</span><span class="p">,</span> <span class="n">Bar</span><span class="p">,</span> <span class="n">ProgressBar</span><span class="p">,</span> <span class="n">Percentage</span><span class="p">,</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">git.remote</span> <span class="kn">import</span> <span class="n">RemoteProgress</span>
+
+
+<span class="n">_translation</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="bp">None</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Waiting&#39;</span><span class="p">,</span> <span class="s">&#39;blue&#39;</span><span class="p">),</span>
+    <span class="mi">4</span><span class="p">:</span>    <span class="p">(</span><span class="s">&#39;Counting objects&#39;</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">),</span>
+    <span class="mi">8</span><span class="p">:</span>    <span class="p">(</span><span class="s">&#39;Compressing objects&#39;</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">),</span>
+    <span class="mi">16</span><span class="p">:</span>   <span class="p">(</span><span class="s">&#39;Writing objects&#39;</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">),</span>
+    <span class="mi">32</span><span class="p">:</span>   <span class="p">(</span><span class="s">&#39;Receiving objects&#39;</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">),</span>
+    <span class="mi">34</span><span class="p">:</span>   <span class="p">(</span><span class="s">&#39;Error&#39;</span><span class="p">,</span> <span class="s">&#39;red&#39;</span><span class="p">),</span>
+    <span class="mi">64</span><span class="p">:</span>   <span class="p">(</span><span class="s">&#39;Resolving deltas&#39;</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">),</span>
+    <span class="mi">66</span><span class="p">:</span>   <span class="p">(</span><span class="s">&#39;Done!&#39;</span><span class="p">,</span> <span class="s">&#39;green&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">_translate</span><span class="p">(</span><span class="n">op_code</span><span class="p">):</span>
+    <span class="n">s</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">_translation</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">op_code</span><span class="p">,</span> <span class="n">_translation</span><span class="p">[</span><span class="mi">34</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">colored</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">19</span><span class="p">),</span> <span class="n">color</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="progress"><a class="viewcode-back" href="../../zendev.html#zendev.progress.progress">[docs]</a><span class="k">def</span> <span class="nf">progress</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">max_count</span><span class="p">,</span> <span class="n">just</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+    <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">colored</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="n">just</span><span class="p">),</span> <span class="s">&#39;cyan&#39;</span><span class="p">),</span>
+        <span class="s">&#39; &#39;</span><span class="p">,</span>
+        <span class="n">Bar</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="s">&#39;[&#39;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="s">&#39;]&#39;</span><span class="p">),</span>
+        <span class="s">&#39; &#39;</span><span class="p">,</span>
+        <span class="n">message</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">ProgressBar</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">max_count</span><span class="p">),</span> <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">)</span>
+
+
+</div>
+<div class="viewcode-block" id="SimpleGitProgressBar"><a class="viewcode-back" href="../../zendev.html#zendev.progress.SimpleGitProgressBar">[docs]</a><span class="k">class</span> <span class="nc">SimpleGitProgressBar</span><span class="p">(</span><span class="n">RemoteProgress</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SimpleGitProgressBar</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">op_code</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="n">progress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">_translate</span><span class="p">(</span><span class="bp">None</span><span class="p">),</span> <span class="mi">10</span><span class="p">,</span> <span class="n">just</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SimpleGitProgressBar.update"><a class="viewcode-back" href="../../zendev.html#zendev.progress.SimpleGitProgressBar.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_code</span><span class="p">,</span> <span class="n">cur_count</span><span class="p">,</span> <span class="n">max_count</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">op_code</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_code</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">op_code</span> <span class="o">=</span> <span class="n">op_code</span>
+            <span class="n">max_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_count</span><span class="p">)</span> <span class="k">if</span> <span class="n">max_count</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">cur_count</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="n">progress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">_translate</span><span class="p">(</span><span class="n">op_code</span><span class="p">),</span> <span class="n">max_count</span><span class="p">,</span>
+                    <span class="n">just</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">cur_count</span><span class="p">))</span>
+
+</div></div>
+<div class="viewcode-block" id="GitProgressBar"><a class="viewcode-back" href="../../zendev.html#zendev.progress.GitProgressBar">[docs]</a><span class="k">class</span> <span class="nc">GitProgressBar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">justification</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">justification</span> <span class="o">=</span> <span class="n">justification</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">op_code</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="n">progress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">_translate</span><span class="p">(</span><span class="bp">None</span><span class="p">),</span> <span class="mi">10</span><span class="p">,</span> <span class="n">just</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">justification</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_err</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">StdCaptureFD</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GitProgressBar.get"><a class="viewcode-back" href="../../zendev.html#zendev.progress.GitProgressBar.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_err</span>
+</div>
+<div class="viewcode-block" id="GitProgressBar.done"><a class="viewcode-back" href="../../zendev.html#zendev.progress.GitProgressBar.done">[docs]</a>    <span class="k">def</span> <span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">66</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GitProgressBar.update"><a class="viewcode-back" href="../../zendev.html#zendev.progress.GitProgressBar.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_code</span><span class="p">,</span> <span class="n">cur_count</span><span class="p">,</span> <span class="n">max_count</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">op_code</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_code</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">op_code</span> <span class="o">=</span> <span class="n">op_code</span>
+            <span class="n">max_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_count</span><span class="p">)</span> <span class="k">if</span> <span class="n">max_count</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">cur_count</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="n">progress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">_translate</span><span class="p">(</span><span class="n">op_code</span><span class="p">),</span> <span class="n">max_count</span><span class="p">,</span>
+                    <span class="n">just</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">justification</span><span class="p">)</span>
+            <span class="n">py</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">StdCaptureFD</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">StdCaptureFD</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">cur_count</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_err</span> <span class="o">=</span> <span class="n">err</span>
+</pre></div></div></div>
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
