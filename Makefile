@@ -38,13 +38,23 @@ coverage:
 	coverage html
 	open htmlcov/index.html
 
-docs:
+docs/_themes:
+	mkdir -p docs/_themes
+
+docs/_themes/bootstrap.zip: docs/_themes
+	wget -O docs/_themes/bootstrap.zip https://github.com/downloads/ryan-roemer/sphinx-bootstrap-theme/bootstrap.zip
+
+docs: docs/_themes/bootstrap.zip
 	rm -f docs/zendev.rst
 	rm -f docs/modules.rst
 	sphinx-apidoc -o docs/ zendev
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
+
+docker-docs:
+	docker build -t zenoss/zendev-docs-build .
+	docker run -rm -v $${PWD}:/zendev zenoss/zendev-docs-build bash -c "cd /zendev; make docs; chown -R $$(id -u) /zendev/docs/_build"
 
 #release: clean
 #	python setup.py sdist upload
