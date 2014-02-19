@@ -40,3 +40,9 @@ output/*/index.html
 
 # Sphinx
 docs/_build
+docs/_themes
+
+# Vagrant
+packer_cache
+output-virtualbox-iso
+*.box

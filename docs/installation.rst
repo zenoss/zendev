@@ -171,10 +171,36 @@ good.
     # Zenoss (warning: blows away state!) 
     zendev resetserviced
 
+OS X
+----
+OS X doesn't support Docker natively (although Docker 0.8 ostensibly `adds OS
+X support, via boot2docker <http://docs.docker.io/en/latest/installation/mac/>`_). Even if it did, the default case-insensitive filesystem presents a problem if you're doing core Zenoss development (this isn't a problem with serviced). You'll be running things in an Ubuntu Vagrant box in either case.
 
-.. _Ubuntu Vagrant box:
-Ubuntu Vagrant box
-------------------
+That said, zendev can still manage your source locally, which will, for
+example, allow you to use an IDE in OS X. zendev mounts the environment's
+source tree into the Vagrant boxes it creates, so you can modify code directly.
+If you don't care about this, you should probably just use the `Vagrant
+box`_ to save yourself some effort. Otherwise:
+
+1. Fire up Disk Utility. Create a partition (mine's 50G) formatted with
+   a case-sensitive filesystem. Name it, e.g., "Source".
+2. Perform steps 6-10, above, with ``/Volumes/Source`` (if you named your
+   partition "Source") as the value of ``SRCDIR``.
+3. Create an Ubuntu development box and go to town:
+
+.. code-block:: bash
+
+    zendev box create --type ubuntu europa
+
+
+Windows
+-------
+Forget it, man. This will only end in tears. Use the `Vagrant box`_.
+
+
+.. _Vagrant box:
+Self-managed Vagrant box
+------------------------
 Essentially, this is a Vagrant box that has already had steps 1-5 applied.
 zendev has the capability to create and manage instances of this box within an
 environment, but it's also perfectly good just to start up a VM for
@@ -215,33 +241,6 @@ so you can actually interact with the things running thereon:
 
     vagrant ssh
     # etc.
-
-
-OS X
-----
-OS X doesn't support Docker natively (although Docker 0.8 ostensibly `adds OS
-X support, via boot2docker <http://docs.docker.io/en/latest/installation/mac/>`_). Even if it did, the default case-insensitive filesystem presents a problem if you're doing core Zenoss development (this isn't a problem with serviced). You'll be running things in an Ubuntu Vagrant box in either case.
-
-That said, zendev can still manage your source locally, which will, for
-example, allow you to use an IDE in OS X. zendev mounts the environment's
-source tree into the Vagrant boxes it creates, so you can modify code directly.
-If you don't care about this, you should probably just use the `Ubuntu Vagrant
-box`_ to save yourself some effort. Otherwise:
-
-1. Fire up Disk Utility. Create a partition (mine's 50G) formatted with
-   a case-sensitive filesystem. Name it, e.g., "Source".
-2. Perform steps 6-10, above, with ``/Volumes/Source`` (if you named your
-   partition "Source") as the value of ``SRCDIR``.
-3. Create an Ubuntu development box and go to town:
-
-.. code-block:: bash
-
-    zendev box create --type ubuntu europa
-
-
-Windows
--------
-Forget it, man. This will only end in tears. Use the `Ubuntu Vagrant box`_.
 
 
 .. _Docker: http://docker.io/
