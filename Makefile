@@ -59,7 +59,7 @@ docker-docs:
 	docker build -t zenoss/zendev-docs-build .
 	docker run -rm -v $${PWD}:/zendev zenoss/zendev-docs-build bash -c "cd /zendev; make _docs; chown -R $$(id -u) /zendev/docs"
 
-publish-docs: docker-docs
+publish-docs: 
 	mv docs/_build/html /tmp/zendev-docs
 	git checkout gh-pages
 	rm -rf *

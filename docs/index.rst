@@ -5,8 +5,6 @@
 
 zendev
 ======
-The Zenoss Dev Environment Tool
--------------------------------
 
 Contents:
 
