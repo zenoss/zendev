@@ -13,10 +13,7 @@ Contents:
 
    readme
    installation
-   usage
-   contributing
-   authors
-   history
+   packer
 
 Indices and tables
 ==================

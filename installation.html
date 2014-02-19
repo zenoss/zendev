@@ -28,7 +28,7 @@
     <script type="text/javascript" src="_static/js/bootstrap-2.2.1.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
-    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="next" title="Building the Development Base Box" href="packer.html" />
     <link rel="prev" title="zendev" href="readme.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -60,10 +60,7 @@
   <ul class="dropdown-menu globaltoc"><ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="readme.html">zendev</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
 </ul>
 </ul>
 </li>
@@ -72,9 +69,9 @@
   <ul class="dropdown-menu localtoc"><ul>
 <li><a class="reference internal" href="#">Installation</a><ul>
 <li><a class="reference internal" href="#ubuntu">Ubuntu</a></li>
-<li><a class="reference internal" href="#id1">Ubuntu Vagrant box</a></li>
 <li><a class="reference internal" href="#os-x">OS X</a></li>
 <li><a class="reference internal" href="#windows">Windows</a></li>
+<li><a class="reference internal" href="#self-managed-vagrant-box">Self-managed Vagrant box</a></li>
 </ul>
 </li>
 </ul>
@@ -85,8 +82,8 @@
             
   <li><a href="readme.html"
          title="previous chapter">&laquo; zendev</a></li>
-  <li><a href="usage.html"
-         title="next chapter">Usage &raquo;</a></li>
+  <li><a href="packer.html"
+         title="next chapter">Building the Development Base Box &raquo;</a></li>
           
           
             <li>
@@ -274,8 +271,32 @@ zendev resetserviced
 </pre></div>
 </div>
 </div>
-<div class="section" id="id1">
-<h2>Ubuntu Vagrant box<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="os-x">
+<h2>OS X<a class="headerlink" href="#os-x" title="Permalink to this headline">¶</a></h2>
+<p>OS X doesn&#8217;t support Docker natively (although Docker 0.8 ostensibly <a class="reference external" href="http://docs.docker.io/en/latest/installation/mac/">adds OS
+X support, via boot2docker</a>). Even if it did, the default case-insensitive filesystem presents a problem if you&#8217;re doing core Zenoss development (this isn&#8217;t a problem with serviced). You&#8217;ll be running things in an Ubuntu Vagrant box in either case.</p>
+<p>That said, zendev can still manage your source locally, which will, for
+example, allow you to use an IDE in OS X. zendev mounts the environment&#8217;s
+source tree into the Vagrant boxes it creates, so you can modify code directly.
+If you don&#8217;t care about this, you should probably just use the <a class="reference internal" href="#vagrant-box">Vagrant
+box</a> to save yourself some effort. Otherwise:</p>
+<ol class="arabic simple">
+<li>Fire up Disk Utility. Create a partition (mine&#8217;s 50G) formatted with
+a case-sensitive filesystem. Name it, e.g., &#8220;Source&#8221;.</li>
+<li>Perform steps 6-10, above, with <tt class="docutils literal"><span class="pre">/Volumes/Source</span></tt> (if you named your
+partition &#8220;Source&#8221;) as the value of <tt class="docutils literal"><span class="pre">SRCDIR</span></tt>.</li>
+<li>Create an Ubuntu development box and go to town:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre>zendev box create --type ubuntu europa
+</pre></div>
+</div>
+</div>
+<div class="section" id="windows">
+<h2>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h2>
+<p>Forget it, man. This will only end in tears. Use the <a class="reference internal" href="#vagrant-box">Vagrant box</a>.</p>
+</div>
+<div class="section" id="self-managed-vagrant-box">
+<h2>Self-managed Vagrant box<a class="headerlink" href="#self-managed-vagrant-box" title="Permalink to this headline">¶</a></h2>
 <p>Essentially, this is a Vagrant box that has already had steps 1-5 applied.
 zendev has the capability to create and manage instances of this box within an
 environment, but it&#8217;s also perfectly good just to start up a VM for
@@ -312,30 +333,6 @@ so you can actually interact with the things running thereon:</p>
 <span class="c"># etc.</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="os-x">
-<h2>OS X<a class="headerlink" href="#os-x" title="Permalink to this headline">¶</a></h2>
-<p>OS X doesn&#8217;t support Docker natively (although Docker 0.8 ostensibly <a class="reference external" href="http://docs.docker.io/en/latest/installation/mac/">adds OS
-X support, via boot2docker</a>). Even if it did, the default case-insensitive filesystem presents a problem if you&#8217;re doing core Zenoss development (this isn&#8217;t a problem with serviced). You&#8217;ll be running things in an Ubuntu Vagrant box in either case.</p>
-<p>That said, zendev can still manage your source locally, which will, for
-example, allow you to use an IDE in OS X. zendev mounts the environment&#8217;s
-source tree into the Vagrant boxes it creates, so you can modify code directly.
-If you don&#8217;t care about this, you should probably just use the <a class="reference internal" href="#ubuntu-vagrant-box">Ubuntu Vagrant
-box</a> to save yourself some effort. Otherwise:</p>
-<ol class="arabic simple">
-<li>Fire up Disk Utility. Create a partition (mine&#8217;s 50G) formatted with
-a case-sensitive filesystem. Name it, e.g., &#8220;Source&#8221;.</li>
-<li>Perform steps 6-10, above, with <tt class="docutils literal"><span class="pre">/Volumes/Source</span></tt> (if you named your
-partition &#8220;Source&#8221;) as the value of <tt class="docutils literal"><span class="pre">SRCDIR</span></tt>.</li>
-<li>Create an Ubuntu development box and go to town:</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre>zendev box create --type ubuntu europa
-</pre></div>
-</div>
-</div>
-<div class="section" id="windows">
-<h2>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h2>
-<p>Forget it, man. This will only end in tears. Use the <a class="reference internal" href="#ubuntu-vagrant-box">Ubuntu Vagrant box</a>.</p>
 </div>
 </div>
 
