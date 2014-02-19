@@ -1,9 +1,6 @@
 ======
 zendev
 ======
--------------------------------
-The Zenoss Dev Environment Tool
--------------------------------
 
 * Full Docs: http://jenkins.zendev.org/job/zendev-docs/Zendev_Documentation
 
