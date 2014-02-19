@@ -31,7 +31,9 @@ SOURCEBUILD = "sourcebuild"
 
 BOXES = {
     CONTROLPLANE: "ubuntu-13.04-docker",
-    SOURCEBUILD: "f19-docker-zendeps"
+    SOURCEBUILD: "f19-docker-zendeps",
+    "ubuntu": "ubuntu-13.04-docker",
+    "fedora": "f19-docker-zendeps"
 }
 
 
@@ -81,10 +83,11 @@ echo "zendev use %s" >> /home/zenoss/.bashrc
         box.destroy()
         self._root.join(name).remove()
 
-    def provision(self, name):
+    def provision(self, name, type_):
         import vagrant
+        type_ = "ubuntu" if BOXES.get(type_)==BOXES["ubuntu"] else "fedora"
         provision_script = subprocess.check_output(["bash", 
-            here("provision.sh").strpath])
+            here("provision-%s.sh" % type_).strpath])
         with self._root.join(name).as_cwd():
             proc = subprocess.Popen([vagrant.VAGRANT_EXE, "up"], 
                     stdin=subprocess.PIPE)

@@ -18,7 +18,7 @@ from .utils import colored, here
 from .manifest import Manifest
 from .environment import ZenDevEnvironment, get_config_dir, init_config_dir
 from .environment import NotInitialized
-from .box import CONTROLPLANE, SOURCEBUILD
+from .box import BOXES
 
 
 def get_envname():
@@ -163,7 +163,7 @@ def box_create(args):
     """
     env = check_env()
     env.vagrant.create(args.name, args.type)
-    env.vagrant.provision(args.name)
+    env.vagrant.provision(args.name, args.type)
     env.vagrant.ssh(args.name)
 
 
@@ -345,8 +345,7 @@ def parse_args():
 
     box_create_parser = box_subparsers.add_parser('create')
     box_create_parser.add_argument('name', metavar="NAME")
-    box_create_parser.add_argument('--type', required=True,
-            choices=[CONTROLPLANE, SOURCEBUILD])
+    box_create_parser.add_argument('--type', required=True, choices=BOXES)
     box_create_parser.set_defaults(functor=box_create)
 
     box_up_parser = box_subparsers.add_parser('up')
