@@ -5,9 +5,7 @@ zendev
 The Zenoss Dev Environment Tool
 -------------------------------
 
-Zenoss Dev Environment
-
-* Documentation: http://zendev.rtfd.org.
+* Documentation: http://jenkins.zendev.org/job/zendev-docs/Zendev_Documentation
 
 Instructions
 --------
