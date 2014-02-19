@@ -2,7 +2,7 @@
 zendev
 ======
 
-* Full Docs: http://jenkins.zendev.org/job/zendev-docs/Zendev_Documentation
+* Full Docs: http://zenoss.github.io/zendev
 
 zendev takes care of setting up and managing the disparate components of a standard Zenoss development environment, with or without the control plane. It can:
 
