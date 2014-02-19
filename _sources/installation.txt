@@ -163,7 +163,7 @@ good.
     # Build serviced (may take a while if it's the first time)
     make install
 
-    # Build the Zenoss repos (also may take a while)
+    # Build the Zenoss Docker repo (also may take a while)
     cdz && cd build/repos && make
 
     # Run a totally clean instance of serviced, automatically adding localhost
