@@ -162,8 +162,27 @@ sudo service docker restart
 </pre></div>
 </div>
 <p>If you see an empty list of containers (i.e., a row of column names), you&#8217;re
-good.</p>
-<ol class="arabic simple" start="4">
+good. Now modify the Docker upstart script to handle resolution of local DNS:</p>
+<div class="highlight-bash"><div class="highlight"><pre>cat <span class="s">&lt;&lt;EOF | sudo bash -c &quot;cat &gt; /etc/init/docker.conf&quot;</span>
+<span class="s">start on filesystem and started lxc-net</span>
+<span class="s">stop on runlevel [!2345]</span>
+
+<span class="s">respawn</span>
+
+<span class="s">limit nofile 65536 65536</span>
+
+<span class="s">script</span>
+<span class="s">        DOCKER=/usr/bin/\$UPSTART_JOB</span>
+<span class="s">        DOCKER_OPTS=&quot;-dns=10.87.110.13 -dns=10.87.113.13 -dns=10.88.102.13&quot;</span>
+<span class="s">        if [ -f /etc/default/\$UPSTART_JOB ]; then</span>
+<span class="s">                . /etc/default/\$UPSTART_JOB</span>
+<span class="s">        fi</span>
+<span class="s">        &quot;\$DOCKER&quot; -d \$DOCKER_OPTS</span>
+<span class="s">end script</span>
+<span class="s">EOF</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
 <li>Install <a class="reference external" href="http://golang.org/">Go</a>:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Download Go 1.2 and unpack it into /usr/local</span>
@@ -179,7 +198,7 @@ cat <span class="s">&lt;&lt;EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/gol
 <span class="nb">source</span> /etc/profile.d/golang.sh
 </pre></div>
 </div>
-<ol class="arabic simple" start="5">
+<ol class="arabic simple" start="6">
 <li>Install other dependencies:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Python, pip</span>

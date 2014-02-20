@@ -109,7 +109,7 @@ containing a bunch of binaries. Unzip it somewhere in your <tt class="docutils l
 <li>Build the box:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Switch to your zendev checkout (may not be under ~/src)</span>
-<span class="nb">cd</span> ~/src/zendev/boxes
+<span class="nb">cd</span> ~/src/zendev/boxes/ubuntu-13.04-docker
 
 <span class="c"># Build the box</span>
 packer build ubuntu-13.04-docker.json
@@ -126,7 +126,8 @@ vagrant box remove ubuntu-13.04-docker
 <span class="c"># Now add the box you just generated as the new ubuntu-13.04-docker base</span>
 <span class="c"># box. If you didn&#39;t remove the one above, pick a new name. You can</span>
 <span class="c"># generate Vagrant boxes using &quot;vagrant init BOXNAME&quot;.</span>
-vagrant box add ubuntu-13.04-docker ubuntu-13.04-docker.box
+vagrant box add ubuntu-13.04-docker <span class="se">\</span>
+    ~/src/zendev/boxes/ubuntu-13.04-docker.box
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
