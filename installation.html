@@ -133,7 +133,7 @@ sudo apt-get update
 <li>Install <a class="reference external" href="http://docker.io/">Docker</a> (<a class="reference external" href="http://docs.docker.io/en/latest/installation/ubuntulinux/#ubuntu-raring-saucy">source</a>):</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Make sure AUFS is installed</span>
-sudo apt-get install linux-image-extra-<span class="sb">`</span>uname -r<span class="sb">`</span>
+sudo apt-get install -y linux-image-extra-<span class="sb">`</span>uname -r<span class="sb">`</span>
 
 <span class="c"># Add the repository key</span>
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
@@ -143,7 +143,7 @@ sudo sh -c <span class="s2">&quot;echo deb http://get.docker.io/ubuntu docker ma
 <span class="s2">    &gt; /etc/apt/sources.list.d/docker.list&quot;</span>
 
 <span class="c"># Install Docker</span>
-sudo apt-get install lxc-docker-0.7.6
+sudo apt-get install -y lxc-docker-0.7.6
 </pre></div>
 </div>
 <p>Notice that we install Docker 0.7.6. We don&#8217;t support Docker &gt;= 0.8 yet.</p>
@@ -202,14 +202,14 @@ cat <span class="s">&lt;&lt;EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/gol
 <li>Install other dependencies:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Python, pip</span>
-sudo apt-get install python-dev python-pip
-pip install --upgrade pip
+sudo apt-get install -y python-dev python-pip
+sudo pip install --upgrade pip
 
 <span class="c"># Source control</span>
-sudo apt-get install mercurial bzr git
+sudo apt-get install -y mercurial bzr git
 
 <span class="c"># libpam (necessary for control plane)</span>
-sudo apt-get install libpam0g-dev
+sudo apt-get install -y libpam0g-dev
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
