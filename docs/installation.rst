@@ -104,7 +104,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 
     # Python, pip
     sudo apt-get install python-dev python-pip
-    pip install --upgrade pip
+    sudo pip install --upgrade pip
 
     # Source control
     sudo apt-get install mercurial bzr git
