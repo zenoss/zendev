@@ -14,6 +14,7 @@ Contents:
    readme
    installation
    repos
+   vagrant
    packer
 
 Indices and tables
