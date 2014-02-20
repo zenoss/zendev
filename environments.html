@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Working With Environments &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
+    <link rel="next" title="Working With Repositories" href="repos.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Working With Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">Working With Environments</a><ul>
+<li><a class="reference internal" href="#creating-an-environment">Creating an Environment</a></li>
+<li><a class="reference internal" href="#listing-environments">Listing Environments</a></li>
+<li><a class="reference internal" href="#using-an-environment">Using an Environment</a></li>
+<li><a class="reference internal" href="#deleting-an-environment">Deleting an Environment</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+          
+          
+            
+  <li><a href="installation.html"
+         title="previous chapter">&laquo; Installation</a></li>
+  <li><a href="repos.html"
+         title="next chapter">Working With Repositories &raquo;</a></li>
+          
+          
+            <li>
+  <a href="_sources/environments.txt"
+     rel="nofollow">Source</a></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section" id="working-with-environments">
+<h1>Working With Environments<a class="headerlink" href="#working-with-environments" title="Permalink to this headline">¶</a></h1>
+<p>The base zendev entity is the <em>environment</em>. An environment represents:</p>
+<ul class="simple">
+<li>A source tree</li>
+<li>A set of Vagrant boxes</li>
+<li>A particular <tt class="docutils literal"><span class="pre">GOPATH</span></tt> and <tt class="docutils literal"><span class="pre">ZENHOME</span></tt></li>
+</ul>
+<p>The path to the current environment is always readily accessible:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Prints path to the root of the environment</span>
+zendev root
+</pre></div>
+</div>
+<div class="section" id="creating-an-environment">
+<h2>Creating an Environment<a class="headerlink" href="#creating-an-environment" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a new zendev environment at $PWD/ENVIRONMENT</span>
+zendev init ENVIRONMENT
+</pre></div>
+</div>
+</div>
+<div class="section" id="listing-environments">
+<h2>Listing Environments<a class="headerlink" href="#listing-environments" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># List all environments. The current one will be indicated with an</span>
+<span class="c"># asterisk.</span>
+zendev ls
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-an-environment">
+<h2>Using an Environment<a class="headerlink" href="#using-an-environment" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Switch to the environment named ENVIRONMENT</span>
+zendev use ENVIRONMENT
+</pre></div>
+</div>
+<p>Using an environment will:</p>
+<ul class="simple">
+<li>Set <tt class="docutils literal"><span class="pre">GOPATH</span></tt> to <tt class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/src/golang</span></tt></li>
+<li>Set <tt class="docutils literal"><span class="pre">PATH</span></tt> to <tt class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/src/golang/bin:${PATH}</span></tt></li>
+<li>Set <tt class="docutils literal"><span class="pre">ZENHOME</span></tt> to <tt class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/zenhome</span></tt></li>
+</ul>
+</div>
+<div class="section" id="deleting-an-environment">
+<h2>Deleting an Environment<a class="headerlink" href="#deleting-an-environment" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Delete an environment from zendev config, but leave files</span>
+zendev drop ENVIRONMENT
+
+<span class="c"># Delete an environment and all files</span>
+zendev drop --purge ENVIRONMENT
+</pre></div>
+</div>
+</div>
+</div>
+
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

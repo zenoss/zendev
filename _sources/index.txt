@@ -13,7 +13,10 @@ Contents:
 
    readme
    installation
+   environments
    repos
+   build
+   vagrant
    packer
 
 Indices and tables

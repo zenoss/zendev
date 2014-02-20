@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Working With Vagrant Boxes &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
+    <link rel="next" title="Building the Development Base Box" href="packer.html" />
+    <link rel="prev" title="Building Zenoss With zendev" href="build.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Working With Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">Working With Vagrant Boxes</a><ul>
+<li><a class="reference internal" href="#creating-a-vagrant-box">Creating a Vagrant Box</a></li>
+<li><a class="reference internal" href="#sshing-to-boxes">SSHing to Boxes</a></li>
+<li><a class="reference internal" href="#listing-boxes">Listing Boxes</a></li>
+<li><a class="reference internal" href="#managing-boxes">Managing Boxes</a></li>
+<li><a class="reference internal" href="#destroying-boxes">Destroying Boxes</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+          
+          
+            
+  <li><a href="build.html"
+         title="previous chapter">&laquo; Building Zenoss With zendev</a></li>
+  <li><a href="packer.html"
+         title="next chapter">Building the Development Base Box &raquo;</a></li>
+          
+          
+            <li>
+  <a href="_sources/vagrant.txt"
+     rel="nofollow">Source</a></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section" id="working-with-vagrant-boxes">
+<h1>Working With Vagrant Boxes<a class="headerlink" href="#working-with-vagrant-boxes" title="Permalink to this headline">¶</a></h1>
+<p>zendev comes with a facility for provisioning Vagrant boxes with your source
+tree mounted, zendev installed and the same zendev environment set up. Two
+types of Vagrant boxes are built in:</p>
+<ul class="simple">
+<li>An Ubuntu 13.04 base box with all dependencies necessary to develop the control plane</li>
+<li>A Fedora 19 base box with all dependencies necessary to build Zenoss RM from
+source or install from RPM</li>
+</ul>
+<div class="section" id="creating-a-vagrant-box">
+<h2>Creating a Vagrant Box<a class="headerlink" href="#creating-a-vagrant-box" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">box</span> <span class="pre">create</span></tt> will create a Vagrant box of the type specified, provision it
+appropriately, and ssh in. All boxes are created in the same private network;
+private IPs are allocated by <a class="reference external" href="https://github.com/adrienthebo/vagrant-auto_network">a Vagrant plugin</a> that zendev will
+install for you if you don&#8217;t have it already.</p>
+<p>Acceptable types are: <tt class="docutils literal"><span class="pre">ubuntu</span></tt>, <tt class="docutils literal"><span class="pre">fedora</span></tt>, <tt class="docutils literal"><span class="pre">controlplane</span></tt> (synonym of
+<tt class="docutils literal"><span class="pre">ubuntu</span></tt>) and <tt class="docutils literal"><span class="pre">sourcebuild</span></tt> (synonym of <tt class="docutils literal"><span class="pre">fedora</span></tt>).</p>
+<p>Boxes must also be given a name that can be used to manage the box with zendev.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a new Ubuntu-based Vagrant box</span>
+zendev box create --type ubuntu cplanedev
+
+<span class="c"># Create a new Fedora-based Vagrant box</span>
+zendev box create --type fedora rmdev
+</pre></div>
+</div>
+</div>
+<div class="section" id="sshing-to-boxes">
+<h2>SSHing to Boxes<a class="headerlink" href="#sshing-to-boxes" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">box</span> <span class="pre">ssh</span> <span class="pre">BOX</span></tt> (aliased to <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">ssh</span></tt> for convenience) will,
+unsurprisingly, start an SSH session on the Vagrant box named.</p>
+</div>
+<div class="section" id="listing-boxes">
+<h2>Listing Boxes<a class="headerlink" href="#listing-boxes" title="Permalink to this headline">¶</a></h2>
+<p>List all the boxes in your environment with <tt class="docutils literal"><span class="pre">box</span> <span class="pre">ls</span></tt>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># List paths to all Vagrant boxes</span>
+zendev box ls
+</pre></div>
+</div>
+</div>
+<div class="section" id="managing-boxes">
+<h2>Managing Boxes<a class="headerlink" href="#managing-boxes" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Halt a box named BOX</span>
+zendev box halt BOX
+
+<span class="c"># Start a box named BOX</span>
+zendev box up BOX
+</pre></div>
+</div>
+</div>
+<div class="section" id="destroying-boxes">
+<h2>Destroying Boxes<a class="headerlink" href="#destroying-boxes" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Destroy box named BOX</span>
+zendev box destroy BOX
+</pre></div>
+</div>
+</div>
+</div>
+
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
