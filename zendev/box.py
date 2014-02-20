@@ -18,7 +18,8 @@ SCRIPT
 Vagrant.configure("2") do |config|
   config.vm.box = "{{ box_name }}"
   config.vm.box_url = "http://vagrant.zendev.org/boxes/{{ box_name }}.box"
-  #config.vm.hostname = "{{ instance_name }}"
+  config.vm.hostname = "{{ instance_name }}"
+  config.vm.network :private_network, :ip => '0.0.0.0', :auto_network => true
   {% for root, target in shared_folders %}
   config.vm.synced_folder "{{ root }}", "{{ target }}"
   {% endfor %}
@@ -49,8 +50,27 @@ class VagrantManager(object):
         import vagrant
         return vagrant.Vagrant(self._root.join(name).strpath)
 
+    def _install_auto_network(self):
+        rc = subprocess.call(["vagrant", "plugin", "install","vagrant-auto_network"])
+        if rc:
+            return rc
+        subprocess.call("wget -qO- https://github.com/adrienthebo/vagrant-auto_network/commit/7de30cb2ce72cc8f979b8dbe5c9581646512ab1a.diff "
+                "| patch -p1 -d ~/.vagrant.d/gems/gems/vagrant-auto_network*", shell=True)
+        return 0
+
+    def verify_auto_network(self):
+        try:
+            if subprocess.call("vagrant plugin list | grep vagrant-auto_network", shell=True):
+                if self._install_auto_network():
+                    return False
+        except Exception:
+            return False
+        return True
+
     def create(self, name, purpose=CONTROLPLANE):
-        if self._root.join(name).check(dir=True):
+        if not self.verify_auto_network():
+            raise Exception("Unable to find or install vagrant-auto_network plugin.")
+        elif self._root.join(name).check(dir=True):
             raise Exception("Vagrant box %s already exists" % name)
         vbox_dir = self._root.ensure(name, dir=True)
         shared = (
