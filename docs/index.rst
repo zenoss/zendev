@@ -13,6 +13,7 @@ Contents:
 
    readme
    installation
+   environments
    repos
    build
    vagrant
