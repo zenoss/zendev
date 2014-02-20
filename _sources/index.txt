@@ -18,6 +18,7 @@ Contents:
    build
    vagrant
    packer
+   improve
 
 Indices and tables
 ==================
