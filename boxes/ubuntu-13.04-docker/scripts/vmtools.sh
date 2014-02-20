@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $PACKER_BUILDER_TYPE == 'virtualbox' ]; then
+if [ $PACKER_BUILDER_TYPE == 'virtualbox-iso' ]; then
     mkdir /tmp/vbox
     VER=$(cat /home/zenoss/.vbox_version)
     mount -o loop /home/zenoss/VBoxGuestAdditions_$VER.iso /tmp/vbox 
@@ -10,7 +10,7 @@ if [ $PACKER_BUILDER_TYPE == 'virtualbox' ]; then
     rm /home/zenoss/*.iso
 fi
 
-if [ $PACKER_BUILDER_TYPE == 'vmware' ]; then
+if [ $PACKER_BUILDER_TYPE == 'vmware-iso' ]; then
     mkdir /tmp/vmfusion
     mkdir /tmp/vmfusion-archive
     mount -o loop /home/zenoss/linux.iso /tmp/vmfusion

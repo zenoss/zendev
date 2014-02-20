@@ -29,6 +29,7 @@
       "disk_size": 40960,
       "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
       "guest_os_type": "Ubuntu_64",
+      "headless": true,
       "http_directory": "http",
       "http_port_max": 59080,
       "http_port_min": 58080,
