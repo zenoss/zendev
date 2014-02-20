@@ -12,7 +12,7 @@ from .config import get_config
 from .manifest import Manifest
 from .repo import Repository
 from .box import VagrantManager
-from .utils import Reprinter, colored
+from .utils import Reprinter, colored, here
 from .utils import is_git_repo
 from .progress import GitProgressBar, SimpleGitProgressBar
 from git.remote import RemoteProgress
@@ -123,6 +123,10 @@ class ZenDevEnvironment(object):
     @property
     def root(self):
         return self._root
+
+    @property
+    def zendev(self):
+        return here("..")
 
     @property
     def vagrantroot(self):

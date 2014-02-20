@@ -21,8 +21,7 @@ Vagrant.configure("2") do |config|
   config.vm.hostname = "{{ instance_name }}"
   config.vm.network :private_network, :ip => '0.0.0.0', :auto_network => true
   {% for root, target in shared_folders %}
-  config.vm.synced_folder "{{ root }}", "{{ target }}"
-  {% endfor %}
+  config.vm.synced_folder "{{ root }}", "{{ target }}", :mount_options => ["dmode=775","fmode=664"]{% endfor %}
   {% if provision_script %}config.vm.provision "shell", inline: $script{% endif %}
 end
 """)
@@ -74,6 +73,8 @@ class VagrantManager(object):
             raise Exception("Vagrant box %s already exists" % name)
         vbox_dir = self._root.ensure(name, dir=True)
         shared = (
+            (self.env.zendev.strpath, "/home/zenoss/zendev"),
+            (self.env.srcroot.strpath, "/home/zenoss/%s/src" % self.env.name),
             (self.env.srcroot.strpath, "/home/zenoss/%s/src" % self.env.name),
             (self.env.buildroot.strpath, "/home/zenoss/%s/build" % self.env.name),
             (self.env.configroot.strpath, "/home/zenoss/%s/%s" % (
