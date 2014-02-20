@@ -4,8 +4,9 @@ Working With Vagrant Boxes
 zendev comes with a facility for provisioning Vagrant boxes with your source
 tree mounted, zendev installed and the same zendev environment set up. Two
 types of Vagrant boxes are built in:
-* An Ubuntu 13.04 base box with all dependencies necessary to develop the
-  control plane
+
+* An Ubuntu 13.04 base box with all dependencies necessary to develop the control plane
+
 * A Fedora 19 base box with all dependencies necessary to build Zenoss RM from
   source or install from RPM
 
