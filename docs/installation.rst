@@ -29,7 +29,7 @@ Ubuntu
 .. code-block:: bash
 
     # Make sure AUFS is installed
-    sudo apt-get install linux-image-extra-`uname -r`
+    sudo apt-get install -y linux-image-extra-`uname -r`
 
     # Add the repository key
     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
@@ -39,7 +39,7 @@ Ubuntu
         > /etc/apt/sources.list.d/docker.list"
 
     # Install Docker
-    sudo apt-get install lxc-docker-0.7.6
+    sudo apt-get install -y lxc-docker-0.7.6
 
 Notice that we install Docker 0.7.6. We don't support Docker >= 0.8 yet.
 
@@ -103,14 +103,14 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 .. code-block:: bash
 
     # Python, pip
-    sudo apt-get install python-dev python-pip
-    pip install --upgrade pip
+    sudo apt-get install -y python-dev python-pip
+    sudo pip install --upgrade pip
 
     # Source control
-    sudo apt-get install mercurial bzr git
+    sudo apt-get install -y mercurial bzr git
 
     # libpam (necessary for control plane)
-    sudo apt-get install libpam0g-dev
+    sudo apt-get install -y libpam0g-dev
 
 6. At this point, you need to `set up GitHub for SSH access
    <https://help.github.com/articles/generating-ssh-keys>`_. Also, make sure
