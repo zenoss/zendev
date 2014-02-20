@@ -13,6 +13,7 @@ Contents:
 
    readme
    installation
+   repos
    packer
 
 Indices and tables

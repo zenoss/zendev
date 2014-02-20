@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Working With Repositories &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
+    <link rel="next" title="Building the Development Base Box" href="packer.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Working With Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">Working With Repositories</a><ul>
+<li><a class="reference internal" href="#manifests">Manifests</a></li>
+<li><a class="reference internal" href="#adding-manifests">Adding Manifests</a></li>
+<li><a class="reference internal" href="#navigating-source">Navigating Source</a></li>
+<li><a class="reference internal" href="#removing-repositories">Removing Repositories</a></li>
+<li><a class="reference internal" href="#generating-manifests">Generating Manifests</a></li>
+<li><a class="reference internal" href="#pulling-pushing-changes">Pulling/Pushing Changes</a></li>
+<li><a class="reference internal" href="#status">Status</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+          
+          
+            
+  <li><a href="installation.html"
+         title="previous chapter">&laquo; Installation</a></li>
+  <li><a href="packer.html"
+         title="next chapter">Building the Development Base Box &raquo;</a></li>
+          
+          
+            <li>
+  <a href="_sources/repos.txt"
+     rel="nofollow">Source</a></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section" id="working-with-repositories">
+<h1>Working With Repositories<a class="headerlink" href="#working-with-repositories" title="Permalink to this headline">¶</a></h1>
+<p>zendev can keep track of all the repositories associated with a project. Groups
+of repositories are described by simple JSON manifests that can be added to an
+environment. zendev can then help you navigate to repositories on the
+filesystem, clone new repos, pull down changes and rebase your feature
+branches, push your existing changes, etc.</p>
+<div class="section" id="manifests">
+<h2>Manifests<a class="headerlink" href="#manifests" title="Permalink to this headline">¶</a></h2>
+<p>A manifest is a JSON file of this structure:</p>
+<div class="highlight-json"><div class="highlight"><pre>{
+    &quot;repos&quot;: {
+        &quot;&lt;PATH&gt;&quot;: {
+          &quot;repo&quot;: &quot;&lt;OWNER&gt;/&lt;REPONAME&gt;&quot;,
+          &quot;ref&quot;: &quot;&lt;BRANCH&gt;&quot;
+        },
+        ...
+    }
+}
+</pre></div>
+</div>
+<p>PATH is the path relative to your environment&#8217;s source root where the
+repository should be cloned. OWNER and REPONAME are the GitHub repository owner
+and name, respectively. BRANCH is the branch that should be checked out.</p>
+<p>Both the Zenoss build system and zendev use the same manifest structure; it
+effectively makes portable the source tree necessary to build or develop
+a project.</p>
+<p>The manifests representing the Zenoss and Control Plane projects live in the
+GitHub repository <tt class="docutils literal"><span class="pre">zenoss/platform-build</span></tt>, <a class="reference external" href="https://github.com/zenoss/platform-build/tree/develop/manifests">in the manifests directory</a>. This
+repository is checked out as a part of every zendev environment, and can be
+found in <tt class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/build</span></tt>.</p>
+</div>
+<div class="section" id="adding-manifests">
+<h2>Adding Manifests<a class="headerlink" href="#adding-manifests" title="Permalink to this headline">¶</a></h2>
+<p>You can add a manifest to a zendev environment with the <tt class="docutils literal"><span class="pre">add</span></tt> command:</p>
+<div class="highlight-bash"><div class="highlight"><pre>zendev add /path/to/manifest.json
+</pre></div>
+</div>
+</div>
+<div class="section" id="navigating-source">
+<h2>Navigating Source<a class="headerlink" href="#navigating-source" title="Permalink to this headline">¶</a></h2>
+<p>zendev provides a utility allowing you to <tt class="docutils literal"><span class="pre">cd</span></tt> directly to any repository
+described in the added manifests using regex matching. This is
+(appropriately) provided by the <tt class="docutils literal"><span class="pre">cd</span></tt> command. For example:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># cd to $(zendev root)/src/golang/src/github.com/zenoss/serviced</span>
+zendev <span class="nb">cd </span>serviced
+
+<span class="c"># cd to $(zendev root)/src/golang/src/github.com/zenoss/metricshipper</span>
+zendev <span class="nb">cd </span>shipper
+
+<span class="c"># cd to $(zendev root)/src/zenpacks/ZenPacks.zenoss.LDAPMonitor</span>
+zendev <span class="nb">cd </span>ldap
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">cdz</span></tt> is an alias for <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cd</span></tt> installed by the zendev bootstrap.</p>
+</div>
+<div class="section" id="removing-repositories">
+<h2>Removing Repositories<a class="headerlink" href="#removing-repositories" title="Permalink to this headline">¶</a></h2>
+<p>Repositories can be removed from the environment using the <tt class="docutils literal"><span class="pre">rm</span></tt> command,
+again using regex matching:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Removes, e.g., src/zenpacks/ZenPacks.zenoss.LDAPMonitor</span>
+zendev rm ldap
+</pre></div>
+</div>
+</div>
+<div class="section" id="generating-manifests">
+<h2>Generating Manifests<a class="headerlink" href="#generating-manifests" title="Permalink to this headline">¶</a></h2>
+<p>Although simple to create by hand, manifests can be generated using the
+<tt class="docutils literal"><span class="pre">freeze</span></tt> command, which will output your environment&#8217;s current repository
+state as a manifest, including current branches. Simply issue the command:</p>
+<div class="highlight-bash"><div class="highlight"><pre>zendev freeze &gt; mynewmanifest.json
+</pre></div>
+</div>
+<p>This enables you to describe the branches necessary to, e.g., build
+a particular release or feature sandbox that may have changes spanning several
+repositories.</p>
+</div>
+<div class="section" id="pulling-pushing-changes">
+<h2>Pulling/Pushing Changes<a class="headerlink" href="#pulling-pushing-changes" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">sync</span></tt> will clone any repositories that haven&#8217;t been cloned yet, and
+pull any changes from and push any locally committed changes to GitHub.
+Repositories can be specified like most other commands, using string matching.
+Default is to sync all repositories.</p>
+</div>
+<div class="section" id="status">
+<h2>Status<a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h2>
+<p>zendev prints a table describing current branch and change status for
+specified (or all) repositories as a result of the <tt class="docutils literal"><span class="pre">status</span></tt> command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Default: print status for repositories with uncommitted changes</span>
+zendev status
+
+<span class="c"># Print status for repositories matching one or more strings</span>
+zendev status metric ldap
+
+<span class="c"># Print status for all repositories</span>
+zendev status -a
+</pre></div>
+</div>
+</div>
+</div>
+
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>zendev.box &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="../../index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="../../index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../repos.html">Working With Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../packer.html">Building the Development Base Box</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"></ul>
+</li>
+          
+          
+            
+          
+          
+            <li></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <h1>Source code for zendev.box</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">cStringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+
+<span class="kn">import</span> <span class="nn">py</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">colored</span><span class="p">,</span> <span class="n">here</span>
+
+
+<span class="n">VAGRANT</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s"># -*- mode: ruby -*-</span>
+<span class="s"># vi: set ft=ruby :</span>
+
+<span class="s">$script = &lt;&lt;SCRIPT</span>
+<span class="s">{{ provision_script }} </span>
+<span class="s">SCRIPT</span>
+
+<span class="s">Vagrant.configure(&quot;2&quot;) do |config|</span>
+<span class="s">  config.vm.box = &quot;{{ box_name }}&quot;</span>
+<span class="s">  config.vm.box_url = &quot;http://vagrant.zendev.org/boxes/{{ box_name }}.box&quot;</span>
+<span class="s">  config.vm.hostname = &quot;{{ instance_name }}&quot;</span>
+<span class="s">  config.vm.network :private_network, :ip =&gt; &#39;0.0.0.0&#39;, :auto_network =&gt; true</span>
+<span class="s">  {</span><span class="si">% f</span><span class="s">or root, target in shared_folders %}</span>
+<span class="s">  config.vm.synced_folder &quot;{{ root }}&quot;, &quot;{{ target }}&quot;, :mount_options =&gt; [&quot;dmode=775&quot;,&quot;fmode=664&quot;]{</span><span class="si">% e</span><span class="s">ndfor %}</span>
+<span class="s">  {</span><span class="si">% i</span><span class="s">f provision_script %}config.vm.provision &quot;shell&quot;, inline: $script{</span><span class="si">% e</span><span class="s">ndif %}</span>
+<span class="s">end</span>
+<span class="s">&quot;&quot;&quot;</span><span class="p">)</span>
+
+<span class="n">CONTROLPLANE</span> <span class="o">=</span> <span class="s">&quot;controlplane&quot;</span>
+<span class="n">SOURCEBUILD</span> <span class="o">=</span> <span class="s">&quot;sourcebuild&quot;</span>
+
+<span class="n">BOXES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">CONTROLPLANE</span><span class="p">:</span> <span class="s">&quot;ubuntu-13.04-docker&quot;</span><span class="p">,</span>
+    <span class="n">SOURCEBUILD</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span><span class="p">,</span>
+    <span class="s">&quot;ubuntu&quot;</span><span class="p">:</span> <span class="s">&quot;ubuntu-13.04-docker&quot;</span><span class="p">,</span>
+    <span class="s">&quot;fedora&quot;</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="VagrantManager"><a class="viewcode-back" href="../../zendev.html#zendev.box.VagrantManager">[docs]</a><span class="k">class</span> <span class="nc">VagrantManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manages Vagrant boxes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">environment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">vagrantroot</span>
+
+    <span class="k">def</span> <span class="nf">_get_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">vagrant</span>
+        <span class="k">return</span> <span class="n">vagrant</span><span class="o">.</span><span class="n">Vagrant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_install_auto_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;vagrant&quot;</span><span class="p">,</span> <span class="s">&quot;plugin&quot;</span><span class="p">,</span> <span class="s">&quot;install&quot;</span><span class="p">,</span><span class="s">&quot;vagrant-auto_network&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">rc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">rc</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;wget -qO- https://github.com/adrienthebo/vagrant-auto_network/commit/7de30cb2ce72cc8f979b8dbe5c9581646512ab1a.diff &quot;</span>
+                <span class="s">&quot;| patch -p1 -d ~/.vagrant.d/gems/gems/vagrant-auto_network*&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="VagrantManager.verify_auto_network"><a class="viewcode-back" href="../../zendev.html#zendev.box.VagrantManager.verify_auto_network">[docs]</a>    <span class="k">def</span> <span class="nf">verify_auto_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;vagrant plugin list | grep vagrant-auto_network&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_install_auto_network</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="VagrantManager.create"><a class="viewcode-back" href="../../zendev.html#zendev.box.VagrantManager.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="n">CONTROLPLANE</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_auto_network</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Unable to find or install vagrant-auto_network plugin.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Vagrant box </span><span class="si">%s</span><span class="s"> already exists&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">vbox_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">shared</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">zendev</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/zendev&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/src&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/src&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/build&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">configroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">configroot</span><span class="o">.</span><span class="n">basename</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="n">vbox_dir</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;Vagrantfile&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">VAGRANT</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="n">instance_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">box_name</span><span class="o">=</span><span class="n">BOXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">purpose</span><span class="p">),</span>
+            <span class="n">shared_folders</span><span class="o">=</span><span class="n">shared</span><span class="p">,</span>
+            <span class="n">provision_script</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">chown zenoss:zenoss /home/zenoss/</span><span class="si">%s</span><span class="s"></span>
+<span class="s">su - zenoss -c &quot;cd /home/zenoss &amp;&amp; zendev init </span><span class="si">%s</span><span class="s">&quot;</span>
+<span class="s">echo &quot;source $(zendev bootstrap)&quot; &gt;&gt; /home/zenoss/.bashrc</span>
+<span class="s">echo &quot;zendev use </span><span class="si">%s</span><span class="s">&quot; &gt;&gt; /home/zenoss/.bashrc</span>
+<span class="s">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">)))</span>
+</div>
+<div class="viewcode-block" id="VagrantManager.up"><a class="viewcode-back" href="../../zendev.html#zendev.box.VagrantManager.up">[docs]</a>    <span class="k">def</span> <span class="nf">up</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_box</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">up</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="VagrantManager.halt"><a class="viewcode-back" href="../../zendev.html#zendev.box.VagrantManager.halt">[docs]</a>    <span class="k">def</span> <span class="nf">halt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_box</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">halt</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="VagrantManager.remove"><a class="viewcode-back" href="../../zendev.html#zendev.box.VagrantManager.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_box</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="VagrantManager.provision"><a class="viewcode-back" href="../../zendev.html#zendev.box.VagrantManager.provision">[docs]</a>    <span class="k">def</span> <span class="nf">provision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">vagrant</span>
+        <span class="n">type_</span> <span class="o">=</span> <span class="s">&quot;ubuntu&quot;</span> <span class="k">if</span> <span class="n">BOXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span><span class="o">==</span><span class="n">BOXES</span><span class="p">[</span><span class="s">&quot;ubuntu&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&quot;fedora&quot;</span>
+        <span class="n">provision_script</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s">&quot;bash&quot;</span><span class="p">,</span> 
+            <span class="n">here</span><span class="p">(</span><span class="s">&quot;provision-</span><span class="si">%s</span><span class="s">.sh&quot;</span> <span class="o">%</span> <span class="n">type_</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">])</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
+            <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">vagrant</span><span class="o">.</span><span class="n">VAGRANT_EXE</span><span class="p">,</span> <span class="s">&quot;up&quot;</span><span class="p">],</span> 
+                    <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">provision_script</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="VagrantManager.ssh"><a class="viewcode-back" href="../../zendev.html#zendev.box.VagrantManager.ssh">[docs]</a>    <span class="k">def</span> <span class="nf">ssh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">vagrant</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="n">vagrant</span><span class="o">.</span><span class="n">VAGRANT_EXE</span><span class="p">,</span> <span class="s">&#39;ssh&#39;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="VagrantManager.ls"><a class="viewcode-back" href="../../zendev.html#zendev.box.VagrantManager.ls">[docs]</a>    <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span><span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;Vagrantfile&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">()):</span>
+            <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">dirname</span><span class="p">,</span> <span class="n">colored</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">))</span>
+        </div></div>
+</pre></div>
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
