@@ -164,7 +164,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Add core and serviced repositories from manifests used by the build,
     # which have conveniently been checked out into
     # ~/src/europa/build/manifests
-    zendev add $(zendev root)/build/manifests/{core,serviced}.json
+    zendev add $(zendev root)/build/manifests/{core,libs,serviced}.json
 
     # Clone everything
     zendev sync
