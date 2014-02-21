@@ -191,7 +191,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     make install
 
     # Build the Zenoss Docker repo (also may take a while)
-    cdz && cd build/repos && make
+    cdz && cd build/services/repos && make
 
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of
