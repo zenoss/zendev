@@ -12,7 +12,7 @@ zendev itself, which are basically git and Python).
 
 Ubuntu
 ------
-.. important:: Ubuntu 12.04 or higher is required.
+.. important:: Ubuntu 13.04 or higher is required.
 
 1. Make sure the universe and multiverse repos are enabled and updated:
 
