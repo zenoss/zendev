@@ -90,9 +90,9 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     wget -qO- http://go.googlecode.com/files/go1.2.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 
     # Set GOROOT and PATH appropriately
-    cat <<EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
+    cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
         export GOROOT=/usr/local/go
-        export PATH=\$GOROOT/bin:\$PATH
+        export PATH=$GOROOT/bin:$PATH
     EOF
 
     # Source the new profile
