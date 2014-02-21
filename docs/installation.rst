@@ -89,6 +89,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 .. code-block:: bash
 
     # Download Go 1.2 and unpack it into /usr/local
+    sudo apt-get install -y wget
     wget -qO- http://go.googlecode.com/files/go1.2.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 
     # Set GOROOT and PATH appropriately
