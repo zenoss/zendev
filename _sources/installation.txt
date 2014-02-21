@@ -12,7 +12,7 @@ zendev itself, which are basically git and Python).
 
 Ubuntu
 ------
-.. important:: Ubuntu 12.04 or higher is required.
+.. important:: Ubuntu 13.04 or higher is required.
 
 1. Make sure the universe and multiverse repos are enabled and updated:
 
@@ -64,7 +64,9 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 
 .. code-block:: bash
 
-    cat <<EOF | sudo bash -c "cat > /etc/init/docker.conf"
+    cat <<\EOF | sudo bash -c "cat > /etc/init/docker.conf"
+    description "Docker daemon"
+
     start on filesystem and started lxc-net
     stop on runlevel [!2345]
 
@@ -73,12 +75,12 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     limit nofile 65536 65536
 
     script
-            DOCKER=/usr/bin/\$UPSTART_JOB
+            DOCKER=/usr/bin/$UPSTART_JOB
             DOCKER_OPTS="-dns=10.87.110.13 -dns=10.87.113.13 -dns=10.88.102.13"
-            if [ -f /etc/default/\$UPSTART_JOB ]; then
-                    . /etc/default/\$UPSTART_JOB
+            if [ -f /etc/default/$UPSTART_JOB ]; then
+                    . /etc/default/$UPSTART_JOB
             fi
-            "\$DOCKER" -d \$DOCKER_OPTS
+            "$DOCKER" -d $DOCKER_OPTS
     end script 
     EOF
 
@@ -87,12 +89,13 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 .. code-block:: bash
 
     # Download Go 1.2 and unpack it into /usr/local
+    sudo apt-get install -y wget
     wget -qO- http://go.googlecode.com/files/go1.2.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 
     # Set GOROOT and PATH appropriately
-    cat <<EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
+    cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
         export GOROOT=/usr/local/go
-        export PATH=\$GOROOT/bin:\$PATH
+        export PATH=$GOROOT/bin:$PATH
     EOF
 
     # Source the new profile
@@ -164,7 +167,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Add core and serviced repositories from manifests used by the build,
     # which have conveniently been checked out into
     # ~/src/europa/build/manifests
-    zendev add $(zendev root)/build/manifests/{core,serviced}.json
+    zendev add $(zendev root)/build/manifests/{core,libs,serviced}.json
 
     # Clone everything
     zendev sync
