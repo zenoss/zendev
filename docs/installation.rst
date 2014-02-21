@@ -64,7 +64,9 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 
 .. code-block:: bash
 
-    cat <<EOF | sudo bash -c "cat > /etc/init/docker.conf"
+    cat <<\EOF | sudo bash -c "cat > /etc/init/docker.conf"
+    description "Docker daemon"
+
     start on filesystem and started lxc-net
     stop on runlevel [!2345]
 
@@ -73,12 +75,12 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     limit nofile 65536 65536
 
     script
-            DOCKER=/usr/bin/\$UPSTART_JOB
+            DOCKER=/usr/bin/$UPSTART_JOB
             DOCKER_OPTS="-dns=10.87.110.13 -dns=10.87.113.13 -dns=10.88.102.13"
-            if [ -f /etc/default/\$UPSTART_JOB ]; then
-                    . /etc/default/\$UPSTART_JOB
+            if [ -f /etc/default/$UPSTART_JOB ]; then
+                    . /etc/default/$UPSTART_JOB
             fi
-            "\$DOCKER" -d \$DOCKER_OPTS
+            "$DOCKER" -d $DOCKER_OPTS
     end script 
     EOF
 
