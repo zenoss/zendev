@@ -7,7 +7,7 @@ sudo rm -rf /tmp/serviced*
 deploy () {
     sleep 20
     ${SERVICED} add-host $IP:4979 default
-    TEMPLATE_ID=$(${SERVICED} add-template ${EUROPA}/build/services/Zenoss/Zenoss)
+    TEMPLATE_ID=$(${SERVICED} add-template ${EUROPA}/build/services/Zenoss)
     ${SERVICED} deploy-template ${TEMPLATE_ID} default zenoss
 }
 deploy &
