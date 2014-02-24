@@ -60,7 +60,10 @@ def root(args):
 
 
 def resetserviced(args):
-    subprocess.call(["bash", "-c", here("resetserviced.sh").strpath])
+    cmd = [here("resetserviced.sh").strpath]
+    if args.root:
+        cmd.insert(0, "sudo")
+    subprocess.call(cmd)
 
 
 def feature_start(args):
@@ -378,6 +381,8 @@ def parse_args():
     root_parser.set_defaults(functor=root)
 
     serviced_parser = subparsers.add_parser('resetserviced')
+    serviced_parser.add_argument('--root', action='store_true',
+        help="run resetserviced as root")
     serviced_parser.set_defaults(functor=resetserviced)
 
 
