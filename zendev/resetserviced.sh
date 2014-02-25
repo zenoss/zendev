@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PATH="$GOBIN:$PATH"  # add GOBIN to PATH for root user to find path to serviced
+PATH="$GOPATH/bin:$PATH"  # add GOPATH/bin to PATH for root user to find path to serviced
 
 IP=$(/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 EUROPA=$(zendev root)
