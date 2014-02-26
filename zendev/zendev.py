@@ -61,6 +61,9 @@ def root(args):
 
 def resetserviced(args):
     cmd = [here("resetserviced.sh").strpath]
+    resetserviced_args = os.environ.get("RESETSERVICED_ARGS")
+    if resetserviced_args:
+        cmd.insert(0, "RESETSERVICED_ARGS=" + resetserviced_args)
     if args.root:
         cmd.insert(0, "GOPATH=" + os.environ["GOPATH"])
         cmd.insert(0, "sudo")

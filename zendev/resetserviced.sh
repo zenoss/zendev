@@ -13,4 +13,5 @@ deploy () {
     ${SERVICED} deploy-template ${TEMPLATE_ID} default zenoss
 }
 deploy &
-serviced -master -agent
+${SERVICED} -master -agent ${RESETSERVICED_ARGS}
+
