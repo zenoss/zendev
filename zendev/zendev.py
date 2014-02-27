@@ -8,6 +8,8 @@ import re
 import argparse
 import argcomplete
 import subprocess
+from contextlib import contextmanager
+from tempfile import mkdtemp
 
 import py
 
@@ -16,6 +18,8 @@ from .config import get_config
 from .repo import Repository
 from .utils import colored, here
 from .manifest import Manifest
+from . import config as zcfg
+from . import environment as zenv
 from .environment import ZenDevEnvironment, get_config_dir, init_config_dir
 from .environment import NotInitialized
 from .box import BOXES
@@ -24,14 +28,38 @@ from .box import BOXES
 def get_envname():
     return get_config().current
 
+class fargs(object):
+    pass
 
-def check_env(name=None):
+@contextmanager
+def temp_env():
+    """
+    Creates a temporary environment and patches everything to use it for the
+    lifespan of the context manager.
+    """
+    td = mkdtemp()
+    _old, zenv.CONFIG_DIR = zenv.CONFIG_DIR, td
+    _old, zcfg.CONFIG_DIR = zcfg.CONFIG_DIR, td
+    _zdebash, ZenDevEnvironment.bash = ZenDevEnvironment.bash, lambda *x:None
+    path = os.path.join(td, 'tmp')
+    args = fargs()
+    args.path = os.path.join(td, 'tmp')
+    args.default_repos = False
+    env = init(args)
+    os.environ.update(env.envvars())
+    yield
+    zenv.CONFIG_DIR = _old
+    zcfg.CONFIG_DIR = _old
+    ZenDevEnvironment.bash = _zdebash
+
+
+def check_env(name=None, **kwargs):
     envname = name or get_envname()
     if envname is None:
         error("Not in a zendev environment. Run 'zendev init' or 'zendev use'.")
         sys.exit(1)
     try:
-        return ZenDevEnvironment(envname)
+        return ZenDevEnvironment(envname, **kwargs)
     except NotInitialized:
         error("Not a zendev environment. Run 'zendev init' first.")
         sys.exit(1)
@@ -113,14 +141,15 @@ def init(args):
     config.add(name, args.path)
     with path.as_cwd():
         try:
-            env = ZenDevEnvironment(path=path)
+            env = ZenDevEnvironment(name=name, path=path)
         except NotInitialized:
             init_config_dir()
-            env = ZenDevEnvironment(path=path)
+            env = ZenDevEnvironment(name=name, path=path)
         env.initialize()
         env.use()
     if args.default_repos:
         args.manifest = env.root.join('build/manifests').listdir()
+    return env
 
 
 def add(args, paths=()):
@@ -207,11 +236,11 @@ def cd(args):
         env.bash('cd "%s"' % env._root.strpath)
 
 
-def sync(args):
+def sync(args, manifest=None):
     """
     Clone or update any existing repositories, push any commits.
     """
-    check_env().sync(args.repofilter)
+    check_env().sync(args.repofilter, manifest=manifest)
 
 
 def status(args):
@@ -236,8 +265,16 @@ def each(args):
         with repo.path.as_cwd():
             subprocess.call(args.command, shell=True)
 
+
 def build(args):
-    with check_env().buildroot.as_cwd():
+    srcroot = None
+    if args.manifest:
+        srcroot = py.path.local.mkdtemp()
+    env = check_env(manifest=args.manifest, srcroot=srcroot)
+    if args.manifest:
+        env.clone(shallow=True)
+    os.environ.update(env.envvars())
+    with env.buildroot.as_cwd():
         target = 'srcbuild' if args.target == 'src' else args.target
         subprocess.call(["make", target])
 
@@ -266,6 +303,9 @@ def parse_args():
     parser.add_argument('--script', action='store_true',
             help=argparse.SUPPRESS)
 
+    parser.add_argument('-n', '--noenv', action='store_true', 
+            help="Run in a temporary environment")
+
     subparsers = parser.add_subparsers()
 
     init_parser = subparsers.add_parser('init')
@@ -281,6 +321,7 @@ def parse_args():
     build_parser = subparsers.add_parser('build')
     build_parser.add_argument('target', metavar='TARGET', 
             choices=['src', 'core', 'resmgr'])
+    build_parser.add_argument('--manifest', metavar='MANIFEST', required=False)
     build_parser.set_defaults(functor=build)
 
     drop_parser = subparsers.add_parser('drop')
@@ -386,7 +427,6 @@ def parse_args():
         help="run resetserviced as root")
     serviced_parser.set_defaults(functor=resetserviced)
 
-
     argcomplete.autocomplete(parser)
 
     args = parser.parse_args()
@@ -397,7 +437,11 @@ def parse_args():
 
 def main():
     args = parse_args()
-    args.functor(args)
+    if args.noenv:
+        with temp_env():
+            args.functor(args)
+    else:
+        args.functor(args)
 
 
 if __name__ == "__main__":

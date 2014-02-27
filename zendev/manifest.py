@@ -32,3 +32,4 @@ class Manifest(object):
     def merge(self, manifest):
         assert isinstance(manifest, Manifest)
         self.repos().update(manifest.repos())
+

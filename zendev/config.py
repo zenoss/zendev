@@ -1,8 +1,9 @@
 import json
 import py
 
-from .utils import home
 from .log import info, error
+
+CONFIG_DIR = "~/.zendev"
 
 
 class ZendevConfig(object):
@@ -57,7 +58,7 @@ class ZendevConfig(object):
 
 
 def get_config():
-    zendevhome = home().ensure('.zendev', dir=True)
+    zendevhome = py.path.local(CONFIG_DIR, expanduser=True).ensure(dir=True)
     config = ZendevConfig(zendevhome.join('environments.json'))
     config.save()
     return config

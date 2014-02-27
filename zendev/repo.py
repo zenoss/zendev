@@ -80,7 +80,12 @@ class Repository(object):
         return self._repo
 
 
-    def clone(self):
+    def clone(self, shallow=False):
+        kwargs = {}
+        if shallow:
+            kwargs['depth'] = 1
+        if self.ref:
+            kwargs['branch'] = self.ref
         if self.path.check():
             raise Exception("Something already exists at %s. "
                     "Remove it first." % self.path)
@@ -89,9 +94,13 @@ class Repository(object):
             gitrepo = gitflow.core.Repo.clone_from(
                     self.url, 
                     str(self.path), 
-                    progress=self.progress)
+                    progress=self.progress,
+                    **kwargs)
             self._repo = gitflow.core.GitFlow(gitrepo)
             self.initialize()
+
+    def shallow_clone(self):
+        return self.clone(shallow=True)
 
     def start_feature(self, name):
         self.repo.create('feature', name, None, None)

@@ -5,6 +5,7 @@ import py
 import git
 import json
 
+import requests
 from termcolor import colored as colored_orig
 
 _COLORS = not os.environ.get("ZENDEV_COLORS", '').lower() in ('0', 'false', 'no', 'none')
@@ -71,14 +72,21 @@ def colored(s, color=None):
     return s if not _COLORS else colored_orig(s, color)
 
 
-def home():
-    try:
-        from win32com.shell import shellcon, shell
-    except ImportError:
-        home = os.path.expanduser("~")
-    else:
-        home = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
-    return py.path.local(home)
-
+_isurl = re.compile(r'^https?://').search
+def resolve(path):
+    """
+    If path is a URL, download the file somewhere and return the file path.
+    """
+    if isinstance(path, basestring) and _isurl(path):
+        url = path
+        local_filename = url.split('/')[-1].split('?')[0].split('#')[0] or 'download'
+        path = py.path.local.mkdtemp().join(local_filename).strpath
+        r = requests.get(url, stream=True)
+        with open(path, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+                    f.flush()
+    return path
 
 here = py.path.local(__file__).dirpath().join
