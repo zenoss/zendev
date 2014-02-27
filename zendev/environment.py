@@ -10,7 +10,7 @@ from tabulate import tabulate
 
 from .log import ask, info, error
 from .config import get_config
-from .manifest import Manifest
+from .manifest import Manifest, create_manifest
 from .repo import Repository
 from .box import VagrantManager
 from .utils import Reprinter, colored, here
@@ -93,7 +93,7 @@ class ZenDevEnvironment(object):
         self._vroot = self._root.join('vagrant')
         self._zenhome = (py.path.local(zenhome).ensure(dir=True) if zenhome 
                 else self._root.ensure('zenhome', dir=True))
-        self._manifest = Manifest(resolve(manifest or self._config.join('manifest')))
+        self._manifest = create_manifest(manifest or self._config.join('manifest'))
         self._vagrant = VagrantManager(self)
         self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
         self._buildroot = (py.path.local(buildroot) if buildroot
@@ -214,7 +214,7 @@ class ZenDevEnvironment(object):
         # Clone build directory
         self.ensure_build()
 
-    def clone(self, shallow=True):
+    def clone(self, shallow=False):
         cmd = 'shallow_clone' if shallow else 'clone'
         info("Cloning repositories")
         self.foreach(cmd, lambda r:not r.repo)

@@ -16,7 +16,7 @@ from .log import error
 from .config import get_config
 from .repo import Repository
 from .utils import colored, here
-from .manifest import Manifest
+from .manifest import create_manifest
 from . import config as zcfg
 from . import environment as zenv
 from .environment import ZenDevEnvironment, get_config_dir, init_config_dir
@@ -156,8 +156,7 @@ def add(args, paths=()):
     Add a manifest.
     """
     manifest = check_env().manifest
-    for manifestpath in args.manifest or ():
-        manifest.merge(Manifest(manifestpath))
+    manifest.merge(create_manifest(args.manifest or ()))
     manifest.save()
 
 
@@ -235,11 +234,11 @@ def cd(args):
         env.bash('cd "%s"' % env._root.strpath)
 
 
-def sync(args, manifest=None):
+def sync(args):
     """
     Clone or update any existing repositories, push any commits.
     """
-    check_env().sync(args.repofilter, manifest=manifest)
+    check_env().sync(args.repofilter)
 
 
 def status(args):
@@ -323,7 +322,8 @@ def parse_args():
     build_parser = subparsers.add_parser('build')
     build_parser.add_argument('target', metavar='TARGET', 
             choices=['src', 'core', 'resmgr'])
-    build_parser.add_argument('-m', '--manifest', metavar='MANIFEST', required=False)
+    build_parser.add_argument('-m', '--manifest', nargs="+",
+            metavar='MANIFEST', required=False)
     build_parser.set_defaults(functor=build)
 
     drop_parser = subparsers.add_parser('drop')
@@ -332,7 +332,7 @@ def parse_args():
     drop_parser.set_defaults(functor=drop)
 
     add_parser = subparsers.add_parser('add')
-    add_parser.add_argument('manifest', nargs='*', metavar="MANIFEST")
+    add_parser.add_argument('manifest', nargs='+', metavar="MANIFEST")
     add_parser.set_defaults(functor=add)
 
     rm_parser = subparsers.add_parser('rm')
@@ -360,8 +360,8 @@ def parse_args():
     status_parser.set_defaults(functor=status)
 
     clone_parser = subparsers.add_parser('clone')
-    clone_parser.add_argument('-m', '--manifest', metavar='MANIFEST', 
-            help="Manifest to use")
+    clone_parser.add_argument('-m', '--manifest', nargs='+',
+            metavar='MANIFEST', help="Manifest to use")
     clone_parser.add_argument('-s', '--shallow', action='store_true',
             help="Only check out the most recent commit for each repo")
     clone_parser.add_argument('output', metavar='SRCROOT', 
