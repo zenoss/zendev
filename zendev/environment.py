@@ -4,19 +4,19 @@ import time
 import os
 import itertools
 from multiprocessing import Queue, Pool
+from contextlib import contextmanager
 from Queue import Empty
 from tabulate import tabulate
 
 from .log import ask, info, error
 from .config import get_config
-from .manifest import Manifest
+from .manifest import Manifest, create_manifest
 from .repo import Repository
 from .box import VagrantManager
 from .utils import Reprinter, colored, here
-from .utils import is_git_repo
+from .utils import is_git_repo, resolve
 from .progress import GitProgressBar, SimpleGitProgressBar
 from git.remote import RemoteProgress
-
 
 
 CONFIG_DIR = '.zendev'
@@ -61,7 +61,7 @@ def get_config_dir(path=None):
     else:
         paths = [py.path.local(path)]
     for path in paths:
-       cfgdir = path.join(CONFIG_DIR)
+       cfgdir = path.join(CONFIG_DIR, abs=1)
        if cfgdir.check():
            break
     else:
@@ -75,7 +75,8 @@ class ZenDevEnvironment(object):
     _config = None
     _manifest = None
 
-    def __init__(self, name=None, path=None):
+    def __init__(self, name=None, path=None, manifest=None, srcroot=None,
+            buildroot=None, zenhome=None):
         if path:
             path = py.path.local(path)
         elif name:
@@ -86,23 +87,32 @@ class ZenDevEnvironment(object):
         self.name = name
         self._config = cfg_dir
         self._root = py.path.local(cfg_dir.dirname)
-        self._srcroot = self._root.ensure('src', dir=True)
-        self._gopath = self._root.ensure('src/golang', dir=True)
+        self._srcroot = (py.path.local(srcroot).ensure(dir=True) if srcroot 
+                else self._root.ensure('src', dir=True))
+        self._gopath = self._srcroot.ensure('golang', dir=True)
         self._vroot = self._root.join('vagrant')
-        self._zenhome = self._root.ensure('zenhome', dir=True)
-        self._manifest = Manifest(self._config.join('manifest'))
+        self._zenhome = (py.path.local(zenhome).ensure(dir=True) if zenhome 
+                else self._root.ensure('zenhome', dir=True))
+        self._manifest = create_manifest(manifest or self._config.join('manifest'))
         self._vagrant = VagrantManager(self)
         self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
-        self._buildroot = self._root.join('build')
+        self._buildroot = (py.path.local(buildroot) if buildroot
+                else self._root.join('build'))
+
+    def envvars(self):
+        origpath = os.environ.get('ZD_ORIGPATH', os.environ.get('PATH'))
+        return {
+            "ZENHOME": self._zenhome.strpath,
+            "SRCROOT": self._srcroot.strpath,
+            "GOPATH": self._gopath.strpath,
+            "GOBIN": self._gopath.strpath + "/bin",
+            "ZD_ORIGPATH": origpath,
+            "PATH":"%s/bin:%s/bin:%s" % (self._gopath, self._zenhome, origpath)
+        }
 
     def _export_env(self):
-        origpath = os.environ.get('ZD_ORIGPATH', os.environ.get('PATH'))
-        self.bash('export ZENHOME="%s"' % self._zenhome)
-        self.bash('export SRCROOT="%s"' % self._srcroot)
-        self.bash('export GOPATH="%s"' % self._gopath)
-        self.bash('export GOBIN="%s/bin"' % self._gopath)
-        self.bash('export ZD_ORIGPATH="%s"' % origpath)
-        self.bash('export PATH="$GOPATH/bin:$ZENHOME/bin:$ZD_ORIGPATH"')
+        for k, v in self.envvars().iteritems():
+            self.bash('export %s="%s"' % (k, v))
 
     @property
     def srcroot(self):
@@ -162,7 +172,7 @@ class ZenDevEnvironment(object):
         return sorted(itertools.ifilter(filter_, self._repos()), 
                 key=key or (lambda r:r.name.count('/')))
 
-    def remove(self, filter_=None):
+    def remove(self, filter_=None, save=True):
         """
         Remove repositories from the manifest and filesystem. In this case, if
         there are no repos passed in, fail.
@@ -174,7 +184,8 @@ class ZenDevEnvironment(object):
                 repo.path.remove()
             except:
                 info("Unable to remove path %s." % repo.path.strpath)
-        self.manifest.save()
+        if save:
+            self.manifest.save()
 
     def freeze(self):
         """
@@ -203,9 +214,10 @@ class ZenDevEnvironment(object):
         # Clone build directory
         self.ensure_build()
 
-    def clone(self):
+    def clone(self, shallow=False):
+        cmd = 'shallow_clone' if shallow else 'clone'
         info("Cloning repositories")
-        self.foreach('clone', lambda r:not r.repo)
+        self.foreach(cmd, lambda r:not r.repo)
         info("All repositories are cloned!")
 
     def fetch(self):
@@ -268,7 +280,6 @@ class ZenDevEnvironment(object):
         for r in repos:
             info( " Starting feature for repo: %s" % r.name)
             r.create_feature( name)
-
 
     def list_feature(self, name):
         info("Repositores with feature: %s" % name)

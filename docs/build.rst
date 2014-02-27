@@ -36,3 +36,19 @@ and copy it to an output directory mounted from the host.
     # added to the environment.
     zendev build resmgr
 
+Building from a different manifest
+==================================
+zendev can build from a manifest other than your current source tree. In this
+case, it will perform a shallow clone (last commit only) of all the repos into
+a temp directory, then build the specified artifact from that.
+
+.. code-block:: bash
+
+    # Build from a local manifest
+    zendev -n build core -m /path/to/manifest.json
+
+    # Build from a remote manifest
+    zendev -n build core -m https://dl.dropboxusercontent.com/u/784231/manifest.mf
+
+    # Build using source from several manifests
+    zendev -n build core -m /path/to/manifest1.json http://host/manifest2.json

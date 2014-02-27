@@ -44,7 +44,11 @@ You can add a manifest to a zendev environment with the ``add`` command:
 
 .. code-block:: bash
 
+    # Add a local manifest
     zendev add /path/to/manifest.json
+
+    # Add a remote manifest
+    zendev add http://host/manifest2.json
 
 Navigating Source
 -----------------
@@ -112,4 +116,18 @@ specified (or all) repositories as a result of the ``status`` command:
     # Print status for all repositories
     zendev status -a
 
+Cloning Directly From a Manifest
+--------------------------------
+You don't have to have an environment set up to turn a manifest into a source
+tree. You can use ``zendev clone``.
 
+.. code-block:: bash
+
+    # Clone from a local manifest to ./src
+    zendev clone ./src -m /path/to/manifest.json ./src
+
+    # Clone from a remote manifest
+    zendev clone ./src -m http://host/manifest.json ./src
+
+    # Clone only the last commit from several manifests
+    zendev clone --shallow ./src -m /path/to/manifest1.json -m /path/to/manifest2.json

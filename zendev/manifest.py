@@ -1,6 +1,8 @@
 import json
 import py
 
+from .utils import resolve
+
 
 class Manifest(object):
     """
@@ -32,3 +34,19 @@ class Manifest(object):
     def merge(self, manifest):
         assert isinstance(manifest, Manifest)
         self.repos().update(manifest.repos())
+
+
+def create_manifest(manifest):
+    """
+    Turn paths/urls to one or more manifests into a single Manifest instance.
+    """
+    if not hasattr(manifest, '__iter__'):
+        manifest = (py.path.local(manifest).strpath,)
+    m = None
+    for path in manifest:
+        m2 = Manifest(resolve(path))
+        if isinstance(m, Manifest):
+            m.merge(m2)
+        else:
+            m = m2
+    return m
