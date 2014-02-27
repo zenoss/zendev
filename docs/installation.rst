@@ -272,6 +272,15 @@ so you can actually interact with the things running thereon:
     vagrant ssh
     # etc.
 
+Update zendev
+-------------
+Zendev should always be installed from a source checkout, in place. If you want
+to update it, you can run:
+
+.. code-block:: bash
+
+    zendev selfupdate
+
 
 .. _Docker: http://docker.io/
 .. _Go: http://golang.org/
