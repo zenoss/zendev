@@ -177,7 +177,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span>
 
 </div>
-<div class="viewcode-block" id="Repository.clone"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Repository.clone"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">shallow</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;branch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">check</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Something already exists at </span><span class="si">%s</span><span class="s">. &quot;</span>
                     <span class="s">&quot;Remove it first.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
@@ -186,9 +191,14 @@
             <span class="n">gitrepo</span> <span class="o">=</span> <span class="n">gitflow</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Repo</span><span class="o">.</span><span class="n">clone_from</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> 
                     <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">),</span> 
-                    <span class="n">progress</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">progress</span><span class="p">)</span>
+                    <span class="n">progress</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">progress</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span> <span class="o">=</span> <span class="n">gitflow</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">GitFlow</span><span class="p">(</span><span class="n">gitrepo</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">shallow</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Repository.shallow_clone"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.shallow_clone">[docs]</a>    <span class="k">def</span> <span class="nf">shallow_clone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Repository.start_feature"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.start_feature">[docs]</a>    <span class="k">def</span> <span class="nf">start_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s">&#39;feature&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>

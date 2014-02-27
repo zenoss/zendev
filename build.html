@@ -75,6 +75,7 @@
 <li><a class="reference internal" href="#">Building Zenoss With zendev</a><ul>
 <li><a class="reference internal" href="#building-from-source">Building from Source</a></li>
 <li><a class="reference internal" href="#building-rpms">Building RPMs</a></li>
+<li><a class="reference internal" href="#building-from-a-different-manifest">Building from a different manifest</a></li>
 </ul>
 </li>
 </ul>
@@ -136,6 +137,22 @@ zendev build core
 <span class="c"># Build RM (Core + ZenPacks). Requires that the *zenpack.json manifests are</span>
 <span class="c"># added to the environment.</span>
 zendev build resmgr
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-from-a-different-manifest">
+<h2>Building from a different manifest<a class="headerlink" href="#building-from-a-different-manifest" title="Permalink to this headline">¶</a></h2>
+<p>zendev can build from a manifest other than your current source tree. In this
+case, it will perform a shallow clone (last commit only) of all the repos into
+a temp directory, then build the specified artifact from that.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Build from a local manifest</span>
+zendev -n build core -m /path/to/manifest.json
+
+<span class="c"># Build from a remote manifest</span>
+zendev -n build core -m https://dl.dropboxusercontent.com/u/784231/manifest.mf
+
+<span class="c"># Build using source from several manifests</span>
+zendev -n build core -m /path/to/manifest1.json http://host/manifest2.json
 </pre></div>
 </div>
 </div>

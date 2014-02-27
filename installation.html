@@ -180,7 +180,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:</p
 
 <span class="s">script</span>
 <span class="s">        DOCKER=/usr/bin/$UPSTART_JOB</span>
-<span class="s">        DOCKER_OPTS=&quot;-dns=10.87.110.13 -dns=10.87.113.13 -dns=10.88.102.13&quot;</span>
+<span class="s">        DOCKER_OPTS=&quot;-dns=10.87.113.13 -dns=10.88.102.13 -dns=10.175.211.10&quot;</span>
 <span class="s">        if [ -f /etc/default/$UPSTART_JOB ]; then</span>
 <span class="s">                . /etc/default/$UPSTART_JOB</span>
 <span class="s">        fi</span>
@@ -218,6 +218,9 @@ sudo apt-get install -y mercurial bzr git
 
 <span class="c"># libpam (necessary for control plane)</span>
 sudo apt-get install -y libpam0g-dev
+
+<span class="c"># serviced needs these for visualization - dirs are in ubuntu 12.04, but not 13.04</span>
+sudo mkdir /sys/fs/cgroup/<span class="o">{</span>blkio,cpuacct,memory<span class="o">}</span>/lxc
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
@@ -293,7 +296,7 @@ cdz serviced
 make install
 
 <span class="c"># Build the Zenoss Docker repo (also may take a while)</span>
-cdz <span class="o">&amp;&amp;</span> <span class="nb">cd </span>build/repos <span class="o">&amp;&amp;</span> make
+cdz <span class="o">&amp;&amp;</span> <span class="nb">cd </span>build/services/repos <span class="o">&amp;&amp;</span> make
 
 <span class="c"># Run a totally clean instance of serviced, automatically adding localhost</span>
 <span class="c"># as a host, adding the Zenoss template, and deploying an instance of</span>

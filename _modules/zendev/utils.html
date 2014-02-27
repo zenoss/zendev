@@ -102,6 +102,7 @@
 <span class="kn">import</span> <span class="nn">git</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
+<span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">termcolor</span> <span class="kn">import</span> <span class="n">colored</span> <span class="k">as</span> <span class="n">colored_orig</span>
 
 <span class="n">_COLORS</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ZENDEV_COLORS&quot;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;0&#39;</span><span class="p">,</span> <span class="s">&#39;false&#39;</span><span class="p">,</span> <span class="s">&#39;no&#39;</span><span class="p">,</span> <span class="s">&#39;none&#39;</span><span class="p">)</span>
@@ -168,15 +169,22 @@
     <span class="k">return</span> <span class="n">s</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">_COLORS</span> <span class="k">else</span> <span class="n">colored_orig</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="home"><a class="viewcode-back" href="../../zendev.html#zendev.utils.home">[docs]</a><span class="k">def</span> <span class="nf">home</span><span class="p">():</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">win32com.shell</span> <span class="kn">import</span> <span class="n">shellcon</span><span class="p">,</span> <span class="n">shell</span>
-    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s">&quot;~&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">home</span> <span class="o">=</span> <span class="n">shell</span><span class="o">.</span><span class="n">SHGetFolderPath</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">shellcon</span><span class="o">.</span><span class="n">CSIDL_APPDATA</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">home</span><span class="p">)</span>
-
+<span class="n">_isurl</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;^https?://&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">search</span>
+<div class="viewcode-block" id="resolve"><a class="viewcode-back" href="../../zendev.html#zendev.utils.resolve">[docs]</a><span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    If path is a URL, download the file somewhere and return the file path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_isurl</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="n">local_filename</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;?&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;#&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="s">&#39;download&#39;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_filename</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">chunk</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">path</span>
 </div>
 <span class="n">here</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">dirpath</span><span class="p">()</span><span class="o">.</span><span class="n">join</span>
 </pre></div>

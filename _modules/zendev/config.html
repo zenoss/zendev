@@ -98,8 +98,9 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">py</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">home</span>
 <span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">info</span><span class="p">,</span> <span class="n">error</span>
+
+<span class="n">CONFIG_DIR</span> <span class="o">=</span> <span class="s">&quot;~/.zendev&quot;</span>
 
 
 <div class="viewcode-block" id="ZendevConfig"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig">[docs]</a><span class="k">class</span> <span class="nc">ZendevConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -154,7 +155,7 @@
 
 </div></div>
 <div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../zendev.html#zendev.config.get_config">[docs]</a><span class="k">def</span> <span class="nf">get_config</span><span class="p">():</span>
-    <span class="n">zendevhome</span> <span class="o">=</span> <span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&#39;.zendev&#39;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">zendevhome</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">CONFIG_DIR</span><span class="p">,</span> <span class="n">expanduser</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">ZendevConfig</span><span class="p">(</span><span class="n">zendevhome</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;environments.json&#39;</span><span class="p">))</span>
     <span class="n">config</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">config</span>

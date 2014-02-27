@@ -80,6 +80,7 @@
 <li><a class="reference internal" href="#generating-manifests">Generating Manifests</a></li>
 <li><a class="reference internal" href="#pulling-pushing-changes">Pulling/Pushing Changes</a></li>
 <li><a class="reference internal" href="#status">Status</a></li>
+<li><a class="reference internal" href="#cloning-directly-from-a-manifest">Cloning Directly From a Manifest</a></li>
 </ul>
 </li>
 </ul>
@@ -148,7 +149,11 @@ found in <tt class="docutils literal"><span class="pre">$(zendev</span> <span cl
 <div class="section" id="adding-manifests">
 <h2>Adding Manifests<a class="headerlink" href="#adding-manifests" title="Permalink to this headline">¶</a></h2>
 <p>You can add a manifest to a zendev environment with the <tt class="docutils literal"><span class="pre">add</span></tt> command:</p>
-<div class="highlight-bash"><div class="highlight"><pre>zendev add /path/to/manifest.json
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add a local manifest</span>
+zendev add /path/to/manifest.json
+
+<span class="c"># Add a remote manifest</span>
+zendev add http://host/manifest2.json
 </pre></div>
 </div>
 </div>
@@ -209,6 +214,21 @@ zendev status metric ldap
 
 <span class="c"># Print status for all repositories</span>
 zendev status -a
+</pre></div>
+</div>
+</div>
+<div class="section" id="cloning-directly-from-a-manifest">
+<h2>Cloning Directly From a Manifest<a class="headerlink" href="#cloning-directly-from-a-manifest" title="Permalink to this headline">¶</a></h2>
+<p>You don&#8217;t have to have an environment set up to turn a manifest into a source
+tree. You can use <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">clone</span></tt>.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Clone from a local manifest to ./src</span>
+zendev clone ./src -m /path/to/manifest.json ./src
+
+<span class="c"># Clone from a remote manifest</span>
+zendev clone ./src -m http://host/manifest.json ./src
+
+<span class="c"># Clone only the last commit from several manifests</span>
+zendev clone --shallow ./src -m /path/to/manifest1.json -m /path/to/manifest2.json
 </pre></div>
 </div>
 </div>
