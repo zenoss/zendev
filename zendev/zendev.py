@@ -277,6 +277,9 @@ def build(args):
         target = 'srcbuild' if args.target == 'src' else args.target
         subprocess.call(["make", target])
 
+def clone(args):
+    env = check_env(srcroot=args.output, manifest=args.manifest)
+    env.clone(shallow=args.shallow)
 
 def use(args):
     """
@@ -355,6 +358,15 @@ def parse_args():
         help="Display all repos, whether or not they have changes.")
     add_repo_narg(status_parser)
     status_parser.set_defaults(functor=status)
+
+    clone_parser = subparsers.add_parser('clone')
+    clone_parser.add_argument('-m', '--manifest', metavar='MANIFEST', 
+            help="Manifest to use")
+    clone_parser.add_argument('-s', '--shallow', action='store_true',
+            help="Only check out the most recent commit for each repo")
+    clone_parser.add_argument('output', metavar='SRCROOT', 
+            help="Target directory into which to clone")
+    clone_parser.set_defaults(functor=clone)
 
     #feature parser
     feature_parser = subparsers.add_parser('feature')
