@@ -4,15 +4,6 @@ Improving zendev
 zendev is meant to be improved by everyone! Definitely not just Ian! Everything
 helps. Please. I need to sleep.
 
-Update zendev
-~~~~~~~~~~~~~
-Zendev should always be installed from a source checkout, in place. If you want
-to update it, you can run:
-
-.. code-block:: bash
-
-    zendev selfupdate
-
 Report Bugs
 ~~~~~~~~~~~
 
