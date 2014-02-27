@@ -61,10 +61,11 @@ def root(args):
 
 def resetserviced(args):
     cmd = [here("resetserviced.sh").strpath]
-    resetserviced_args = os.environ.get("RESETSERVICED_ARGS")
-    if resetserviced_args:
-        cmd.insert(0, "RESETSERVICED_ARGS=" + resetserviced_args)
     if args.root:
+        for key in ("RESETSERVICED_ARGS", "SERVICED_HOME"):
+            value = os.environ.get(key)
+            if value:
+                cmd.insert(0, key + "=" + value)
         cmd.insert(0, "GOPATH=" + os.environ["GOPATH"])
         cmd.insert(0, "sudo")
     subprocess.call(cmd)
