@@ -86,6 +86,11 @@ def root(args):
     print env.root.strpath
 
 
+def selfupdate(args):
+    with here().as_cwd():
+        subprocess.call(["git", "pull"])
+
+
 def resetserviced(args):
     cmd = [here("resetserviced.sh").strpath]
     if args.root:
@@ -441,6 +446,9 @@ def parse_args():
     serviced_parser.add_argument('--root', action='store_true',
         help="run resetserviced as root")
     serviced_parser.set_defaults(functor=resetserviced)
+
+    update_parser = subparsers.add_parser('selfupdate')
+    update_parser.set_defaults(functor=selfupdate)
 
     argcomplete.autocomplete(parser)
 
