@@ -97,7 +97,8 @@ class Repository(object):
                     progress=self.progress,
                     **kwargs)
             self._repo = gitflow.core.GitFlow(gitrepo)
-            self.initialize()
+            if not shallow:
+                self.initialize()
 
     def shallow_clone(self):
         return self.clone(shallow=True)

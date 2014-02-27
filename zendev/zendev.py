@@ -9,7 +9,6 @@ import argparse
 import argcomplete
 import subprocess
 from contextlib import contextmanager
-from tempfile import mkdtemp
 
 import py
 
@@ -37,13 +36,13 @@ def temp_env():
     Creates a temporary environment and patches everything to use it for the
     lifespan of the context manager.
     """
-    td = mkdtemp()
-    _old, zenv.CONFIG_DIR = zenv.CONFIG_DIR, td
-    _old, zcfg.CONFIG_DIR = zcfg.CONFIG_DIR, td
+    td = py.path.local.mkdtemp()
+    _old, zenv.CONFIG_DIR = zenv.CONFIG_DIR, td.join('config')
+    _old, zcfg.CONFIG_DIR = zcfg.CONFIG_DIR, td.join('config')
     _zdebash, ZenDevEnvironment.bash = ZenDevEnvironment.bash, lambda *x:None
-    path = os.path.join(td, 'tmp')
+    path = td.join('root')
     args = fargs()
-    args.path = os.path.join(td, 'tmp')
+    args.path = path.strpath
     args.default_repos = False
     env = init(args)
     os.environ.update(env.envvars())
@@ -268,7 +267,7 @@ def each(args):
 
 def build(args):
     srcroot = None
-    if args.manifest:
+    if args.manifest and not args.noenv:
         srcroot = py.path.local.mkdtemp()
     env = check_env(manifest=args.manifest, srcroot=srcroot)
     if args.manifest:
