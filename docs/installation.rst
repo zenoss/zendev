@@ -114,6 +114,9 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 
     # libpam (necessary for control plane)
     sudo apt-get install -y libpam0g-dev
+    
+    # serviced needs these for visualization - dirs are in ubuntu 12.04, but not 13.04
+    sudo mkdir /sys/fs/cgroup/{blkio,cpuacct,memory}/lxc
 
 6. At this point, you need to `set up GitHub for SSH access
    <https://help.github.com/articles/generating-ssh-keys>`_. Also, make sure
