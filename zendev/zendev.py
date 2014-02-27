@@ -278,7 +278,7 @@ def build(args):
         subprocess.call(["make", target])
 
 def clone(args):
-    env = check_env(srcroot=args.output, manifest=args.manifest)
+    env = ZenDevEnvironment(srcroot=args.output, manifest=args.manifest)
     env.clone(shallow=args.shallow)
 
 def use(args):
