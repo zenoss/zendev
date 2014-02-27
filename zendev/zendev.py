@@ -323,7 +323,7 @@ def parse_args():
     build_parser = subparsers.add_parser('build')
     build_parser.add_argument('target', metavar='TARGET', 
             choices=['src', 'core', 'resmgr'])
-    build_parser.add_argument('--manifest', metavar='MANIFEST', required=False)
+    build_parser.add_argument('-m', '--manifest', metavar='MANIFEST', required=False)
     build_parser.set_defaults(functor=build)
 
     drop_parser = subparsers.add_parser('drop')
