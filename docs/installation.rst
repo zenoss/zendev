@@ -39,9 +39,7 @@ Ubuntu
         > /etc/apt/sources.list.d/docker.list"
 
     # Install Docker
-    sudo apt-get install -y lxc-docker-0.7.6
-
-Notice that we install Docker 0.7.6. We don't support Docker >= 0.8 yet.
+    sudo apt-get install -y lxc-docker-0.8.1
 
 3. Add your user to the ``docker`` group:
 
