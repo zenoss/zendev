@@ -39,7 +39,7 @@ Ubuntu
         > /etc/apt/sources.list.d/docker.list"
 
     # Install Docker
-    sudo apt-get install -y lxc-docker-0.8.1
+    sudo apt-get install -y lxc-docker-0.8.1 apparmor-utils
 
 3. Add your user to the ``docker`` group:
 
@@ -47,6 +47,9 @@ Ubuntu
 
     # Add the current user to the docker group
     sudo usermod -a -G docker ${USER}
+
+    # Allow lxc-start to start (see https://github.com/dotcloud/docker/issues/2702)
+    sudo /usr/sbin/aa-complain /usr/bin/lxc-start
 
     # Restart Docker
     sudo service docker restart
