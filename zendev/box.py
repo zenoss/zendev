@@ -20,8 +20,14 @@ Vagrant.configure("2") do |config|
   config.vm.box_url = "http://vagrant.zendev.org/boxes/{{ box_name }}.box"
   config.vm.hostname = "{{ instance_name }}"
   config.vm.network :private_network, :ip => '0.0.0.0', :auto_network => true
+
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "8192"]
+    vb.customize ["modifyvm", :id, "--cpus", 4]
+  end
+
   {% for root, target in shared_folders %}
-  config.vm.synced_folder "{{ root }}", "{{ target }}", :mount_options => ["dmode=775","fmode=664"]{% endfor %}
+  config.vm.synced_folder "{{ root }}", "{{ target }}"{% endfor %}
   {% if provision_script %}config.vm.provision "shell", inline: $script{% endif %}
 end
 """)
