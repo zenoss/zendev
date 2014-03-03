@@ -6,7 +6,9 @@ echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docke
 ufw disable
 
 apt-get -y update
-apt-get -y install lxc-docker-0.8.1
+apt-get -y install lxc-docker-0.8.1 apparmor-utils
+
+aa-complain /usr/bin/lxc-start
 
 usermod -a -G docker zenoss
 

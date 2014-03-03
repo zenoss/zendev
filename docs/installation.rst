@@ -39,7 +39,7 @@ Ubuntu
         > /etc/apt/sources.list.d/docker.list"
 
     # Install Docker
-    sudo apt-get install -y lxc-docker-0.8.1
+    sudo apt-get install -y lxc-docker-0.8.1 apparmor-utils
 
 3. Add your user to the ``docker`` group:
 
@@ -47,6 +47,9 @@ Ubuntu
 
     # Add the current user to the docker group
     sudo usermod -a -G docker ${USER}
+
+    # Allow lxc-start to start (see https://github.com/dotcloud/docker/issues/2702)
+    sudo /usr/sbin/aa-complain /usr/bin/lxc-start
 
     # Restart Docker
     sudo service docker restart
@@ -240,7 +243,7 @@ development.
 
 .. code-block:: bash
 
-    vagrant init ubuntu-13.04-docker
+    vagrant init ubuntu-13.04-docker-v1
 
 As the pretty words will tell you, a Vagrantfile will have been created in that
 directory. Edit it, uncomment the line specifying the box URL, and set it to
@@ -248,7 +251,7 @@ the one we have hosted:
 
 .. code-block:: ruby
 
-    config.vm.box_url = "http://vagrant.zendev.org/boxes/ubuntu-13.04-docker.box"
+    config.vm.box_url = "http://vagrant.zendev.org/boxes/ubuntu-13.04-docker-v1.box"
 
 You should also probably uncomment either the private or public networking line
 so you can actually interact with the things running thereon:
