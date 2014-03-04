@@ -102,6 +102,24 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Source the new profile
     source /etc/profile.d/golang.sh
 
+    # Add important/useful golang things
+    mkdir -p /opt/go/{bin,pkg,src}
+
+    export GOPATH=/opt/go
+
+    go get github.com/golang/lint/golint
+    ln -s /opt/go/bin/golint /usr/local/bin/golint
+
+    go get -v code.google.com/p/rog-go/exp/cmd/godef
+    go install -v code.google.com/p/rog-go/exp/cmd/godef
+    ln -s /opt/go/bin/godef /usr/local/bin/godef
+
+    go get -u github.com/nsf/gocode
+    ln -s /opt/go/bin/gocode /usr/local/bin/gocode
+
+    go get code.google.com/p/go.tools/cmd/goimports
+    ln -s /opt/go/bin/goimports /usr/local/bin/goimports
+
 6. Install other dependencies:
 
 .. code-block:: bash
