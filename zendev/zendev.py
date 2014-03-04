@@ -100,6 +100,8 @@ def resetserviced(args):
                 cmd.insert(0, key + "=" + value)
         cmd.insert(0, "GOPATH=" + os.environ["GOPATH"])
         cmd.insert(0, "sudo")
+    if args.startall:
+        cmd.append('startall')
     subprocess.call(cmd)
 
 
@@ -445,6 +447,8 @@ def parse_args():
     serviced_parser = subparsers.add_parser('resetserviced')
     serviced_parser.add_argument('--root', action='store_true',
         help="run resetserviced as root")
+    serviced_parser.add_argument('--startall', action='store_true',
+        help="start all services")
     serviced_parser.set_defaults(functor=resetserviced)
 
     update_parser = subparsers.add_parser('selfupdate')
