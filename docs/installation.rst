@@ -89,9 +89,9 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 
 .. code-block:: bash
 
-    # Download Go 1.2 and unpack it into /usr/local
+    # Download Go 1.2.1 and unpack it into /usr/local
     sudo apt-get install -y wget
-    wget -qO- http://go.googlecode.com/files/go1.2.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
+    wget -qO- https://go.googlecode.com/files/go1.2.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 
     # Set GOROOT and PATH appropriately
     cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
@@ -119,11 +119,14 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # serviced needs these for visualization - dirs are in ubuntu 12.04, but not 13.04
     sudo mkdir /sys/fs/cgroup/{blkio,cpuacct,memory}/lxc
 
-6. At this point, you need to `set up GitHub for SSH access
+    # tmux will make your life better
+    sudo apt-get install -y tmux
+
+7. At this point, you need to `set up GitHub for SSH access
    <https://help.github.com/articles/generating-ssh-keys>`_. Also, make sure
    you've been added to the appropriate Zenoss teams.
 
-7. Now it's time to install zendev:
+8. Now it's time to install zendev:
 
 .. code-block:: bash
 
@@ -151,7 +154,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Source it in the current shell
     source $(zendev bootstrap)
 
-8. Create your Europa zendev environment:
+9. Create your Europa zendev environment:
 
 .. code-block:: bash
 
@@ -164,7 +167,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Start using the environment
     zendev use europa
 
-9. Add some repositories to the ``europa`` environment:
+10. Add some repositories to the ``europa`` environment:
 
 .. code-block:: bash
 
@@ -176,7 +179,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Clone everything
     zendev sync
 
-10. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
+11. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
     and (if you install Vagrant_ and VirtualBox_) create Vagrant boxes to run
     serviced or Resource Manager. As an example, here's how you build serviced
     and run it:
@@ -232,7 +235,7 @@ Forget it, man. This will only end in tears. Use the `Vagrant box`_.
 .. _Vagrant box:
 Self-managed Vagrant box
 ------------------------
-Essentially, this is a Vagrant box that has already had steps 1-5 applied.
+Essentially, this is a Vagrant box that has already had steps 1-6 applied.
 zendev has the capability to create and manage instances of this box within an
 environment, but it's also perfectly good just to start up a VM for
 development. 
