@@ -332,7 +332,7 @@ def parse_args():
 
     build_parser = subparsers.add_parser('build')
     build_parser.add_argument('target', metavar='TARGET', 
-            choices=['src', 'core', 'resmgr'])
+            choices=['src', 'core', 'resmgr', 'svcpkg-core', 'svcpkg-resmgr', 'serviced'])
     build_parser.add_argument('-m', '--manifest', nargs="+",
             metavar='MANIFEST', required=False)
     build_parser.set_defaults(functor=build)
