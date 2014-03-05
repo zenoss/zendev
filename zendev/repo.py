@@ -37,7 +37,12 @@ class Repository(object):
     @property
     @memoize
     def branch(self):
-        return self.repo.repo.active_branch.name
+        try:
+            return self.repo.repo.active_branch.name
+        except TypeError:
+            head = self.repo.repo.head
+            sha, target = head._get_ref_info(head.repo, head.path)
+            return sha
 
     @property
     @memoize

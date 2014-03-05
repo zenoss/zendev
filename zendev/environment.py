@@ -187,10 +187,19 @@ class ZenDevEnvironment(object):
         if save:
             self.manifest.save()
 
+    def _update_manifest(self):
+        """
+        Update the manifest's branches with those on the filesystem.
+        """
+        for repo in self.repos():
+            self.manifest.repos()[repo.name]['ref'] = repo.branch
+        self.manifest.save()
+
     def freeze(self):
         """
         Return a JSON representation of the repositories.
         """
+        self._update_manifest()
         return self.manifest.freeze()
 
     def ensure_build(self):
