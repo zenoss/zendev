@@ -204,7 +204,6 @@ def box_create(args):
     """
     """
     env = check_env()
-    env.vagrant.create(args.name, args.type)
     env.vagrant.provision(args.name, args.type)
     env.vagrant.ssh(args.name)
 
@@ -269,10 +268,10 @@ def each(args):
     """
     Execute a command in each repo's directory.
     """
-    for repo in ZenDevEnvironment().repos(args.repofilter):
+    for repo in check_env().repos(args.repofilter):
         print repo.name
         with repo.path.as_cwd():
-            subprocess.call(args.command, shell=True)
+            subprocess.call(args.command)
 
 
 def build(args):
@@ -403,8 +402,8 @@ def parse_args():
     feature_finish_parser.set_defaults(functor=feature_finish)
 
     each_parser = subparsers.add_parser('each')
-    add_repo_narg(each_parser)
-    each_parser.add_argument('-c', dest="command")
+    each_parser.add_argument('-r', '--repo', dest="repos", nargs='*')
+    each_parser.add_argument('-c', '--command', nargs='*')
     each_parser.set_defaults(functor=each)
 
     box_parser = subparsers.add_parser('box')
@@ -458,7 +457,7 @@ def parse_args():
 
     args = parser.parse_args()
     if hasattr(args, 'repos'):
-        args.repofilter = repofilter(args.repos)
+        args.repofilter = repofilter(args.repos or ())
     return args
 
 
