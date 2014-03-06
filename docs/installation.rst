@@ -157,6 +157,9 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Clone zendev
     git clone git@github.com:zenoss/zendev
 
+    # Enter the zendev directory
+    cd ${SRCDIR}/zendev
+
     # Generate egg_info as current user to prevent permission problems 
     # down the road
     python ${SRCDIR}/zendev/setup.py egg_info
