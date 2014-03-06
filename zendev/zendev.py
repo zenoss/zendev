@@ -204,6 +204,7 @@ def box_create(args):
     """
     """
     env = check_env()
+    env.vagrant.create(args.name, args.type)
     env.vagrant.provision(args.name, args.type)
     env.vagrant.ssh(args.name)
 
