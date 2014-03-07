@@ -1,5 +1,6 @@
 from cStringIO import StringIO
 
+import os
 import py
 import subprocess
 from jinja2 import Template
@@ -24,6 +25,11 @@ Vagrant.configure("2") do |config|
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", "8192"]
     vb.customize ["modifyvm", :id, "--cpus", 4]
+    {% set vdi_count = 1 %}
+    {% for vdi in vdis %}
+    vb.customize ["storageattach", :id, "--storagectl", "SATA Controller", 
+                  "--port", {{ vdi_count }}, "--device", 0, "--type", "hdd", "--medium",
+                  "{{ vdi }}"]{% set vdi_count = vdi_count + 1 %}{% endfor %}
   end
 
   {% for root, target in shared_folders %}
@@ -72,11 +78,12 @@ class VagrantManager(object):
             return False
         return True
 
-    def create(self, name, purpose=CONTROLPLANE):
+    def create(self, name, purpose=CONTROLPLANE, btrfs=0, vfs=0):
         if not self.verify_auto_network():
             raise Exception("Unable to find or install vagrant-auto_network plugin.")
         elif self._root.join(name).check(dir=True):
             raise Exception("Vagrant box %s already exists" % name)
+
         vbox_dir = self._root.ensure(name, dir=True)
         shared = (
             (self.env.zendev.strpath, "/home/zenoss/zendev"),
@@ -86,16 +93,29 @@ class VagrantManager(object):
             (self.env.configroot.strpath, "/home/zenoss/%s/%s" % (
                 self.env.name, self.env.configroot.basename)),
         )
+
+        vdis = []
+        formatDrive = []
+        drive = "b"
+
+        # Set up the btrfs volumes
+        for i in range(btrfs):
+            vdis.append(self.make_vdi(name, "btrfs_%d.vdi" % (i+1), 24 * 1024))
+            formatDrive.append("mkfs.btrfs -L volume.btrfs.%d /dev/sd%s" % ((i+1),drive))
+            drive = chr(ord(drive)+1)
+
         vbox_dir.ensure("Vagrantfile").write(VAGRANT.render(
             instance_name=name,
             box_name=BOXES.get(purpose),
+            vdis=vdis,
             shared_folders=shared,
             provision_script="""
 chown zenoss:zenoss /home/zenoss/%s
 su - zenoss -c "cd /home/zenoss && zendev init %s"
 echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
 echo "zendev use %s" >> /home/zenoss/.bashrc
-""" % (self.env.name, self.env.name, self.env.name)))
+%s
+""" % (self.env.name, self.env.name, self.env.name, "\n".join(formatDrive))))
 
     def up(self, name):
         box = self._get_box(name)
@@ -119,6 +139,12 @@ echo "zendev use %s" >> /home/zenoss/.bashrc
             proc = subprocess.Popen([vagrant.VAGRANT_EXE, "up"], 
                     stdin=subprocess.PIPE)
             stdout, stderr = proc.communicate(provision_script)
+
+    def make_vdi(self, name, diskname, size):
+        with self._root.join(name).as_cwd():
+            disk = os.path.join("mnt", diskname)
+            subprocess.call(["VBoxManage","createhd", "--filename", disk, "--size", str(size)])
+            return disk
 
     def ssh(self, name):
         import vagrant
