@@ -1,4 +1,4 @@
-apt-get -y install git vim-nox emacs24-nox htop wget python-dev python-pip mercurial bzr git libpam0g-dev tmux curl
+apt-get -y install git vim-nox emacs24-nox htop wget python-dev python-pip mercurial bzr git libpam0g-dev tmux curl btrfs-tools
 
 pip install --upgrade pip
 
