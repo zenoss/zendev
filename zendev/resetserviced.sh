@@ -29,8 +29,11 @@ deploy () {
     ${SERVICED} add-host $IP:4979 default
     TEMPLATE_ID=$(${SERVICED} add-template ${EUROPA}/build/services/Zenoss)
     ${SERVICED} deploy-template ${TEMPLATE_ID} default zenoss
+    sleep 5
+    ZENOSS_ROOT_SERVICE=$(serviced services | awk '/Zenoss/ {print $2; exit}')
     if [ "${BASH_ARGV[0]}" == "startall" ]; then
-        ${SERVICED} start-service $(serviced services | grep Zenoss | head -n1 | awk {'print $2'})
+        echo "$(date +'%Y-%m-%d %H:%M:%S'): performing: ${SERVICED} start-service ${ZENOSS_ROOT_SERVICE}"
+        ${SERVICED} start-service ${ZENOSS_ROOT_SERVICE}
     fi
 }
 
