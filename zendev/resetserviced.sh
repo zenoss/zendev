@@ -31,8 +31,6 @@ deploy () {
     ${SERVICED} deploy-template ${TEMPLATE_ID} default zenoss
     sleep 5
     ZENOSS_ROOT_SERVICE=$(serviced services | awk '/Zenoss/ {print $2; exit}')
-    echo "$(date +'%Y-%m-%d %H:%M:%S'): performing: ${SERVICED} auto-assign-ips ${ZENOSS_ROOT_SERVICE}"
-    ${SERVICED} auto-assign-ips ${ZENOSS_ROOT_SERVICE}
     if [ "${BASH_ARGV[0]}" == "startall" ]; then
         echo "$(date +'%Y-%m-%d %H:%M:%S'): performing: ${SERVICED} start-service ${ZENOSS_ROOT_SERVICE}"
         ${SERVICED} start-service ${ZENOSS_ROOT_SERVICE}
