@@ -27,7 +27,7 @@ deploy () {
 
     echo "$(date +'%Y-%m-%d %H:%M:%S'): performing add-host and deploy-template"
     ${SERVICED} add-host $IP:4979 default
-    TEMPLATE_ID=$(${SERVICED} add-template ${EUROPA}/build/services/Zenoss)
+    TEMPLATE_ID=$(${SERVICED} add-template ${EUROPA}/build/services/Zenoss.resmgr)
     ${SERVICED} deploy-template ${TEMPLATE_ID} default zenoss
     sleep 5
     ZENOSS_ROOT_SERVICE=$(serviced services | awk '/Zenoss/ {print $2; exit}')
