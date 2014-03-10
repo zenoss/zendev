@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PATH="$GOPATH/bin:$PATH"  # add GOPATH/bin to PATH for root user to find path to serviced
+PRODUCT_TYPE=${PRODUCT_TYPE:-"core"}
 
 IP=$(/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 EUROPA=$(zendev root)
@@ -18,18 +19,28 @@ deploy () {
         fi
         wget localhost:8787 &>/dev/null
         if [[ 0 == $? ]]; then
-            echo "$(date +'%Y-%m-%d %H:%M:%S'): serviced is ready - performing add-host and deploy-template in 6 seconds"
+            echo "$(date +'%Y-%m-%d %H:%M:%S'): serviced is ready - performing add-host, add-template, and deploy-template in 6 seconds"
             sleep 6
             break
         fi
         sleep 1
     done
 
-    echo "$(date +'%Y-%m-%d %H:%M:%S'): performing add-host and deploy-template"
-    ${SERVICED} add-host $IP:4979 default
-    TEMPLATE_ID=$(${SERVICED} add-template ${EUROPA}/build/services/Zenoss.resmgr)
-    ${SERVICED} deploy-template ${TEMPLATE_ID} default zenoss
+    local cmd=""
+
+    cmd="${SERVICED} add-host $IP:4979 default"
+    echo "$(date +'%Y-%m-%d %H:%M:%S'): performing: $cmd"
+    $cmd
+
+    cmd="${SERVICED} add-template ${EUROPA}/build/services/Zenoss.$PRODUCT_TYPE"
+    echo "$(date +'%Y-%m-%d %H:%M:%S'): performing: $cmd"
+    TEMPLATE_ID=$($cmd)
+
+    cmd="${SERVICED} deploy-template ${TEMPLATE_ID} default zenoss"
+    echo "$(date +'%Y-%m-%d %H:%M:%S'): performing: $cmd"
+    $cmd
     sleep 5
+
     ZENOSS_ROOT_SERVICE=$(serviced services | awk '/Zenoss/ {print $2; exit}')
     if [ "${BASH_ARGV[0]}" == "startall" ]; then
         echo "$(date +'%Y-%m-%d %H:%M:%S'): performing: ${SERVICED} start-service ${ZENOSS_ROOT_SERVICE}"

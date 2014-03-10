@@ -93,6 +93,8 @@ def selfupdate(args):
 
 def resetserviced(args):
     cmd = [here("resetserviced.sh").strpath]
+    if args.resmgr:
+        cmd.insert(0, "PRODUCT_TYPE=resmgr")
     if args.root:
         for key in ("RESETSERVICED_ARGS", "SERVICED_HOME"):
             value = os.environ.get(key)
@@ -451,6 +453,8 @@ def parse_args():
         help="run resetserviced as root")
     serviced_parser.add_argument('--startall', action='store_true',
         help="start all services")
+    serviced_parser.add_argument('--resmgr', action='store_true',
+        help="deploy resmgr instead of core")
     serviced_parser.set_defaults(functor=resetserviced)
 
     update_parser = subparsers.add_parser('selfupdate')
