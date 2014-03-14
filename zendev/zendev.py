@@ -95,6 +95,8 @@ def resetserviced(args):
     cmd = [here("resetserviced.sh").strpath]
     if args.resmgr:
         cmd.insert(0, "PRODUCT_TYPE=resmgr")
+    if len(args.build):
+        cmd.insert(0, "BUILD=" + args.build)
     if args.root:
         for key in ("RESETSERVICED_ARGS", "SERVICED_HOME"):
             value = os.environ.get(key)
@@ -455,6 +457,8 @@ def parse_args():
         help="start all services")
     serviced_parser.add_argument('--resmgr', action='store_true',
         help="deploy resmgr instead of core")
+    serviced_parser.add_argument('--build', default='',
+        help="use template with build number from artifacts, i.e. 265")
     serviced_parser.set_defaults(functor=resetserviced)
 
     update_parser = subparsers.add_parser('selfupdate')

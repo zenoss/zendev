@@ -1,10 +1,27 @@
 #!/bin/bash
 
 PATH="$GOPATH/bin:$PATH"  # add GOPATH/bin to PATH for root user to find path to serviced
-PRODUCT_TYPE=${PRODUCT_TYPE:-"core"}
 
 IP=$(/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 EUROPA=$(zendev root)
+PRODUCT_TYPE=${PRODUCT_TYPE:-"core"}
+TEMPLATE="${EUROPA}/build/services/Zenoss.$PRODUCT_TYPE"
+BUILD=${BUILD:-""}
+if  [[ -n $BUILD ]]; then
+    TEMPLATE="$HOME/zenoss5-${PRODUCT_TYPE}-5.0.0_${BUILD}.json"
+    if [[ ! -f "${TEMPLATE}" ]]; then
+        wget -O- http://artifacts.zenoss.loc/europa/${BUILD}/$(basename ${TEMPLATE}) | cat >${TEMPLATE}
+        set -x
+        images=$(awk '/ImageId/ {print $2}' ${TEMPLATE}|sed 's/[",]//g;' | sort -u)
+        if [[ -n $images ]]; then
+            docker login -u zenossinc+alphaeval -e "alpha2@zenoss.com" -p WP0FHD2M9VIKIX6NUXKTUQO23ZEWNSJLGDBA3SGEK4BLAI66HN5EU0BOKN4FVMFF https://quay.io/v1/
+            for image in $images; do
+               docker pull $image
+            done
+        fi
+    fi
+fi
+
 SERVICED=$(which serviced)
 sudo rm -rf /tmp/serviced*
 deploy () {
@@ -32,7 +49,7 @@ deploy () {
     echo "$(date +'%Y-%m-%d %H:%M:%S'): performing: $cmd"
     $cmd
 
-    cmd="${SERVICED} add-template ${EUROPA}/build/services/Zenoss.$PRODUCT_TYPE"
+    cmd="${SERVICED} add-template ${TEMPLATE}"
     echo "$(date +'%Y-%m-%d %H:%M:%S'): performing: $cmd"
     TEMPLATE_ID=$($cmd)
 
