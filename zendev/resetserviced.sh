@@ -10,13 +10,15 @@ BUILD=${BUILD:-""}
 if  [[ -n $BUILD ]]; then
     TEMPLATE="$HOME/zenoss5-${PRODUCT_TYPE}-5.0.0_${BUILD}.json"
     if [[ ! -f "${TEMPLATE}" ]]; then
-        wget -O- http://artifacts.zenoss.loc/europa/${BUILD}/$(basename ${TEMPLATE}) | cat >${TEMPLATE}
-        set -x
+        url="http://artifacts.zenoss.loc/europa/${BUILD}/$(basename ${TEMPLATE})"
+        echo "$(date +'%Y-%m-%d %H:%M:%S'): getting template from: $url"
+        wget -O- $url | cat >${TEMPLATE}
         images=$(awk '/ImageId/ {print $2}' ${TEMPLATE}|sed 's/[",]//g;' | sort -u)
         if [[ -n $images ]]; then
             docker login -u zenossinc+alphaeval -e "alpha2@zenoss.com" -p WP0FHD2M9VIKIX6NUXKTUQO23ZEWNSJLGDBA3SGEK4BLAI66HN5EU0BOKN4FVMFF https://quay.io/v1/
             for image in $images; do
-               docker pull $image
+                echo "$(date +'%Y-%m-%d %H:%M:%S'): performing: docker pull $image"
+                docker pull $image
             done
         fi
     fi
