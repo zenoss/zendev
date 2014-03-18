@@ -13,6 +13,7 @@ from .config import get_config
 from .manifest import Manifest, create_manifest
 from .repo import Repository
 from .box import VagrantManager
+from .cluster import VagrantClusterManager
 from .utils import Reprinter, colored, here
 from .utils import is_git_repo, resolve
 from .progress import GitProgressBar, SimpleGitProgressBar
@@ -91,10 +92,12 @@ class ZenDevEnvironment(object):
                 else self._root.ensure('src', dir=True))
         self._gopath = self._srcroot.ensure('golang', dir=True)
         self._vroot = self._root.join('vagrant')
+        self._croot = self._vroot.join('clusters')
         self._zenhome = (py.path.local(zenhome).ensure(dir=True) if zenhome 
                 else self._root.ensure('zenhome', dir=True))
         self._manifest = create_manifest(manifest or self._config.join('manifest'))
         self._vagrant = VagrantManager(self)
+        self._cluster = VagrantClusterManager(self)
         self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
         self._buildroot = (py.path.local(buildroot) if buildroot
                 else self._root.join('build'))
@@ -143,6 +146,10 @@ class ZenDevEnvironment(object):
         return self._vroot
 
     @property
+    def clusterroot(self):
+        return self._croot
+
+    @property
     def manifest(self):
         """
         Get the manifest associated with this environment.
@@ -155,6 +162,13 @@ class ZenDevEnvironment(object):
         Get the Vagrant manager.
         """
         return self._vagrant
+
+    @property
+    def cluster(self):
+        """
+        Get the Vagrant cluster manager.
+        """
+        return self._cluster
 
     def bash(self, command):
         print >>self._bash, command
