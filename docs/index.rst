@@ -17,6 +17,7 @@ Contents:
    repos
    build
    vagrant
+   cluster
    packer
    improve
 
