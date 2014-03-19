@@ -30,11 +30,17 @@ and copy it to an output directory mounted from the host.
 .. code-block:: bash
 
     # Build Core
-    zendev build core
+    zendev build --clean core
 
     # Build RM (Core + ZenPacks). Requires that the *zenpack.json manifests are
     # added to the environment.
-    zendev build resmgr
+    zendev build --clean resmgr
+
+Clean Builds
+============
+Passing ``--clean`` to ``zendev build`` will run ``make clean`` in the build
+directory before running the build, which might be necessary to pull in
+repositories you've synced.
 
 Building from a different manifest
 ==================================
