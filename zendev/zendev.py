@@ -234,6 +234,43 @@ def box_ls(args):
     check_env().vagrant.ls()
 
 
+def cluster_create(args):
+    """
+    """
+    env = check_env()
+    env.cluster.create(args.name, args.type, args.count, args.domain, args.memory)
+    env.cluster.provision(args.name, args.type)
+
+
+def cluster_remove(args):
+    env = check_env()
+    env.cluster.remove(args.name)
+
+
+def cluster_ssh(args):
+    check_env().cluster.ssh(args.name, args.box)
+
+
+def cluster_boot(args):
+    check_env().cluster.boot(args.name)
+
+
+def cluster_up(args):
+    check_env().cluster.up(args.name, args.box)
+
+
+def cluster_shutdown(args):
+    check_env().cluster.shutdown(args.name)
+
+
+def cluster_halt(args):
+    check_env().cluster.halt(args.name, args.box)
+
+
+def cluster_ls(args):
+    check_env().cluster.ls()
+
+
 def cd(args):
     """
     Print the directory of the repository if specified or the environment if not.
@@ -411,6 +448,47 @@ def parse_args():
     each_parser.add_argument('-c', '--command', nargs='*')
     each_parser.set_defaults(functor=each)
 
+    cluster_parser = subparsers.add_parser('cluster')
+    cluster_subparsers = cluster_parser.add_subparsers()
+
+    cluster_create_parser = cluster_subparsers.add_parser('create')
+    cluster_create_parser.add_argument('name', metavar="NAME")
+    cluster_create_parser.add_argument('--type', required=True, choices=BOXES)
+    cluster_create_parser.add_argument('--count', type=int, default=1)
+    cluster_create_parser.add_argument('--memory', type=int, default=4096)
+    cluster_create_parser.add_argument('--domain', default='zenoss.loc')
+    cluster_create_parser.set_defaults(functor=cluster_create)
+
+    cluster_boot_parser = cluster_subparsers.add_parser('boot')
+    cluster_boot_parser.add_argument('name', metavar="NAME")
+    cluster_boot_parser.set_defaults(functor=cluster_boot)
+
+    cluster_up_parser = cluster_subparsers.add_parser('up')
+    cluster_up_parser.add_argument('name', metavar="NAME")
+    cluster_up_parser.add_argument('box', metavar="BOX")
+    cluster_up_parser.set_defaults(functor=cluster_up)
+
+    cluster_shutdown_parser = cluster_subparsers.add_parser('shutdown')
+    cluster_shutdown_parser.add_argument('name', metavar="NAME")
+    cluster_shutdown_parser.set_defaults(functor=cluster_shutdown)
+
+    cluster_halt_parser = cluster_subparsers.add_parser('halt')
+    cluster_halt_parser.add_argument('name', metavar="NAME")
+    cluster_halt_parser.add_argument('box', metavar="BOX")
+    cluster_halt_parser.set_defaults(functor=cluster_halt)
+
+    cluster_remove_parser = cluster_subparsers.add_parser('destroy')
+    cluster_remove_parser.add_argument('name', metavar="NAME")
+    cluster_remove_parser.set_defaults(functor=cluster_remove)
+
+    cluster_ssh_parser = cluster_subparsers.add_parser('ssh')
+    cluster_ssh_parser.add_argument('name', metavar="NAME")
+    cluster_ssh_parser.add_argument('box', metavar="BOX")
+    cluster_ssh_parser.set_defaults(functor=cluster_ssh)
+
+    cluster_ls_parser = cluster_subparsers.add_parser('ls')
+    cluster_ls_parser.set_defaults(functor=cluster_ls)
+
     box_parser = subparsers.add_parser('box')
     box_subparsers = box_parser.add_subparsers()
 
@@ -439,6 +517,7 @@ def parse_args():
 
     box_ls_parser = box_subparsers.add_parser('ls')
     box_ls_parser.set_defaults(functor=box_ls)
+
 
     ssh_parser = subparsers.add_parser('ssh')
     ssh_parser.add_argument('name', metavar="NAME")
