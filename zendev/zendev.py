@@ -326,6 +326,8 @@ def build(args):
     os.environ.update(env.envvars())
     with env.buildroot.as_cwd():
         target = 'srcbuild' if args.target == 'src' else args.target
+        if args.clean:
+            subprocess.call(["make", "clean"])
         subprocess.call(["make", target])
 
 def clone(args):
@@ -376,6 +378,7 @@ def parse_args():
             choices=['src', 'core', 'resmgr', 'svcpkg-core', 'svcpkg-resmgr', 'serviced'])
     build_parser.add_argument('-m', '--manifest', nargs="+",
             metavar='MANIFEST', required=False)
+    build_parser.add_argument('-c', '--clean', action="store_true", default=False)
     build_parser.set_defaults(functor=build)
 
     drop_parser = subparsers.add_parser('drop')
