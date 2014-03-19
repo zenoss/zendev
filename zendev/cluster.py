@@ -101,11 +101,17 @@ class VagrantClusterManager(object):
             box_name=BOXES.get(purpose),
             shared_folders=shared,
             provision_script="""
+hid=$(%s | cut -c2-10)
+a=${hid:6:2}
+b=${hid:4:2}
+c=${hid:2:2}
+d=${hid:0:2}
+echo -ne \\\\\\\\x$a\\\\\\\\x$b\\\\\\\\x$c\\\\\\\\x$d > /etc/hostid
 chown zenoss:zenoss /home/zenoss/%s
 su - zenoss -c "cd /home/zenoss && zendev init %s"
 echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
 echo "zendev use %s" >> /home/zenoss/.bashrc
-""" % (self.env.name, self.env.name, self.env.name)))
+""" % ("date +%s", self.env.name, self.env.name, self.env.name)))
 
     def boot(self, name):
         cluster = self._get_cluster(name)
