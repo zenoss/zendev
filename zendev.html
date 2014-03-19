@@ -62,6 +62,7 @@
 <li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
 <li class="toctree-l1"><a class="reference internal" href="improve.html">Improving zendev</a></li>
 </ul>
@@ -73,6 +74,7 @@
 <li><a class="reference internal" href="#">zendev package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-zendev.box">zendev.box module</a></li>
+<li><a class="reference internal" href="#module-zendev.cluster">zendev.cluster module</a></li>
 <li><a class="reference internal" href="#module-zendev.config">zendev.config module</a></li>
 <li><a class="reference internal" href="#module-zendev.environment">zendev.environment module</a></li>
 <li><a class="reference internal" href="#module-zendev.github">zendev.github module</a></li>
@@ -126,7 +128,7 @@
 <p>Manages Vagrant boxes.</p>
 <dl class="method">
 <dt id="zendev.box.VagrantManager.create">
-<tt class="descname">create</tt><big>(</big><em>name</em>, <em>purpose='controlplane'</em><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.create" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create</tt><big>(</big><em>name</em>, <em>purpose='controlplane'</em>, <em>btrfs=0</em>, <em>vfs=0</em><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.create" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -137,6 +139,11 @@
 <dl class="method">
 <dt id="zendev.box.VagrantManager.ls">
 <tt class="descname">ls</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.ls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.box.VagrantManager.make_vdi">
+<tt class="descname">make_vdi</tt><big>(</big><em>name</em>, <em>diskname</em>, <em>size</em><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.make_vdi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.make_vdi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -162,6 +169,66 @@
 <dl class="method">
 <dt id="zendev.box.VagrantManager.verify_auto_network">
 <tt class="descname">verify_auto_network</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.verify_auto_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.verify_auto_network" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-zendev.cluster">
+<span id="zendev-cluster-module"></span><h2>zendev.cluster module<a class="headerlink" href="#module-zendev.cluster" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="zendev.cluster.VagrantClusterManager">
+<em class="property">class </em><tt class="descclassname">zendev.cluster.</tt><tt class="descname">VagrantClusterManager</tt><big>(</big><em>environment</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Manages a cluster of Vagrant boxes.</p>
+<dl class="method">
+<dt id="zendev.cluster.VagrantClusterManager.boot">
+<tt class="descname">boot</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.boot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.boot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.cluster.VagrantClusterManager.create">
+<tt class="descname">create</tt><big>(</big><em>name</em>, <em>purpose='controlplane'</em>, <em>count=1</em>, <em>domain='zenoss.loc'</em>, <em>memory=4096</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.create" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.cluster.VagrantClusterManager.halt">
+<tt class="descname">halt</tt><big>(</big><em>name</em>, <em>box</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.halt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.halt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.cluster.VagrantClusterManager.ls">
+<tt class="descname">ls</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.ls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.cluster.VagrantClusterManager.provision">
+<tt class="descname">provision</tt><big>(</big><em>name</em>, <em>type_</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.provision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.provision" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.cluster.VagrantClusterManager.remove">
+<tt class="descname">remove</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.cluster.VagrantClusterManager.shutdown">
+<tt class="descname">shutdown</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.cluster.VagrantClusterManager.ssh">
+<tt class="descname">ssh</tt><big>(</big><em>name</em>, <em>box</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.ssh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.ssh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.cluster.VagrantClusterManager.up">
+<tt class="descname">up</tt><big>(</big><em>name</em>, <em>box</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.up" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.cluster.VagrantClusterManager.verify_auto_network">
+<tt class="descname">verify_auto_network</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.verify_auto_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.verify_auto_network" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -219,7 +286,7 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">git.util.RemoteProgress</span></tt></p>
 <dl class="attribute">
 <dt id="zendev.environment.MultiprocessingProgress.QUEUE">
-<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x10d546510&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x107420c90&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -252,6 +319,17 @@
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.clone">
 <tt class="descname">clone</tt><big>(</big><em>shallow=False</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.clone" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zendev.environment.ZenDevEnvironment.cluster">
+<tt class="descname">cluster</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Vagrant cluster manager.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zendev.environment.ZenDevEnvironment.clusterroot">
+<tt class="descname">clusterroot</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.clusterroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.clusterroot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -754,6 +832,46 @@ Matches zero or more characters at the beginning of the string</p>
 <dd></dd></dl>
 
 <dl class="function">
+<dt id="zendev.zendev.cluster_boot">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_boot</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_boot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_boot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.cluster_create">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_create</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_create" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.cluster_halt">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_halt</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_halt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_halt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.cluster_ls">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_ls</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_ls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.cluster_remove">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_remove</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.cluster_shutdown">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_shutdown</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_shutdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.cluster_ssh">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_ssh</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_ssh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_ssh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.cluster_up">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_up</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_up" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="zendev.zendev.drop">
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">drop</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#drop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.drop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Drop a zendev environment.</p>
@@ -849,6 +967,11 @@ nothing was specified.</p>
 <dl class="function">
 <dt id="zendev.zendev.root">
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">root</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.root" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.selfupdate">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">selfupdate</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#selfupdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.selfupdate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">

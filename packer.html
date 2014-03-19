@@ -29,7 +29,7 @@
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
     <link rel="next" title="Improving zendev" href="improve.html" />
-    <link rel="prev" title="Working With Vagrant Boxes" href="vagrant.html" />
+    <link rel="prev" title="Vagrant Clusters" href="cluster.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Building the Development Base Box</a></li>
 <li class="toctree-l1"><a class="reference internal" href="improve.html">Improving zendev</a></li>
 </ul>
@@ -79,8 +80,8 @@
           
           
             
-  <li><a href="vagrant.html"
-         title="previous chapter">&laquo; Working With Vagrant Boxes</a></li>
+  <li><a href="cluster.html"
+         title="previous chapter">&laquo; Vagrant Clusters</a></li>
   <li><a href="improve.html"
          title="next chapter">Improving zendev &raquo;</a></li>
           
@@ -129,13 +130,13 @@ packer build ubuntu-13.04-docker.json
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># First, remove the existing box. If you don&#39;t want to remove the existing</span>
 <span class="c"># box, don&#39;t do this. Either way, any existing instances will be</span>
 <span class="c"># unaffected.</span>
-vagrant box remove ubuntu-13.04-docker
+vagrant box remove ubuntu-13.04-docker-v1
 
 <span class="c"># Now add the box you just generated as the new ubuntu-13.04-docker base</span>
 <span class="c"># box. If you didn&#39;t remove the one above, pick a new name. You can</span>
 <span class="c"># generate Vagrant boxes using &quot;vagrant init BOXNAME&quot;.</span>
-vagrant box add ubuntu-13.04-docker <span class="se">\</span>
-    ~/src/zendev/boxes/ubuntu-13.04-docker.box
+vagrant box add ubuntu-13.04-docker-v1 <span class="se">\</span>
+    ~/src/zendev/boxes/ubuntu-13.04-docker*.box
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">

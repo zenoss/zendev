@@ -39,9 +39,7 @@ Ubuntu
         > /etc/apt/sources.list.d/docker.list"
 
     # Install Docker
-    sudo apt-get install -y lxc-docker-0.7.6
-
-Notice that we install Docker 0.7.6. We don't support Docker >= 0.8 yet.
+    sudo apt-get install -y lxc-docker-0.8.1 apparmor-utils
 
 3. Add your user to the ``docker`` group:
 
@@ -49,6 +47,9 @@ Notice that we install Docker 0.7.6. We don't support Docker >= 0.8 yet.
 
     # Add the current user to the docker group
     sudo usermod -a -G docker ${USER}
+
+    # Allow lxc-start to start (see https://github.com/dotcloud/docker/issues/2702)
+    sudo /usr/sbin/aa-complain /usr/bin/lxc-start
 
     # Restart Docker
     sudo service docker restart
@@ -88,9 +89,9 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 
 .. code-block:: bash
 
-    # Download Go 1.2 and unpack it into /usr/local
+    # Download Go 1.2.1 and unpack it into /usr/local
     sudo apt-get install -y wget
-    wget -qO- http://go.googlecode.com/files/go1.2.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
+    wget -qO- https://go.googlecode.com/files/go1.2.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 
     # Set GOROOT and PATH appropriately
     cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
@@ -101,6 +102,24 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Source the new profile
     source /etc/profile.d/golang.sh
 
+    # Add important/useful golang things
+    mkdir -p /opt/go/{bin,pkg,src}
+
+    export GOPATH=/opt/go
+
+    go get github.com/golang/lint/golint
+    ln -s /opt/go/bin/golint /usr/local/bin/golint
+
+    go get -v code.google.com/p/rog-go/exp/cmd/godef
+    go install -v code.google.com/p/rog-go/exp/cmd/godef
+    ln -s /opt/go/bin/godef /usr/local/bin/godef
+
+    go get -u github.com/nsf/gocode
+    ln -s /opt/go/bin/gocode /usr/local/bin/gocode
+
+    go get code.google.com/p/go.tools/cmd/goimports
+    ln -s /opt/go/bin/goimports /usr/local/bin/goimports
+
 6. Install other dependencies:
 
 .. code-block:: bash
@@ -108,6 +127,9 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Python, pip
     sudo apt-get install -y python-dev python-pip
     sudo pip install --upgrade pip
+    
+    # for Ubuntu 12.04.*
+    sudo pip install setuptools --no-use-wheel --upgrade
 
     # Source control
     sudo apt-get install -y mercurial bzr git
@@ -118,11 +140,14 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # serviced needs these for visualization - dirs are in ubuntu 12.04, but not 13.04
     sudo mkdir /sys/fs/cgroup/{blkio,cpuacct,memory}/lxc
 
-6. At this point, you need to `set up GitHub for SSH access
+    # tmux will make your life better
+    sudo apt-get install -y tmux
+
+7. At this point, you need to `set up GitHub for SSH access
    <https://help.github.com/articles/generating-ssh-keys>`_. Also, make sure
    you've been added to the appropriate Zenoss teams.
 
-7. Now it's time to install zendev:
+8. Now it's time to install zendev:
 
 .. code-block:: bash
 
@@ -134,6 +159,9 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 
     # Clone zendev
     git clone git@github.com:zenoss/zendev
+
+    # Enter the zendev directory
+    cd ${SRCDIR}/zendev
 
     # Generate egg_info as current user to prevent permission problems 
     # down the road
@@ -150,7 +178,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Source it in the current shell
     source $(zendev bootstrap)
 
-8. Create your Europa zendev environment:
+9. Create your Europa zendev environment:
 
 .. code-block:: bash
 
@@ -163,7 +191,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Start using the environment
     zendev use europa
 
-9. Add some repositories to the ``europa`` environment:
+10. Add some repositories to the ``europa`` environment:
 
 .. code-block:: bash
 
@@ -175,7 +203,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Clone everything
     zendev sync
 
-10. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
+11. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
     and (if you install Vagrant_ and VirtualBox_) create Vagrant boxes to run
     serviced or Resource Manager. As an example, here's how you build serviced
     and run it:
@@ -231,7 +259,7 @@ Forget it, man. This will only end in tears. Use the `Vagrant box`_.
 .. _Vagrant box:
 Self-managed Vagrant box
 ------------------------
-Essentially, this is a Vagrant box that has already had steps 1-5 applied.
+Essentially, this is a Vagrant box that has already had steps 1-6 applied.
 zendev has the capability to create and manage instances of this box within an
 environment, but it's also perfectly good just to start up a VM for
 development. 
@@ -242,7 +270,7 @@ development.
 
 .. code-block:: bash
 
-    vagrant init ubuntu-13.04-docker
+    vagrant init ubuntu-13.04-docker-v1
 
 As the pretty words will tell you, a Vagrantfile will have been created in that
 directory. Edit it, uncomment the line specifying the box URL, and set it to
@@ -250,7 +278,7 @@ the one we have hosted:
 
 .. code-block:: ruby
 
-    config.vm.box_url = "http://vagrant.zendev.org/boxes/ubuntu-13.04-docker.box"
+    config.vm.box_url = "http://vagrant.zendev.org/boxes/ubuntu-13.04-docker-v1.box"
 
 You should also probably uncomment either the private or public networking line
 so you can actually interact with the things running thereon:
@@ -271,6 +299,15 @@ so you can actually interact with the things running thereon:
 
     vagrant ssh
     # etc.
+
+Update zendev
+-------------
+Zendev should always be installed from a source checkout, in place. If you want
+to update it, you can run:
+
+.. code-block:: bash
+
+    zendev selfupdate
 
 
 .. _Docker: http://docker.io/

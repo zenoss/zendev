@@ -12,6 +12,14 @@ zendev.box module
     :undoc-members:
     :show-inheritance:
 
+zendev.cluster module
+---------------------
+
+.. automodule:: zendev.cluster
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 zendev.config module
 --------------------
 

@@ -63,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packer.html">Building the Development Base Box</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../improve.html">Improving zendev</a></li>
 </ul>
@@ -110,6 +111,7 @@
 <span class="kn">from</span> <span class="nn">.manifest</span> <span class="kn">import</span> <span class="n">Manifest</span><span class="p">,</span> <span class="n">create_manifest</span>
 <span class="kn">from</span> <span class="nn">.repo</span> <span class="kn">import</span> <span class="n">Repository</span>
 <span class="kn">from</span> <span class="nn">.box</span> <span class="kn">import</span> <span class="n">VagrantManager</span>
+<span class="kn">from</span> <span class="nn">.cluster</span> <span class="kn">import</span> <span class="n">VagrantClusterManager</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Reprinter</span><span class="p">,</span> <span class="n">colored</span><span class="p">,</span> <span class="n">here</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">is_git_repo</span><span class="p">,</span> <span class="n">resolve</span>
 <span class="kn">from</span> <span class="nn">.progress</span> <span class="kn">import</span> <span class="n">GitProgressBar</span><span class="p">,</span> <span class="n">SimpleGitProgressBar</span>
@@ -188,10 +190,12 @@
                 <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&#39;src&#39;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gopath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_srcroot</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&#39;golang&#39;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vroot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;vagrant&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_croot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;clusters&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zenhome</span> <span class="o">=</span> <span class="p">(</span><span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">zenhome</span><span class="p">)</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">zenhome</span> 
                 <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&#39;zenhome&#39;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_manifest</span> <span class="o">=</span> <span class="n">create_manifest</span><span class="p">(</span><span class="n">manifest</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;manifest&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vagrant</span> <span class="o">=</span> <span class="n">VagrantManager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span> <span class="o">=</span> <span class="n">VagrantClusterManager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bash</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ZDCTLCHANNEL&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">),</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_buildroot</span> <span class="o">=</span> <span class="p">(</span><span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">buildroot</span><span class="p">)</span> <span class="k">if</span> <span class="n">buildroot</span>
                 <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;build&#39;</span><span class="p">))</span>
@@ -240,6 +244,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vroot</span>
 </div>
     <span class="nd">@property</span>
+<div class="viewcode-block" id="ZenDevEnvironment.clusterroot"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.clusterroot">[docs]</a>    <span class="k">def</span> <span class="nf">clusterroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_croot</span>
+</div>
+    <span class="nd">@property</span>
 <div class="viewcode-block" id="ZenDevEnvironment.manifest"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.manifest">[docs]</a>    <span class="k">def</span> <span class="nf">manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the manifest associated with this environment.</span>
@@ -252,6 +260,13 @@
 <span class="sd">        Get the Vagrant manager.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vagrant</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ZenDevEnvironment.cluster"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the Vagrant cluster manager.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span>
 </div>
 <div class="viewcode-block" id="ZenDevEnvironment.bash"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.bash">[docs]</a>    <span class="k">def</span> <span class="nf">bash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
         <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="bp">self</span><span class="o">.</span><span class="n">_bash</span><span class="p">,</span> <span class="n">command</span>
@@ -284,10 +299,19 @@
         <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </div>
+    <span class="k">def</span> <span class="nf">_update_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the manifest&#39;s branches with those on the filesystem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repos</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">repos</span><span class="p">()[</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">branch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
 <div class="viewcode-block" id="ZenDevEnvironment.freeze"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.freeze">[docs]</a>    <span class="k">def</span> <span class="nf">freeze</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a JSON representation of the repositories.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_manifest</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="ZenDevEnvironment.ensure_build"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.ensure_build">[docs]</a>    <span class="k">def</span> <span class="nf">ensure_build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

@@ -63,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packer.html">Building the Development Base Box</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../improve.html">Improving zendev</a></li>
 </ul>
@@ -134,7 +135,12 @@
     <span class="nd">@property</span>
     <span class="nd">@memoize</span>
 <div class="viewcode-block" id="Repository.branch"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.branch">[docs]</a>    <span class="k">def</span> <span class="nf">branch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">active_branch</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">active_branch</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">head</span>
+            <span class="n">sha</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">head</span><span class="o">.</span><span class="n">_get_ref_info</span><span class="p">(</span><span class="n">head</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="n">head</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">sha</span>
 </div>
     <span class="nd">@property</span>
     <span class="nd">@memoize</span>

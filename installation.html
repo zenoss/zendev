@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
 <li class="toctree-l1"><a class="reference internal" href="improve.html">Improving zendev</a></li>
 </ul>
@@ -77,6 +78,7 @@
 <li><a class="reference internal" href="#os-x">OS X</a></li>
 <li><a class="reference internal" href="#windows">Windows</a></li>
 <li><a class="reference internal" href="#self-managed-vagrant-box">Self-managed Vagrant box</a></li>
+<li><a class="reference internal" href="#update-zendev">Update zendev</a></li>
 </ul>
 </li>
 </ul>
@@ -148,15 +150,17 @@ sudo sh -c <span class="s2">&quot;echo deb http://get.docker.io/ubuntu docker ma
 <span class="s2">    &gt; /etc/apt/sources.list.d/docker.list&quot;</span>
 
 <span class="c"># Install Docker</span>
-sudo apt-get install -y lxc-docker-0.7.6
+sudo apt-get install -y lxc-docker-0.8.1 apparmor-utils
 </pre></div>
 </div>
-<p>Notice that we install Docker 0.7.6. We don&#8217;t support Docker &gt;= 0.8 yet.</p>
 <ol class="arabic simple" start="3">
 <li>Add your user to the <tt class="docutils literal"><span class="pre">docker</span></tt> group:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the current user to the docker group</span>
 sudo usermod -a -G docker <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
+
+<span class="c"># Allow lxc-start to start (see https://github.com/dotcloud/docker/issues/2702)</span>
+sudo /usr/sbin/aa-complain /usr/bin/lxc-start
 
 <span class="c"># Restart Docker</span>
 sudo service docker restart
@@ -192,9 +196,9 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:</p
 <ol class="arabic simple" start="5">
 <li>Install <a class="reference external" href="http://golang.org/">Go</a>:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Download Go 1.2 and unpack it into /usr/local</span>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Download Go 1.2.1 and unpack it into /usr/local</span>
 sudo apt-get install -y wget
-wget -qO- http://go.googlecode.com/files/go1.2.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
+wget -qO- https://go.googlecode.com/files/go1.2.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 
 <span class="c"># Set GOROOT and PATH appropriately</span>
 cat <span class="s">&lt;&lt;\EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/golang.sh&quot;</span>
@@ -204,6 +208,24 @@ cat <span class="s">&lt;&lt;\EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/go
 
 <span class="c"># Source the new profile</span>
 <span class="nb">source</span> /etc/profile.d/golang.sh
+
+<span class="c"># Add important/useful golang things</span>
+mkdir -p /opt/go/<span class="o">{</span>bin,pkg,src<span class="o">}</span>
+
+<span class="nb">export </span><span class="nv">GOPATH</span><span class="o">=</span>/opt/go
+
+go get github.com/golang/lint/golint
+ln -s /opt/go/bin/golint /usr/local/bin/golint
+
+go get -v code.google.com/p/rog-go/exp/cmd/godef
+go install -v code.google.com/p/rog-go/exp/cmd/godef
+ln -s /opt/go/bin/godef /usr/local/bin/godef
+
+go get -u github.com/nsf/gocode
+ln -s /opt/go/bin/gocode /usr/local/bin/gocode
+
+go get code.google.com/p/go.tools/cmd/goimports
+ln -s /opt/go/bin/goimports /usr/local/bin/goimports
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
@@ -213,6 +235,9 @@ cat <span class="s">&lt;&lt;\EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/go
 sudo apt-get install -y python-dev python-pip
 sudo pip install --upgrade pip
 
+<span class="c"># for Ubuntu 12.04.*</span>
+sudo pip install setuptools --no-use-wheel --upgrade
+
 <span class="c"># Source control</span>
 sudo apt-get install -y mercurial bzr git
 
@@ -221,9 +246,12 @@ sudo apt-get install -y libpam0g-dev
 
 <span class="c"># serviced needs these for visualization - dirs are in ubuntu 12.04, but not 13.04</span>
 sudo mkdir /sys/fs/cgroup/<span class="o">{</span>blkio,cpuacct,memory<span class="o">}</span>/lxc
+
+<span class="c"># tmux will make your life better</span>
+sudo apt-get install -y tmux
 </pre></div>
 </div>
-<ol class="arabic simple" start="6">
+<ol class="arabic simple" start="7">
 <li>At this point, you need to <a class="reference external" href="https://help.github.com/articles/generating-ssh-keys">set up GitHub for SSH access</a>. Also, make sure
 you&#8217;ve been added to the appropriate Zenoss teams.</li>
 <li>Now it&#8217;s time to install zendev:</li>
@@ -236,6 +264,9 @@ you&#8217;ve been added to the appropriate Zenoss teams.</li>
 
 <span class="c"># Clone zendev</span>
 git clone git@github.com:zenoss/zendev
+
+<span class="c"># Enter the zendev directory</span>
+<span class="nb">cd</span> <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>/zendev
 
 <span class="c"># Generate egg_info as current user to prevent permission problems</span>
 <span class="c"># down the road</span>
@@ -253,7 +284,7 @@ sudo pip install -e <span class="k">${</span><span class="nv">SRCDIR</span><span
 <span class="nb">source</span> <span class="k">$(</span>zendev bootstrap<span class="k">)</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="8">
+<ol class="arabic simple" start="9">
 <li>Create your Europa zendev environment:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Get back to source directory</span>
@@ -266,7 +297,7 @@ zendev init europa
 zendev use europa
 </pre></div>
 </div>
-<ol class="arabic simple" start="9">
+<ol class="arabic simple" start="10">
 <li>Add some repositories to the <tt class="docutils literal"><span class="pre">europa</span></tt> environment:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add core and serviced repositories from manifests used by the build,</span>
@@ -278,7 +309,7 @@ zendev add <span class="k">$(</span>zendev root<span class="k">)</span>/build/ma
 zendev sync
 </pre></div>
 </div>
-<ol class="arabic simple" start="10">
+<ol class="arabic simple" start="11">
 <li>You can now use zendev to edit source, build Zenoss RPMs, build serviced,
 and (if you install <a class="reference external" href="http://www.vagrantup.com/downloads.html">Vagrant</a> and <a class="reference external" href="https://www.virtualbox.org/wiki/Downloads">VirtualBox</a>) create Vagrant boxes to run
 serviced or Resource Manager. As an example, here&#8217;s how you build serviced
@@ -331,7 +362,7 @@ partition &#8220;Source&#8221;) as the value of <tt class="docutils literal"><sp
 </div>
 <div class="section" id="self-managed-vagrant-box">
 <h2>Self-managed Vagrant box<a class="headerlink" href="#self-managed-vagrant-box" title="Permalink to this headline">¶</a></h2>
-<p>Essentially, this is a Vagrant box that has already had steps 1-5 applied.
+<p>Essentially, this is a Vagrant box that has already had steps 1-6 applied.
 zendev has the capability to create and manage instances of this box within an
 environment, but it&#8217;s also perfectly good just to start up a VM for
 development.</p>
@@ -340,13 +371,13 @@ development.</p>
 <li>Make a directory, somewhere, anywhere. <tt class="docutils literal"><span class="pre">cd</span></tt> into it.</li>
 <li>Create the box:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre>vagrant init ubuntu-13.04-docker
+<div class="highlight-bash"><div class="highlight"><pre>vagrant init ubuntu-13.04-docker-v1
 </pre></div>
 </div>
 <p>As the pretty words will tell you, a Vagrantfile will have been created in that
 directory. Edit it, uncomment the line specifying the box URL, and set it to
 the one we have hosted:</p>
-<div class="highlight-ruby"><div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box_url</span> <span class="o">=</span> <span class="s2">&quot;http://vagrant.zendev.org/boxes/ubuntu-13.04-docker.box&quot;</span>
+<div class="highlight-ruby"><div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box_url</span> <span class="o">=</span> <span class="s2">&quot;http://vagrant.zendev.org/boxes/ubuntu-13.04-docker-v1.box&quot;</span>
 </pre></div>
 </div>
 <p>You should also probably uncomment either the private or public networking line
@@ -365,6 +396,14 @@ so you can actually interact with the things running thereon:</p>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre>vagrant ssh
 <span class="c"># etc.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="update-zendev">
+<h2>Update zendev<a class="headerlink" href="#update-zendev" title="Permalink to this headline">¶</a></h2>
+<p>Zendev should always be installed from a source checkout, in place. If you want
+to update it, you can run:</p>
+<div class="highlight-bash"><div class="highlight"><pre>zendev selfupdate
 </pre></div>
 </div>
 </div>

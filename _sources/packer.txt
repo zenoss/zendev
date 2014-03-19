@@ -28,13 +28,13 @@ template is stored in the ``boxes`` directory of your zendev source.
     # First, remove the existing box. If you don't want to remove the existing
     # box, don't do this. Either way, any existing instances will be
     # unaffected.
-    vagrant box remove ubuntu-13.04-docker
+    vagrant box remove ubuntu-13.04-docker-v1
 
     # Now add the box you just generated as the new ubuntu-13.04-docker base
     # box. If you didn't remove the one above, pick a new name. You can
     # generate Vagrant boxes using "vagrant init BOXNAME".
-    vagrant box add ubuntu-13.04-docker \
-        ~/src/zendev/boxes/ubuntu-13.04-docker.box
+    vagrant box add ubuntu-13.04-docker-v1 \
+        ~/src/zendev/boxes/ubuntu-13.04-docker*.box
 
 5. Use zendev to create a new instance and see how it turned out:
 

@@ -63,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
 <li class="toctree-l1"><a class="reference internal" href="improve.html">Improving zendev</a></li>
 </ul>
@@ -161,6 +162,10 @@
   </dt>
 
       
+  <dt><a href="zendev.html#zendev.cluster.VagrantClusterManager.boot">boot() (zendev.cluster.VagrantClusterManager method)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.zendev.bootstrap">bootstrap() (in module zendev.zendev)</a>
   </dt>
 
@@ -176,12 +181,12 @@
   <dt><a href="zendev.html#zendev.zendev.box_ls">box_ls() (in module zendev.zendev)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.zendev.box_remove">box_remove() (in module zendev.zendev)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.zendev.box_ssh">box_ssh() (in module zendev.zendev)</a>
   </dt>
@@ -239,11 +244,51 @@
 
       </dl></dd>
       
-  <dt><a href="zendev.html#zendev.utils.colored">colored() (in module zendev.utils)</a>
+  <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.cluster">cluster (zendev.environment.ZenDevEnvironment attribute)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.zendev.cluster_boot">cluster_boot() (in module zendev.zendev)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.zendev.cluster_create">cluster_create() (in module zendev.zendev)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.zendev.cluster_halt">cluster_halt() (in module zendev.zendev)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.zendev.cluster_ls">cluster_ls() (in module zendev.zendev)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.zendev.cluster_remove">cluster_remove() (in module zendev.zendev)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="zendev.html#zendev.zendev.cluster_shutdown">cluster_shutdown() (in module zendev.zendev)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.zendev.cluster_ssh">cluster_ssh() (in module zendev.zendev)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.zendev.cluster_up">cluster_up() (in module zendev.zendev)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.clusterroot">clusterroot (zendev.environment.ZenDevEnvironment attribute)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.utils.colored">colored() (in module zendev.utils)</a>
+  </dt>
+
       
   <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.configroot">configroot (zendev.environment.ZenDevEnvironment attribute)</a>
   </dt>
@@ -252,6 +297,12 @@
   <dt><a href="zendev.html#zendev.box.VagrantManager.create">create() (zendev.box.VagrantManager method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="zendev.html#zendev.cluster.VagrantClusterManager.create">(zendev.cluster.VagrantClusterManager method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="zendev.html#zendev.repo.Repository.create_feature">create_feature() (zendev.repo.Repository method)</a>
   </dt>
@@ -436,6 +487,12 @@
   <dt><a href="zendev.html#zendev.box.VagrantManager.halt">halt() (zendev.box.VagrantManager method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="zendev.html#zendev.cluster.VagrantClusterManager.halt">(zendev.cluster.VagrantClusterManager method)</a>
+  </dt>
+
+      </dl></dd>
   </dl></td>
 </tr></table>
 
@@ -503,6 +560,10 @@
   <dt><a href="zendev.html#zendev.box.VagrantManager.ls">(zendev.box.VagrantManager method)</a>
   </dt>
 
+        
+  <dt><a href="zendev.html#zendev.cluster.VagrantClusterManager.ls">(zendev.cluster.VagrantClusterManager method)</a>
+  </dt>
+
       </dl></dd>
   </dl></td>
 </tr></table>
@@ -512,6 +573,10 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.zendev.main">main() (in module zendev.zendev)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.box.VagrantManager.make_vdi">make_vdi() (zendev.box.VagrantManager method)</a>
   </dt>
 
       
@@ -526,12 +591,12 @@
   <dt><a href="zendev.html#zendev.utils.memoize">memoize() (in module zendev.utils)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.manifest.Manifest.merge">merge() (zendev.manifest.Manifest method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.repo.Repository.merge_from_remote">merge_from_remote() (zendev.repo.Repository method)</a>
   </dt>
@@ -580,6 +645,12 @@
   <dt><a href="zendev.html#zendev.box.VagrantManager.provision">provision() (zendev.box.VagrantManager method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="zendev.html#zendev.cluster.VagrantClusterManager.provision">(zendev.cluster.VagrantClusterManager method)</a>
+  </dt>
+
+      </dl></dd>
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
@@ -625,6 +696,10 @@
       <dd><dl>
         
   <dt><a href="zendev.html#zendev.box.VagrantManager.remove">(zendev.box.VagrantManager method)</a>
+  </dt>
+
+        
+  <dt><a href="zendev.html#zendev.cluster.VagrantClusterManager.remove">(zendev.cluster.VagrantClusterManager method)</a>
   </dt>
 
         
@@ -701,7 +776,15 @@
 
       </dl></dd>
       
+  <dt><a href="zendev.html#zendev.zendev.selfupdate">selfupdate() (in module zendev.zendev)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.repo.Repository.shallow_clone">shallow_clone() (zendev.repo.Repository method)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.cluster.VagrantClusterManager.shutdown">shutdown() (zendev.cluster.VagrantClusterManager method)</a>
   </dt>
 
       
@@ -712,12 +795,18 @@
   <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.srcroot">srcroot (zendev.environment.ZenDevEnvironment attribute)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.box.VagrantManager.ssh">ssh() (zendev.box.VagrantManager method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
+      <dd><dl>
+        
+  <dt><a href="zendev.html#zendev.cluster.VagrantClusterManager.ssh">(zendev.cluster.VagrantClusterManager method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.start_feature">start_feature() (zendev.environment.ZenDevEnvironment method)</a>
   </dt>
@@ -772,6 +861,12 @@
   <dt><a href="zendev.html#zendev.box.VagrantManager.up">up() (zendev.box.VagrantManager method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="zendev.html#zendev.cluster.VagrantClusterManager.up">(zendev.cluster.VagrantClusterManager method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="zendev.html#zendev.environment.MultiprocessingProgress.update">update() (zendev.environment.MultiprocessingProgress method)</a>
   </dt>
@@ -809,6 +904,10 @@
   </dt>
 
       
+  <dt><a href="zendev.html#zendev.cluster.VagrantClusterManager">VagrantClusterManager (class in zendev.cluster)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.box.VagrantManager">VagrantManager (class in zendev.box)</a>
   </dt>
 
@@ -822,6 +921,12 @@
   <dt><a href="zendev.html#zendev.box.VagrantManager.verify_auto_network">verify_auto_network() (zendev.box.VagrantManager method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="zendev.html#zendev.cluster.VagrantClusterManager.verify_auto_network">(zendev.cluster.VagrantClusterManager method)</a>
+  </dt>
+
+      </dl></dd>
   </dl></td>
 </tr></table>
 
@@ -843,6 +948,10 @@
   </dt>
 
       
+  <dt><a href="zendev.html#module-zendev.cluster">zendev.cluster (module)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#module-zendev.config">zendev.config (module)</a>
   </dt>
 
@@ -858,12 +967,12 @@
   <dt><a href="zendev.html#module-zendev.log">zendev.log (module)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#module-zendev.manifest">zendev.manifest (module)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#module-zendev.progress">zendev.progress (module)</a>
   </dt>

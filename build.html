@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
 <li class="toctree-l1"><a class="reference internal" href="improve.html">Improving zendev</a></li>
 </ul>
@@ -75,6 +76,7 @@
 <li><a class="reference internal" href="#">Building Zenoss With zendev</a><ul>
 <li><a class="reference internal" href="#building-from-source">Building from Source</a></li>
 <li><a class="reference internal" href="#building-rpms">Building RPMs</a></li>
+<li><a class="reference internal" href="#clean-builds">Clean Builds</a></li>
 <li><a class="reference internal" href="#building-from-a-different-manifest">Building from a different manifest</a></li>
 </ul>
 </li>
@@ -132,13 +134,19 @@ a common development environment practice. Contributions welcome.</p>
 that can build an RPM, mount the appropriate source directories, build the RPM,
 and copy it to an output directory mounted from the host.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Build Core</span>
-zendev build core
+zendev build --clean core
 
 <span class="c"># Build RM (Core + ZenPacks). Requires that the *zenpack.json manifests are</span>
 <span class="c"># added to the environment.</span>
-zendev build resmgr
+zendev build --clean resmgr
 </pre></div>
 </div>
+</div>
+<div class="section" id="clean-builds">
+<h2>Clean Builds<a class="headerlink" href="#clean-builds" title="Permalink to this headline">¶</a></h2>
+<p>Passing <tt class="docutils literal"><span class="pre">--clean</span></tt> to <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">build</span></tt> will run <tt class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></tt> in the build
+directory before running the build, which might be necessary to pull in
+repositories you&#8217;ve synced.</p>
 </div>
 <div class="section" id="building-from-a-different-manifest">
 <h2>Building from a different manifest<a class="headerlink" href="#building-from-a-different-manifest" title="Permalink to this headline">¶</a></h2>
