@@ -6,6 +6,7 @@ import os
 import sys
 import re
 import argparse
+import time
 import argcomplete
 import subprocess
 from contextlib import contextmanager
@@ -22,6 +23,7 @@ from . import environment as zenv
 from .environment import ZenDevEnvironment, get_config_dir, init_config_dir
 from .environment import NotInitialized
 from .box import BOXES
+from .serviced import Serviced
 
 
 def get_envname():
@@ -91,23 +93,35 @@ def selfupdate(args):
         subprocess.call(["git", "pull"])
 
 
-def resetserviced(args):
-    cmd = [here("resetserviced.sh").strpath]
-    if args.resmgr:
-        cmd.insert(0, "PRODUCT_TYPE=resmgr")
-    if len(args.build):
-        cmd.insert(0, "BUILD=" + args.build)
-    if args.root:
-        for key in ("RESETSERVICED_ARGS", "SERVICED_HOME"):
-            value = os.environ.get(key)
-            if value:
-                cmd.insert(0, key + "=" + value)
-        cmd.insert(0, "GOPATH=" + os.environ["GOPATH"])
-        cmd.insert(0, "sudo")
-    if args.startall:
-        cmd.append('startall')
-    subprocess.call(cmd)
-
+def serviced(args):
+    timeout = 30
+    serviced = Serviced(check_env())
+    if args.reset:
+        serviced.reset()
+    serviced.start(args.root)
+    try:
+        while not serviced.is_ready():
+            if not timeout:
+                print "Timed out waiting for serviced!"
+                sys.exit(1)
+            print "Not ready yet. Checking again in 1 second."
+            time.sleep(1)
+            timeout -= 1
+        print "serviced is ready!"
+        if args.deploy:
+            serviced.add_host()
+            tplid = serviced.add_template()
+            serviced.deploy(tplid)
+        if args.startall:
+            serviced.startall()
+        # Join the subprocess
+        serviced.wait()
+    except Exception:
+        serviced.stop()
+        raise
+    except (KeyboardInterrupt, SystemExit):
+        serviced.stop()
+        sys.exit(0)
 
 def feature_start(args):
     """
@@ -115,7 +129,7 @@ def feature_start(args):
     """
     filter_ = None
     if args.repos:
-    	  filter_ = args.repofilter
+        filter_ = args.repofilter
     check_env().start_feature(args.name, filter_)
 
 
@@ -132,7 +146,7 @@ def feature_pull(args):
     """
     filter_ = None
     if args.repos:
-    	  filter_ = args.repofilter
+        filter_ = args.repofilter
     check_env().pull_feature(args.name, filter_)
 
 
@@ -532,16 +546,16 @@ def parse_args():
     root_parser = subparsers.add_parser('root')
     root_parser.set_defaults(functor=root)
 
-    serviced_parser = subparsers.add_parser('resetserviced')
-    serviced_parser.add_argument('--root', action='store_true',
-        help="run resetserviced as root")
-    serviced_parser.add_argument('--startall', action='store_true',
-        help="start all services")
-    serviced_parser.add_argument('--resmgr', action='store_true',
-        help="deploy resmgr instead of core")
-    serviced_parser.add_argument('--build', default='',
-        help="use template with build number from artifacts, i.e. 265")
-    serviced_parser.set_defaults(functor=resetserviced)
+    serviced_parser = subparsers.add_parser('serviced')
+    serviced_parser.add_argument('-r', '--root', action='store_true',
+        help="Run serviced as root")
+    serviced_parser.add_argument('-d', '--deploy', action='store_true',
+        help="Add Zenoss service definitions and deploy an instance")
+    serviced_parser.add_argument('-a', '--startall', action='store_true',
+        help="Start all services once deployed")
+    serviced_parser.add_argument('-x', '--reset', action='store_true',
+        help="Clean service state and kill running containers first")
+    serviced_parser.set_defaults(functor=serviced)
 
     update_parser = subparsers.add_parser('selfupdate')
     update_parser.set_defaults(functor=selfupdate)
