@@ -94,7 +94,7 @@ def selfupdate(args):
 
 
 def serviced(args):
-    timeout = 30
+    timeout = 60
     serviced = Serviced(check_env())
     if args.reset:
         serviced.reset()
@@ -344,6 +344,10 @@ def build(args):
             subprocess.call(["make", "clean"])
         subprocess.call(["make", target])
 
+def attach(args):
+    subprocess.call("sudo nsenter -m -u -i -n -p -t $(pgrep -fl 'serviced.*%s' | awk '!/docker/{print $1; exit}') -- bash" % args.process, shell=True)
+
+
 def clone(args):
     env = ZenDevEnvironment(srcroot=args.output, manifest=args.manifest)
     env.clone(shallow=args.shallow)
@@ -559,6 +563,10 @@ def parse_args():
 
     update_parser = subparsers.add_parser('selfupdate')
     update_parser.set_defaults(functor=selfupdate)
+
+    attach_parser = subparsers.add_parser('attach')
+    attach_parser.add_argument('process', metavar="PROCESS")
+    attach_parser.set_defaults(functor=attach)
 
     argcomplete.autocomplete(parser)
 

@@ -30,7 +30,8 @@ class Serviced(object):
         if root:
             args.extend(["sudo", "-E"])
             args.extend("%s=%s" % x for x in self.env.envvars().iteritems())
-        args.extend([self.serviced, "-master", "-agent"])
+        args.extend([self.serviced, "-master", "-agent", "-mount",
+            "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath])
         print "Running command:", args
         self.proc = subprocess.Popen(args)
 
