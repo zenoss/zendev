@@ -393,7 +393,8 @@ def parse_args():
 
     build_parser = subparsers.add_parser('build')
     build_parser.add_argument('target', metavar='TARGET', 
-            choices=['src', 'core', 'resmgr', 'svcpkg-core', 'svcpkg-resmgr', 'serviced'])
+            choices=['src', 'core', 'resmgr', 'svcpkg-core', 'svcpkg-resmgr',
+                'serviced', 'devimg'])
     build_parser.add_argument('-m', '--manifest', nargs="+",
             metavar='MANIFEST', required=False)
     build_parser.add_argument('-c', '--clean', action="store_true", default=False)
