@@ -15,6 +15,11 @@ support Resource Manager as well. Time permitting! Contributions welcome! Run:
 
 .. code-block:: bash
 
+    # Make sure you have necessary repos (first time only)
+    zendev add $(zendev root)/build/manifests/{core,zenpacks.core}.json
+    zendev sync
+
+    # Build
     zendev build devimg
 
 The image this creates has:
@@ -72,4 +77,3 @@ version in the repos is too old):
     cd /tmp/util-linux-2.24/
     ./configure --without-ncurses --prefix=/usr/local/util-linux; make; sudo make install
     sudo cp -p /usr/local/util-linux/bin/nsenter /usr/local/bin
-

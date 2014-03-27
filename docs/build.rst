@@ -29,11 +29,16 @@ and copy it to an output directory mounted from the host.
 
 .. code-block:: bash
 
-    # Build Core
+    # Build Core (+ core ZenPacks)
+    # Make sure you have necessary repos (first time only)
+    zendev add $(zendev root)/build/manifests/{core,zenpacks.core}.json
+    zendev sync
     zendev build --clean core
 
-    # Build RM (Core + ZenPacks). Requires that the *zenpack.json manifests are
-    # added to the environment.
+    # Build RM (Core + ZenPacks). 
+    # Make sure you have necessary repos (first time only)
+    zendev add $(zendev root)/build/manifests/{core,zenpacks.core,zenpacks.commercial}.json
+    zendev sync
     zendev build --clean resmgr
 
 Clean Builds
