@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Developing Zenoss in the Control Plane &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
+    <link rel="next" title="Working With Vagrant Boxes" href="vagrant.html" />
+    <link rel="prev" title="Building Zenoss With zendev" href="build.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Working With Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
+<li class="toctree-l1"><a class="reference internal" href="improve.html">Improving zendev</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">Developing Zenoss in the Control Plane</a><ul>
+<li><a class="reference internal" href="#building-the-image">Building the Image</a></li>
+<li><a class="reference internal" href="#running-control-plane">Running Control Plane</a></li>
+<li><a class="reference internal" href="#attaching-to-running-containers-zendev-attach">Attaching to Running Containers: <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></tt></a><ul>
+<li><a class="reference internal" href="#installing-nsenter">Installing <tt class="docutils literal"><span class="pre">nsenter</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+          
+          
+            
+  <li><a href="build.html"
+         title="previous chapter">&laquo; Building Zenoss With zendev</a></li>
+  <li><a href="vagrant.html"
+         title="next chapter">Working With Vagrant Boxes &raquo;</a></li>
+          
+          
+            <li>
+  <a href="_sources/devimg.txt"
+     rel="nofollow">Source</a></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section" id="developing-zenoss-in-the-control-plane">
+<h1>Developing Zenoss in the Control Plane<a class="headerlink" href="#developing-zenoss-in-the-control-plane" title="Permalink to this headline">¶</a></h1>
+<p>Since serviced runs Zenoss services from an image, development of Zenoss per se
+would typically mean making changes, committing them to an image, then
+restarting the services to pick up the new image. zendev simplifies this
+process by creating a lightweight image that mounts Zenoss source from your
+host filesystem.</p>
+<div class="section" id="building-the-image">
+<h2>Building the Image<a class="headerlink" href="#building-the-image" title="Permalink to this headline">¶</a></h2>
+<p>First step is to create the image, <tt class="docutils literal"><span class="pre">zendev/devimg</span></tt>. Currently, only Core is
+available at this high level, although the underlying steps are there to
+support Resource Manager as well. Time permitting! Contributions welcome! Run:</p>
+<div class="highlight-bash"><div class="highlight"><pre>zendev build devimg
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>The image this creates has:</dt>
+<dd><ul class="first last simple">
+<li>Your zendev source root mounted at <tt class="docutils literal"><span class="pre">/mnt/src</span></tt></li>
+<li>Your zendev zenhome mounted at <tt class="docutils literal"><span class="pre">/opt/zenoss</span></tt></li>
+<li>A full Zenoss source build run</li>
+<li>Some ZenPacks installed (currently ZenJMX and PythonCollector, since they
+have service definitions in Zenoss.core)</li>
+<li><tt class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/src/core/Products</span></tt> symlinked to <tt class="docutils literal"><span class="pre">/opt/zenoss/Products</span></tt></li>
+<li>A <cite>zenoss</cite> user with the same GID/UID as your current user, so you don&#8217;t
+have permission problems with the mounted source (sudoer, NOPASSWD)</li>
+</ul>
+</dd>
+</dl>
+<p>For the most part, since <tt class="docutils literal"><span class="pre">ZENHOME</span></tt>, <tt class="docutils literal"><span class="pre">SRCROOT</span></tt>, <tt class="docutils literal"><span class="pre">GOPATH</span></tt>, etc. are all the
+same on the host as in the image, you should be able to run <tt class="docutils literal"><span class="pre">make;</span> <span class="pre">make</span>
+<span class="pre">install</span></tt> for a component on your host, or edit source in Products directly,
+and have it all work out so that the image serviced uses gets those changes
+without having to do any image rebuilding.</p>
+</div>
+<div class="section" id="running-control-plane">
+<h2>Running Control Plane<a class="headerlink" href="#running-control-plane" title="Permalink to this headline">¶</a></h2>
+<p>Once your image exists, you can start the control plane using <tt class="docutils literal"><span class="pre">zendev</span>
+<span class="pre">serviced</span></tt> (this replaces <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">resetserviced</span></tt>).</p>
+<div class="highlight-bash"><div class="highlight"><pre>usage: zendev serviced <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-r<span class="o">]</span> <span class="o">[</span>-d<span class="o">]</span> <span class="o">[</span>-a<span class="o">]</span> <span class="o">[</span>-x<span class="o">]</span>
+
+optional arguments:
+  -h, --help      show this <span class="nb">help </span>message and <span class="nb">exit</span>
+  -r, --root      Run serviced as root
+  -d, --deploy    Add Zenoss service definitions and deploy an instance
+  -a, --startall  Start all services once deployed
+  -x, --reset     Clean service state and <span class="nb">kill </span>running containers first
+</pre></div>
+</div>
+<p>Now you can make any changes you want to the source on your host, then bounce
+the service in the control plane UI or CLI to have your changes take effect.</p>
+</div>
+<div class="section" id="attaching-to-running-containers-zendev-attach">
+<h2>Attaching to Running Containers: <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></tt><a class="headerlink" href="#attaching-to-running-containers-zendev-attach" title="Permalink to this headline">¶</a></h2>
+<p>There&#8217;s a simple wrapper for <tt class="docutils literal"><span class="pre">nsenter</span></tt> called <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></tt>. For example,
+to drop into bash on the container running Zope, run:</p>
+<div class="highlight-bash"><div class="highlight"><pre>zendev attach zopectl
+</pre></div>
+</div>
+<div class="section" id="installing-nsenter">
+<h3>Installing <tt class="docutils literal"><span class="pre">nsenter</span></tt><a class="headerlink" href="#installing-nsenter" title="Permalink to this headline">¶</a></h3>
+<p>You&#8217;ll need util-linux installed for zendev attach to work. Here&#8217;s how (the
+version in the repos is too old):</p>
+<div class="highlight-bash"><div class="highlight"><pre>wget -O- https://www.kernel.org/pub/linux/utils/util-linux/v2.24/util-linux-2.24.tar.bz2 | tar -C /tmp -xj
+<span class="nb">cd</span> /tmp/util-linux-2.24/
+./configure --without-ncurses --prefix<span class="o">=</span>/usr/local/util-linux; make; sudo make install
+sudo cp -p /usr/local/util-linux/bin/nsenter /usr/local/bin
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -76,6 +76,14 @@ zendev.repo module
     :undoc-members:
     :show-inheritance:
 
+zendev.serviced module
+----------------------
+
+.. automodule:: zendev.serviced
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 zendev.utils module
 -------------------
 

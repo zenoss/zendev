@@ -61,6 +61,7 @@
 <li class="toctree-l1"><a class="reference internal" href="environments.html">Working With Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
@@ -82,6 +83,7 @@
 <li><a class="reference internal" href="#module-zendev.manifest">zendev.manifest module</a></li>
 <li><a class="reference internal" href="#module-zendev.progress">zendev.progress module</a></li>
 <li><a class="reference internal" href="#module-zendev.repo">zendev.repo module</a></li>
+<li><a class="reference internal" href="#module-zendev.serviced">zendev.serviced module</a></li>
 <li><a class="reference internal" href="#module-zendev.utils">zendev.utils module</a></li>
 <li><a class="reference internal" href="#module-zendev.zendev">zendev.zendev module</a></li>
 <li><a class="reference internal" href="#module-zendev">Module contents</a></li>
@@ -286,7 +288,7 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">git.util.RemoteProgress</span></tt></p>
 <dl class="attribute">
 <dt id="zendev.environment.MultiprocessingProgress.QUEUE">
-<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x107420c90&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x10d044f10&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -710,6 +712,70 @@ Matches zero or more characters at the beginning of the string</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-zendev.serviced">
+<span id="zendev-serviced-module"></span><h2>zendev.serviced module<a class="headerlink" href="#module-zendev.serviced" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="zendev.serviced.Serviced">
+<em class="property">class </em><tt class="descclassname">zendev.serviced.</tt><tt class="descname">Serviced</tt><big>(</big><em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="zendev.serviced.Serviced.add_host">
+<tt class="descname">add_host</tt><big>(</big><em>host='172.17.42.1:4979'</em>, <em>pool='default'</em><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.add_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.add_host" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.serviced.Serviced.add_template">
+<tt class="descname">add_template</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.add_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.add_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.serviced.Serviced.deploy">
+<tt class="descname">deploy</tt><big>(</big><em>template</em>, <em>pool='default'</em>, <em>svcname='Zenoss'</em><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.deploy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.deploy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zendev.serviced.Serviced.env">
+<tt class="descname">env</tt><em class="property"> = None</em><a class="headerlink" href="#zendev.serviced.Serviced.env" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.serviced.Serviced.is_ready">
+<tt class="descname">is_ready</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.is_ready"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.is_ready" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zendev.serviced.Serviced.proc">
+<tt class="descname">proc</tt><em class="property"> = None</em><a class="headerlink" href="#zendev.serviced.Serviced.proc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.serviced.Serviced.reset">
+<tt class="descname">reset</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.serviced.Serviced.start">
+<tt class="descname">start</tt><big>(</big><em>root=False</em><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.serviced.Serviced.startall">
+<tt class="descname">startall</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.startall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.startall" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.serviced.Serviced.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.serviced.Serviced.wait">
+<tt class="descname">wait</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.wait"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.wait" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-zendev.utils">
 <span id="zendev-utils-module"></span><h2>zendev.utils module<a class="headerlink" href="#module-zendev.utils" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -773,6 +839,11 @@ Matches zero or more characters at the beginning of the string</p>
 <dl class="function">
 <dt id="zendev.zendev.add_repo_narg">
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">add_repo_narg</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#add_repo_narg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.add_repo_narg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.attach">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">attach</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#attach"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.attach" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -960,11 +1031,6 @@ nothing was specified.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="zendev.zendev.resetserviced">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">resetserviced</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#resetserviced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.resetserviced" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="zendev.zendev.root">
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">root</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.root" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -972,6 +1038,11 @@ nothing was specified.</p>
 <dl class="function">
 <dt id="zendev.zendev.selfupdate">
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">selfupdate</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#selfupdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.selfupdate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.serviced">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">serviced</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#serviced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.serviced" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
