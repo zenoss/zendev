@@ -80,4 +80,7 @@ class Serviced(object):
         return tplid
 
     def startall(self):
-        pass
+        p = subprocess.Popen("%s services | awk '/Zenoss/ {print $2; exit}'" % self.serviced,
+                shell=True, stdout=subprocess.PIPE)
+        svcid, stderr = p.communicate()
+        subprocess.call([self.serviced, "start-service", svcid.strip()])
