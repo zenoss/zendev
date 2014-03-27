@@ -24,7 +24,7 @@ class Serviced(object):
         print "Cleaning state"
         subprocess.call("sudo rm -rf /tmp/serviced-*", shell=True)
 
-    def start(self, root=False):
+    def start(self, root=False, verbosity=0):
         print "Starting serviced..."
         args = []
         if root:
@@ -34,6 +34,9 @@ class Serviced(object):
             "-mount", "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath,
             "-mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
         ])
+        if verbosity != 0:
+            args.extend(["-v=%s" % verbosity])
+
         print "Running command:", args
         self.proc = subprocess.Popen(args)
 
