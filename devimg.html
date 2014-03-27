@@ -126,7 +126,12 @@ host filesystem.</p>
 <p>First step is to create the image, <tt class="docutils literal"><span class="pre">zendev/devimg</span></tt>. Currently, only Core is
 available at this high level, although the underlying steps are there to
 support Resource Manager as well. Time permitting! Contributions welcome! Run:</p>
-<div class="highlight-bash"><div class="highlight"><pre>zendev build devimg
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Make sure you have necessary repos (first time only)</span>
+zendev add <span class="k">$(</span>zendev root<span class="k">)</span>/build/manifests/<span class="o">{</span>core,zenpacks.core<span class="o">}</span>.json
+zendev sync
+
+<span class="c"># Build</span>
+zendev build devimg
 </pre></div>
 </div>
 <dl class="docutils">
