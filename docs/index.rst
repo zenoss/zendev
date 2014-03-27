@@ -16,6 +16,7 @@ Contents:
    environments
    repos
    build
+   devimg
    vagrant
    cluster
    packer
