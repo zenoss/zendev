@@ -98,7 +98,7 @@ def serviced(args):
     serviced = Serviced(check_env())
     if args.reset:
         serviced.reset()
-    serviced.start(args.root)
+    serviced.start(args.root, args.verbosity)
     try:
         while not serviced.is_ready():
             if not timeout:
@@ -560,6 +560,8 @@ def parse_args():
         help="Start all services once deployed")
     serviced_parser.add_argument('-x', '--reset', action='store_true',
         help="Clean service state and kill running containers first")
+    serviced_parser.add_argument('-v', '--verbosity', type=int, default=0,
+        help="serviced log level")
     serviced_parser.set_defaults(functor=serviced)
 
     update_parser = subparsers.add_parser('selfupdate')
