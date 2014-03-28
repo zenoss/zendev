@@ -295,6 +295,10 @@ def cd(args):
         if not repos:
             error("No repo matching %s found" % args.repo)
             sys.exit(1)
+        for repo in repos:
+            if repo.path.strpath.endswith(args.repo.strip()):
+                env.bash('cd "%s"' % repo.path.strpath)
+                return
         env.bash('cd "%s"' % repos[0].path.strpath)
     else:
         env.bash('cd "%s"' % env._root.strpath)
