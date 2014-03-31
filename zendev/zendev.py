@@ -60,7 +60,7 @@ def check_env(name=None, **kwargs):
         error("Not in a zendev environment. Run 'zendev init' or 'zendev use'.")
         sys.exit(1)
     if not get_config().exists(envname):
-        error("Zendev environment %s does not exists." % envname)
+        error("Zendev environment %s does not exist." % envname)
         sys.exit(1)
 
     try:
