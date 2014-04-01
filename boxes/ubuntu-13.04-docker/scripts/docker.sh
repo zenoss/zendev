@@ -24,7 +24,7 @@ limit nofile 65536 65536
 
 script
         DOCKER=/usr/bin/\$UPSTART_JOB
-        DOCKER_OPTS="-dns=10.87.110.13 -dns=10.87.113.13 -dns=10.88.102.13"
+        DOCKER_OPTS="-dns=10.87.113.13 -dns=10.88.102.13 -dns=10.175.211.10"
         if [ -f /etc/default/\$UPSTART_JOB ]; then
                 . /etc/default/\$UPSTART_JOB
         fi
