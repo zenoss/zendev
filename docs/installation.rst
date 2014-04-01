@@ -65,25 +65,11 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 
 .. code-block:: bash
 
-    cat <<\EOF | sudo bash -c "cat > /etc/init/docker.conf"
-    description "Docker daemon"
-
-    start on filesystem and started lxc-net
-    stop on runlevel [!2345]
-
-    respawn
-
-    limit nofile 65536 65536
-
-    script
-            DOCKER=/usr/bin/$UPSTART_JOB
-            DOCKER_OPTS="-dns=10.87.113.13 -dns=10.88.102.13 -dns=10.175.211.10"
-            if [ -f /etc/default/$UPSTART_JOB ]; then
-                    . /etc/default/$UPSTART_JOB
-            fi
-            "$DOCKER" -d $DOCKER_OPTS
-    end script 
+    cat  <<\EOF | sudo sed -f /dev/fd/0 -i /etc/init/docker.conf
+        s/respawn/\0\nlimit nofile 65536 65536\n/
+        s/DOCKER_OPTS=.*$/\0\n\tDOCKER_OPTS="$DOCKER_OPTS -dns=10.87.113.13 -dns=10.88.102.13 -dns=10.175.211.10"/
     EOF
+
 
 5. Install Go_:
 
