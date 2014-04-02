@@ -226,7 +226,7 @@ def box_create(args):
     """
     """
     env = check_env()
-    env.vagrant.create(args.name, args.type, args.btrfs, args.vfs)
+    env.vagrant.create(args.name, args.type, args.btrfs, args.vfs, args.memory)
     env.vagrant.provision(args.name, args.type)
     env.vagrant.ssh(args.name)
 
@@ -527,6 +527,8 @@ def parse_args():
     box_create_parser.add_argument('--type', required=True, choices=BOXES)
     box_create_parser.add_argument('--btrfs', type=int, default=0)
     box_create_parser.add_argument('--vfs', type=int, default=0)
+    box_create_parser.add_argument('--memory', default="1024*8",
+                                  help="memory in mb")
     box_create_parser.set_defaults(functor=box_create)
 
     box_up_parser = box_subparsers.add_parser('up')
