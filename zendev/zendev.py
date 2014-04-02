@@ -520,7 +520,7 @@ def parse_args():
     box_create_parser.add_argument('--btrfs', type=int, default=0)
     box_create_parser.add_argument('--vfs', type=int, default=0)
     box_create_parser.add_argument('--memory', default="1024*8",
-                                  help="memory in kb")
+                                  help="memory in mb")
     box_create_parser.set_defaults(functor=box_create)
 
     box_up_parser = box_subparsers.add_parser('up')
