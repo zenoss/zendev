@@ -23,7 +23,7 @@ Vagrant.configure("2") do |config|
   config.vm.network :private_network, :ip => '0.0.0.0', :auto_network => true
 
   config.vm.provider :virtualbox do |vb|
-    vb.customize ["modifyvm", :id, "--memory", "8192"]
+    vb.customize ["modifyvm", :id, "--memory", {{vm_memory}}]
     vb.customize ["modifyvm", :id, "--cpus", 4]
     {% set vdi_count = 1 %}
     {% for vdi in vdis %}
@@ -78,7 +78,7 @@ class VagrantManager(object):
             return False
         return True
 
-    def create(self, name, purpose=CONTROLPLANE, btrfs=0, vfs=0):
+    def create(self, name, purpose=CONTROLPLANE, btrfs=0, vfs=0, memory="8192"):
         if not self.verify_auto_network():
             raise Exception("Unable to find or install vagrant-auto_network plugin.")
         elif self._root.join(name).check(dir=True):
@@ -109,6 +109,7 @@ class VagrantManager(object):
             box_name=BOXES.get(purpose),
             vdis=vdis,
             shared_folders=shared,
+            vm_memory=memory,
             provision_script="""
 chown zenoss:zenoss /home/zenoss/%s
 su - zenoss -c "cd /home/zenoss && zendev init %s"
