@@ -295,6 +295,9 @@ def cd(args):
     """
     env = check_env()
     if args.repo:
+        if args.repo == "build":
+            env.bash('cd "%s"' % env._root.join('build').strpath)
+            return
         repos = check_env().repos(repofilter([args.repo]))
         if not repos:
             error("No repo matching %s found" % args.repo)
