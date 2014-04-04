@@ -343,8 +343,6 @@ def each(args):
 
 def build(args):
     srcroot = None
-    print "output", args.output
-    import pdb; pdb.set_trace()
     if args.manifest and not args.noenv:
         srcroot = py.path.local.mkdtemp()
     env = check_env(manifest=args.manifest, srcroot=srcroot)
