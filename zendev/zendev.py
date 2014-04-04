@@ -343,6 +343,8 @@ def each(args):
 
 def build(args):
     srcroot = None
+    print "output", args.output
+    import pdb; pdb.set_trace()
     if args.manifest and not args.noenv:
         srcroot = py.path.local.mkdtemp()
     env = check_env(manifest=args.manifest, srcroot=srcroot)
@@ -350,10 +352,10 @@ def build(args):
         env.clone(shallow=True)
     os.environ.update(env.envvars())
     with env.buildroot.as_cwd():
-        target = 'srcbuild' if args.target == 'src' else args.target
+        target = ['srcbuild' if t == 'src' else t for t in args.target]
         if args.clean:
             subprocess.call(["make", "clean"])
-        subprocess.call(["make", target])
+        subprocess.call(["make", "OUTPUT=%s" % args.output] + target)
 
 def attach(args):
     subprocess.call("sudo nsenter -m -u -i -n -p -t $(pgrep -fl 'serviced.*%s' | awk '!/docker/{print $1; exit}') -- bash" % args.process, shell=True)
@@ -385,17 +387,17 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--script', action='store_true',
-            help=argparse.SUPPRESS)
+                        help=argparse.SUPPRESS)
 
     parser.add_argument('-n', '--noenv', action='store_true', 
-            help="Run in a temporary environment")
+                        help="Run in a temporary environment")
 
     subparsers = parser.add_subparsers()
 
     init_parser = subparsers.add_parser('init')
     init_parser.add_argument('path', metavar="PATH")
     init_parser.add_argument('-d', '--default-repos', dest="default_repos",
-            action="store_true")
+                             action="store_true")
     init_parser.set_defaults(functor=init)
 
     use_parser = subparsers.add_parser('use')
@@ -403,12 +405,15 @@ def parse_args():
     use_parser.set_defaults(functor=use)
 
     build_parser = subparsers.add_parser('build')
-    build_parser.add_argument('target', metavar='TARGET', 
-            choices=['src', 'core', 'resmgr', 'svcpkg-core', 'svcpkg-resmgr',
-                'serviced', 'devimg'])
     build_parser.add_argument('-m', '--manifest', nargs="+",
-            metavar='MANIFEST', required=False)
-    build_parser.add_argument('-c', '--clean', action="store_true", default=False)
+                              metavar='MANIFEST', required=False)
+    build_parser.add_argument('-o', '--output', metavar='DIRECTORY',
+                              default=py.path.local().join('output').strpath)
+    build_parser.add_argument('-c', '--clean', action="store_true",
+                              default=False)
+    build_parser.add_argument('target', metavar='TARGET', nargs="+",
+                              choices=['src', 'core', 'resmgr', 'svcpkg-core',
+                                       'svcpkg-resmgr', 'serviced', 'devimg'])
     build_parser.set_defaults(functor=build)
 
     drop_parser = subparsers.add_parser('drop')
