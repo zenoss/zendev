@@ -576,7 +576,7 @@ def parse_args():
         help="Start all services once deployed")
     serviced_parser.add_argument('-x', '--reset', action='store_true',
         help="Clean service state and kill running containers first")
-    serviced_parser.add_argument('--args', dest='arguments', nargs=argparse.REMAINDER)
+    serviced_parser.add_argument('arguments', nargs=argparse.REMAINDER)
     serviced_parser.set_defaults(functor=serviced)
 
     update_parser = subparsers.add_parser('selfupdate')
