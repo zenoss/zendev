@@ -47,6 +47,12 @@ Passing ``--clean`` to ``zendev build`` will run ``make clean`` in the build
 directory before running the build, which might be necessary to pull in
 repositories you've synced.
 
+Artifact Output
+===============
+Passing ``--output`` or ``-o`` with an argument will cause any build artifacts
+produced during the run to end up in the directory specified; the default is
+``$PWD/output``.
+
 Building from a different manifest
 ==================================
 zendev can build from a manifest other than your current source tree. In this
