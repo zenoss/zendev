@@ -45,7 +45,7 @@ serviced`` (this replaces ``zendev resetserviced``).
 
 .. code-block:: bash
 
-    usage: zendev serviced [-h] [-r] [-d] [-a] [-x]
+    usage: zendev serviced [-h] [-r] [-d] [-a] [-x] [-- ARG [ARG...]]
 
     optional arguments:
       -h, --help      show this help message and exit
@@ -53,6 +53,9 @@ serviced`` (this replaces ``zendev resetserviced``).
       -d, --deploy    Add Zenoss service definitions and deploy an instance
       -a, --startall  Start all services once deployed
       -x, --reset     Clean service state and kill running containers first
+
+Any arguments beyond the standard ``--`` will not be parsed by zendev, and will
+isntead be passed directly to serviced.
 
 Now you can make any changes you want to the source on your host, then bounce
 the service in the control plane UI or CLI to have your changes take effect.
