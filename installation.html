@@ -173,24 +173,9 @@ sudo service docker restart
 </div>
 <p>If you see an empty list of containers (i.e., a row of column names), you&#8217;re
 good. Now modify the Docker upstart script to handle resolution of local DNS:</p>
-<div class="highlight-bash"><div class="highlight"><pre>cat <span class="s">&lt;&lt;\EOF | sudo bash -c &quot;cat &gt; /etc/init/docker.conf&quot;</span>
-<span class="s">description &quot;Docker daemon&quot;</span>
-
-<span class="s">start on filesystem and started lxc-net</span>
-<span class="s">stop on runlevel [!2345]</span>
-
-<span class="s">respawn</span>
-
-<span class="s">limit nofile 65536 65536</span>
-
-<span class="s">script</span>
-<span class="s">        DOCKER=/usr/bin/$UPSTART_JOB</span>
-<span class="s">        DOCKER_OPTS=&quot;-dns=10.87.113.13 -dns=10.88.102.13 -dns=10.175.211.10&quot;</span>
-<span class="s">        if [ -f /etc/default/$UPSTART_JOB ]; then</span>
-<span class="s">                . /etc/default/$UPSTART_JOB</span>
-<span class="s">        fi</span>
-<span class="s">        &quot;$DOCKER&quot; -d $DOCKER_OPTS</span>
-<span class="s">end script</span>
+<div class="highlight-bash"><div class="highlight"><pre>cat  <span class="s">&lt;&lt;\EOF | sudo sed -f /dev/fd/0 -i /etc/init/docker.conf</span>
+<span class="s">    s/respawn/\0\nlimit nofile 65536 65536\n/</span>
+<span class="s">    s/DOCKER_OPTS=.*$/\0\n\tDOCKER_OPTS=&quot;$DOCKER_OPTS -dns=10.87.113.13 -dns=10.88.102.13 -dns=10.175.211.10&quot;/</span>
 <span class="s">EOF</span>
 </pre></div>
 </div>
@@ -304,7 +289,7 @@ zendev use europa
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add core and serviced repositories from manifests used by the build,</span>
 <span class="c"># which have conveniently been checked out into</span>
 <span class="c"># ~/src/europa/build/manifests</span>
-zendev add <span class="k">$(</span>zendev root<span class="k">)</span>/build/manifests/<span class="o">{</span>core,libs,serviced<span class="o">}</span>.json
+zendev add <span class="k">$(</span>zendev root<span class="k">)</span>/build/manifests/<span class="o">{</span>core,libs,serviced,zenpacks.core<span class="o">}</span>.json
 
 <span class="c"># Clone everything</span>
 zendev sync
@@ -420,7 +405,7 @@ to update it, you can run:</p>
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>

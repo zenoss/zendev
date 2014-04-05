@@ -78,6 +78,7 @@
 <li><a class="reference internal" href="#building-from-source">Building from Source</a></li>
 <li><a class="reference internal" href="#building-rpms">Building RPMs</a></li>
 <li><a class="reference internal" href="#clean-builds">Clean Builds</a></li>
+<li><a class="reference internal" href="#artifact-output">Artifact Output</a></li>
 <li><a class="reference internal" href="#building-from-a-different-manifest">Building from a different manifest</a></li>
 </ul>
 </li>
@@ -134,11 +135,16 @@ a common development environment practice. Contributions welcome.</p>
 <p>The only requirement to build RPMs is Docker. zendev will create a Docker image
 that can build an RPM, mount the appropriate source directories, build the RPM,
 and copy it to an output directory mounted from the host.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Build Core</span>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Build Core (+ core ZenPacks)</span>
+<span class="c"># Make sure you have necessary repos (first time only)</span>
+zendev add <span class="k">$(</span>zendev root<span class="k">)</span>/build/manifests/<span class="o">{</span>core,zenpacks.core<span class="o">}</span>.json
+zendev sync
 zendev build --clean core
 
-<span class="c"># Build RM (Core + ZenPacks). Requires that the *zenpack.json manifests are</span>
-<span class="c"># added to the environment.</span>
+<span class="c"># Build RM (Core + ZenPacks).</span>
+<span class="c"># Make sure you have necessary repos (first time only)</span>
+zendev add <span class="k">$(</span>zendev root<span class="k">)</span>/build/manifests/<span class="o">{</span>core,zenpacks.core,zenpacks.commercial<span class="o">}</span>.json
+zendev sync
 zendev build --clean resmgr
 </pre></div>
 </div>
@@ -148,6 +154,12 @@ zendev build --clean resmgr
 <p>Passing <tt class="docutils literal"><span class="pre">--clean</span></tt> to <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">build</span></tt> will run <tt class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></tt> in the build
 directory before running the build, which might be necessary to pull in
 repositories you&#8217;ve synced.</p>
+</div>
+<div class="section" id="artifact-output">
+<h2>Artifact Output<a class="headerlink" href="#artifact-output" title="Permalink to this headline">¶</a></h2>
+<p>Passing <tt class="docutils literal"><span class="pre">--output</span></tt> or <tt class="docutils literal"><span class="pre">-o</span></tt> with an argument will cause any build artifacts
+produced during the run to end up in the directory specified; the default is
+<tt class="docutils literal"><span class="pre">$PWD/output</span></tt>.</p>
 </div>
 <div class="section" id="building-from-a-different-manifest">
 <h2>Building from a different manifest<a class="headerlink" href="#building-from-a-different-manifest" title="Permalink to this headline">¶</a></h2>
@@ -177,7 +189,7 @@ zendev -n build core -m /path/to/manifest1.json http://host/manifest2.json
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>
