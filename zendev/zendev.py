@@ -102,6 +102,8 @@ def serviced(args):
     serviced = Serviced(check_env())
     if args.reset:
         serviced.reset()
+    if args.arguments and args.arguments[0] == '--':
+        args.arguments = args.arguments[1:]
     serviced.start(args.root, args.arguments)
     try:
         while not serviced.is_ready():
