@@ -207,13 +207,19 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Build serviced (may take a while if it's the first time)
     make install
 
-    # Build the Zenoss Docker repo (also may take a while)
-    cdz && cd build/services/repos && make
+    # Build the Zenoss Docker repo image (also may take a while)
+    zendev build devimg
+
+    # Download pre-built opentsdb image from quay.io
+    docker login -u zenossinc+alphaeval -e "alpha2@zenoss.com" \
+        -p WP0FHD2M9VIKIX6NUXKTUQO23ZEWNSJLGDBA3SGEK4BLAI66HN5EU0BOKN4FVMFF \
+        https://quay.io/v1/
+    docker pull quay.io/zenossinc/opentsdb:latest
 
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of
     # Zenoss (warning: blows away state!) 
-    zendev resetserviced
+    zendev serviced --reset --deploy
 
 OS X
 ----
