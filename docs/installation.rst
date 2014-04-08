@@ -219,7 +219,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of
     # Zenoss (warning: blows away state!) 
-    zendev serviced --root --reset --deploy
+    zendev serviced --reset --deploy
 
 OS X
 ----
