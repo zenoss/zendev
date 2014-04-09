@@ -57,7 +57,7 @@ Ubuntu
     # Restart Docker
     sudo service docker restart
 
-Then log out and back in so it will take effect. If you're doing this in a GUI environment, you may need to log out of and back into your window manager as well. Test that you can communicate with the docker daemon:
+Test that you can communicate with the docker daemon:
 
 .. code-block:: bash
 
