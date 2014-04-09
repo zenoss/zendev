@@ -64,9 +64,14 @@ class Serviced(object):
     def add_host(self, host="172.17.42.1:4979", pool="default"):
         subprocess.call([self.serviced, "add-host", host, pool])
 
-    def deploy(self, template, pool="default", svcname="Zenoss"):
-        subprocess.call([self.serviced, "deploy-template", template, pool,
-            svcname])
+    def deploy(self, template, pool="default", svcname="Zenoss", noAutoAssignIpFlag=""):
+        deploy_command = [self.serviced, "deploy-template"]
+        if noAutoAssignIpFlag != "":
+            deploy_command.append(noAutoAssignIpFlag)
+        deploy_command.append(template)
+        deploy_command.append(pool)
+        deploy_command.append(svcname)
+        subprocess.call(deploy_command)
 
     def add_template(self):
         print "Adding template"

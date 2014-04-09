@@ -117,7 +117,10 @@ def serviced(args):
         if args.deploy:
             serviced.add_host()
             tplid = serviced.add_template()
-            serviced.deploy(tplid)
+            if args.no_auto_assign_ips:
+                serviced.deploy(template=tplid, noAutoAssignIpFlag="-autoAssignIps=false")
+            else:
+                serviced.deploy(tplid)
         if args.startall:
             serviced.startall()
         # Join the subprocess
@@ -578,6 +581,8 @@ def parse_args():
         help="Start all services once deployed")
     serviced_parser.add_argument('-x', '--reset', action='store_true',
         help="Clean service state and kill running containers first")
+    serviced_parser.add_argument('--no-auto-assign-ips', action='store_true',
+        help="Do NOT auto-assign IP addresses to services requiring an IP address")
     serviced_parser.add_argument('arguments', nargs=argparse.REMAINDER)
     serviced_parser.set_defaults(functor=serviced)
 
