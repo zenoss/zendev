@@ -48,6 +48,9 @@ Ubuntu
     # Add the current user to the docker group
     sudo usermod -a -G docker ${USER}
 
+    # Login again to get docker group (requires password reentry)
+    exec su -l ${USER}
+
     # Allow lxc-start to start (see https://github.com/dotcloud/docker/issues/2702)
     sudo /usr/sbin/aa-complain /usr/bin/lxc-start
 
@@ -75,6 +78,9 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 
 .. code-block:: bash
 
+    # Install "go get" dependencies.
+    sudo apt-get install -y mercurial bzr git
+
     # Download Go 1.2.1 and unpack it into /usr/local
     sudo apt-get install -y wget
     wget -qO- https://go.googlecode.com/files/go1.2.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
@@ -89,22 +95,23 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     source /etc/profile.d/golang.sh
 
     # Add important/useful golang things
-    mkdir -p /opt/go/{bin,pkg,src}
-
     export GOPATH=/opt/go
 
+    sudo mkdir -p ${GOPATH}/{bin,pkg,src}
+    sudo chown -R ${USER}:${USER} ${GOPATH}
+
     go get github.com/golang/lint/golint
-    ln -s /opt/go/bin/golint /usr/local/bin/golint
+    sudo ln -s ${GOPATH}/bin/golint /usr/local/bin/golint
 
     go get -v code.google.com/p/rog-go/exp/cmd/godef
     go install -v code.google.com/p/rog-go/exp/cmd/godef
-    ln -s /opt/go/bin/godef /usr/local/bin/godef
+    sudo ln -s ${GOPATH}/bin/godef /usr/local/bin/godef
 
     go get -u github.com/nsf/gocode
-    ln -s /opt/go/bin/gocode /usr/local/bin/gocode
+    sudo ln -s ${GOPATH}/bin/gocode /usr/local/bin/gocode
 
     go get code.google.com/p/go.tools/cmd/goimports
-    ln -s /opt/go/bin/goimports /usr/local/bin/goimports
+    sudo ln -s ${GOPATH}/bin/goimports /usr/local/bin/goimports
 
 6. Install other dependencies:
 
@@ -116,9 +123,6 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     
     # for Ubuntu 12.04.*
     sudo pip install setuptools --no-use-wheel --upgrade
-
-    # Source control
-    sudo apt-get install -y mercurial bzr git
 
     # libpam (necessary for control plane)
     sudo apt-get install -y libpam0g-dev
