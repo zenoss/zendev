@@ -362,6 +362,7 @@ def build(args):
 
 def attach(args):
     subprocess.call("serviced attach -pattern='%s' bash" % args.pattern, shell=True)
+    print >>sys.stderr, "Yo, you can probably just use serviced attach"
 
 
 def clone(args):
