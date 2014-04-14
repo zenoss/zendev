@@ -62,21 +62,10 @@ the service in the control plane UI or CLI to have your changes take effect.
 
 Attaching to Running Containers: ``zendev attach``
 ==================================================
-There's a simple wrapper for ``nsenter`` called ``zendev attach``. For example,
-to drop into bash on the container running Zope, run:
+There's a simple wrapper for ``nsinit`` called ``zendev attach`` which uses
+serviced attach.  For example, to drop into bash on the container running Zope, run:
 
 .. code-block:: bash
 
     zendev attach zopectl
 
-Installing ``nsenter``
-----------------------
-You'll need util-linux installed for zendev attach to work. Here's how (the
-version in the repos is too old):
-
-.. code-block:: bash
-
-    wget -O- https://www.kernel.org/pub/linux/utils/util-linux/v2.24/util-linux-2.24.tar.bz2 | tar -C /tmp -xj
-    cd /tmp/util-linux-2.24/
-    ./configure --without-ncurses --prefix=/usr/local/util-linux; make; sudo make install
-    sudo cp -p /usr/local/util-linux/bin/nsenter /usr/local/bin

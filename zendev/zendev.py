@@ -361,7 +361,8 @@ def build(args):
         subprocess.call(["make", "OUTPUT=%s" % args.output] + target)
 
 def attach(args):
-    subprocess.call("sudo nsenter -m -u -i -n -p -t $(pgrep -fl 'serviced.*%s' | awk '!/docker/{print $1; exit}') -- bash" % args.process, shell=True)
+    print >>sys.stderr, "Yo, you can probably just use serviced attach"
+    subprocess.call("serviced attach -pattern='%s' bash" % args.pattern, shell=True)
 
 
 def clone(args):
@@ -590,7 +591,8 @@ def parse_args():
     update_parser.set_defaults(functor=selfupdate)
 
     attach_parser = subparsers.add_parser('attach')
-    attach_parser.add_argument('process', metavar="PROCESS")
+    attach_parser.add_argument('pattern', metavar="PATTERN",
+        help="Attach to first container matching pattern in docker ps output")
     attach_parser.set_defaults(functor=attach)
 
     argcomplete.autocomplete(parser)
