@@ -13,6 +13,7 @@ class Serviced(object):
     def __init__(self, env):
         self.env = env
         self.serviced = self.env._gopath.join("bin/serviced").strpath
+        self.uiport = None
 
     def reset(self):
         print "Stopping any running serviced"
@@ -26,6 +27,7 @@ class Serviced(object):
 
     def start(self, root, uiport, arguments=None):
         print "Starting serviced..."
+        self.uiport = uiport
         args = []
         if root:
             args.extend(["sudo", "-E"])
@@ -42,9 +44,9 @@ class Serviced(object):
         print "Running command:", args
         self.proc = subprocess.Popen(args)
 
-    def is_ready(self, port):
+    def is_ready(self):
         try:
-            response = requests.get("http://localhost:%d" % port)
+            response = requests.get("http://localhost:%d" % self.uiport)
         except Exception:
             return False
         return response.status_code == 200
