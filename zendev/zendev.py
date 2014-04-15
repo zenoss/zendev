@@ -104,9 +104,9 @@ def serviced(args):
         serviced.reset()
     if args.arguments and args.arguments[0] == '--':
         args.arguments = args.arguments[1:]
-    serviced.start(args.root, args.arguments)
+    serviced.start(args.root, args.uiport, args.arguments)
     try:
-        while not serviced.is_ready():
+        while not serviced.is_ready(args.uiport):
             if not timeout:
                 print "Timed out waiting for serviced!"
                 sys.exit(1)
@@ -584,6 +584,8 @@ def parse_args():
         help="Clean service state and kill running containers first")
     serviced_parser.add_argument('--no-auto-assign-ips', action='store_true',
         help="Do NOT auto-assign IP addresses to services requiring an IP address")
+    serviced_parser.add_argument('-u', '--uiport', type=int, default=8787,
+        help="UI port")
     serviced_parser.add_argument('arguments', nargs=argparse.REMAINDER)
     serviced_parser.set_defaults(functor=serviced)
 

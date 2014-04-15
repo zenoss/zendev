@@ -24,7 +24,7 @@ class Serviced(object):
         print "Cleaning state"
         subprocess.call("sudo rm -rf /tmp/serviced-*", shell=True)
 
-    def start(self, root=False, arguments=None):
+    def start(self, root, uiport, arguments=None):
         print "Starting serviced..."
         args = []
         if root:
@@ -33,6 +33,7 @@ class Serviced(object):
         args.extend([self.serviced, "-master", "-agent", 
             "-mount", "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath,
             "-mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
+            "-uiport", ":%d" % uiport,
         ])
 
         if arguments:
@@ -41,9 +42,9 @@ class Serviced(object):
         print "Running command:", args
         self.proc = subprocess.Popen(args)
 
-    def is_ready(self):
+    def is_ready(self, port):
         try:
-            response = requests.get("http://localhost:8787")
+            response = requests.get("http://localhost:%d" % port)
         except Exception:
             return False
         return response.status_code == 200
