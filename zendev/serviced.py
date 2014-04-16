@@ -25,7 +25,7 @@ class Serviced(object):
         print "Cleaning state"
         subprocess.call("sudo rm -rf /tmp/serviced-*", shell=True)
 
-    def start(self, root, uiport, arguments=None):
+    def start(self, root=False, uiport=443, arguments=None):
         print "Starting serviced..."
         self.uiport = uiport
         args = []
