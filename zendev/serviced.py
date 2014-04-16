@@ -13,6 +13,7 @@ class Serviced(object):
     def __init__(self, env):
         self.env = env
         self.serviced = self.env._gopath.join("bin/serviced").strpath
+        self.uiport = None
 
     def reset(self):
         print "Stopping any running serviced"
@@ -24,8 +25,9 @@ class Serviced(object):
         print "Cleaning state"
         subprocess.call("sudo rm -rf /tmp/serviced-*", shell=True)
 
-    def start(self, root=False, arguments=None):
+    def start(self, root=False, uiport=443, arguments=None):
         print "Starting serviced..."
+        self.uiport = uiport
         args = []
         if root:
             args.extend(["sudo", "-E"])
@@ -33,6 +35,7 @@ class Serviced(object):
         args.extend([self.serviced, "-master", "-agent", 
             "-mount", "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath,
             "-mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
+            "-uiport", ":%d" % uiport,
         ])
 
         if arguments:
@@ -43,7 +46,7 @@ class Serviced(object):
 
     def is_ready(self):
         try:
-            response = requests.get("http://localhost:8787")
+            response = requests.get("http://localhost:%d" % self.uiport)
         except Exception:
             return False
         return response.status_code == 200
