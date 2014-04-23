@@ -45,14 +45,22 @@ serviced`` (this replaces ``zendev resetserviced``).
 
 .. code-block:: bash
 
-    usage: zendev serviced [-h] [-r] [-d] [-a] [-x] [-- ARG [ARG...]]
+    usage: zendev serviced [-h] [-r] [-n] [-d] [-a] [-x] [--no-auto-assign-ips]
+                           [-u UIPORT] [-- ARG [ARG...]]
 
     optional arguments:
-      -h, --help      show this help message and exit
-      -r, --root      Run serviced as root
-      -d, --deploy    Add Zenoss service definitions and deploy an instance
-      -a, --startall  Start all services once deployed
-      -x, --reset     Clean service state and kill running containers first
+      -h, --help            show this help message and exit
+      -r, --root            Run serviced as root (DEPRECATED. Currently ignored;
+                            see --no-root)
+      -d, --deploy          Add Zenoss service definitions and deploy an instance
+      -a, --startall        Start all services once deployed
+      -x, --reset           Clean service state and kill running containers first
+      --no-root             Don't run serviced as root
+      --no-auto-assign-ips  Do NOT auto-assign IP addresses to services requiring
+                            an IP address
+      -u UIPORT, --uiport UIPORT
+                            UI port (default 443)
+
 
 Any arguments beyond the standard ``--`` will not be parsed by zendev, and will
 isntead be passed directly to serviced.

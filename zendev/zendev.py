@@ -578,14 +578,14 @@ def parse_args():
     serviced_parser = subparsers.add_parser('serviced')
     serviced_parser.add_argument('-r', '--root', action='store_true',
         help="Run serviced as root (DEPRECATED. Currently ignored; see --no-root)")
-    serviced_parser.add_argument('-n', '--no-root', dest="no_root",
-            action='store_true', help="Don't run serviced as root")
     serviced_parser.add_argument('-d', '--deploy', action='store_true',
         help="Add Zenoss service definitions and deploy an instance")
     serviced_parser.add_argument('-a', '--startall', action='store_true',
         help="Start all services once deployed")
     serviced_parser.add_argument('-x', '--reset', action='store_true',
         help="Clean service state and kill running containers first")
+    serviced_parser.add_argument('--no-root', dest="no_root",
+            action='store_true', help="Don't run serviced as root")
     serviced_parser.add_argument('--no-auto-assign-ips', action='store_true',
         help="Do NOT auto-assign IP addresses to services requiring an IP address")
     serviced_parser.add_argument('-u', '--uiport', type=int, default=443,
