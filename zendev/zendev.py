@@ -104,7 +104,9 @@ def serviced(args):
         serviced.reset()
     if args.arguments and args.arguments[0] == '--':
         args.arguments = args.arguments[1:]
-    serviced.start(args.root, args.uiport, args.arguments)
+    if args.root:
+        print >>sys.stderr, "--root is deprecated, as it is now the default. See --no-root."
+    serviced.start(not args.no_root, args.uiport, args.arguments)
     try:
         while not serviced.is_ready():
             if not timeout:
@@ -575,7 +577,9 @@ def parse_args():
 
     serviced_parser = subparsers.add_parser('serviced')
     serviced_parser.add_argument('-r', '--root', action='store_true',
-        help="Run serviced as root")
+        help="Run serviced as root (DEPRECATED. Currently ignored; see --no-root)")
+    serviced_parser.add_argument('-n', '--no-root', dest="no_root",
+            action='store_true', help="Don't run serviced as root")
     serviced_parser.add_argument('-d', '--deploy', action='store_true',
         help="Add Zenoss service definitions and deploy an instance")
     serviced_parser.add_argument('-a', '--startall', action='store_true',
