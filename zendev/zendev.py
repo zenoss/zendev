@@ -360,7 +360,8 @@ def build(args):
         target = ['srcbuild' if t == 'src' else t for t in args.target]
         if args.clean:
             subprocess.call(["make", "clean"])
-        subprocess.call(["make", "OUTPUT=%s" % args.output] + target)
+        rc = subprocess.call(["make", "OUTPUT=%s" % args.output] + target)
+        sys.exit(rc)
 
 def attach(args):
     print >>sys.stderr, "Yo, you can probably just use serviced attach"
