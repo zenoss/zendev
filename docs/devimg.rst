@@ -45,7 +45,7 @@ serviced`` (this replaces ``zendev resetserviced``).
 
 .. code-block:: bash
 
-    usage: zendev serviced [-h] [-r] [-n] [-d] [-a] [-x] [--no-auto-assign-ips]
+    usage: zendev serviced [-h] [-r] [-d] [-a] [-x] [--no-auto-assign-ips]
                            [-u UIPORT] [-- ARG [ARG...]]
 
     optional arguments:
