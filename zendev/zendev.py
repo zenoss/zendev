@@ -120,7 +120,7 @@ def serviced(args):
             serviced.add_host()
             tplid = serviced.add_template()
             if args.no_auto_assign_ips:
-                serviced.deploy(template=tplid, noAutoAssignIpFlag="-autoAssignIps=false")
+                serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual")
             else:
                 serviced.deploy(tplid)
         if args.startall:

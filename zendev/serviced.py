@@ -33,9 +33,9 @@ class Serviced(object):
             args.extend(["sudo", "-E"])
             args.extend("%s=%s" % x for x in self.env.envvars().iteritems())
         args.extend([self.serviced, "-master", "-agent", 
-            "-mount", "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath,
-            "-mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
-            "-uiport", ":%d" % uiport,
+            "--mount", "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath,
+            "--mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
+            "--uiport", ":%d" % uiport,
         ])
 
         if arguments:
@@ -65,10 +65,11 @@ class Serviced(object):
                 pass
 
     def add_host(self, host="172.17.42.1:4979", pool="default"):
-        subprocess.call([self.serviced, "add-host", host, pool])
+        subprocess.call([self.serviced, "host","add", host, pool])
 
     def deploy(self, template, pool="default", svcname="Zenoss", noAutoAssignIpFlag=""):
-        deploy_command = [self.serviced, "deploy-template"]
+        print "Deploying template"
+        deploy_command = [self.serviced, "template", "deploy"]
         if noAutoAssignIpFlag != "":
             deploy_command.append(noAutoAssignIpFlag)
         deploy_command.append(template)
@@ -79,12 +80,12 @@ class Serviced(object):
     def add_template(self):
         print "Adding template"
         tpldir = self.env.buildroot.join("services/Zenoss.core").strpath
-        proc = subprocess.Popen([self.serviced, "compile-template",
-            "-map=zenoss/zenoss5x,zendev/devimg", tpldir],
+        proc = subprocess.Popen([self.serviced, "template", "compile",
+            "--map=zenoss/zenoss5x,zendev/devimg", tpldir],
             stdout=subprocess.PIPE)
         stdout, _ = proc.communicate()
         print "Compiled new template"
-        addtpl = subprocess.Popen([self.serviced, "add-template", "-"],
+        addtpl = subprocess.Popen([self.serviced, "template", "add"],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         tplid, _ = addtpl.communicate(stdout)
         tplid = tplid.strip()
@@ -95,4 +96,4 @@ class Serviced(object):
         p = subprocess.Popen("%s services | awk '/Zenoss/ {print $2; exit}'" % self.serviced,
                 shell=True, stdout=subprocess.PIPE)
         svcid, stderr = p.communicate()
-        subprocess.call([self.serviced, "start-service", svcid.strip()])
+        subprocess.call([self.serviced, "service", "start", svcid.strip()])
