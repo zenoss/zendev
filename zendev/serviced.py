@@ -93,7 +93,7 @@ class Serviced(object):
         return tplid
 
     def startall(self):
-        p = subprocess.Popen("%s services | awk '/Zenoss/ {print $2; exit}'" % self.serviced,
+        p = subprocess.Popen("%s service list | awk '/Zenoss/ {print $2; exit}'" % self.serviced,
                 shell=True, stdout=subprocess.PIPE)
         svcid, stderr = p.communicate()
         subprocess.call([self.serviced, "service", "start", svcid.strip()])
