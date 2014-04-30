@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import time
 
 import requests
 
@@ -75,6 +76,7 @@ class Serviced(object):
         deploy_command.append(template)
         deploy_command.append(pool)
         deploy_command.append(svcname)
+        time.sleep(1)
         subprocess.call(deploy_command)
 
     def add_template(self):
