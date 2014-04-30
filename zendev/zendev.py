@@ -365,7 +365,7 @@ def build(args):
 
 def attach(args):
     print >>sys.stderr, "Yo, you can probably just use serviced attach"
-    subprocess.call("serviced attach -pattern='%s' bash; stty sane" % args.pattern, shell=True)
+    subprocess.call("serviced service attach '%s'; stty sane" % args.specifier, shell=True)
 
 
 def clone(args):
@@ -598,8 +598,8 @@ def parse_args():
     update_parser.set_defaults(functor=selfupdate)
 
     attach_parser = subparsers.add_parser('attach')
-    attach_parser.add_argument('pattern', metavar="PATTERN",
-        help="Attach to first container matching pattern in docker ps output")
+    attach_parser.add_argument('specifier', metavar="SERVICEID|SERVICENAME|DOCKERID",
+        help="Attach to a container matching SERVICEID|SERVICENAME|DOCKERID in service instances")
     attach_parser.set_defaults(functor=attach)
 
     argcomplete.autocomplete(parser)
