@@ -219,6 +219,7 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
         -p WP0FHD2M9VIKIX6NUXKTUQO23ZEWNSJLGDBA3SGEK4BLAI66HN5EU0BOKN4FVMFF \
         https://quay.io/v1/
     docker pull quay.io/zenossinc/opentsdb:latest
+    docker pull quay.io/zenossinc/hbase:latest
 
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of
