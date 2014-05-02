@@ -203,7 +203,9 @@
         <span class="n">serviced</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">arguments</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;--&#39;</span><span class="p">:</span>
         <span class="n">args</span><span class="o">.</span><span class="n">arguments</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-    <span class="n">serviced</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">arguments</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">root</span><span class="p">:</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;--root is deprecated, as it is now the default. See --no-root.&quot;</span>
+    <span class="n">serviced</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_root</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">uiport</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">arguments</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="n">serviced</span><span class="o">.</span><span class="n">is_ready</span><span class="p">():</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">timeout</span><span class="p">:</span>
@@ -216,7 +218,10 @@
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">deploy</span><span class="p">:</span>
             <span class="n">serviced</span><span class="o">.</span><span class="n">add_host</span><span class="p">()</span>
             <span class="n">tplid</span> <span class="o">=</span> <span class="n">serviced</span><span class="o">.</span><span class="n">add_template</span><span class="p">()</span>
-            <span class="n">serviced</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">tplid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_auto_assign_ips</span><span class="p">:</span>
+                <span class="n">serviced</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">template</span><span class="o">=</span><span class="n">tplid</span><span class="p">,</span> <span class="n">noAutoAssignIpFlag</span><span class="o">=</span><span class="s">&quot;--manual&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">serviced</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">tplid</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">startall</span><span class="p">:</span>
             <span class="n">serviced</span><span class="o">.</span><span class="n">startall</span><span class="p">()</span>
         <span class="c"># Join the subprocess</span>
@@ -454,10 +459,12 @@
         <span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;srcbuild&#39;</span> <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s">&#39;src&#39;</span> <span class="k">else</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">clean</span><span class="p">:</span>
             <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;make&quot;</span><span class="p">,</span> <span class="s">&quot;clean&quot;</span><span class="p">])</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;make&quot;</span><span class="p">,</span> <span class="s">&quot;OUTPUT=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">]</span> <span class="o">+</span> <span class="n">target</span><span class="p">)</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;make&quot;</span><span class="p">,</span> <span class="s">&quot;OUTPUT=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">]</span> <span class="o">+</span> <span class="n">target</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="attach"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.attach">[docs]</a><span class="k">def</span> <span class="nf">attach</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;sudo nsenter -m -u -i -n -p -t $(pgrep -fl &#39;serviced.*</span><span class="si">%s</span><span class="s">&#39; | awk &#39;!/docker/{print $1; exit}&#39;) -- bash&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Yo, you can probably just use serviced attach&quot;</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;serviced service attach &#39;</span><span class="si">%s</span><span class="s">&#39;; stty sane&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">specifier</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="clone"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.clone">[docs]</a><span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
@@ -670,13 +677,19 @@
 
     <span class="n">serviced_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;serviced&#39;</span><span class="p">)</span>
     <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-r&#39;</span><span class="p">,</span> <span class="s">&#39;--root&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Run serviced as root&quot;</span><span class="p">)</span>
+        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Run serviced as root (DEPRECATED. Currently ignored; see --no-root)&quot;</span><span class="p">)</span>
     <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="s">&#39;--deploy&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s">&quot;Add Zenoss service definitions and deploy an instance&quot;</span><span class="p">)</span>
     <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-a&#39;</span><span class="p">,</span> <span class="s">&#39;--startall&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s">&quot;Start all services once deployed&quot;</span><span class="p">)</span>
     <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-x&#39;</span><span class="p">,</span> <span class="s">&#39;--reset&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s">&quot;Clean service state and kill running containers first&quot;</span><span class="p">)</span>
+    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--no-root&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;no_root&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Don&#39;t run serviced as root&quot;</span><span class="p">)</span>
+    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--no-auto-assign-ips&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Do NOT auto-assign IP addresses to services requiring an IP address&quot;</span><span class="p">)</span>
+    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-u&#39;</span><span class="p">,</span> <span class="s">&#39;--uiport&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">443</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s">&quot;UI port&quot;</span><span class="p">)</span>
     <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;arguments&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">REMAINDER</span><span class="p">)</span>
     <span class="n">serviced_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">serviced</span><span class="p">)</span>
 
@@ -684,7 +697,8 @@
     <span class="n">update_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">selfupdate</span><span class="p">)</span>
 
     <span class="n">attach_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;attach&#39;</span><span class="p">)</span>
-    <span class="n">attach_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;process&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;PROCESS&quot;</span><span class="p">)</span>
+    <span class="n">attach_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;specifier&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;SERVICEID|SERVICENAME|DOCKERID&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Attach to a container matching SERVICEID|SERVICENAME|DOCKERID in service instances&quot;</span><span class="p">)</span>
     <span class="n">attach_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">attach</span><span class="p">)</span>
 
     <span class="n">argcomplete</span><span class="o">.</span><span class="n">autocomplete</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
@@ -717,7 +731,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
     </p>
   </div>
 </footer>

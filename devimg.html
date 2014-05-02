@@ -77,10 +77,7 @@
 <li><a class="reference internal" href="#">Developing Zenoss in the Control Plane</a><ul>
 <li><a class="reference internal" href="#building-the-image">Building the Image</a></li>
 <li><a class="reference internal" href="#running-control-plane">Running Control Plane</a></li>
-<li><a class="reference internal" href="#attaching-to-running-containers-zendev-attach">Attaching to Running Containers: <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></tt></a><ul>
-<li><a class="reference internal" href="#installing-nsenter">Installing <tt class="docutils literal"><span class="pre">nsenter</span></tt></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#attaching-to-running-containers-zendev-attach">Attaching to Running Containers: <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></tt></a></li>
 </ul>
 </li>
 </ul>
@@ -158,14 +155,21 @@ without having to do any image rebuilding.</p>
 <h2>Running Control Plane<a class="headerlink" href="#running-control-plane" title="Permalink to this headline">¶</a></h2>
 <p>Once your image exists, you can start the control plane using <tt class="docutils literal"><span class="pre">zendev</span>
 <span class="pre">serviced</span></tt> (this replaces <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">resetserviced</span></tt>).</p>
-<div class="highlight-bash"><div class="highlight"><pre>usage: zendev serviced <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-r<span class="o">]</span> <span class="o">[</span>-d<span class="o">]</span> <span class="o">[</span>-a<span class="o">]</span> <span class="o">[</span>-x<span class="o">]</span> <span class="o">[</span>-- ARG <span class="o">[</span>ARG...<span class="o">]]</span>
+<div class="highlight-bash"><div class="highlight"><pre>usage: zendev serviced [-h] [-r] [-d] [-a] [-x] [--no-auto-assign-ips]
+                       [-u UIPORT] [-- ARG [ARG...]]
 
 optional arguments:
-  -h, --help      show this <span class="nb">help </span>message and <span class="nb">exit</span>
-  -r, --root      Run serviced as root
-  -d, --deploy    Add Zenoss service definitions and deploy an instance
-  -a, --startall  Start all services once deployed
-  -x, --reset     Clean service state and <span class="nb">kill </span>running containers first
+  -h, --help            show this help message and exit
+  -r, --root            Run serviced as root (DEPRECATED. Currently ignored;
+                        see --no-root)
+  -d, --deploy          Add Zenoss service definitions and deploy an instance
+  -a, --startall        Start all services once deployed
+  -x, --reset           Clean service state and kill running containers first
+  --no-root             Don&#39;t run serviced as root
+  --no-auto-assign-ips  Do NOT auto-assign IP addresses to services requiring
+                        an IP address
+  -u UIPORT, --uiport UIPORT
+                        UI port (default 443)
 </pre></div>
 </div>
 <p>Any arguments beyond the standard <tt class="docutils literal"><span class="pre">--</span></tt> will not be parsed by zendev, and will
@@ -175,21 +179,10 @@ the service in the control plane UI or CLI to have your changes take effect.</p>
 </div>
 <div class="section" id="attaching-to-running-containers-zendev-attach">
 <h2>Attaching to Running Containers: <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></tt><a class="headerlink" href="#attaching-to-running-containers-zendev-attach" title="Permalink to this headline">¶</a></h2>
-<p>There&#8217;s a simple wrapper for <tt class="docutils literal"><span class="pre">nsenter</span></tt> called <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></tt>. For example,
-to drop into bash on the container running Zope, run:</p>
+<p>There&#8217;s a simple wrapper for <tt class="docutils literal"><span class="pre">nsinit</span></tt> called <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></tt> which uses
+serviced attach.  For example, to drop into bash on the container running Zope, run:</p>
 <div class="highlight-bash"><div class="highlight"><pre>zendev attach zopectl
 </pre></div>
-</div>
-<div class="section" id="installing-nsenter">
-<h3>Installing <tt class="docutils literal"><span class="pre">nsenter</span></tt><a class="headerlink" href="#installing-nsenter" title="Permalink to this headline">¶</a></h3>
-<p>You&#8217;ll need util-linux installed for zendev attach to work. Here&#8217;s how (the
-version in the repos is too old):</p>
-<div class="highlight-bash"><div class="highlight"><pre>wget -O- https://www.kernel.org/pub/linux/utils/util-linux/v2.24/util-linux-2.24.tar.bz2 | tar -C /tmp -xj
-<span class="nb">cd</span> /tmp/util-linux-2.24/
-./configure --without-ncurses --prefix<span class="o">=</span>/usr/local/util-linux; make; sudo make install
-sudo cp -p /usr/local/util-linux/bin/nsenter /usr/local/bin
-</pre></div>
-</div>
 </div>
 </div>
 </div>
@@ -204,7 +197,7 @@ sudo cp -p /usr/local/util-linux/bin/nsenter /usr/local/bin
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
     </p>
   </div>
 </footer>

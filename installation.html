@@ -160,6 +160,9 @@ sudo apt-get install -y lxc-docker-0.8.1 apparmor-utils
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the current user to the docker group</span>
 sudo usermod -a -G docker <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
 
+<span class="c"># Login again to get docker group (requires password reentry)</span>
+<span class="nb">exec </span>su -l <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
+
 <span class="c"># Allow lxc-start to start (see https://github.com/dotcloud/docker/issues/2702)</span>
 sudo /usr/sbin/aa-complain /usr/bin/lxc-start
 
@@ -167,7 +170,7 @@ sudo /usr/sbin/aa-complain /usr/bin/lxc-start
 sudo service docker restart
 </pre></div>
 </div>
-<p>Then log out and back in so it will take effect. If you&#8217;re doing this in a GUI environment, you may need to log out of and back into your window manager as well. Test that you can communicate with the docker daemon:</p>
+<p>Test that you can communicate with the docker daemon:</p>
 <div class="highlight-bash"><div class="highlight"><pre>docker ps
 </pre></div>
 </div>
@@ -182,7 +185,10 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:</p
 <ol class="arabic simple" start="5">
 <li>Install <a class="reference external" href="http://golang.org/">Go</a>:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Download Go 1.2.1 and unpack it into /usr/local</span>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install &quot;go get&quot; dependencies.</span>
+sudo apt-get install -y mercurial bzr git
+
+<span class="c"># Download Go 1.2.1 and unpack it into /usr/local</span>
 sudo apt-get install -y wget
 wget -qO- https://go.googlecode.com/files/go1.2.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 
@@ -196,22 +202,23 @@ cat <span class="s">&lt;&lt;\EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/go
 <span class="nb">source</span> /etc/profile.d/golang.sh
 
 <span class="c"># Add important/useful golang things</span>
-mkdir -p /opt/go/<span class="o">{</span>bin,pkg,src<span class="o">}</span>
-
 <span class="nb">export </span><span class="nv">GOPATH</span><span class="o">=</span>/opt/go
 
+sudo mkdir -p <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/<span class="o">{</span>bin,pkg,src<span class="o">}</span>
+sudo chown -R <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>:<span class="k">${</span><span class="nv">USER</span><span class="k">}</span> <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>
+
 go get github.com/golang/lint/golint
-ln -s /opt/go/bin/golint /usr/local/bin/golint
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/golint /usr/local/bin/golint
 
 go get -v code.google.com/p/rog-go/exp/cmd/godef
 go install -v code.google.com/p/rog-go/exp/cmd/godef
-ln -s /opt/go/bin/godef /usr/local/bin/godef
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/godef /usr/local/bin/godef
 
 go get -u github.com/nsf/gocode
-ln -s /opt/go/bin/gocode /usr/local/bin/gocode
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/gocode /usr/local/bin/gocode
 
 go get code.google.com/p/go.tools/cmd/goimports
-ln -s /opt/go/bin/goimports /usr/local/bin/goimports
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/goimports /usr/local/bin/goimports
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
@@ -223,9 +230,6 @@ sudo pip install --upgrade pip
 
 <span class="c"># for Ubuntu 12.04.*</span>
 sudo pip install setuptools --no-use-wheel --upgrade
-
-<span class="c"># Source control</span>
-sudo apt-get install -y mercurial bzr git
 
 <span class="c"># libpam (necessary for control plane)</span>
 sudo apt-get install -y libpam0g-dev
@@ -312,13 +316,20 @@ cdz serviced
 <span class="c"># Build serviced (may take a while if it&#39;s the first time)</span>
 make install
 
-<span class="c"># Build the Zenoss Docker repo (also may take a while)</span>
-cdz <span class="o">&amp;&amp;</span> <span class="nb">cd </span>build/services/repos <span class="o">&amp;&amp;</span> make
+<span class="c"># Build the Zenoss Docker repo image (also may take a while)</span>
+zendev build devimg
+
+<span class="c"># Download pre-built opentsdb image from quay.io</span>
+docker login -u zenossinc+alphaeval -e <span class="s2">&quot;alpha2@zenoss.com&quot;</span> <span class="se">\</span>
+    -p WP0FHD2M9VIKIX6NUXKTUQO23ZEWNSJLGDBA3SGEK4BLAI66HN5EU0BOKN4FVMFF <span class="se">\</span>
+    https://quay.io/v1/
+docker pull quay.io/zenossinc/opentsdb:latest
+docker pull quay.io/zenossinc/hbase:latest
 
 <span class="c"># Run a totally clean instance of serviced, automatically adding localhost</span>
 <span class="c"># as a host, adding the Zenoss template, and deploying an instance of</span>
 <span class="c"># Zenoss (warning: blows away state!)</span>
-zendev resetserviced
+zendev serviced --reset --deploy
 </pre></div>
 </div>
 </div>
@@ -357,13 +368,13 @@ development.</p>
 <li>Make a directory, somewhere, anywhere. <tt class="docutils literal"><span class="pre">cd</span></tt> into it.</li>
 <li>Create the box:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre>vagrant init ubuntu-13.04-docker-v1
+<div class="highlight-bash"><div class="highlight"><pre>vagrant init ubuntu-13.04-docker-v3
 </pre></div>
 </div>
 <p>As the pretty words will tell you, a Vagrantfile will have been created in that
 directory. Edit it, uncomment the line specifying the box URL, and set it to
 the one we have hosted:</p>
-<div class="highlight-ruby"><div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box_url</span> <span class="o">=</span> <span class="s2">&quot;http://vagrant.zendev.org/boxes/ubuntu-13.04-docker-v1.box&quot;</span>
+<div class="highlight-ruby"><div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box_url</span> <span class="o">=</span> <span class="s2">&quot;http://vagrant.zendev.org/boxes/ubuntu-13.04-docker-v3.box&quot;</span>
 </pre></div>
 </div>
 <p>You should also probably uncomment either the private or public networking line
@@ -405,7 +416,7 @@ to update it, you can run:</p>
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
     </p>
   </div>
 </footer>
