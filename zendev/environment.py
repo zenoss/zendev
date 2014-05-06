@@ -250,11 +250,15 @@ class ZenDevEnvironment(object):
     def sync(self, filter_=None):
         self.clone()
         self.fetch()
+        build = Repository('build', self.buildroot.strpath,
+                           repo='zenoss/platform-build', ref='develop')
         for repo in self.repos(filter_):
             repo.merge_from_remote()
+        build.merge_from_remote()
         info("Remote changes have been merged")
         for repo in self.repos(filter_):
             repo.push()
+        build.push()
         info("Up to date!")
 
     def use(self):
