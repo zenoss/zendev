@@ -307,8 +307,14 @@ def cd(args):
             return
         repos = check_env().repos(repofilter([args.repo]))
         if not repos:
-            error("No repo matching %s found" % args.repo)
-            sys.exit(1)
+            # try to fall back to a directory in our srcroot
+            nonRepoPath = env.srcroot.join(args.repo).strpath
+            if os.path.isdir(nonRepoPath):
+                env.bash('cd "%s"' % nonRepoPath)
+                return
+            else:
+                error("No repo matching %s found" % args.repo)
+                sys.exit(1)
         for repo in repos:
             if repo.path.strpath.endswith(args.repo.strip()):
                 env.bash('cd "%s"' % repo.path.strpath)
