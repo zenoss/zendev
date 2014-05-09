@@ -222,16 +222,17 @@ class ZenDevEnvironment(object):
             error("%s exists but isn't a git repository. Not sure "
                     "what to do." % builddir)
         else:
+            repo = Repository('build', builddir, 
+                    repo='zenoss/platform-build',
+                    ref='develop')
             if not builddir.check(dir=True):
-                repo = Repository('build', builddir, 
-                        repo='zenoss/platform-build',
-                        ref='develop')
                 info("Checking out build repository")
                 repo.progress = SimpleGitProgressBar('build')
                 repo.clone()
                 print
             else:
                 info("Build repository exists")
+            return repo
 
     def initialize(self):
         # Clone build directory
@@ -250,15 +251,16 @@ class ZenDevEnvironment(object):
     def sync(self, filter_=None):
         self.clone()
         self.fetch()
-        build = Repository('build', self.buildroot.strpath,
-                           repo='zenoss/platform-build', ref='develop')
+        build = self.ensure_build()
         for repo in self.repos(filter_):
             repo.merge_from_remote()
-        build.merge_from_remote()
+        if build:
+            build.merge_from_remote()
         info("Remote changes have been merged")
         for repo in self.repos(filter_):
             repo.push()
-        build.push()
+        if build:
+            build.push()
         info("Up to date!")
 
     def use(self):
