@@ -314,19 +314,21 @@ class ZenDevEnvironment(object):
         repo.repo.git.push('origin', ':%s' % name)
 
     def ensure_build(self):
-        repo = self.repos(lambda x: x.name == ZenDevEnvironment._buildrepo_name)[0]
-        builddir = repo.path
-        if builddir.check() and not is_git_repo(builddir):
+        if self.buildroot.check() and not is_git_repo(self.buildroot):
             error("%s exists but isn't a git repository. Not sure "
                   "what to do." % builddir)
         else:
-            if not builddir.check(dir=True):
+            repo = Repository('build', self.buildroot,
+                    repo='zenoss/platform-build',
+                    ref='develop')
+            if not self.buildroot.check(dir=True):
                 info("Checking out build repository")
                 repo.progress = SimpleGitProgressBar(repo.name)
                 repo.clone()
                 print
             else:
                 info("Build repository exists")
+            return repo
 
     def initialize(self):
         # Clone manifest directory
