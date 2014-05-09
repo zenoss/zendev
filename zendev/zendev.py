@@ -463,7 +463,8 @@ def parse_args():
                               help="Tag the source for this build")
     build_parser.add_argument('target', metavar='TARGET', nargs="+",
                               choices=['src', 'core', 'resmgr', 'svcpkg-core',
-                                       'svcpkg-resmgr', 'serviced', 'devimg'])
+                                       'svcpkg-resmgr', 'serviced', 'devimg',
+                                       'default'])
     build_parser.set_defaults(functor=build)
 
     drop_parser = subparsers.add_parser('drop')
