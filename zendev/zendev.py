@@ -183,6 +183,7 @@ def init(args):
         except NotInitialized:
             init_config_dir()
             env = ZenDevEnvironment(name=name, path=path)
+        env.manifest.save()
         env.initialize()
         env.use()
     if args.default_repos:
@@ -393,7 +394,7 @@ def add_repo_narg(parser):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="foo")
 
     parser.add_argument('--script', action='store_true',
                         help=argparse.SUPPRESS)
