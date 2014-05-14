@@ -394,7 +394,7 @@ def add_repo_narg(parser):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="foo")
+    parser = argparse.ArgumentParser()
 
     parser.add_argument('--script', action='store_true',
                         help=argparse.SUPPRESS)
