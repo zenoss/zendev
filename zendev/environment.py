@@ -75,6 +75,7 @@ class ZenDevEnvironment(object):
     _root = None
     _config = None
     _manifest = None
+    _buildrepo_name = 'build'
 
     def __init__(self, name=None, path=None, manifest=None, srcroot=None,
             buildroot=None, zenhome=None):
@@ -95,12 +96,21 @@ class ZenDevEnvironment(object):
         self._croot = self._vroot.join('clusters')
         self._zenhome = (py.path.local(zenhome).ensure(dir=True) if zenhome 
                 else self._root.ensure('zenhome', dir=True))
+        self._buildroot = (py.path.local(buildroot) if buildroot
+                else self._root.join(ZenDevEnvironment._buildrepo_name))
         self._manifest = create_manifest(manifest or self._config.join('manifest'))
+        self._add_build_repo(self._manifest, self._srcroot, self._buildroot)
         self._vagrant = VagrantManager(self)
         self._cluster = VagrantClusterManager(self)
         self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
-        self._buildroot = (py.path.local(buildroot) if buildroot
-                else self._root.join('build'))
+
+    def _add_build_repo(self, manifest, srcroot, buildroot):
+        buildrepo_dir = py.path.local(srcroot).bestrelpath(
+            py.path.local(buildroot))
+        buildrepo_data = {'name': ZenDevEnvironment._buildrepo_name,
+                          'repo': 'zenoss/platform-build'
+        }
+        manifest.repos().setdefault(buildrepo_dir, buildrepo_data)
 
     def envvars(self):
         origpath = os.environ.get('ZD_ORIGPATH', os.environ.get('PATH'))
@@ -217,17 +227,15 @@ class ZenDevEnvironment(object):
         return self.manifest.freeze()
 
     def ensure_build(self):
-        builddir = self._root.join('build')
+        repo = self.repos(lambda x: x.name==ZenDevEnvironment._buildrepo_name)[0]
+        builddir = repo.path
         if builddir.check() and not is_git_repo(builddir):
             error("%s exists but isn't a git repository. Not sure "
                     "what to do." % builddir)
         else:
             if not builddir.check(dir=True):
-                repo = Repository('build', builddir, 
-                        repo='zenoss/platform-build',
-                        ref='develop')
                 info("Checking out build repository")
-                repo.progress = SimpleGitProgressBar('build')
+                repo.progress = SimpleGitProgressBar(repo.name)
                 repo.clone()
                 print
             else:
@@ -250,15 +258,11 @@ class ZenDevEnvironment(object):
     def sync(self, filter_=None):
         self.clone()
         self.fetch()
-        build = Repository('build', self.buildroot.strpath,
-                           repo='zenoss/platform-build', ref='develop')
         for repo in self.repos(filter_):
             repo.merge_from_remote()
-        build.merge_from_remote()
         info("Remote changes have been merged")
         for repo in self.repos(filter_):
             repo.push()
-        build.push()
         info("Up to date!")
 
     def use(self):

@@ -20,8 +20,8 @@ class Repository(object):
     """
     A repository.
     """
-    def __init__(self, localname, path, repo, ref="develop"):
-        self.name = localname
+    def __init__(self, localpath, path, repo, name="", ref="develop"):
+        self.name = name or localpath
         self.path = py.path.local(path)
         self.reponame = str(repo)
         self.url = self._proper_url(repo)
