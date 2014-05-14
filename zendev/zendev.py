@@ -15,7 +15,6 @@ import py
 
 from .log import error
 from .config import get_config
-from .repo import Repository
 from .utils import colored, here
 from .manifest import create_manifest
 from . import config as zcfg
@@ -184,10 +183,11 @@ def init(args):
         except NotInitialized:
             init_config_dir()
             env = ZenDevEnvironment(name=name, path=path)
+        env.manifest.save()
         env.initialize()
         env.use()
     if args.default_repos:
-        args.manifest = env.root.join('build/manifests').listdir()
+        args.manifest = env.buildroot.join('manifests').listdir()
     return env
 
 
@@ -302,9 +302,6 @@ def cd(args):
     """
     env = check_env()
     if args.repo:
-        if args.repo == "build":
-            env.bash('cd "%s"' % env._root.join('build').strpath)
-            return
         repos = check_env().repos(repofilter([args.repo]))
         if not repos:
             # try to fall back to a directory in our srcroot
