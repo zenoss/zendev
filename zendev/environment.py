@@ -101,7 +101,6 @@ class ZenDevEnvironment(object):
                 else self._root.join(ZenDevEnvironment._buildrepo_name))
         self._manifestroot = self._root.join('.manifest')
         self._manifest = create_manifest(manifest or self._config.join('manifest'))
-        self._add_build_repo(self._manifest, self._srcroot, self._buildroot)
         self._vagrant = VagrantManager(self)
         self._cluster = VagrantClusterManager(self)
         self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
@@ -303,11 +302,9 @@ class ZenDevEnvironment(object):
     def ensure_build(self):
         if self.buildroot.check() and not is_git_repo(self.buildroot):
             error("%s exists but isn't a git repository. Not sure "
-                  "what to do." % builddir)
+                    "what to do." % self.buildroot)
         else:
-            repo = Repository('build', self.buildroot,
-                    repo='zenoss/platform-build',
-                    ref='develop')
+            repo = self.repos(lambda x: x.name==ZenDevEnvironment._buildrepo_name)[0]
             if not self.buildroot.check(dir=True):
                 info("Checking out build repository")
                 repo.progress = SimpleGitProgressBar(repo.name)
@@ -317,11 +314,14 @@ class ZenDevEnvironment(object):
                 info("Build repository exists")
             return repo
 
-    def initialize(self):
+    def initialize(self, skip_build_repo=False):
         # Clone manifest directory
         self.ensure_manifestrepo()
-        # Clone build directory
-        self.ensure_build()
+        if not skip_build_repo:
+            # add the default build repo
+            self._add_build_repo(self.manifest, self.srcroot, self.buildroot)
+            # Clone build directory
+            self.ensure_build()
 
     def clone(self, shallow=False):
         cmd = 'shallow_clone' if shallow else 'clone'

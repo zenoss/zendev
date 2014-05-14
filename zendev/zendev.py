@@ -185,12 +185,12 @@ def init(args):
         except NotInitialized:
             init_config_dir()
             env = ZenDevEnvironment(name=name, path=path)
+        env.initialize(args.no_build)
         env.manifest.save()
-        env.initialize()
         env.use()
-    if args.tag:
-        env.restore(args.tag)
-    return env
+        if args.tag:
+            env.restore(args.tag)
+        return env
 
 
 def add(args, paths=()):
@@ -445,6 +445,8 @@ def parse_args():
     init_parser = subparsers.add_parser('init')
     init_parser.add_argument('path', metavar="PATH")
     init_parser.add_argument('-t', '--tag', metavar="TAG", required=False)
+    init_parser.add_argument('-b', '--no-build', dest="no_build",
+                             action="store_true")
     init_parser.set_defaults(functor=init)
 
     use_parser = subparsers.add_parser('use')
