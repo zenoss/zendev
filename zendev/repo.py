@@ -1,6 +1,7 @@
 import re
 import sys
 
+from git.exc import GitCommandError
 from pprint import pprint
 from termcolor import colored
 import gitflow.core
@@ -131,7 +132,7 @@ class Repository(object):
         self.repo.git.stash( )
 
     def apply_stash(self):
-        self.repo.git.stash( 'apply')
+        self.repo.git.stash('apply')
 
     def fetch(self):
         self.repo.git.fetch(all=True)
@@ -150,7 +151,12 @@ class Repository(object):
             return
         self.message("Changes found in %s:%s! Rebasing %s..." % (
             self.name, remote_name, local_name))
+        self.stash()
         self.repo.git.rebase(remote_name, output_stream=sys.stderr)
+        try:
+            self.apply_stash()
+        except GitCommandError:
+            pass
 
     def push(self):
         active_branch = self.repo.repo.active_branch
