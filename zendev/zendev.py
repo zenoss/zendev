@@ -296,6 +296,33 @@ def cluster_ls(args):
     check_env().cluster.ls()
 
 
+def restore(args):
+    check_env().restore(args.name)
+
+
+def restoreCompleter(prefix, **kwargs):
+    return (x for x in check_env().list_tags() if x.startswith(prefix))
+
+
+def tag(args):
+    if args.list:
+        for tag in check_env().list_tags():
+            print tag
+    elif args.delete:
+        if not args.name:
+            error("Missing the name of a tag to delete")
+            sys.exit(1)
+        elif args.name == 'develop':
+            error("You can't delete develop!")
+            sys.exit(1)
+        check_env().tag_delete(args.name)
+    else:
+        if not args.name:
+            error("Missing the name of a tag to create")
+            sys.exit(1)
+        check_env().tag(args.name, args.strict, args.force)
+
+
 def cd(args):
     """
     Print the directory of the repository if specified or the environment if not.
@@ -366,6 +393,7 @@ def build(args):
         rc = subprocess.call(["make", "OUTPUT=%s" % args.output] + target)
         sys.exit(rc)
 
+
 def attach(args):
     print >>sys.stderr, "Yo, you can probably just use serviced attach"
     subprocess.call("serviced service attach '%s'; stty sane" % args.specifier, shell=True)
@@ -374,6 +402,7 @@ def attach(args):
 def clone(args):
     env = ZenDevEnvironment(srcroot=args.output, manifest=args.manifest)
     env.clone(shallow=args.shallow)
+
 
 def use(args):
     """
@@ -568,6 +597,19 @@ def parse_args():
     box_ls_parser = box_subparsers.add_parser('ls')
     box_ls_parser.set_defaults(functor=box_ls)
 
+    restore_parser = subparsers.add_parser('restore')
+    a = restore_parser.add_argument('name', metavar="NAME")
+    a.completer = restoreCompleter
+    restore_parser.set_defaults(functor=restore)
+
+    tag_parser = subparsers.add_parser('tag')
+    tag_parser.add_argument('--strict', action="store_true")
+    tag_parser.add_argument('-l', '--list', action="store_true")
+    tag_parser.add_argument('-f', '--force', action="store_true")
+    tag_parser.add_argument('-D', '--delete', action="store_true")
+    a = tag_parser.add_argument('name', metavar="NAME", nargs="?")
+    a.completer = restoreCompleter
+    tag_parser.set_defaults(functor=tag)
 
     ssh_parser = subparsers.add_parser('ssh')
     ssh_parser.add_argument('name', metavar="NAME")

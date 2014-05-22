@@ -47,6 +47,16 @@ class Repository(object):
 
     @property
     @memoize
+    def hash(self):
+        try:
+            return self.repo.repo.head.ref.object.hexsha
+        except TypeError:
+            head = self.repo.repo.head
+            sha, target = head._get_ref_info(head.repo, head.path)
+            return sha
+
+    @property
+    @memoize
     def remote_branch(self):
         tracking = self.repo.repo.active_branch.tracking_branch()
         if tracking:
@@ -66,9 +76,16 @@ class Repository(object):
 
     @property
     @memoize
+    def tag_names(self):
+        """
+        Return a list of all tags.
+        """
+        return [tag.name for tag in self.repo.repo.tags]
+
+    @property
+    @memoize
     def changes(self):
         staged = unstaged = untracked = False
-        output = self.repo.repo.git.status(porcelain=True)
         lines = self.repo.repo.git.status('-z', porcelain=True).split('\x00')
         for char in (x[:2] for x in lines):
             if char.startswith('?'):
@@ -85,6 +102,9 @@ class Repository(object):
         self.initialize()
         return self._repo
 
+    def checkout(self, ref):
+        if ref != self.branch:
+            self.repo.repo.git.checkout(ref)
 
     def clone(self, shallow=False):
         kwargs = {}
@@ -94,14 +114,12 @@ class Repository(object):
             kwargs['branch'] = self.ref
         if self.path.check():
             raise Exception("Something already exists at %s. "
-                    "Remove it first." % self.path)
+                            "Remove it first." % self.path)
         else:
             self.path.dirpath().ensure(dir=True)
-            gitrepo = gitflow.core.Repo.clone_from(
-                    self.url, 
-                    str(self.path), 
-                    progress=self.progress,
-                    **kwargs)
+            gitrepo = gitflow.core.Repo.clone_from(self.url, str(self.path),
+                                                   progress=self.progress,
+                                                   **kwargs)
             self._repo = gitflow.core.GitFlow(gitrepo)
             if not shallow:
                 self.initialize()
@@ -120,13 +138,11 @@ class Repository(object):
         origin_feature_name = "origin/feature/%s" % name
 
         if feature_name in self.local_branches:
-          self.repo.finish( 'feature', name,
-              fetch=True, rebase=False, keep=False,
-              force_delete=True, tagging_info=None)
-
-        #XXX repo (GitFlow) doesn't push remote repo delete currently :(
+            self.repo.finish('feature', name, fetch=True, rebase=False,
+                             keep=False, force_delete=True, tagging_info=None)
+        # XXX repo (GitFlow) doesn't push remote repo delete currently :(
         if origin_feature_name in self.remote_branches:
-          self.repo.origin().push( ":" + feature_name)
+            self.repo.origin().push(":" + feature_name)
 
     def stash(self):
         self.repo.git.stash( )
@@ -141,7 +157,11 @@ class Repository(object):
         print colored('==>', 'blue'), colored(msg, 'white')
 
     def merge_from_remote(self):
-        active_branch = self.repo.repo.active_branch
+        try:
+            active_branch = self.repo.repo.active_branch
+        except TypeError:
+            # We're detached
+            return
         local_name = active_branch.name
         tracking = active_branch.tracking_branch()
         remote_name = tracking.name if tracking else local_name
@@ -159,13 +179,17 @@ class Repository(object):
             pass
 
     def push(self):
-        active_branch = self.repo.repo.active_branch
+        try:
+            active_branch = self.repo.repo.active_branch
+        except TypeError:
+            # We're detached
+            return
         local_name = active_branch.name
         output = self.repo.git.rev_list(local_name, '--not', '--remotes')
         if output:
-            self.message(
-                    "%s local commits in %s:%s need to be pushed. Pushing..." % (
-                output.count('\n')+1, self.name, local_name))
+            self.message(("%s local commits in %s:%s need to be pushed."
+                         "Pushing...") % (output.count('\n')+1, self.name,
+                                          local_name))
             self.repo.git.push(output_stream=sys.stderr)
 
     def create_feature(self, name):
@@ -181,10 +205,10 @@ class Repository(object):
         if not local and remote:
             self.fetch()
         elif local and not remote:
-            self.publish_feature( name)
+            self.publish_feature(name)
         else:
             self.start_feature( name)
-            self.publish_feature( name)
+            self.publish_feature(name)
 
 
     def create_pull_request(self, feature_name, body=''):
