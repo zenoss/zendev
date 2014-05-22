@@ -186,8 +186,8 @@ def init(args):
         env.manifest.save()
         env.initialize()
         env.use()
-    if args.default_repos:
-        args.manifest = env.buildroot.join('manifests').listdir()
+    if args.tag:
+        env.restore(args.tag)
     return env
 
 
@@ -383,6 +383,8 @@ def build(args):
     if args.manifest and not args.noenv:
         srcroot = py.path.local.mkdtemp()
     env = check_env(manifest=args.manifest, srcroot=srcroot)
+    if args.tag:
+        env.restore(args.tag, shallow=True)
     if args.manifest:
         env.clone(shallow=True)
     os.environ.update(env.envvars())
@@ -438,8 +440,7 @@ def parse_args():
 
     init_parser = subparsers.add_parser('init')
     init_parser.add_argument('path', metavar="PATH")
-    init_parser.add_argument('-d', '--default-repos', dest="default_repos",
-                             action="store_true")
+    init_parser.add_argument('-t', '--tag', metavar="TAG", required=False)
     init_parser.set_defaults(functor=init)
 
     use_parser = subparsers.add_parser('use')
@@ -447,6 +448,7 @@ def parse_args():
     use_parser.set_defaults(functor=use)
 
     build_parser = subparsers.add_parser('build')
+    build_parser.add_argument('-t', '--tag', metavar='TAG', required=False)
     build_parser.add_argument('-m', '--manifest', nargs="+",
                               metavar='MANIFEST', required=False)
     build_parser.add_argument('-o', '--output', metavar='DIRECTORY',
