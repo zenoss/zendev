@@ -117,9 +117,16 @@ class Repository(object):
                             "Remove it first." % self.path)
         else:
             self.path.dirpath().ensure(dir=True)
-            gitrepo = gitflow.core.Repo.clone_from(self.url, str(self.path),
-                                                   progress=self.progress,
-                                                   **kwargs)
+            try:
+                gitrepo = gitflow.core.Repo.clone_from(self.url, str(self.path),
+                                                       progress=self.progress,
+                                                       **kwargs)
+            except GitCommandError as e:
+                # Can't clone a hash, so clone the entire repo and check out
+                # the ref
+                gitrepo = gitflow.core.Repo.clone_from(self.url, str(self.path),
+                                                       progress=self.progress)
+                gitrepo.git.checkout(self.ref)
             self._repo = gitflow.core.GitFlow(gitrepo)
             if not shallow:
                 self.initialize()

@@ -401,7 +401,10 @@ def attach(args):
 
 def clone(args):
     env = ZenDevEnvironment(srcroot=args.output, manifest=args.manifest)
-    env.clone(shallow=args.shallow)
+    if args.tag:
+        env.restore(args.tag, shallow=args.shallow)
+    else:
+        env.clone(shallow=args.shallow)
 
 
 def use(args):
@@ -489,11 +492,13 @@ def parse_args():
     status_parser.set_defaults(functor=status)
 
     clone_parser = subparsers.add_parser('clone')
+    clone_parser.add_argument('-t', '--tag', metavar='TAG',
+            help="Manifest tag to restore")
     clone_parser.add_argument('-m', '--manifest', nargs='+',
             metavar='MANIFEST', help="Manifest to use")
     clone_parser.add_argument('-s', '--shallow', action='store_true',
             help="Only check out the most recent commit for each repo")
-    clone_parser.add_argument('output', metavar='SRCROOT', 
+    clone_parser.add_argument('output', metavar='SRCROOT',
             help="Target directory into which to clone")
     clone_parser.set_defaults(functor=clone)
 

@@ -260,14 +260,14 @@ class ZenDevEnvironment(object):
         repo.checkout('master')
         repo.repo.git.pull('origin', 'master')
 
-    def restore(self, ref):
+    def restore(self, ref, shallow=False):
         self.refresh_manifests()
         repo = self.ensure_manifestrepo()
         repo.checkout(ref)
         self.manifest.merge(create_manifest(
             self._manifestroot.join('manifest.json')))
         self.manifest.save()
-        self.sync(force_branch=True)
+        self.sync(force_branch=True, shallow=shallow)
         info("Manifest '%s' has been restored" % ref)
 
     def list_tags(self):
@@ -328,8 +328,8 @@ class ZenDevEnvironment(object):
         info("Checking for remote changes")
         self.foreach('fetch', silent=True)
 
-    def sync(self, filter_=None, force_branch=False):
-        self.clone()
+    def sync(self, filter_=None, force_branch=False, shallow=False):
+        self.clone(shallow=shallow)
         self.fetch()
         for repo in self.repos(filter_):
             if force_branch:

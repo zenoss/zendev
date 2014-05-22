@@ -93,6 +93,8 @@ This enables you to describe the branches necessary to, e.g., build
 a particular release or feature sandbox that may have changes spanning several
 repositories.
 
+
+
 Pulling/Pushing Changes
 -----------------------
 ``zendev sync`` will clone any repositories that haven't been cloned yet, and
@@ -116,6 +118,44 @@ specified (or all) repositories as a result of the ``status`` command:
     # Print status for all repositories
     zendev status -a
 
+Tagging Manifests
+-----------------
+Repository states can be tagged and then restored later. To save the state of
+your environment (committed code only), use ``zendev tag``:
+
+.. code-block:: bash
+
+    zendev tag myniftyfeature
+
+It can then be restored by you or another person:
+
+.. code-block:: bash
+
+    zendev restore myniftyfeature
+
+If you want your tagged environment to be frozen to a particular commit
+(instead of a branch), you can pass ``--strict``:
+
+.. code-block:: bash
+
+    zendev tag --strict nightly-build-123
+
+Tags can be removed just as easily (tags are global to all zendev users; be a
+good citizen):
+
+.. code-block:: bash
+    
+    zendev tag -D myniftyfeature
+
+Or you can override a tag with your current state:
+
+.. code-block:: bash
+    
+    zendev tag --force myniftyfeature
+
+Finally, you can list all tags with ``zendev tag --list``.
+
+
 Cloning Directly From a Manifest
 --------------------------------
 You don't have to have an environment set up to turn a manifest into a source
@@ -131,3 +171,6 @@ tree. You can use ``zendev clone``.
 
     # Clone only the last commit from several manifests
     zendev clone --shallow ./src -m /path/to/manifest1.json -m /path/to/manifest2.json
+
+    # Clone from a manifest tag
+    zendev clone --shallow ./src -t develop
