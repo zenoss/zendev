@@ -315,7 +315,7 @@ class ZenDevEnvironment(object):
     def ensure_build(self):
         if self.buildroot.check() and not is_git_repo(self.buildroot):
             error("%s exists but isn't a git repository. Not sure "
-                    "what to do." % self.buildroot)
+                  "what to do." % self.buildroot)
         else:
             repos = self.repos(lambda x: x.name==ZenDevEnvironment._buildrepo_name)
             if repos:
