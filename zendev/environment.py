@@ -259,7 +259,7 @@ class ZenDevEnvironment(object):
     def refresh_manifests(self):
         repo = self.ensure_manifestrepo()
         repo.checkout('master')
-        repo.repo.git.pull('origin', 'master')
+        repo.repo.git.fetch('--tags')
 
     def restore(self, ref, shallow=False):
         self.refresh_manifests()
