@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Working With Repositories &mdash; zendev 0.1.0 documentation</title>
+    <title>Working With Repositories &mdash; zendev 0.2.0 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/js/bootstrap-2.2.1.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
+    <link rel="top" title="zendev 0.2.0 documentation" href="index.html" />
     <link rel="next" title="Building Zenoss With zendev" href="build.html" />
     <link rel="prev" title="Working With Environments" href="environments.html" />
 <meta charset='utf-8'>
@@ -49,7 +49,7 @@
       </button>
 
       <a class="brand" href="index.html">zendev</a>
-      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+      <span class="navbar-text pull-left"><b>0.2.0</b></span>
 
       <div class="nav-collapse">
         <ul class="nav">
@@ -82,6 +82,7 @@
 <li><a class="reference internal" href="#generating-manifests">Generating Manifests</a></li>
 <li><a class="reference internal" href="#pulling-pushing-changes">Pulling/Pushing Changes</a></li>
 <li><a class="reference internal" href="#status">Status</a></li>
+<li><a class="reference internal" href="#tagging-manifests">Tagging Manifests</a></li>
 <li><a class="reference internal" href="#cloning-directly-from-a-manifest">Cloning Directly From a Manifest</a></li>
 </ul>
 </li>
@@ -219,6 +220,33 @@ zendev status -a
 </pre></div>
 </div>
 </div>
+<div class="section" id="tagging-manifests">
+<h2>Tagging Manifests<a class="headerlink" href="#tagging-manifests" title="Permalink to this headline">¶</a></h2>
+<p>Repository states can be tagged and then restored later. To save the state of
+your environment (committed code only), use <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">tag</span></tt>:</p>
+<div class="highlight-bash"><div class="highlight"><pre>zendev tag myniftyfeature
+</pre></div>
+</div>
+<p>It can then be restored by you or another person:</p>
+<div class="highlight-bash"><div class="highlight"><pre>zendev restore myniftyfeature
+</pre></div>
+</div>
+<p>If you want your tagged environment to be frozen to a particular commit
+(instead of a branch), you can pass <tt class="docutils literal"><span class="pre">--strict</span></tt>:</p>
+<div class="highlight-bash"><div class="highlight"><pre>zendev tag --strict nightly-build-123
+</pre></div>
+</div>
+<p>Tags can be removed just as easily (tags are global to all zendev users; be a
+good citizen):</p>
+<div class="highlight-bash"><div class="highlight"><pre>zendev tag -D myniftyfeature
+</pre></div>
+</div>
+<p>Or you can override a tag with your current state:</p>
+<div class="highlight-bash"><div class="highlight"><pre>zendev tag --force myniftyfeature
+</pre></div>
+</div>
+<p>Finally, you can list all tags with <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">tag</span> <span class="pre">--list</span></tt>.</p>
+</div>
 <div class="section" id="cloning-directly-from-a-manifest">
 <h2>Cloning Directly From a Manifest<a class="headerlink" href="#cloning-directly-from-a-manifest" title="Permalink to this headline">¶</a></h2>
 <p>You don&#8217;t have to have an environment set up to turn a manifest into a source
@@ -231,6 +259,9 @@ zendev clone ./src -m http://host/manifest.json ./src
 
 <span class="c"># Clone only the last commit from several manifests</span>
 zendev clone --shallow ./src -m /path/to/manifest1.json -m /path/to/manifest2.json
+
+<span class="c"># Clone from a manifest tag</span>
+zendev clone --shallow ./src -t develop
 </pre></div>
 </div>
 </div>
@@ -246,7 +277,7 @@ zendev clone --shallow ./src -m /path/to/manifest1.json -m /path/to/manifest2.js
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>

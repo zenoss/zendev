@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>zendev.environment &mdash; zendev 0.1.0 documentation</title>
+    <title>zendev.environment &mdash; zendev 0.2.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,7 +27,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/js/bootstrap-2.2.1.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="zendev 0.1.0 documentation" href="../../index.html" />
+    <link rel="top" title="zendev 0.2.0 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -48,7 +48,7 @@
       </button>
 
       <a class="brand" href="../../index.html">zendev</a>
-      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+      <span class="navbar-text pull-left"><b>0.2.0</b></span>
 
       <div class="nav-collapse">
         <ul class="nav">
@@ -101,6 +101,7 @@
 <span class="kn">import</span> <span class="nn">py</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">Pool</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
@@ -174,6 +175,7 @@
     <span class="n">_root</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">_config</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">_manifest</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">_buildrepo_name</span> <span class="o">=</span> <span class="s">&#39;build&#39;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">manifest</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">srcroot</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
             <span class="n">buildroot</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">zenhome</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -194,12 +196,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_croot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;clusters&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zenhome</span> <span class="o">=</span> <span class="p">(</span><span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">zenhome</span><span class="p">)</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">zenhome</span> 
                 <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&#39;zenhome&#39;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buildroot</span> <span class="o">=</span> <span class="p">(</span><span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">buildroot</span><span class="p">)</span> <span class="k">if</span> <span class="n">buildroot</span>
+                <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ZenDevEnvironment</span><span class="o">.</span><span class="n">_buildrepo_name</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manifestroot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;.manifest&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_manifest</span> <span class="o">=</span> <span class="n">create_manifest</span><span class="p">(</span><span class="n">manifest</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;manifest&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_build_repo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manifest</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_srcroot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buildroot</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vagrant</span> <span class="o">=</span> <span class="n">VagrantManager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span> <span class="o">=</span> <span class="n">VagrantClusterManager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bash</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ZDCTLCHANNEL&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">),</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_buildroot</span> <span class="o">=</span> <span class="p">(</span><span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">buildroot</span><span class="p">)</span> <span class="k">if</span> <span class="n">buildroot</span>
-                <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;build&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_add_build_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">srcroot</span><span class="p">,</span> <span class="n">buildroot</span><span class="p">):</span>
+        <span class="n">buildrepo_dir</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">srcroot</span><span class="p">)</span><span class="o">.</span><span class="n">bestrelpath</span><span class="p">(</span>
+            <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">buildroot</span><span class="p">))</span>
+        <span class="n">buildrepo_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">ZenDevEnvironment</span><span class="o">.</span><span class="n">_buildrepo_name</span><span class="p">,</span>
+                          <span class="s">&#39;repo&#39;</span><span class="p">:</span> <span class="s">&#39;zenoss/platform-build&#39;</span><span class="p">}</span>
+        <span class="n">manifest</span><span class="o">.</span><span class="n">repos</span><span class="p">()</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">buildrepo_dir</span><span class="p">,</span> <span class="n">buildrepo_data</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ZenDevEnvironment.envvars"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.envvars">[docs]</a>    <span class="k">def</span> <span class="nf">envvars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">origpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ZD_ORIGPATH&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PATH&#39;</span><span class="p">))</span>
@@ -300,56 +311,129 @@
         <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </div>
-    <span class="k">def</span> <span class="nf">_update_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_update_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hashes</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the manifest&#39;s branches with those on the filesystem.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repos</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">repos</span><span class="p">()[</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">branch</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">repodict</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">repodict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">repos</span><span class="p">()[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">repos</span><span class="p">()</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+                        <span class="n">repodict</span> <span class="o">=</span> <span class="n">d</span>
+            <span class="k">if</span> <span class="n">repodict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">repodict</span><span class="p">[</span><span class="s">&#39;ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">hash</span> <span class="k">if</span> <span class="n">hashes</span> <span class="k">else</span> <span class="n">repo</span><span class="o">.</span><span class="n">branch</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
-<div class="viewcode-block" id="ZenDevEnvironment.freeze"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.freeze">[docs]</a>    <span class="k">def</span> <span class="nf">freeze</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.freeze"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.freeze">[docs]</a>    <span class="k">def</span> <span class="nf">freeze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hashes</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a JSON representation of the repositories.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_manifest</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_manifest</span><span class="p">(</span><span class="n">hashes</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">hashes</span><span class="p">:</span>
+                <span class="c"># Undo the hash saving</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_manifest</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="ZenDevEnvironment.ensure_manifestrepo"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.ensure_manifestrepo">[docs]</a>    <span class="k">def</span> <span class="nf">ensure_manifestrepo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="n">Repository</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;.manifest&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manifestroot</span><span class="p">,</span>
+                          <span class="s">&#39;zenoss/manifest&#39;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s">&quot;master&quot;</span><span class="p">)</span>
+        <span class="n">repodir</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">path</span>
+        <span class="k">if</span> <span class="n">repodir</span><span class="o">.</span><span class="n">check</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_git_repo</span><span class="p">(</span><span class="n">repodir</span><span class="p">):</span>
+            <span class="n">error</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> exists but isn&#39;t a git repository. Not sure &quot;</span>
+                  <span class="s">&quot;what to do.&quot;</span> <span class="o">%</span> <span class="n">repodir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">repodir</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+                <span class="n">info</span><span class="p">(</span><span class="s">&quot;Checking out manifest repository&quot;</span><span class="p">)</span>
+                <span class="n">repo</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">SimpleGitProgressBar</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">repo</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+                <span class="k">print</span>
+        <span class="k">return</span> <span class="n">repo</span>
+</div>
+<div class="viewcode-block" id="ZenDevEnvironment.refresh_manifests"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.refresh_manifests">[docs]</a>    <span class="k">def</span> <span class="nf">refresh_manifests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="s">&#39;master&#39;</span><span class="p">)</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s">&#39;--tags&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ZenDevEnvironment.restore"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.restore">[docs]</a>    <span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_manifests</span><span class="p">()</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">create_manifest</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_manifestroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;manifest.json&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="n">force_branch</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="n">shallow</span><span class="p">)</span>
+        <span class="n">info</span><span class="p">(</span><span class="s">&quot;Manifest &#39;</span><span class="si">%s</span><span class="s">&#39; has been restored&quot;</span> <span class="o">%</span> <span class="n">ref</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ZenDevEnvironment.list_tags"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.list_tags">[docs]</a>    <span class="k">def</span> <span class="nf">list_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">repo</span><span class="o">.</span><span class="n">tag_names</span>
+</div>
+<div class="viewcode-block" id="ZenDevEnvironment.tag"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.tag">[docs]</a>    <span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_manifests</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_tags</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="n">error</span><span class="p">(</span><span class="s">&quot;Tag </span><span class="si">%s</span><span class="s"> already exists. Use -f/--force to override it.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="s">&#39;master&#39;</span><span class="p">)</span>
+        <span class="n">git</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">git</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="s">&#39;--hard&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manifestroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;manifest.json&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freeze</span><span class="p">(</span><span class="n">strict</span><span class="p">))</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="s">&#39;-am&#39;</span><span class="p">,</span> <span class="s">&#39;Saving manifest </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_tags</span><span class="p">():</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">create_tag</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;origin&#39;</span><span class="p">,</span> <span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="s">&#39;--tags&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ZenDevEnvironment.tag_delete"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.tag_delete">[docs]</a>    <span class="k">def</span> <span class="nf">tag_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="s">&#39;master&#39;</span><span class="p">)</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;origin&#39;</span><span class="p">,</span> <span class="s">&#39;:</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ZenDevEnvironment.ensure_build"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.ensure_build">[docs]</a>    <span class="k">def</span> <span class="nf">ensure_build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">builddir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;build&#39;</span><span class="p">)</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">ZenDevEnvironment</span><span class="o">.</span><span class="n">_buildrepo_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">builddir</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">path</span>
         <span class="k">if</span> <span class="n">builddir</span><span class="o">.</span><span class="n">check</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_git_repo</span><span class="p">(</span><span class="n">builddir</span><span class="p">):</span>
             <span class="n">error</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> exists but isn&#39;t a git repository. Not sure &quot;</span>
-                    <span class="s">&quot;what to do.&quot;</span> <span class="o">%</span> <span class="n">builddir</span><span class="p">)</span>
+                  <span class="s">&quot;what to do.&quot;</span> <span class="o">%</span> <span class="n">builddir</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">builddir</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-                <span class="n">repo</span> <span class="o">=</span> <span class="n">Repository</span><span class="p">(</span><span class="s">&#39;build&#39;</span><span class="p">,</span> <span class="n">builddir</span><span class="p">,</span> 
-                        <span class="n">repo</span><span class="o">=</span><span class="s">&#39;zenoss/platform-build&#39;</span><span class="p">,</span>
-                        <span class="n">ref</span><span class="o">=</span><span class="s">&#39;develop&#39;</span><span class="p">)</span>
                 <span class="n">info</span><span class="p">(</span><span class="s">&quot;Checking out build repository&quot;</span><span class="p">)</span>
-                <span class="n">repo</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">SimpleGitProgressBar</span><span class="p">(</span><span class="s">&#39;build&#39;</span><span class="p">)</span>
+                <span class="n">repo</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">SimpleGitProgressBar</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="n">repo</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
                 <span class="k">print</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">info</span><span class="p">(</span><span class="s">&quot;Build repository exists&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ZenDevEnvironment.initialize"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Clone manifest directory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span>
         <span class="c"># Clone build directory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ensure_build</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="ZenDevEnvironment.clone"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="s">&#39;shallow_clone&#39;</span> <span class="k">if</span> <span class="n">shallow</span> <span class="k">else</span> <span class="s">&#39;clone&#39;</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;Cloning repositories&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">foreach</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span><span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">foreach</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;All repositories are cloned!&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ZenDevEnvironment.fetch"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.fetch">[docs]</a>    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;Checking for remote changes&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">foreach</span><span class="p">(</span><span class="s">&#39;fetch&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ZenDevEnvironment.sync"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.sync">[docs]</a>    <span class="k">def</span> <span class="nf">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+<div class="viewcode-block" id="ZenDevEnvironment.sync"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.sync">[docs]</a>    <span class="k">def</span> <span class="nf">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">force_branch</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="n">shallow</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="n">filter_</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">force_branch</span><span class="p">:</span>
+                <span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
             <span class="n">repo</span><span class="o">.</span><span class="n">merge_from_remote</span><span class="p">()</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;Remote changes have been merged&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="n">filter_</span><span class="p">):</span>
@@ -547,7 +631,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>
