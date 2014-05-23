@@ -176,24 +176,12 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     cd ${SRCDIR}
 
     # Create the environment
-    zendev init europa
+    zendev init europa --tag develop
 
     # Start using the environment
     zendev use europa
 
-10. Add some repositories to the ``europa`` environment:
-
-.. code-block:: bash
-
-    # Add core and serviced repositories from manifests used by the build,
-    # which have conveniently been checked out into
-    # ~/src/europa/build/manifests
-    zendev add $(zendev root)/build/manifests/{core,libs,serviced,zenpacks.core}.json
-
-    # Clone everything
-    zendev sync
-
-11. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
+10. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
     and (if you install Vagrant_ and VirtualBox_) create Vagrant boxes to run
     serviced or Resource Manager. As an example, here's how you build serviced
     and run it:

@@ -2,6 +2,7 @@ import sys
 import py
 import time
 import os
+import os.path
 import itertools
 from multiprocessing import Queue, Pool
 from contextlib import contextmanager
@@ -98,6 +99,7 @@ class ZenDevEnvironment(object):
                 else self._root.ensure('zenhome', dir=True))
         self._buildroot = (py.path.local(buildroot) if buildroot
                 else self._root.join(ZenDevEnvironment._buildrepo_name))
+        self._manifestroot = self._root.join('.manifest')
         self._manifest = create_manifest(manifest or self._config.join('manifest'))
         self._add_build_repo(self._manifest, self._srcroot, self._buildroot)
         self._vagrant = VagrantManager(self)
@@ -108,8 +110,7 @@ class ZenDevEnvironment(object):
         buildrepo_dir = py.path.local(srcroot).bestrelpath(
             py.path.local(buildroot))
         buildrepo_data = {'name': ZenDevEnvironment._buildrepo_name,
-                          'repo': 'zenoss/platform-build'
-        }
+                          'repo': 'zenoss/platform-build'}
         manifest.repos().setdefault(buildrepo_dir, buildrepo_data)
 
     def envvars(self):
@@ -211,27 +212,98 @@ class ZenDevEnvironment(object):
         if save:
             self.manifest.save()
 
-    def _update_manifest(self):
+    def _update_manifest(self, hashes=False):
         """
         Update the manifest's branches with those on the filesystem.
         """
         for repo in self.repos():
-            self.manifest.repos()[repo.name]['ref'] = repo.branch
+            name = repo.name
+            repodict = None
+            try:
+                repodict = self.manifest.repos()[name]
+            except KeyError:
+                for r, d in self.manifest.repos().iteritems():
+                    if d.get('name') == name:
+                        repodict = d
+            if repodict is not None:
+                repodict['ref'] = repo.hash if hashes else repo.branch
         self.manifest.save()
 
-    def freeze(self):
+    def freeze(self, hashes=False):
         """
         Return a JSON representation of the repositories.
         """
-        self._update_manifest()
-        return self.manifest.freeze()
+        try:
+            self._update_manifest(hashes)
+            return self.manifest.freeze()
+        finally:
+            if hashes:
+                # Undo the hash saving
+                self._update_manifest()
+
+    def ensure_manifestrepo(self):
+        repo = Repository(os.path.join('..', '.manifest'), self._manifestroot,
+                          'zenoss/manifest', ref="master")
+        repodir = repo.path
+        if repodir.check() and not is_git_repo(repodir):
+            error("%s exists but isn't a git repository. Not sure "
+                  "what to do." % repodir)
+        else:
+            if not repodir.check(dir=True):
+                info("Checking out manifest repository")
+                repo.progress = SimpleGitProgressBar(repo.name)
+                repo.clone()
+                print
+        return repo
+
+    def refresh_manifests(self):
+        repo = self.ensure_manifestrepo()
+        repo.checkout('master')
+        repo.repo.git.fetch('--tags')
+
+    def restore(self, ref, shallow=False):
+        self.refresh_manifests()
+        repo = self.ensure_manifestrepo()
+        repo.checkout(ref)
+        self.manifest.merge(create_manifest(
+            self._manifestroot.join('manifest.json')))
+        self.manifest.save()
+        self.sync(force_branch=True, shallow=shallow)
+        info("Manifest '%s' has been restored" % ref)
+
+    def list_tags(self):
+        repo = self.ensure_manifestrepo()
+        return repo.tag_names
+
+    def tag(self, name, strict=False, force=False):
+        self.refresh_manifests()
+        if name in self.list_tags() and not force:
+            error("Tag %s already exists. Use -f/--force to override it.")
+            return
+        repo = self.ensure_manifestrepo()
+        repo.checkout('master')
+        git = repo.repo.git
+        git.reset('--hard')
+        with open(self._manifestroot.join('manifest.json').strpath, 'w') as f:
+            f.write(self.freeze(strict))
+        git.commit('-am', 'Saving manifest %s' % name)
+        if name in self.list_tags():
+            git.tag('-d', name)
+        repo.repo.repo.create_tag(name, force=force)
+        git.push('origin', '-f', '--tags')
+
+    def tag_delete(self, name):
+        repo = self.ensure_manifestrepo()
+        repo.checkout('master')
+        repo.repo.git.tag('-d', name)
+        repo.repo.git.push('origin', ':%s' % name)
 
     def ensure_build(self):
-        repo = self.repos(lambda x: x.name==ZenDevEnvironment._buildrepo_name)[0]
+        repo = self.repos(lambda x: x.name == ZenDevEnvironment._buildrepo_name)[0]
         builddir = repo.path
         if builddir.check() and not is_git_repo(builddir):
             error("%s exists but isn't a git repository. Not sure "
-                    "what to do." % builddir)
+                  "what to do." % builddir)
         else:
             if not builddir.check(dir=True):
                 info("Checking out build repository")
@@ -242,23 +314,27 @@ class ZenDevEnvironment(object):
                 info("Build repository exists")
 
     def initialize(self):
+        # Clone manifest directory
+        self.ensure_manifestrepo()
         # Clone build directory
         self.ensure_build()
 
     def clone(self, shallow=False):
         cmd = 'shallow_clone' if shallow else 'clone'
         info("Cloning repositories")
-        self.foreach(cmd, lambda r:not r.repo)
+        self.foreach(cmd, lambda r: not r.repo)
         info("All repositories are cloned!")
 
     def fetch(self):
         info("Checking for remote changes")
         self.foreach('fetch', silent=True)
 
-    def sync(self, filter_=None):
-        self.clone()
+    def sync(self, filter_=None, force_branch=False, shallow=False):
+        self.clone(shallow=shallow)
         self.fetch()
         for repo in self.repos(filter_):
+            if force_branch:
+                repo.checkout(repo.ref)
             repo.merge_from_remote()
         info("Remote changes have been merged")
         for repo in self.repos(filter_):

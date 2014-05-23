@@ -45,6 +45,7 @@ def temp_env():
     args = fargs()
     args.path = path.strpath
     args.default_repos = False
+    args.tag = None
     env = init(args)
     os.environ.update(env.envvars())
     yield
@@ -186,8 +187,8 @@ def init(args):
         env.manifest.save()
         env.initialize()
         env.use()
-    if args.default_repos:
-        args.manifest = env.buildroot.join('manifests').listdir()
+    if args.tag:
+        env.restore(args.tag)
     return env
 
 
@@ -296,6 +297,33 @@ def cluster_ls(args):
     check_env().cluster.ls()
 
 
+def restore(args):
+    check_env().restore(args.name)
+
+
+def restoreCompleter(prefix, **kwargs):
+    return (x for x in check_env().list_tags() if x.startswith(prefix))
+
+
+def tag(args):
+    if args.list:
+        for tag in check_env().list_tags():
+            print tag
+    elif args.delete:
+        if not args.name:
+            error("Missing the name of a tag to delete")
+            sys.exit(1)
+        elif args.name == 'develop':
+            error("You can't delete develop!")
+            sys.exit(1)
+        check_env().tag_delete(args.name)
+    else:
+        if not args.name:
+            error("Missing the name of a tag to create")
+            sys.exit(1)
+        check_env().tag(args.name, args.strict, args.force)
+
+
 def cd(args):
     """
     Print the directory of the repository if specified or the environment if not.
@@ -356,8 +384,12 @@ def build(args):
     if args.manifest and not args.noenv:
         srcroot = py.path.local.mkdtemp()
     env = check_env(manifest=args.manifest, srcroot=srcroot)
+    if args.tag:
+        env.restore(args.tag, shallow=True)
     if args.manifest:
         env.clone(shallow=True)
+    if args.createtag:
+        env.tag(args.createtag, strict=True)
     os.environ.update(env.envvars())
     with env.buildroot.as_cwd():
         target = ['srcbuild' if t == 'src' else t for t in args.target]
@@ -366,6 +398,7 @@ def build(args):
         rc = subprocess.call(["make", "OUTPUT=%s" % args.output] + target)
         sys.exit(rc)
 
+
 def attach(args):
     print >>sys.stderr, "Yo, you can probably just use serviced attach"
     subprocess.call("serviced service attach '%s'; stty sane" % args.specifier, shell=True)
@@ -373,7 +406,11 @@ def attach(args):
 
 def clone(args):
     env = ZenDevEnvironment(srcroot=args.output, manifest=args.manifest)
-    env.clone(shallow=args.shallow)
+    if args.tag:
+        env.restore(args.tag, shallow=args.shallow)
+    else:
+        env.clone(shallow=args.shallow)
+
 
 def use(args):
     """
@@ -406,8 +443,7 @@ def parse_args():
 
     init_parser = subparsers.add_parser('init')
     init_parser.add_argument('path', metavar="PATH")
-    init_parser.add_argument('-d', '--default-repos', dest="default_repos",
-                             action="store_true")
+    init_parser.add_argument('-t', '--tag', metavar="TAG", required=False)
     init_parser.set_defaults(functor=init)
 
     use_parser = subparsers.add_parser('use')
@@ -415,12 +451,15 @@ def parse_args():
     use_parser.set_defaults(functor=use)
 
     build_parser = subparsers.add_parser('build')
+    build_parser.add_argument('-t', '--tag', metavar='TAG', required=False)
     build_parser.add_argument('-m', '--manifest', nargs="+",
                               metavar='MANIFEST', required=False)
     build_parser.add_argument('-o', '--output', metavar='DIRECTORY',
                               default=py.path.local().join('output').strpath)
     build_parser.add_argument('-c', '--clean', action="store_true",
                               default=False)
+    build_parser.add_argument('--create-tag', dest="createtag", required=False,
+                              help="Tag the source for this build")
     build_parser.add_argument('target', metavar='TARGET', nargs="+",
                               choices=['src', 'core', 'resmgr', 'svcpkg-core',
                                        'svcpkg-resmgr', 'serviced', 'devimg'])
@@ -460,11 +499,13 @@ def parse_args():
     status_parser.set_defaults(functor=status)
 
     clone_parser = subparsers.add_parser('clone')
+    clone_parser.add_argument('-t', '--tag', metavar='TAG',
+            help="Manifest tag to restore")
     clone_parser.add_argument('-m', '--manifest', nargs='+',
             metavar='MANIFEST', help="Manifest to use")
     clone_parser.add_argument('-s', '--shallow', action='store_true',
             help="Only check out the most recent commit for each repo")
-    clone_parser.add_argument('output', metavar='SRCROOT', 
+    clone_parser.add_argument('output', metavar='SRCROOT',
             help="Target directory into which to clone")
     clone_parser.set_defaults(functor=clone)
 
@@ -568,6 +609,19 @@ def parse_args():
     box_ls_parser = box_subparsers.add_parser('ls')
     box_ls_parser.set_defaults(functor=box_ls)
 
+    restore_parser = subparsers.add_parser('restore')
+    a = restore_parser.add_argument('name', metavar="NAME")
+    a.completer = restoreCompleter
+    restore_parser.set_defaults(functor=restore)
+
+    tag_parser = subparsers.add_parser('tag')
+    tag_parser.add_argument('--strict', action="store_true")
+    tag_parser.add_argument('-l', '--list', action="store_true")
+    tag_parser.add_argument('-f', '--force', action="store_true")
+    tag_parser.add_argument('-D', '--delete', action="store_true")
+    a = tag_parser.add_argument('name', metavar="NAME", nargs="?")
+    a.completer = restoreCompleter
+    tag_parser.set_defaults(functor=tag)
 
     ssh_parser = subparsers.add_parser('ssh')
     ssh_parser.add_argument('name', metavar="NAME")
