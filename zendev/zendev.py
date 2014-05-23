@@ -45,6 +45,7 @@ def temp_env():
     args = fargs()
     args.path = path.strpath
     args.default_repos = False
+    args.tag = None
     env = init(args)
     os.environ.update(env.envvars())
     yield
@@ -387,6 +388,8 @@ def build(args):
         env.restore(args.tag, shallow=True)
     if args.manifest:
         env.clone(shallow=True)
+    if args.createtag:
+        env.tag(args.createtag, strict=True)
     os.environ.update(env.envvars())
     with env.buildroot.as_cwd():
         target = ['srcbuild' if t == 'src' else t for t in args.target]
@@ -455,6 +458,8 @@ def parse_args():
                               default=py.path.local().join('output').strpath)
     build_parser.add_argument('-c', '--clean', action="store_true",
                               default=False)
+    build_parser.add_argument('--create-tag', dest="createtag", required=False,
+                              help="Tag the source for this build")
     build_parser.add_argument('target', metavar='TARGET', nargs="+",
                               choices=['src', 'core', 'resmgr', 'svcpkg-core',
                                        'svcpkg-resmgr', 'serviced', 'devimg'])
