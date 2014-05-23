@@ -278,7 +278,7 @@ class ZenDevEnvironment(object):
     def tag(self, name, strict=False, force=False):
         self.refresh_manifests()
         if name in self.list_tags() and not force:
-            error("Tag %s already exists. Use -f/--force to override it.")
+            error("Tag %s already exists. Use -f/--force to override it." % name)
             return
         repo = self.ensure_manifestrepo()
         repo.checkout('master')
