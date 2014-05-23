@@ -304,15 +304,17 @@ class ZenDevEnvironment(object):
             error("%s exists but isn't a git repository. Not sure "
                     "what to do." % self.buildroot)
         else:
-            repo = self.repos(lambda x: x.name==ZenDevEnvironment._buildrepo_name)[0]
-            if not self.buildroot.check(dir=True):
-                info("Checking out build repository")
-                repo.progress = SimpleGitProgressBar(repo.name)
-                repo.clone()
-                print
-            else:
-                info("Build repository exists")
-            return repo
+            repos = self.repos(lambda x: x.name==ZenDevEnvironment._buildrepo_name)
+            if repos:
+                repo = repos[0]
+                if not self.buildroot.check(dir=True):
+                    info("Checking out build repository")
+                    repo.progress = SimpleGitProgressBar(repo.name)
+                    repo.clone()
+                    print
+                else:
+                    info("Build repository exists")
+                return repo
 
     def initialize(self, skip_build_repo=False):
         # Clone manifest directory
