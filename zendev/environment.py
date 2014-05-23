@@ -2,6 +2,7 @@ import sys
 import py
 import time
 import os
+import os.path
 import itertools
 from multiprocessing import Queue, Pool
 from contextlib import contextmanager
@@ -241,7 +242,7 @@ class ZenDevEnvironment(object):
                 self._update_manifest()
 
     def ensure_manifestrepo(self):
-        repo = Repository('../.manifest', self._manifestroot,
+        repo = Repository(os.path.join('..', '.manifest'), self._manifestroot,
                           'zenoss/manifest', ref="master")
         repodir = repo.path
         if repodir.check() and not is_git_repo(repodir):
