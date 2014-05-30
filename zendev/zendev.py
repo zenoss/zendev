@@ -365,7 +365,7 @@ def status(args):
     elif args.all:
         filter_ = None
     else:
-        filter_ = lambda r:any(r.changes)
+        filter_ = lambda r: not r.path.check() or any(r.changes)
     check_env().status(filter_)
 
 
