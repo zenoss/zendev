@@ -394,10 +394,12 @@ def build(args):
         env.tag(args.createtag, strict=True)
     os.environ.update(env.envvars())
     with env.buildroot.as_cwd():
-        target = ['srcbuild' if t == 'src' else t for t in args.target]
         if args.clean:
             subprocess.call(["make", "clean"])
-        rc = subprocess.call(["make", "OUTPUT=%s" % args.output] + target)
+        makecmd = ['make']
+        if args.output:
+            makecmd += "OUTPUT=%s" % args.output
+        rc = subprocess.call(makecmd + args.target)
         sys.exit(rc)
 
 
@@ -493,14 +495,13 @@ def parse_args():
     build_parser.add_argument('-t', '--tag', metavar='TAG', required=False)
     build_parser.add_argument('-m', '--manifest', nargs="+",
                               metavar='MANIFEST', required=False)
-    build_parser.add_argument('-o', '--output', metavar='DIRECTORY',
-                              default=py.path.local().join('output').strpath)
+    build_parser.add_argument('-o', '--output', metavar='DIRECTORY', required=False)
     build_parser.add_argument('-c', '--clean', action="store_true",
                               default=False)
     build_parser.add_argument('--create-tag', dest="createtag", required=False,
                               help="Tag the source for this build")
     build_parser.add_argument('target', metavar='TARGET', nargs="+",
-                              choices=['src', 'core', 'resmgr', 'svcpkg-core',
+                              choices=['core', 'resmgr', 'svcpkg-core',
                                        'svcpkg-resmgr', 'serviced', 'devimg',
                                        'default'])
     build_parser.set_defaults(functor=build)
