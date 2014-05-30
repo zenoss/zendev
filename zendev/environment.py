@@ -349,15 +349,21 @@ class ZenDevEnvironment(object):
     def status(self, filter_=None):
         table = []
         for repo in self.repos(filter_):
-            staged, unstaged, untracked = repo.changes
-            color = 'green' if staged else 'blue' if unstaged else None
-            table.append([colored(x, color) for x in [
-                repo.name,
-                repo.branch,
-                '*' if staged else '',
-                '*' if unstaged else '',
-                '*' if untracked else ''
-            ]])
+            if repo.path.check():
+                staged, unstaged, untracked = repo.changes
+                color = 'green' if staged else 'blue' if unstaged else None
+                table.append([colored(x, color) for x in [
+                    repo.name,
+                    repo.branch,
+                    '*' if staged else '',
+                    '*' if unstaged else '',
+                    '*' if untracked else ''
+                ]])
+            else:
+                table.append([colored(x, 'red') for x in [
+                    repo.name,
+                    'not synced'
+                ]])
         print tabulate(table, headers=STATUS_HEADERS)
 
     def feature_filter(self, name, filter_):
