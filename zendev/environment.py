@@ -265,6 +265,8 @@ class ZenDevEnvironment(object):
         self.refresh_manifests()
         repo = self.ensure_manifestrepo()
         repo.checkout(ref)
+        repo.fetch()
+        repo.merge_from_remote()
         self.manifest.merge(create_manifest(
             self._manifestroot.join('manifest.json')))
         self.manifest.save()
