@@ -67,10 +67,10 @@ class Serviced(object):
                 # Let's assume it'll die on its own.
                 pass
 
-    def add_host(self, host="172.17.42.1:4979", pool="default"):
+    def add_host(self, host="10.87.110.201:4979", pool="default"):
         subprocess.call([self.serviced, "host","add", host, pool])
 
-    def deploy(self, template, pool="default", svcname="Zenoss", noAutoAssignIpFlag=""):
+    def deploy(self, template, pool="default", svcname="HBase", noAutoAssignIpFlag=""):
         print "Deploying template"
         deploy_command = [self.serviced, "template", "deploy"]
         if noAutoAssignIpFlag != "":
