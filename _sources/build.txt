@@ -69,3 +69,7 @@ a temp directory, then build the specified artifact from that.
 
     # Build using source from several manifests
     zendev -n build core -m /path/to/manifest1.json http://host/manifest2.json
+
+    # Build from a manifest tag
+    zendev -n build core -t nightly-build-123
+

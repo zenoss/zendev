@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>zendev package &mdash; zendev 0.1.0 documentation</title>
+    <title>zendev package &mdash; zendev 0.2.0 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/js/bootstrap-2.2.1.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
+    <link rel="top" title="zendev 0.2.0 documentation" href="index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -47,7 +47,7 @@
       </button>
 
       <a class="brand" href="index.html">zendev</a>
-      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+      <span class="navbar-text pull-left"><b>0.2.0</b></span>
 
       <div class="nav-collapse">
         <ul class="nav">
@@ -288,7 +288,7 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">git.util.RemoteProgress</span></tt></p>
 <dl class="attribute">
 <dt id="zendev.environment.MultiprocessingProgress.QUEUE">
-<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x10e1e4910&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x109ee5490&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -345,6 +345,11 @@
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="zendev.environment.ZenDevEnvironment.ensure_manifestrepo">
+<tt class="descname">ensure_manifestrepo</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.ensure_manifestrepo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.ensure_manifestrepo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.envvars">
 <tt class="descname">envvars</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.envvars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.envvars" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -372,7 +377,7 @@
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.freeze">
-<tt class="descname">freeze</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.freeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.freeze" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">freeze</tt><big>(</big><em>hashes=False</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.freeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.freeze" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a JSON representation of the repositories.</p>
 </dd></dl>
 
@@ -391,6 +396,11 @@
 <tt class="descname">list_feature</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.list_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.list_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="zendev.environment.ZenDevEnvironment.list_tags">
+<tt class="descname">list_tags</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.list_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.list_tags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.manifest">
 <tt class="descname">manifest</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.manifest" title="Permalink to this definition">¶</a></dt>
@@ -400,6 +410,11 @@
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.pull_feature">
 <tt class="descname">pull_feature</tt><big>(</big><em>name</em>, <em>filter_=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.pull_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.pull_feature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.environment.ZenDevEnvironment.refresh_manifests">
+<tt class="descname">refresh_manifests</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.refresh_manifests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.refresh_manifests" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -414,6 +429,11 @@ there are no repos passed in, fail.</p>
 <tt class="descname">repos</tt><big>(</big><em>filter_=None</em>, <em>key=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.repos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.repos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Repository objects for all repos in the system.</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="zendev.environment.ZenDevEnvironment.restore">
+<tt class="descname">restore</tt><big>(</big><em>ref</em>, <em>shallow=False</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.restore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.restore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.root">
@@ -437,7 +457,17 @@ there are no repos passed in, fail.</p>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.sync">
-<tt class="descname">sync</tt><big>(</big><em>filter_=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.sync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.sync" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">sync</tt><big>(</big><em>filter_=None</em>, <em>force_branch=False</em>, <em>shallow=False</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.sync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.sync" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.environment.ZenDevEnvironment.tag">
+<tt class="descname">tag</tt><big>(</big><em>name</em>, <em>strict=False</em>, <em>force=False</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zendev.environment.ZenDevEnvironment.tag_delete">
+<tt class="descname">tag_delete</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.tag_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.tag_delete" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -593,7 +623,7 @@ there are no repos passed in, fail.</p>
 <span id="zendev-repo-module"></span><h2>zendev.repo module<a class="headerlink" href="#module-zendev.repo" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="zendev.repo.Repository">
-<em class="property">class </em><tt class="descclassname">zendev.repo.</tt><tt class="descname">Repository</tt><big>(</big><em>localname</em>, <em>path</em>, <em>repo</em>, <em>ref='develop'</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">zendev.repo.</tt><tt class="descname">Repository</tt><big>(</big><em>localpath</em>, <em>path</em>, <em>repo</em>, <em>name=''</em>, <em>ref='develop'</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>A repository.</p>
 <dl class="method">
@@ -612,6 +642,11 @@ there are no repos passed in, fail.</p>
 <tt class="descname">changes</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.changes" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="zendev.repo.Repository.checkout">
+<tt class="descname">checkout</tt><big>(</big><em>ref</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.checkout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.checkout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.clone">
@@ -637,6 +672,12 @@ there are no repos passed in, fail.</p>
 <dt id="zendev.repo.Repository.finish_feature">
 <tt class="descname">finish_feature</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.finish_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.finish_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zendev.repo.Repository.hash">
+<tt class="descname">hash</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.initialize">
@@ -701,6 +742,12 @@ there are no repos passed in, fail.</p>
 <dt id="zendev.repo.Repository.stash">
 <tt class="descname">stash</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.stash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.stash" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zendev.repo.Repository.tag_names">
+<tt class="descname">tag_names</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.tag_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.tag_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1031,6 +1078,16 @@ nothing was specified.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="zendev.zendev.restore">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">restore</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#restore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.restore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.restoreCompleter">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">restoreCompleter</tt><big>(</big><em>prefix</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#restoreCompleter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.restoreCompleter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="zendev.zendev.root">
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">root</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.root" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1056,6 +1113,11 @@ nothing was specified.</p>
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">sync</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#sync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.sync" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clone or update any existing repositories, push any commits.</p>
 </dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.tag">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">tag</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.zendev.temp_env">

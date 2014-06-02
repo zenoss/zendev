@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &mdash; zendev 0.1.0 documentation</title>
+    <title>Installation &mdash; zendev 0.2.0 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/js/bootstrap-2.2.1.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
+    <link rel="top" title="zendev 0.2.0 documentation" href="index.html" />
     <link rel="next" title="Working With Environments" href="environments.html" />
     <link rel="prev" title="zendev" href="readme.html" />
 <meta charset='utf-8'>
@@ -49,7 +49,7 @@
       </button>
 
       <a class="brand" href="index.html">zendev</a>
-      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+      <span class="navbar-text pull-left"><b>0.2.0</b></span>
 
       <div class="nav-collapse">
         <ul class="nav">
@@ -151,7 +151,7 @@ sudo sh -c <span class="s2">&quot;echo deb http://get.docker.io/ubuntu docker ma
 <span class="s2">    &gt; /etc/apt/sources.list.d/docker.list&quot;</span>
 
 <span class="c"># Install Docker</span>
-sudo apt-get install -y lxc-docker-0.8.1 apparmor-utils
+sudo apt-get install -y lxc-docker
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
@@ -162,9 +162,6 @@ sudo usermod -a -G docker <span class="k">${</span><span class="nv">USER</span><
 
 <span class="c"># Login again to get docker group (requires password reentry)</span>
 <span class="nb">exec </span>su -l <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
-
-<span class="c"># Allow lxc-start to start (see https://github.com/dotcloud/docker/issues/2702)</span>
-sudo /usr/sbin/aa-complain /usr/bin/lxc-start
 
 <span class="c"># Restart Docker</span>
 sudo service docker restart
@@ -177,7 +174,6 @@ sudo service docker restart
 <p>If you see an empty list of containers (i.e., a row of column names), you&#8217;re
 good. Now modify the Docker upstart script to handle resolution of local DNS:</p>
 <div class="highlight-bash"><div class="highlight"><pre>cat  <span class="s">&lt;&lt;\EOF | sudo sed -f /dev/fd/0 -i /etc/init/docker.conf</span>
-<span class="s">    s/respawn/\0\nlimit nofile 65536 65536\n/</span>
 <span class="s">    s/DOCKER_OPTS=.*$/\0\n\tDOCKER_OPTS=&quot;$DOCKER_OPTS -dns=10.87.113.13 -dns=10.88.102.13 -dns=10.175.211.10&quot;/</span>
 <span class="s">EOF</span>
 </pre></div>
@@ -281,25 +277,13 @@ sudo pip install -e <span class="k">${</span><span class="nv">SRCDIR</span><span
 <span class="nb">cd</span> <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>
 
 <span class="c"># Create the environment</span>
-zendev init europa
+zendev init europa --tag develop
 
 <span class="c"># Start using the environment</span>
 zendev use europa
 </pre></div>
 </div>
 <ol class="arabic simple" start="10">
-<li>Add some repositories to the <tt class="docutils literal"><span class="pre">europa</span></tt> environment:</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add core and serviced repositories from manifests used by the build,</span>
-<span class="c"># which have conveniently been checked out into</span>
-<span class="c"># ~/src/europa/build/manifests</span>
-zendev add <span class="k">$(</span>zendev root<span class="k">)</span>/build/manifests/<span class="o">{</span>core,libs,serviced,zenpacks.core<span class="o">}</span>.json
-
-<span class="c"># Clone everything</span>
-zendev sync
-</pre></div>
-</div>
-<ol class="arabic simple" start="11">
 <li>You can now use zendev to edit source, build Zenoss RPMs, build serviced,
 and (if you install <a class="reference external" href="http://www.vagrantup.com/downloads.html">Vagrant</a> and <a class="reference external" href="https://www.virtualbox.org/wiki/Downloads">VirtualBox</a>) create Vagrant boxes to run
 serviced or Resource Manager. As an example, here&#8217;s how you build serviced

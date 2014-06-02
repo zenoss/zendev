@@ -39,7 +39,7 @@ Ubuntu
         > /etc/apt/sources.list.d/docker.list"
 
     # Install Docker
-    sudo apt-get install -y lxc-docker-0.8.1 apparmor-utils
+    sudo apt-get install -y lxc-docker
 
 3. Add your user to the ``docker`` group:
 
@@ -50,9 +50,6 @@ Ubuntu
 
     # Login again to get docker group (requires password reentry)
     exec su -l ${USER}
-
-    # Allow lxc-start to start (see https://github.com/dotcloud/docker/issues/2702)
-    sudo /usr/sbin/aa-complain /usr/bin/lxc-start
 
     # Restart Docker
     sudo service docker restart
@@ -69,7 +66,6 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
 .. code-block:: bash
 
     cat  <<\EOF | sudo sed -f /dev/fd/0 -i /etc/init/docker.conf
-        s/respawn/\0\nlimit nofile 65536 65536\n/
         s/DOCKER_OPTS=.*$/\0\n\tDOCKER_OPTS="$DOCKER_OPTS -dns=10.87.113.13 -dns=10.88.102.13 -dns=10.175.211.10"/
     EOF
 
@@ -176,24 +172,12 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
     cd ${SRCDIR}
 
     # Create the environment
-    zendev init europa
+    zendev init europa --tag develop
 
     # Start using the environment
     zendev use europa
 
-10. Add some repositories to the ``europa`` environment:
-
-.. code-block:: bash
-
-    # Add core and serviced repositories from manifests used by the build,
-    # which have conveniently been checked out into
-    # ~/src/europa/build/manifests
-    zendev add $(zendev root)/build/manifests/{core,libs,serviced,zenpacks.core}.json
-
-    # Clone everything
-    zendev sync
-
-11. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
+10. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
     and (if you install Vagrant_ and VirtualBox_) create Vagrant boxes to run
     serviced or Resource Manager. As an example, here's how you build serviced
     and run it:
