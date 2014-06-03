@@ -27,13 +27,16 @@ class Serviced(object):
         print "Cleaning state"
         subprocess.call("sudo rm -rf /tmp/serviced-*", shell=True)
 
-    def start(self, root=False, uiport=443, arguments=None):
+    def start(self, root=False, uiport=443, arguments=None, registry=False):
         print "Starting serviced..."
         self.uiport = uiport
         args = []
+        envvars = self.env.envvars()
+        if not registry:
+            envvars['SERVICED_NOREGISTRY'] = 1
         if root:
             args.extend(["sudo", "-E"])
-            args.extend("%s=%s" % x for x in self.env.envvars().iteritems())
+            args.extend("%s=%s" % x for x in envvars.iteritems())
         args.extend([self.serviced, "-master", "-agent", 
             "--mount", "zendev/devimg,%s,/home/zenoss/.m2" % py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True),
             "--mount", "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath,
@@ -70,7 +73,8 @@ class Serviced(object):
     def add_host(self, host="172.17.42.1:4979", pool="default"):
         subprocess.call([self.serviced, "host","add", host, pool])
 
-    def deploy(self, template, pool="default", svcname="HBase", noAutoAssignIpFlag=""):
+    def deploy(self, template, pool="default", svcname="HBase",
+            noAutoAssignIpFlag=""):
         print "Deploying template"
         deploy_command = [self.serviced, "template", "deploy"]
         if noAutoAssignIpFlag != "":
