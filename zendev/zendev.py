@@ -106,7 +106,8 @@ def serviced(args):
         args.arguments = args.arguments[1:]
     if args.root:
         print >>sys.stderr, "--root is deprecated, as it is now the default. See --no-root."
-    serviced.start(not args.no_root, args.uiport, args.arguments)
+    serviced.start(not args.no_root, args.uiport, args.arguments,
+            registry=args.with_docker_registry)
     try:
         while not serviced.is_ready():
             if not timeout:
@@ -648,6 +649,8 @@ def parse_args():
             action='store_true', help="Don't run serviced as root")
     serviced_parser.add_argument('--no-auto-assign-ips', action='store_true',
         help="Do NOT auto-assign IP addresses to services requiring an IP address")
+    serviced_parser.add_argument('--with-docker-registry', action='store_true',
+        help="Use the internal docker registry (necessary for multihost)")
     serviced_parser.add_argument('-u', '--uiport', type=int, default=443,
         help="UI port")
     serviced_parser.add_argument('arguments', nargs=argparse.REMAINDER)
