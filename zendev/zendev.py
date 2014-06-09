@@ -537,7 +537,7 @@ def parse_args():
 
     each_parser = subparsers.add_parser('each')
     each_parser.add_argument('-r', '--repo', dest="repos", nargs='*')
-    each_parser.add_argument('-c', '--command', nargs='*')
+    each_parser.add_argument('command', nargs="*")
     each_parser.set_defaults(functor=each)
 
     cluster_parser = subparsers.add_parser('cluster')
