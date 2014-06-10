@@ -12,34 +12,32 @@ zendev itself, which are basically git and Python).
 
 Ubuntu
 ------
-.. important:: Ubuntu 13.04 or higher is required.
+.. important:: Ubuntu 14.04 is required
 
 1. Make sure the universe and multiverse repos are enabled and updated:
 
 .. code-block:: bash
 
     # Add the repository
-    sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse"
+    sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu trusty main universe restricted multiverse"
 
     # Update the repos
     sudo apt-get update
 
-2. Install Docker_ (`source <http://docs.docker.io/en/latest/installation/ubuntulinux/#ubuntu-raring-saucy>`_):
+2. Install Docker_:
 
 .. code-block:: bash
 
-    # Make sure AUFS is installed
-    sudo apt-get install -y linux-image-extra-`uname -r`
-
-    # Add the repository key
-    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
-
-    # Add the Docker repository
-    sudo sh -c "echo deb http://get.docker.io/ubuntu docker main\
-        > /etc/apt/sources.list.d/docker.list"
+    # Install dependencies
+    sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
     # Install Docker
-    sudo apt-get update && sudo apt-get install -y lxc-docker
+    curl -sL https://get.docker.io/ubuntu/ | sudo sh
+
+    # Install our own version of nsenter
+    wget http://artifacts.zenoss.loc/europa/docker-smuggle_2.24.2-1_amd64.deb
+    sudo dpkg -i docker-smuggle_*.deb
+    sudo apt-get install -f 
 
 3. Add your user to the ``docker`` group:
 
