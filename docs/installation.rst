@@ -39,7 +39,7 @@ Ubuntu
         > /etc/apt/sources.list.d/docker.list"
 
     # Install Docker
-    sudo apt-get install -y lxc-docker-0.8.1 apparmor-utils
+    sudo apt-get update && sudo apt-get install -y lxc-docker-0.8.1 apparmor-utils
 
 3. Add your user to the ``docker`` group:
 
