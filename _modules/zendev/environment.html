@@ -364,6 +364,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">refresh_manifests</span><span class="p">()</span>
         <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span>
         <span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">merge_from_remote</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">create_manifest</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_manifestroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;manifest.json&#39;</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>

@@ -125,33 +125,31 @@ zendev itself, which are basically git and Python).</p>
 <h2>Ubuntu<a class="headerlink" href="#ubuntu" title="Permalink to this headline">¶</a></h2>
 <div class="admonition important">
 <p class="first admonition-title">Important</p>
-<p class="last">Ubuntu 13.04 or higher is required.</p>
+<p class="last">Ubuntu 14.04 is required</p>
 </div>
 <ol class="arabic simple">
 <li>Make sure the universe and multiverse repos are enabled and updated:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the repository</span>
-sudo add-apt-repository <span class="s2">&quot;deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse&quot;</span>
+sudo add-apt-repository <span class="s2">&quot;deb http://archive.ubuntu.com/ubuntu trusty main universe restricted multiverse&quot;</span>
 
 <span class="c"># Update the repos</span>
 sudo apt-get update
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
-<li>Install <a class="reference external" href="http://docker.io/">Docker</a> (<a class="reference external" href="http://docs.docker.io/en/latest/installation/ubuntulinux/#ubuntu-raring-saucy">source</a>):</li>
+<li>Install <a class="reference external" href="http://docker.io/">Docker</a>:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Make sure AUFS is installed</span>
-sudo apt-get install -y linux-image-extra-<span class="sb">`</span>uname -r<span class="sb">`</span>
-
-<span class="c"># Add the repository key</span>
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
-
-<span class="c"># Add the Docker repository</span>
-sudo sh -c <span class="s2">&quot;echo deb http://get.docker.io/ubuntu docker main\</span>
-<span class="s2">    &gt; /etc/apt/sources.list.d/docker.list&quot;</span>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install dependencies</span>
+sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
 <span class="c"># Install Docker</span>
-sudo apt-get install -y lxc-docker
+curl -sL https://get.docker.io/ubuntu/ | sudo sh
+
+<span class="c"># Install our own version of nsenter</span>
+wget http://artifacts.zenoss.loc/europa/docker-smuggle_2.24.2-1_amd64.deb
+sudo dpkg -i docker-smuggle_*.deb
+sudo apt-get install -f
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
