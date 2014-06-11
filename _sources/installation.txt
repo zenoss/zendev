@@ -67,6 +67,26 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:
         s/DOCKER_OPTS=.*$/\0\n\tDOCKER_OPTS="$DOCKER_OPTS -dns=10.87.113.13 -dns=10.88.102.13 -dns=10.175.211.10"/
     EOF
 
+Next, modify ``/etc/security/limits.conf`` to up the file limits:
+
+.. code-block:: bash
+
+    cat <<\EOF | sudo /bin/bash -c "cat > /etc/security/limits.conf"
+    *      hard   nofile   1048576
+    *      soft   nofile   1048576
+    root   hard   nofile   1048576
+    root   soft   nofile   1048576
+    EOF
+
+Then reboot, to make sure the new limits take effect.
+
+When your box comes back up, authenticate to quay.io:
+
+.. code-block:: bash
+
+    docker login -u zenossinc+betatester -e "europabeta@zenoss.com"\
+        -p VUYHDYY9UPG86RRFE4IJYDGPGF66J29U0JJPY623DRJKXSOJ9VRWXBKN3WU4FD2P\
+        https://quay.io/v1/
 
 5. Install Go_:
 
