@@ -277,7 +277,7 @@ class ZenDevEnvironment(object):
         repo = self.ensure_manifestrepo()
         return repo.tag_names
 
-    def tag(self, name, strict=False, force=False):
+    def tag(self, name, strict=False, force=False, from_ref=None):
         self.refresh_manifests()
         if name in self.list_tags() and not force:
             error("Tag %s already exists. Use -f/--force to override it." % name)
@@ -286,6 +286,11 @@ class ZenDevEnvironment(object):
         repo.checkout('master')
         git = repo.repo.git
         git.reset('--hard')
+
+        if from_ref is not None:
+            #restore gets manifest from ref and updates all repos to refs in the manifest
+            self.restore(from_ref)
+
         with open(self._manifestroot.join('manifest.json').strpath, 'w') as f:
             f.write(self.freeze(strict))
         git.commit('-am', 'Saving manifest %s' % name)

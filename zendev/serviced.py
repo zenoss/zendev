@@ -37,7 +37,7 @@ class Serviced(object):
         if root:
             args.extend(["sudo", "-E"])
             args.extend("%s=%s" % x for x in envvars.iteritems())
-        args.extend([self.serviced, "-master", "-agent", 
+        args.extend([self.serviced, "-master", "-agent",
             "--mount", "zendev/devimg,%s,/home/zenoss/.m2" % py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True),
             "--mount", "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath,
             "--mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,

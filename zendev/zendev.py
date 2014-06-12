@@ -322,7 +322,7 @@ def tag(args):
         if not args.name:
             error("Missing the name of a tag to create")
             sys.exit(1)
-        check_env().tag(args.name, args.strict, args.force)
+        check_env().tag(args.name, args.strict, args.force, args.from_ref)
 
 
 def cd(args):
@@ -622,6 +622,7 @@ def parse_args():
     tag_parser.add_argument('-l', '--list', action="store_true")
     tag_parser.add_argument('-f', '--force', action="store_true")
     tag_parser.add_argument('-D', '--delete', action="store_true")
+    tag_parser.add_argument('-F', '--from', dest="from_ref", required=False)
     a = tag_parser.add_argument('name', metavar="NAME", nargs="?")
     a.completer = restoreCompleter
     tag_parser.set_defaults(functor=tag)
