@@ -51,39 +51,7 @@ class Serviced(object):
             args.extend(["sudo", "-E"])
             args.extend("%s=%s" % x for x in envvars.iteritems())
         if "SERVICED_HOME" in os.environ:
-            servicedhome = py.path.local(os.environ["SERVICED_HOME"])
-            print "Using SERVICED_HOME from environment:", servicedhome
-            servicedsrc = self.env.gopath.join(
-                "src/github.com/zenoss/serviced"
-            )
-            if not servicedhome.check(dir=True):
-                subprocess.call("sudo mkdir -p %s" % servicedhome, shell=True)
-                subprocess.call(
-                    "sudo chown %(user)s:%(user)s %(path)s" % {
-                        "user": os.environ["USER"], "path": servicedhome
-                    },
-                    shell=True
-                )
-            # Link to the isvcs directory
-            _makelink(
-                servicedhome.join("isvcs"), servicedsrc.join("isvcs")
-            )
-            # Make sure the shell and web dirs exist
-            shellpath = servicedhome.ensure("share/shell", dir=True)
-            webpath = servicedhome.ensure("share/web", dir=True)
-            # Link the shell/static directory
-            _makelink(
-                shellpath.join("static"), servicedsrc.join("shell/static")
-            )
-            # Link the web/static directory
-            _makelink(
-                webpath.join("static"), servicedsrc.join("web/static")
-            )
-            # Link the share/controlplane.json file
-            _makelink(
-                servicedhome.join("share/controlplane.json"),
-                servicedsrc.join("dao/elasticsearch/controlplane.json")
-            )
+            self._configureHome(os.environ["SERVICED_HOME"])
 
         args.extend([self.serviced, "-master", "-agent", 
             "--mount", "zendev/devimg,%s,/home/zenoss/.m2" % py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True),
@@ -153,3 +121,36 @@ class Serviced(object):
                 shell=True, stdout=subprocess.PIPE)
         svcid, stderr = p.communicate()
         subprocess.call([self.serviced, "service", "start", svcid.strip()])
+
+    def _configureHome(self, homepath):
+        servicedhome = py.path.local(homepath)
+        print "Using SERVICED_HOME from environment:", servicedhome
+        servicedsrc = self.env.gopath.join("src/github.com/zenoss/serviced")
+        if not servicedhome.check(dir=True):
+            subprocess.call("sudo mkdir -p %s" % servicedhome, shell=True)
+            subprocess.call(
+                "sudo chown %(user)s:%(user)s %(path)s" % {
+                    "user": os.environ["USER"], "path": servicedhome
+                },
+                shell=True
+            )
+        # Link to the isvcs directory
+        _makelink(
+            servicedhome.join("isvcs"), servicedsrc.join("isvcs")
+        )
+        # Make sure the shell and web dirs exist
+        shellpath = servicedhome.ensure("share/shell", dir=True)
+        webpath = servicedhome.ensure("share/web", dir=True)
+        # Link the shell/static directory
+        _makelink(
+            shellpath.join("static"), servicedsrc.join("shell/static")
+        )
+        # Link the web/static directory
+        _makelink(
+            webpath.join("static"), servicedsrc.join("web/static")
+        )
+        # Link the share/controlplane.json file
+        _makelink(
+            servicedhome.join("share/controlplane.json"),
+            servicedsrc.join("dao/elasticsearch/controlplane.json")
+        )
