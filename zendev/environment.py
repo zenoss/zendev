@@ -329,7 +329,7 @@ class ZenDevEnvironment(object):
     def clone(self, shallow=False):
         cmd = 'shallow_clone' if shallow else 'clone'
         info("Cloning repositories")
-        self.foreach(cmd, lambda r: not r.repo)
+        self.foreach(cmd, lambda r: not r.repo, silent=not sys.stdout.isatty())
         info("All repositories are cloned!")
 
     def fetch(self):
