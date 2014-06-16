@@ -273,6 +273,14 @@ class ZenDevEnvironment(object):
         self.sync(force_branch=True, shallow=shallow)
         info("Manifest '%s' has been restored" % ref)
 
+    def get_manifest(self, ref):
+        self.refresh_manifests()
+        repo = self.ensure_manifestrepo()
+        repo.checkout(ref)
+        repo.fetch()
+        repo.merge_from_remote()
+        return create_manifest(self._manifestroot.join('manifest.json'))
+
     def list_tags(self):
         repo = self.ensure_manifestrepo()
         return repo.tag_names

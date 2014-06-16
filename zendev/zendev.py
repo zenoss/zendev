@@ -4,6 +4,7 @@
 
 import os
 import sys
+import io
 import re
 import argparse
 import time
@@ -19,7 +20,7 @@ from .utils import colored, here
 from .manifest import create_manifest
 from . import config as zcfg
 from . import environment as zenv
-from .environment import ZenDevEnvironment, get_config_dir, init_config_dir
+from .environment import ZenDevEnvironment, init_config_dir
 from .environment import NotInitialized
 from .box import BOXES
 from .serviced import Serviced
@@ -400,9 +401,44 @@ def build(args):
         sys.exit(rc)
 
 
+def changelog(args):
+    buf = io.StringIO()
+    env = check_env()
+    try:
+        frommanifest = env.get_manifest(args.tag1)
+    except Exception:
+        error("%s is an invalid tag. See available tags with `zendev tag --list`" % args.tag1)
+        sys.exit(1)
+    try:
+        tomanifest = env.get_manifest(args.tag2) if args.tag2 else env.manifest
+    except Exception:
+        error("%s is an invalid tag. See available tags with `zendev tag --list`" % args.tag2)
+        sys.exit(1)
+    for repo in env.repos(args.repofilter):
+        ref1 = frommanifest._data['repos'].get(repo.name, {}).get('ref')
+        ref2 = tomanifest._data['repos'].get(repo.name, {}).get('ref')
+        if not ref1 or not ref2 or ref1 == ref2:
+            continue
+        result = repo.changelog(ref1, ref2)
+        if result:
+            buf.write(u"""
+{repo_name} | {repo_url}
+=============================================================================
+{changelog}
+""".format(repo_name=repo.name, repo_url=repo.url, changelog=result))
+    full_log = buf.getvalue().strip()
+    if sys.stdout.isatty():
+        p = subprocess.Popen(["less"], stdin=subprocess.PIPE)
+        p.communicate(full_log)
+        p.wait()
+    else:
+        print full_log
+
+
 def attach(args):
     print >>sys.stderr, "Yo, you can probably just use serviced attach"
-    subprocess.call("serviced service attach '%s'; stty sane" % args.specifier, shell=True)
+    subprocess.call("serviced service attach '%s'; stty sane" % args.specifier,
+                    shell=True)
 
 
 def clone(args):
@@ -626,6 +662,12 @@ def parse_args():
     a = tag_parser.add_argument('name', metavar="NAME", nargs="?")
     a.completer = restoreCompleter
     tag_parser.set_defaults(functor=tag)
+
+    changelog_parser = subparsers.add_parser('changelog')
+    changelog_parser.add_argument('-r', '--repo', dest="repos", nargs='*', required=False)
+    changelog_parser.add_argument('tag1', metavar="TAG").completer = restoreCompleter
+    changelog_parser.add_argument('tag2', metavar="TAG", nargs="?").completer = restoreCompleter
+    changelog_parser.set_defaults(functor=changelog)
 
     ssh_parser = subparsers.add_parser('ssh')
     ssh_parser.add_argument('name', metavar="NAME")
