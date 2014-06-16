@@ -414,7 +414,7 @@ def changelog(args):
     except Exception:
         error("%s is an invalid tag. See available tags with `zendev tag --list`" % args.tag2)
         sys.exit(1)
-    for repo in env.repos(args.repofilter):
+    for repo in env.repos():
         ref1 = frommanifest._data['repos'].get(repo.name, {}).get('ref')
         ref2 = tomanifest._data['repos'].get(repo.name, {}).get('ref')
         if not ref1 or not ref2 or ref1 == ref2:
@@ -664,7 +664,6 @@ def parse_args():
     tag_parser.set_defaults(functor=tag)
 
     changelog_parser = subparsers.add_parser('changelog')
-    changelog_parser.add_argument('-r', '--repo', dest="repos", nargs='*', required=False)
     changelog_parser.add_argument('tag1', metavar="TAG").completer = restoreCompleter
     changelog_parser.add_argument('tag2', metavar="TAG", nargs="?").completer = restoreCompleter
     changelog_parser.set_defaults(functor=changelog)
