@@ -214,9 +214,11 @@ class Repository(object):
         elif local and not remote:
             self.publish_feature(name)
         else:
-            self.start_feature( name)
+            self.start_feature(name)
             self.publish_feature(name)
 
+    def changelog(self, fromref, toref):
+        return self.repo.git.log("%s..%s" % (fromref, toref), "--pretty=format:%h - %an, %ar : %s")
 
     def create_pull_request(self, feature_name, body=''):
         staged, unstaged, untracked = self.changes

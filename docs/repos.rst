@@ -153,6 +153,17 @@ Or you can override a tag with your current state:
     
     zendev tag --force myniftyfeature
 
+You can see the changes between two tags across all repos with ``zendev
+changelog``:
+
+.. code-block:: bash
+
+    # Show difference between a tag and current state
+    zendev changelog from-tag
+
+    # Show difference between two tags
+    zendev changelog from-tag to-tag
+
 Finally, you can list all tags with ``zendev tag --list``.
 
 
