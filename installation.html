@@ -318,11 +318,11 @@ make install
 zendev build devimg
 
 <span class="c"># Download pre-built opentsdb image from quay.io</span>
-docker login -u zenossinc+alphaeval -e <span class="s2">&quot;alpha2@zenoss.com&quot;</span> <span class="se">\</span>
-    -p WP0FHD2M9VIKIX6NUXKTUQO23ZEWNSJLGDBA3SGEK4BLAI66HN5EU0BOKN4FVMFF <span class="se">\</span>
+docker login -u zenossinc+betatester -e <span class="s2">&quot;europabeta@zenoss.com&quot;</span> <span class="se">\</span>
+    -p VUYHDYY9UPG86RRFE4IJYDGPGF66J29U0JJPY623DRJKXSOJ9VRWXBKN3WU4FD2P <span class="se">\</span>
     https://quay.io/v1/
-docker pull quay.io/zenossinc/opentsdb:latest
-docker pull quay.io/zenossinc/hbase:latest
+docker pull quay.io/zenossinc/opentsdb:v1
+docker pull quay.io/zenossinc/hbase:v1
 
 <span class="c"># Run a totally clean instance of serviced, automatically adding localhost</span>
 <span class="c"># as a host, adding the Zenoss template, and deploying an instance of</span>

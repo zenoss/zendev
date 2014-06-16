@@ -217,11 +217,11 @@ When your box comes back up, authenticate to quay.io:
     zendev build devimg
 
     # Download pre-built opentsdb image from quay.io
-    docker login -u zenossinc+alphaeval -e "alpha2@zenoss.com" \
-        -p WP0FHD2M9VIKIX6NUXKTUQO23ZEWNSJLGDBA3SGEK4BLAI66HN5EU0BOKN4FVMFF \
+    docker login -u zenossinc+betatester -e "europabeta@zenoss.com" \
+        -p VUYHDYY9UPG86RRFE4IJYDGPGF66J29U0JJPY623DRJKXSOJ9VRWXBKN3WU4FD2P \
         https://quay.io/v1/
-    docker pull quay.io/zenossinc/opentsdb:latest
-    docker pull quay.io/zenossinc/hbase:latest
+    docker pull quay.io/zenossinc/opentsdb:v1
+    docker pull quay.io/zenossinc/hbase:v1
 
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of
