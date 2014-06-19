@@ -463,6 +463,15 @@ def drop(args):
     get_config().remove(args.name, not args.purge)
 
 
+def zup(args):
+    """
+    Do zup-related things like build zups, which is a blast.
+    """
+    with check_env().buildroot.as_cwd():
+        rc = subprocess.call(["make", "zup"])
+        sys.exit(rc)
+
+
 def add_repo_narg(parser):
     parser.add_argument('repos', nargs='*', help='List of repositories')
 
@@ -477,6 +486,14 @@ def parse_args():
                         help="Run in a temporary environment")
 
     subparsers = parser.add_subparsers()
+
+    zup_parser = subparsers.add_parser('zup', help="Build a zup")
+    zup_parser.add_argument("begin", help="The tagged manifest version that \
+            the ZUP should start from")
+    zup_parser.add_argument("--head", help="Build a zup all the way to the head \
+            of the rps branches (as opposed to the last RPS tag)",
+            action="store_true")
+    zup_parser.set_defaults(functor=zup)
 
     init_parser = subparsers.add_parser('init')
     init_parser.add_argument('path', metavar="PATH")
