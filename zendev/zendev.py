@@ -11,6 +11,7 @@ import time
 import argcomplete
 import subprocess
 from contextlib import contextmanager
+import json
 
 import py
 
@@ -467,8 +468,36 @@ def zup(args):
     """
     Do zup-related things like build zups, which is a blast.
     """
+    interestedRepos = ("core", "zproxy", "protocols")
+
+    if args.head and not args.branch:
+        error("You must specify a branch to use with the 'head' argument")
+        sys.exit(1)
+
+    # 1) Get list of hashes per repo from the manifest representing each SPx
+    env = check_env()
+    tagList = [args.begin]
+    spRegex = r"^SP\d+$"
+    [ tagList.append(tag) for tag in env.list_tags() if len(re.findall(spRegex, tag)) == 1 ]
+    if args.head:
+        tagList.append('HEAD')
+
+    manifestRepo = env.ensure_manifestrepo()
+    currManifestBranch = manifestRepo.branch
+    hashesPerSP = []
+    try:
+        for tag in tagList:
+            manifestRepo.checkout(tag)
+            tagDict = {}
+            for repo in interestedRepos:
+                tagDict[repo] = env.manifest.repos()[repo]['ref']
+            hashesPerSP.append({tag: tagDict})
+    finally:
+        manifestRepo.checkout(currManifestBranch)
+
+    # 2) Kick off make, passing the list of hashes
     with check_env().buildroot.as_cwd():
-        rc = subprocess.call(["make", "zup"])
+        rc = subprocess.call(["make", "TAGS=%s" % json.dumps(hashesPerSP), "zup"])
         sys.exit(rc)
 
 
@@ -493,6 +522,8 @@ def parse_args():
     zup_parser.add_argument("--head", help="Build a zup all the way to the head \
             of the rps branches (as opposed to the last RPS tag)",
             action="store_true")
+    zup_parser.add_argument("--branch", help="If specifying '--head/-h', also"
+                                             "specify the branch to use")
     zup_parser.set_defaults(functor=zup)
 
     init_parser = subparsers.add_parser('init')
