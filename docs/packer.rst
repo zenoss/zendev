@@ -16,10 +16,10 @@ template is stored in the ``boxes`` directory of your zendev source.
 .. code-block:: bash
 
     # Switch to your zendev checkout (may not be under ~/src)
-    cd ~/src/zendev/boxes/ubuntu-13.04-docker
+    cd ~/src/zendev/boxes/ubuntu-14.04-docker
 
     # Build the box
-    packer build ubuntu-13.04-docker.json
+    packer build ubuntu-14.04-docker.json
 
 4. Now add the box to Vagrant.
 
@@ -28,13 +28,13 @@ template is stored in the ``boxes`` directory of your zendev source.
     # First, remove the existing box. If you don't want to remove the existing
     # box, don't do this. Either way, any existing instances will be
     # unaffected.
-    vagrant box remove ubuntu-13.04-docker-v3
+    vagrant box remove ubuntu-14.04-docker
 
-    # Now add the box you just generated as the new ubuntu-13.04-docker base
+    # Now add the box you just generated as the new ubuntu-14.04-docker base
     # box. If you didn't remove the one above, pick a new name. You can
     # generate Vagrant boxes using "vagrant init BOXNAME".
-    vagrant box add ubuntu-13.04-docker-v3 \
-        ~/src/zendev/boxes/ubuntu-13.04-docker*.box
+    vagrant box add ubuntu-14.04-docker \
+        ~/src/zendev/boxes/ubuntu-14.04-docker*.box
 
 5. Use zendev to create a new instance and see how it turned out:
 

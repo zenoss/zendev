@@ -2,37 +2,22 @@
   "builders": [
     {
       "boot_command": [
-        "<esc><wait>",
-        "<esc><wait>",
-        "<enter><wait>",
-        "/install/vmlinuz<wait>",
-        " auto<wait>",
-        " console-setup/ask_detect=false<wait>",
-        " console-setup/layoutcode=us<wait>",
-        " console-setup/modelcode=pc105<wait>",
-        " debconf/frontend=noninteractive<wait>",
-        " debian-installer=en_US<wait>",
-        " fb=false<wait>",
-        " initrd=/install/initrd.gz<wait>",
-        " kbd-chooser/method=us<wait>",
-        " keyboard-configuration/layout=USA<wait>",
-        " keyboard-configuration/variant=USA<wait>",
-        " locale=en_US<wait>",
-        " netcfg/get_domain=vm<wait>",
-        " netcfg/get_hostname=vagrant<wait>",
-        " noapic<wait>",
-        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg<wait>",
-        " -- <wait>",
-        "<enter><wait>"
+        "<esc><esc><enter><wait>",
+        "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+        "debian-installer=en_US auto locale=en_US kbd-chooser/method=us <wait>",
+        "hostname={{ .Name }} <wait>",
+        "fb=false debconf/frontend=noninteractive <wait>",
+        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false <wait>",
+        "initrd=/install/initrd.gz -- <enter><wait>"
       ],
       "boot_wait": "10s",
       "disk_size": 40960,
       "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
       "guest_os_type": "Ubuntu_64",
       "http_directory": "http",
-      "iso_checksum": "2af1c223f586f59237212bb9c06ad774673c8952",
+      "iso_checksum": "4d94f6111b8fe47da94396180ce499d8c0bb44f3",
       "iso_checksum_type": "sha1",
-      "iso_url": "http://releases.ubuntu.com/13.04/ubuntu-13.04-server-amd64.iso",
+      "iso_url": "http://releases.ubuntu.com/14.04/ubuntu-14.04-server-amd64.iso",
       "hard_drive_interface": "sata",
       "headless": true,
       "http_port_max": 59080,
@@ -93,11 +78,13 @@
         "scripts/goenv.sh",
         "scripts/patches.sh",
         "scripts/sshd.sh",
-        "scripts/networking.sh",
         "scripts/sudoers.sh",
         "scripts/vagrant.sh",
         "scripts/docker.sh",
         "scripts/vmtools.sh",
+        "scripts/memory_swap_accounting.sh",
+        "scripts/dist_upgrade.sh",
+        "scripts/networking.sh",
         "scripts/cleanup.sh",
         "scripts/minimize.sh"
       ],
@@ -105,6 +92,17 @@
     }
   ],
   "variables": {
-    "boxname": "ubuntu-13.04-docker-v2"
+    "boxname": "ubuntu-14.04-docker"
   }
 }
+
+
+
+
+
+
+
+
+
+
+
