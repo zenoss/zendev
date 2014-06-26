@@ -148,8 +148,10 @@ When your box comes back up, authenticate to quay.io:
     sudo apt-get install -y tmux
 
 7. At this point, you need to `set up GitHub for SSH access
-   <https://help.github.com/articles/generating-ssh-keys>`_. Also, make sure
-   you've been added to the appropriate Zenoss teams.
+   <https://help.github.com/articles/generating-ssh-keys>`_. 
+   
+   When you set up your ssh access, **do not use a key with a passphrase.**  Also, 
+   make sure you've been added to the appropriate Zenoss teams.
 
 8. Now it's time to install zendev:
 
