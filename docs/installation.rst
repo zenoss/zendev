@@ -88,7 +88,7 @@ When your box comes back up, authenticate to quay.io:
         -p VUYHDYY9UPG86RRFE4IJYDGPGF66J29U0JJPY623DRJKXSOJ9VRWXBKN3WU4FD2P\
         https://quay.io/v1/
 
-5. Install Go_:
+4. Install Go_:
 
 .. code-block:: bash
 
@@ -127,7 +127,7 @@ When your box comes back up, authenticate to quay.io:
     go get code.google.com/p/go.tools/cmd/goimports
     sudo ln -s ${GOPATH}/bin/goimports /usr/local/bin/goimports
 
-6. Install other dependencies:
+5. Install other dependencies:
 
 .. code-block:: bash
 
@@ -147,13 +147,13 @@ When your box comes back up, authenticate to quay.io:
     # tmux will make your life better
     sudo apt-get install -y tmux
 
-7. At this point, you need to `set up GitHub for SSH access
+6. At this point, you need to `set up GitHub for SSH access
    <https://help.github.com/articles/generating-ssh-keys>`_. 
    
    When you set up your ssh access, **do not use a key with a passphrase.**  Also, 
    make sure you've been added to the appropriate Zenoss teams.
 
-8. Now it's time to install zendev:
+7. Now it's time to install zendev:
 
 .. code-block:: bash
 
@@ -184,7 +184,7 @@ When your box comes back up, authenticate to quay.io:
     # Source it in the current shell
     source $(zendev bootstrap)
 
-9. Create your Europa zendev environment:
+8. Create your Europa zendev environment:
 
 .. code-block:: bash
 
@@ -197,7 +197,7 @@ When your box comes back up, authenticate to quay.io:
     # Start using the environment
     zendev use europa
 
-10. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
+9. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
     and (if you install Vagrant_ and VirtualBox_) create Vagrant boxes to run
     serviced or Resource Manager. As an example, here's how you build serviced
     and run it:
