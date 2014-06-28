@@ -468,38 +468,14 @@ def zup(args):
     """
     Do zup-related things like build zups, which is a blast.
     """
-    interestedRepos = ("core", "zproxy", "protocols")
-
-    if args.head and not args.branch:
-        error("You must specify a branch to use with the 'head' argument")
-        sys.exit(1)
-
-    # 1) Get list of hashes per repo from the manifest representing each SPx
-    env = check_env()
-    tagList = [args.begin]
-    spRegex = r"^SP\d+$"
-    [ tagList.append(tag) for tag in env.list_tags() if len(re.findall(spRegex, tag)) == 1 ]
-    if args.head:
-        tagList.append('HEAD')
-
-    manifestRepo = env.ensure_manifestrepo()
-    currManifestBranch = manifestRepo.branch
-    hashesPerSP = []
-    try:
-        for tag in tagList:
-            manifestRepo.checkout(tag)
-            tagDict = {}
-            for repo in interestedRepos:
-                tagDict[repo] = env.manifest.repos()[repo]['ref']
-            hashesPerSP.append({tag: tagDict})
-    finally:
-        manifestRepo.checkout(currManifestBranch)
-
-    # 2) Kick off make, passing the list of hashes
     with check_env().buildroot.as_cwd():
-        rc = subprocess.call(["make", "TAGS=%s" % json.dumps(hashesPerSP), "zup"])
+        rc = subprocess.call(["make",
+                              "FLAVOR={}".format(args.flavor),
+                              "BEGIN_IMAGE={}".format(args.begin_image),
+                              "HOST={}".format(args.host),
+                              "zup"]
+        )
         sys.exit(rc)
-
 
 def add_repo_narg(parser):
     parser.add_argument('repos', nargs='*', help='List of repositories')
@@ -516,14 +492,21 @@ def parse_args():
 
     subparsers = parser.add_subparsers()
 
-    zup_parser = subparsers.add_parser('zup', help="Build a zup")
-    zup_parser.add_argument("begin", help="The tagged manifest version that \
-            the ZUP should start from")
-    zup_parser.add_argument("--head", help="Build a zup all the way to the head \
-            of the rps branches (as opposed to the last RPS tag)",
-            action="store_true")
-    zup_parser.add_argument("--branch", help="If specifying '--head/-h', also"
-                                             "specify the branch to use")
+    zup_description = "Build a zup!  This will spawn a container that will talk " \
+                      "to docker on the host machine running zendev.  Requires " \
+                      "docker to be listening to an exposed port on an IP other " \
+                      "than 127.0.0.1"
+    zup_parser = subparsers.add_parser('zup', description=zup_description)
+    zup_parser.add_argument("flavor", help="The product flavor to make a zup for")
+    zup_parser.add_argument("begin_image", help="The GA image that should be used as "
+                                          "the baseline for building ZUPs.  "
+                                          "Should be in the format "
+                                          "'imageName:tag'")
+    zup_parser.add_argument("host", help="Docker host/port to connect to in the "
+                                         "format 'tcp://host:port'.  This is "
+                                         "typically going to be the host that"
+                                         "zendev is running on (localhost)")
+
     zup_parser.set_defaults(functor=zup)
 
     init_parser = subparsers.add_parser('init')
