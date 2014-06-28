@@ -471,7 +471,7 @@ def zup(args):
     with check_env().buildroot.as_cwd():
         rc = subprocess.call(["make",
                               "FLAVOR={}".format(args.flavor),
-                              "BEGIN_IMAGE={}".format(args.begin_image),
+                              "GA_BUILD_IMAGE={}".format(args.begin_image),
                               "HOST={}".format(args.host),
                               "zup"]
         )
