@@ -473,6 +473,7 @@ def zup(args):
                               "FLAVOR={}".format(args.flavor),
                               "GA_BUILD_IMAGE={}".format(args.begin_image),
                               "HOST={}".format(args.host),
+                              "PRODUCT={}".format(args.product),
                               "zup"]
         )
         sys.exit(rc)
@@ -493,9 +494,9 @@ def parse_args():
     subparsers = parser.add_subparsers()
 
     zup_description = "Build a zup!  This will spawn a container that will talk " \
-                      "to docker on the host machine running zendev.  Requires " \
-                      "docker to be listening to an exposed port on an IP other " \
-                      "than 127.0.0.1"
+                      "to docker on the host machine running zendev.  Currently, " \
+                      "the HOST param is ignored in favor of bind mounting the " \
+                      "local host's unix socket into the container."
     zup_parser = subparsers.add_parser('zup', description=zup_description)
     zup_parser.add_argument("flavor", help="The product flavor to make a zup for")
     zup_parser.add_argument("begin_image", help="The GA image that should be used as "
@@ -506,6 +507,17 @@ def parse_args():
                                          "format 'tcp://host:port'.  This is "
                                          "typically going to be the host that"
                                          "zendev is running on (localhost)")
+    zup_parser.add_argument("--no-cleanup", help="Do NOT cleanup docker "
+                                                 "containers created during "
+                                                 "zup creation.  This should "
+                                                 "really only be used for "
+                                                 "debugging purposes, as you "
+                                                 "will need to manually clean "
+                                                 "up after yourself if you use"
+                                                 "this flag.",
+                            action="store_true", dest="cleanup")
+    zup_parser.add_argument("product", help="Product to build a zup for",
+                            choices=['zenoss-5.0.0'])
 
     zup_parser.set_defaults(functor=zup)
 
