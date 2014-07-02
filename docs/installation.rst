@@ -213,7 +213,9 @@ When your box comes back up, authenticate to quay.io:
     cdz serviced
 
     # Build serviced (may take a while if it's the first time)
-    make install
+    # The following will build and copy serviced to $GOPATH/bin which
+    # is already in your search path established by zendev.
+    make
 
     # Build the Zenoss Docker repo image (also may take a while)
     zendev build devimg
