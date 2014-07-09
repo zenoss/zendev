@@ -226,6 +226,7 @@ When your box comes back up, authenticate to quay.io:
         https://quay.io/v1/
     docker pull quay.io/zenossinc/opentsdb:v1
     docker pull quay.io/zenossinc/hbase:v2
+    docker pull quay.io/zenossinc/isvcs:v10  # (WARNING: May be done automatically)
 
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of
