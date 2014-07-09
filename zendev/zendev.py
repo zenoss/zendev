@@ -498,8 +498,11 @@ def parse_args():
     build_parser.add_argument('--create-tag', dest="createtag", required=False,
                               help="Tag the source for this build")
     build_parser.add_argument('target', metavar='TARGET', nargs="+",
-                              choices=['src', 'core', 'resmgr', 'svcpkg-core',
-                                       'svcpkg-resmgr', 'serviced', 'devimg'])
+                              choices=['src', 'core', 'resmgr',
+                                       'svcdef-core', 'svcdef-resmgr',
+                                       'svcdefpkg-core', 'svcdefpkg-resmgr',
+                                       'svcpkg-core', 'svcpkg-resmgr', 'svcpkg',
+                                       'serviced', 'devimg'])
     build_parser.set_defaults(functor=build)
 
     drop_parser = subparsers.add_parser('drop')
