@@ -440,6 +440,10 @@ def attach(args):
     subprocess.call("serviced service attach '%s'; stty sane" % args.specifier,
                     shell=True)
 
+def devshell(args):
+    env = check_env()
+    cmd = "docker run -v %s/src:/mnt/src -v %s:/opt/zenoss -i -t zendev/devimg bash" % (env.root.strpath, env.root.join("zenhome").strpath)
+    subprocess.call(cmd, shell=True)
 
 def clone(args):
     env = ZenDevEnvironment(srcroot=args.output, manifest=args.manifest)
@@ -501,6 +505,9 @@ def parse_args():
                               choices=['src', 'core', 'resmgr', 'svcpkg-core',
                                        'svcpkg-resmgr', 'serviced', 'devimg'])
     build_parser.set_defaults(functor=build)
+
+    devshell_parser = subparsers.add_parser('devshell')
+    devshell_parser.set_defaults(functor=devshell)
 
     drop_parser = subparsers.add_parser('drop')
     drop_parser.add_argument('name', metavar='ENVIRONMENT')
