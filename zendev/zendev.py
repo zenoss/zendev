@@ -744,7 +744,7 @@ def parse_args():
             action='store_true', help="Don't run serviced as root")
     serviced_parser.add_argument('--no-auto-assign-ips', action='store_true',
         help="Do NOT auto-assign IP addresses to services requiring an IP address")
-    serviced_parser.add_argument('--with-docker-registry', action='store_true',
+    serviced_parser.add_argument('--with-docker-registry', action='store_true', default=False,
         help="Use the internal docker registry (necessary for multihost)")
     serviced_parser.add_argument('-u', '--uiport', type=int, default=443,
         help="UI port")
