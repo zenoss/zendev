@@ -193,7 +193,8 @@ class ZenDevEnvironment(object):
         """
         Get Repository objects for all repos in the system.
         """
-        return sorted(itertools.ifilter(filter_, self._repos()), 
+        repoFilter = self._repo_filter(filter_) if not includeMissing else filter_
+        return sorted(itertools.ifilter(repoFilter, self._repos()), 
                 key=key or (lambda r:r.name.count('/')))
 
     def remove(self, filter_=None, save=True):
@@ -394,6 +395,8 @@ class ZenDevEnvironment(object):
         else:
           return lambda r : filter_(r) and feature_filter(r)
 
+    def _repo_filter(self, filter_=None):
+        return lambda r: r.repo and (filter_ is None or filter_(r))
 
     def start_feature(self, name, filter_=None):
         info("Starting feature: %s" % name)
