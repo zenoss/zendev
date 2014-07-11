@@ -11,6 +11,7 @@ import time
 import argcomplete
 import subprocess
 from contextlib import contextmanager
+import json
 
 import py
 
@@ -467,6 +468,20 @@ def drop(args):
     get_config().remove(args.name, not args.purge)
 
 
+def zup(args):
+    """
+    Do zup-related things like build zups, which is a blast.
+    """
+    with check_env().buildroot.as_cwd():
+        rc = subprocess.call(["make",
+                              "FLAVOR={}".format(args.flavor),
+                              "GA_BUILD_IMAGE={}".format(args.begin_image),
+                              "HOST={}".format(args.host),
+                              "PRODUCT={}".format(args.product),
+                              "zup"]
+        )
+        sys.exit(rc)
+
 def add_repo_narg(parser):
     parser.add_argument('repos', nargs='*', help='List of repositories')
 
@@ -481,6 +496,34 @@ def parse_args():
                         help="Run in a temporary environment")
 
     subparsers = parser.add_subparsers()
+
+    zup_description = "Build a zup!  This will spawn a container that will talk " \
+                      "to docker on the host machine running zendev.  Currently, " \
+                      "the HOST param is ignored in favor of bind mounting the " \
+                      "local host's unix socket into the container."
+    zup_parser = subparsers.add_parser('zup', description=zup_description)
+    zup_parser.add_argument("flavor", help="The product flavor to make a zup for")
+    zup_parser.add_argument("begin_image", help="The GA image that should be used as "
+                                          "the baseline for building ZUPs.  "
+                                          "Should be in the format "
+                                          "'imageName:tag'")
+    zup_parser.add_argument("host", help="Docker host/port to connect to in the "
+                                         "format 'tcp://host:port'.  This is "
+                                         "typically going to be the host that"
+                                         "zendev is running on (localhost)")
+    zup_parser.add_argument("--no-cleanup", help="Do NOT cleanup docker "
+                                                 "containers created during "
+                                                 "zup creation.  This should "
+                                                 "really only be used for "
+                                                 "debugging purposes, as you "
+                                                 "will need to manually clean "
+                                                 "up after yourself if you use"
+                                                 "this flag.",
+                            action="store_true", dest="cleanup")
+    zup_parser.add_argument("product", help="Product to build a zup for",
+                            choices=['zenoss-5.0.0'])
+
+    zup_parser.set_defaults(functor=zup)
 
     init_parser = subparsers.add_parser('init')
     init_parser.add_argument('path', metavar="PATH")
