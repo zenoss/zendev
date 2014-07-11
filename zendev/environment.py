@@ -189,7 +189,7 @@ class ZenDevEnvironment(object):
             repo = Repository(path, fullpath, **info)
             yield repo
 
-    def repos(self, filter_=None, key=None):
+    def repos(self, filter_=None, key=None, includeMissing=False):
         """
         Get Repository objects for all repos in the system.
         """
@@ -342,7 +342,9 @@ class ZenDevEnvironment(object):
     def clone(self, shallow=False):
         cmd = 'shallow_clone' if shallow else 'clone'
         info("Cloning repositories")
-        self.foreach(cmd, lambda r: not r.repo, silent=not sys.stdout.isatty())
+        self.foreach(cmd, lambda r: not r.repo, 
+                     silent=not sys.stdout.isatty(), 
+                     includeMissing=True)
         info("All repositories are cloned!")
 
     def fetch(self):
@@ -475,11 +477,11 @@ class ZenDevEnvironment(object):
             info(" finish feature for repository: %s" % r.name)
             r.finish_feature( name)
 
-    def foreach(self, fname, filter_=None, silent=False):
+    def foreach(self, fname, filter_=None, silent=False, includeMissing=False):
         """
         Execute a method on all repositories in subprocesses.
         """
-        repos = list(self.repos(filter_))
+        repos = list(self.repos(filter_), includeMissing=includeMissing)
 
         if not repos:
             return
