@@ -481,7 +481,7 @@ class ZenDevEnvironment(object):
         """
         Execute a method on all repositories in subprocesses.
         """
-        repos = list(self.repos(filter_), includeMissing=includeMissing)
+        repos = list(self.repos(filter_, includeMissing=includeMissing))
 
         if not repos:
             return
