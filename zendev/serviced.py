@@ -32,8 +32,8 @@ class Serviced(object):
         self.uiport = uiport
         args = []
         envvars = self.env.envvars()
-        if not registry:
-            envvars['SERVICED_NOREGISTRY'] = 1
+        if registry:
+            envvars['SERVICED_REGISTRY'] = 'true'
         if root:
             args.extend(["sudo", "-E"])
             args.extend("%s=%s" % x for x in envvars.iteritems())
