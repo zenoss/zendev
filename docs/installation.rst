@@ -223,10 +223,6 @@ When your box comes back up, authenticate to hub.docker.com:
     # Build the Zenoss Docker repo image (also may take a while)
     zendev build devimg
 
-    # Download pre-built opentsdb image from hub.docker.com
-    docker pull quay.io/zenossinc/opentsdb:v1
-    docker pull quay.io/zenossinc/hbase:v2
-
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of
     # Zenoss (warning: blows away state!) 
