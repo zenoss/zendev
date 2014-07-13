@@ -80,13 +80,13 @@ Next, modify ``/etc/security/limits.conf`` to up the file limits:
 
 Then reboot, to make sure the new limits take effect.
 
-When your box comes back up, authenticate to quay.io:
+Setup your hub.docker.com credentials.  Go to here: https://hub.docker.com/account/signup/.  Send Ian an email with your Docker Hub username and real name.  Your credentials will be added to groups so you get access to our private repositories (Resource Manager, Impact, etc.).
+
+When your box comes back up, authenticate to hub.docker.com:
 
 .. code-block:: bash
 
-    docker login -u zenossinc+betatester -e "europabeta@zenoss.com"\
-        -p VUYHDYY9UPG86RRFE4IJYDGPGF66J29U0JJPY623DRJKXSOJ9VRWXBKN3WU4FD2P\
-        https://quay.io/v1/
+    docker login -u YOUR_DOCKERHUB_USERNAME -e "you@zenoss.com"
 
 4. Install Go_:
 
@@ -95,9 +95,9 @@ When your box comes back up, authenticate to quay.io:
     # Install "go get" dependencies.
     sudo apt-get install -y mercurial bzr git
 
-    # Download Go 1.2.1 and unpack it into /usr/local
+    # Download Go 1.3 and unpack it into /usr/local
     sudo apt-get install -y wget
-    wget -qO- https://go.googlecode.com/files/go1.2.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
+    wget -qO- http://golang.org/dl/go1.3.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 
     # Set GOROOT and PATH appropriately
     cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
@@ -144,8 +144,8 @@ When your box comes back up, authenticate to quay.io:
     # serviced needs these for visualization - dirs are in ubuntu 12.04, but not 13.04
     sudo mkdir /sys/fs/cgroup/{blkio,cpuacct,memory}/lxc
 
-    # tmux will make your life better
-    sudo apt-get install -y tmux
+    # tmux or screen will make your life better
+    sudo apt-get install -y tmux screen
 
 6. At this point, you need to `set up GitHub for SSH access
    <https://help.github.com/articles/generating-ssh-keys>`_. 
@@ -159,6 +159,9 @@ When your box comes back up, authenticate to quay.io:
 
     # Path to wherever you keep your source. I like ~/src.
     SRCDIR=~/src
+
+    # If SRCDIR does not exist, create it
+    mkdir -p ${SRCDIR}
 
     # Switch to your source directory
     cd ${SRCDIR}
@@ -220,10 +223,7 @@ When your box comes back up, authenticate to quay.io:
     # Build the Zenoss Docker repo image (also may take a while)
     zendev build devimg
 
-    # Download pre-built opentsdb image from quay.io
-    docker login -u zenossinc+betatester -e "europabeta@zenoss.com" \
-        -p VUYHDYY9UPG86RRFE4IJYDGPGF66J29U0JJPY623DRJKXSOJ9VRWXBKN3WU4FD2P \
-        https://quay.io/v1/
+    # Download pre-built opentsdb image from hub.docker.com
     docker pull quay.io/zenossinc/opentsdb:v1
     docker pull quay.io/zenossinc/hbase:v2
 
