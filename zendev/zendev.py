@@ -474,7 +474,6 @@ def zup(args):
     """
     with check_env().buildroot.as_cwd():
         rc = subprocess.call(["make",
-                              "FLAVOR={}".format(args.flavor),
                               "GA_BUILD_IMAGE={}".format(args.begin_image),
                               "HOST={}".format(args.host),
                               "PRODUCT={}".format(args.product),
@@ -502,7 +501,6 @@ def parse_args():
                       "the HOST param is ignored in favor of bind mounting the " \
                       "local host's unix socket into the container."
     zup_parser = subparsers.add_parser('zup', description=zup_description)
-    zup_parser.add_argument("flavor", help="The product flavor to make a zup for")
     zup_parser.add_argument("begin_image", help="The GA image that should be used as "
                                           "the baseline for building ZUPs.  "
                                           "Should be in the format "
