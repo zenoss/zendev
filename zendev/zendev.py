@@ -475,7 +475,6 @@ def zup(args):
     with check_env().buildroot.as_cwd():
         rc = subprocess.call(["make",
                               "GA_BUILD_IMAGE={}".format(args.begin_image),
-                              "HOST={}".format(args.host),
                               "PRODUCT={}".format(args.product),
                               "zup"]
         )
@@ -505,10 +504,6 @@ def parse_args():
                                           "the baseline for building ZUPs.  "
                                           "Should be in the format "
                                           "'imageName:tag'")
-    zup_parser.add_argument("host", help="Docker host/port to connect to in the "
-                                         "format 'tcp://host:port'.  This is "
-                                         "typically going to be the host that"
-                                         "zendev is running on (localhost)")
     zup_parser.add_argument("--no-cleanup", help="Do NOT cleanup docker "
                                                  "containers created during "
                                                  "zup creation.  This should "
