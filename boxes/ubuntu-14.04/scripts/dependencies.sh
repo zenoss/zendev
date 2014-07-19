@@ -16,10 +16,15 @@ apt-get -y install    \
     nfs-common        \
     nfs-kernel-server \
     net-tools         \
+    libncurses5-dev   \
     golang
 
-#wget http://artifacts.zenoss.loc/europa/docker-smuggle_2.24.2-1_amd64.deb
-#dpkg -i docker-smuggle_2.24.2-1_amd64.deb
-#apt-get install -f
+wget https://www.kernel.org/pub/linux/utils/util-linux/v2.24/util-linux-2.24.tar.bz2
+bzip2 -d -c util-linux-2.24.tar.bz2 | tar xf -
+cd util-linux-2.24/
+./configure --without-ncurses --prefix=/usr/local/util-linux
+make
+make install
+cp -p /usr/local/util-linux/bin/nsenter /usr/local/bin
 
 pip install --upgrade pip
