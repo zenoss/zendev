@@ -2,6 +2,9 @@ apt-get -y install docker.io
 
 usermod -a -G docker zenoss
 
+ufw disable
+
+usermod -a -G docker zenoss
 
 #cat  <<\EOF | sudo sed -f /dev/fd/0 -i /etc/init/docker.conf
 #    s/respawn/\0\nlimit nofile 65536 65536\n/
