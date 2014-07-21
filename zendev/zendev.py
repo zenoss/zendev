@@ -542,7 +542,8 @@ def parse_args():
                                        'svcdef-core', 'svcdef-resmgr',
                                        'svcdefpkg-core', 'svcdefpkg-resmgr',
                                        'svcpkg-core', 'svcpkg-resmgr', 'svcpkg',
-                                       'serviced', 'devimg'])
+                                       'serviced', 'devimg', 'img-core',
+                                       'img-resmgr'])
     build_parser.set_defaults(functor=build)
 
     devshell_parser = subparsers.add_parser('devshell')
