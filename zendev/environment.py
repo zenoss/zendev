@@ -305,7 +305,12 @@ class ZenDevEnvironment(object):
         if name in self.list_tags():
             git.tag('-d', name)
         repo.repo.repo.create_tag(name, force=force)
-        git.push('origin', '-f', '--tags')
+        if force:
+            git.push('origin', '-f', '--tags')
+        else:
+            git.push('origin', '--tags')
+        git.reset('--hard', 'HEAD~1')
+
 
     def tag_delete(self, name):
         repo = self.ensure_manifestrepo()
