@@ -479,6 +479,9 @@ def zup(args):
         rc = subprocess.call(["make",
                               "GA_BUILD_IMAGE={}".format(args.begin_image),
                               "PRODUCT={}".format(args.product),
+                              "SRCROOT={}".format(os.path.join(
+                                  check_env().root.strpath, 'src')
+                              ),
                               "zup"]
         )
         sys.exit(rc)
