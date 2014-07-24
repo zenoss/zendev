@@ -393,6 +393,8 @@ def build(args):
         env.clone(shallow=True)
     if args.createtag:
         env.tag(args.createtag, strict=True)
+    if args.rps:
+        os.environ['GA_IMAGE_TAG'] = args.ga_image
     os.environ.update(env.envvars())
     with env.buildroot.as_cwd():
         target = ['srcbuild' if t == 'src' else t for t in args.target]
@@ -493,7 +495,7 @@ def parse_args():
     parser.add_argument('-n', '--noenv', action='store_true', 
                         help="Run in a temporary environment")
 
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(dest='subparser')
 
     zup_description = "Build a zup!  This will spawn a container that will talk " \
                       "to docker on the host machine running zendev.  Currently, " \
@@ -537,13 +539,18 @@ def parse_args():
                               default=False)
     build_parser.add_argument('--create-tag', dest="createtag", required=False,
                               help="Tag the source for this build")
+    build_parser.add_argument('--rps', action="store_true",
+                              help="Build an RPS image (requires the --ga_image argument)")
+    build_parser.add_argument('--ga_image', help="When building an RPS image, "
+                                                 "specify the GA image tag to use")
     build_parser.add_argument('target', metavar='TARGET', nargs="+",
                               choices=['src', 'core', 'resmgr',
                                        'svcdef-core', 'svcdef-resmgr',
                                        'svcdefpkg-core', 'svcdefpkg-resmgr',
                                        'svcpkg-core', 'svcpkg-resmgr', 'svcpkg',
                                        'serviced', 'devimg', 'img-core',
-                                       'img-resmgr'])
+                                       'img-resmgr', 'rps-img-core',
+                                       'rps-img-resmgr'])
     build_parser.set_defaults(functor=build)
 
     devshell_parser = subparsers.add_parser('devshell')
@@ -756,8 +763,20 @@ def parse_args():
     argcomplete.autocomplete(parser)
 
     args = parser.parse_args()
+
+    # Doing this here instead of in the functor because I want access to the
+    # parser to properly throw the parsing error
+    if args.subparser == 'build':
+        if (args.rps or args.ga_image) and not (args.rps and args.ga_image):
+            build_parser.error("The --rps and --ga_image arguments must be used together")
+        # Enforce using --rps with an rps-img-% target
+        if (args.rps and not any(t.startswith('rps-img-') for t in args.target)) or \
+                (not args.rps and any(t.startswith('rps-img-') for t in args.target)):
+            build_parser.error("Must call an 'rps-img-%' target with the --rps arg")
+
     if hasattr(args, 'repos'):
         args.repofilter = repofilter(args.repos or ())
+
     return args
 
 
