@@ -443,7 +443,8 @@ def attach(args):
 
 def devshell(args):
     env = check_env()
-    cmd = "docker run -v %s/src:/mnt/src -v %s:/opt/zenoss -i -t zendev/devimg bash" % (env.root.strpath, env.root.join("zenhome").strpath)
+    m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
+    cmd = "docker run -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/home/zenoss/.m2 -i -t zendev/devimg bash" % (env.root.strpath, env.root.join("zenhome").strpath, m2.strpath)
     subprocess.call(cmd, shell=True)
 
 def clone(args):
