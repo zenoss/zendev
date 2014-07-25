@@ -12,6 +12,7 @@ import argcomplete
 import subprocess
 from contextlib import contextmanager
 import json
+import tempfile
 
 import py
 
@@ -418,6 +419,7 @@ def changelog(args):
         error("%s is an invalid tag. See available tags with `zendev tag --list`" % args.tag2)
         sys.exit(1)
     for repo in env.repos():
+        if repo.name == 'build': repo.name = '../build'
         ref1 = frommanifest._data['repos'].get(repo.name, {}).get('ref')
         ref2 = tomanifest._data['repos'].get(repo.name, {}).get('ref')
         if not ref1 or not ref2 or ref1 == ref2:
@@ -443,11 +445,34 @@ def attach(args):
     subprocess.call("serviced service attach '%s'; stty sane" % args.specifier,
                     shell=True)
 
+
+DEVSHELLSTARTUP = """
+/serviced/serviced service proxy %s 0 sleep 9999999999999999999 &>/dev/null &
+echo Welcome to the Zenoss Dev Shell!
+/bin/setuser zenoss /bin/bash
+exit
+"""
+
+
 def devshell(args):
+    """
+    Start up a shell with the imports of the Zope service but no command.
+    """
     env = check_env()
+    serviced = env._gopath.join("src/github.com/control-center/serviced/serviced").strpath
+    zopesvc = subprocess.check_output("%s service list | grep -i %s | awk {'print $2;exit'}" % (serviced, args.svcname), shell=True).strip()
+    
     m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
-    cmd = "docker run -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/home/zenoss/.m2 -i -t zendev/devimg bash" % (env.root.strpath, env.root.join("zenhome").strpath, m2.strpath)
-    subprocess.call(cmd, shell=True)
+    with tempfile.NamedTemporaryFile() as f:
+        f.write(DEVSHELLSTARTUP % zopesvc)
+        f.flush()
+        cmd = "docker run --privileged --rm -w /opt/zenoss -v %s:/.bashrc -v %s:/serviced/serviced -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/home/zenoss/.m2 -i -t zendev/devimg /bin/bash" % (f.name,
+            serviced,
+            env.root.strpath,
+            env.root.join("zenhome").strpath,
+            m2.strpath)
+        subprocess.call(cmd, shell=True)
+
 
 def clone(args):
     env = ZenDevEnvironment(srcroot=args.output, manifest=args.manifest)
@@ -565,6 +590,7 @@ def parse_args():
     build_parser.set_defaults(functor=build)
 
     devshell_parser = subparsers.add_parser('devshell')
+    devshell_parser.add_argument('svcname', nargs="?", default="zope")
     devshell_parser.set_defaults(functor=devshell)
 
     drop_parser = subparsers.add_parser('drop')
