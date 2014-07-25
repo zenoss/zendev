@@ -460,7 +460,7 @@ def devshell(args):
     """
     env = check_env()
     serviced = env._gopath.join("src/github.com/control-center/serviced/serviced").strpath
-    zopesvc = subprocess.check_output("%s service list | grep -i %s | awk {'print $2'}" % (serviced, args.svcname), shell=True).strip()
+    zopesvc = subprocess.check_output("%s service list | grep -i %s | awk {'print $2;exit'}" % (serviced, args.svcname), shell=True).strip()
     
     m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
     with tempfile.NamedTemporaryFile() as f:
