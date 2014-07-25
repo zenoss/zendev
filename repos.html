@@ -245,6 +245,15 @@ good citizen):</p>
 <div class="highlight-bash"><div class="highlight"><pre>zendev tag --force myniftyfeature
 </pre></div>
 </div>
+<p>You can see the changes between two tags across all repos with <tt class="docutils literal"><span class="pre">zendev</span>
+<span class="pre">changelog</span></tt>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Show difference between a tag and current state</span>
+zendev changelog from-tag
+
+<span class="c"># Show difference between two tags</span>
+zendev changelog from-tag to-tag
+</pre></div>
+</div>
 <p>Finally, you can list all tags with <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">tag</span> <span class="pre">--list</span></tt>.</p>
 </div>
 <div class="section" id="cloning-directly-from-a-manifest">

@@ -80,24 +80,24 @@ Next, modify ``/etc/security/limits.conf`` to up the file limits:
 
 Then reboot, to make sure the new limits take effect.
 
-When your box comes back up, authenticate to quay.io:
+Setup your hub.docker.com credentials.  Go to here: https://hub.docker.com/account/signup/.  Send Ian an email with your Docker Hub username and real name.  Your credentials will be added to groups so you get access to our private repositories (Resource Manager, Impact, etc.).
+
+When your box comes back up, authenticate to hub.docker.com:
 
 .. code-block:: bash
 
-    docker login -u zenossinc+betatester -e "europabeta@zenoss.com"\
-        -p VUYHDYY9UPG86RRFE4IJYDGPGF66J29U0JJPY623DRJKXSOJ9VRWXBKN3WU4FD2P\
-        https://quay.io/v1/
+    docker login -u YOUR_DOCKERHUB_USERNAME -e "you@zenoss.com"
 
-5. Install Go_:
+4. Install Go_:
 
 .. code-block:: bash
 
     # Install "go get" dependencies.
     sudo apt-get install -y mercurial bzr git
 
-    # Download Go 1.2.1 and unpack it into /usr/local
+    # Download Go 1.3 and unpack it into /usr/local
     sudo apt-get install -y wget
-    wget -qO- https://go.googlecode.com/files/go1.2.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
+    wget -qO- http://golang.org/dl/go1.3.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
 
     # Set GOROOT and PATH appropriately
     cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
@@ -127,7 +127,7 @@ When your box comes back up, authenticate to quay.io:
     go get code.google.com/p/go.tools/cmd/goimports
     sudo ln -s ${GOPATH}/bin/goimports /usr/local/bin/goimports
 
-6. Install other dependencies:
+5. Install other dependencies:
 
 .. code-block:: bash
 
@@ -144,19 +144,24 @@ When your box comes back up, authenticate to quay.io:
     # serviced needs these for visualization - dirs are in ubuntu 12.04, but not 13.04
     sudo mkdir /sys/fs/cgroup/{blkio,cpuacct,memory}/lxc
 
-    # tmux will make your life better
-    sudo apt-get install -y tmux
+    # tmux or screen will make your life better
+    sudo apt-get install -y tmux screen
 
-7. At this point, you need to `set up GitHub for SSH access
-   <https://help.github.com/articles/generating-ssh-keys>`_. Also, make sure
-   you've been added to the appropriate Zenoss teams.
+6. At this point, you need to `set up GitHub for SSH access
+   <https://help.github.com/articles/generating-ssh-keys>`_. 
+   
+   When you set up your ssh access, **do not use a key with a passphrase.**  Also, 
+   make sure you've been added to the appropriate Zenoss teams.
 
-8. Now it's time to install zendev:
+7. Now it's time to install zendev:
 
 .. code-block:: bash
 
     # Path to wherever you keep your source. I like ~/src.
     SRCDIR=~/src
+
+    # If SRCDIR does not exist, create it
+    mkdir -p ${SRCDIR}
 
     # Switch to your source directory
     cd ${SRCDIR}
@@ -182,7 +187,7 @@ When your box comes back up, authenticate to quay.io:
     # Source it in the current shell
     source $(zendev bootstrap)
 
-9. Create your Europa zendev environment:
+8. Create your Europa zendev environment:
 
 .. code-block:: bash
 
@@ -195,7 +200,7 @@ When your box comes back up, authenticate to quay.io:
     # Start using the environment
     zendev use europa
 
-10. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
+9. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
     and (if you install Vagrant_ and VirtualBox_) create Vagrant boxes to run
     serviced or Resource Manager. As an example, here's how you build serviced
     and run it:
@@ -211,17 +216,12 @@ When your box comes back up, authenticate to quay.io:
     cdz serviced
 
     # Build serviced (may take a while if it's the first time)
-    make install
+    # The following will build and copy serviced to $GOPATH/bin which
+    # is already in your search path established by zendev.
+    make
 
     # Build the Zenoss Docker repo image (also may take a while)
     zendev build devimg
-
-    # Download pre-built opentsdb image from quay.io
-    docker login -u zenossinc+betatester -e "europabeta@zenoss.com" \
-        -p VUYHDYY9UPG86RRFE4IJYDGPGF66J29U0JJPY623DRJKXSOJ9VRWXBKN3WU4FD2P \
-        https://quay.io/v1/
-    docker pull quay.io/zenossinc/opentsdb:v1
-    docker pull quay.io/zenossinc/hbase:v1
 
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of

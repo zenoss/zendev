@@ -288,7 +288,7 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">git.util.RemoteProgress</span></tt></p>
 <dl class="attribute">
 <dt id="zendev.environment.MultiprocessingProgress.QUEUE">
-<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x270a0d0&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x30a1fd0&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -380,6 +380,11 @@
 <tt class="descname">freeze</tt><big>(</big><em>hashes=False</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.freeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.freeze" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a JSON representation of the repositories.</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="zendev.environment.ZenDevEnvironment.get_manifest">
+<tt class="descname">get_manifest</tt><big>(</big><em>ref</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.get_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.get_manifest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.gopath">
@@ -636,6 +641,11 @@ there are no repos passed in, fail.</p>
 <tt class="descname">branch</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.branch" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="zendev.repo.Repository.changelog">
+<tt class="descname">changelog</tt><big>(</big><em>fromref</em>, <em>toref</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.changelog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.changelog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.repo.Repository.changes">
@@ -940,6 +950,11 @@ Matches zero or more characters at the beginning of the string</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="zendev.zendev.changelog">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">changelog</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#changelog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.changelog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="zendev.zendev.check_env">
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">check_env</tt><big>(</big><em>name=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#check_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.check_env" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -988,6 +1003,12 @@ Matches zero or more characters at the beginning of the string</p>
 <dt id="zendev.zendev.cluster_up">
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_up</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_up" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.devshell">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">devshell</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#devshell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.devshell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start up a shell with the imports of the Zope service but no command.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="zendev.zendev.drop">
@@ -1130,6 +1151,12 @@ lifespan of the context manager.</p>
 <dt id="zendev.zendev.use">
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">use</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#use"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.use" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use a zendev environment.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="zendev.zendev.zup">
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">zup</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#zup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.zup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do zup-related things like build zups, which is a blast.</p>
 </dd></dl>
 
 </div>

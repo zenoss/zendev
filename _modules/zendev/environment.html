@@ -372,6 +372,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="n">force_branch</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="n">shallow</span><span class="p">)</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;Manifest &#39;</span><span class="si">%s</span><span class="s">&#39; has been restored&quot;</span> <span class="o">%</span> <span class="n">ref</span><span class="p">)</span>
 </div>
+<div class="viewcode-block" id="ZenDevEnvironment.get_manifest"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.get_manifest">[docs]</a>    <span class="k">def</span> <span class="nf">get_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_manifests</span><span class="p">()</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">merge_from_remote</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">create_manifest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manifestroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;manifest.json&#39;</span><span class="p">))</span>
+</div>
 <div class="viewcode-block" id="ZenDevEnvironment.list_tags"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.list_tags">[docs]</a>    <span class="k">def</span> <span class="nf">list_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">repo</span><span class="o">.</span><span class="n">tag_names</span>
@@ -396,7 +404,12 @@
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_tags</span><span class="p">():</span>
             <span class="n">git</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">create_tag</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
-        <span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;origin&#39;</span><span class="p">,</span> <span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="s">&#39;--tags&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">force</span><span class="p">:</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;origin&#39;</span><span class="p">,</span> <span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="s">&#39;--tags&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;origin&#39;</span><span class="p">,</span> <span class="s">&#39;--tags&#39;</span><span class="p">)</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="s">&#39;--hard&#39;</span><span class="p">,</span> <span class="s">&#39;HEAD~1&#39;</span><span class="p">)</span>
+
 </div>
 <div class="viewcode-block" id="ZenDevEnvironment.tag_delete"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.tag_delete">[docs]</a>    <span class="k">def</span> <span class="nf">tag_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span>
