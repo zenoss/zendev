@@ -510,6 +510,7 @@ def zup(args):
                               "SRCROOT={}".format(os.path.join(
                                   env.root.strpath, 'src')
                               ),
+                              "OUTPUT={}".format(args.output),
                               "zup"]
         )
         sys.exit(rc)
@@ -534,6 +535,8 @@ def parse_args():
                       "the HOST param is ignored in favor of bind mounting the " \
                       "local host's unix socket into the container."
     zup_parser = subparsers.add_parser('zup', description=zup_description)
+    zup_parser.add_argument('-o', '--output', metavar='DIRECTORY',
+                              default=py.path.local().join('output').strpath)
     zup_parser.add_argument('-t', '--tag', metavar='TAG', required=False,
             help="Checkout a given manifest tag before building a zup.  "
             "Useful primarily for using a specific ref of platform-build "
