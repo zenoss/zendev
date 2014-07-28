@@ -396,6 +396,8 @@ def build(args):
         env.tag(args.createtag, strict=True)
     if args.rps:
         os.environ['GA_IMAGE_TAG'] = args.ga_image
+        manifestHash = env.ensure_manifestrepo().hash[:7]
+        os.environ['TAG_HASH'] = manifestHash
     os.environ.update(env.envvars())
     with env.buildroot.as_cwd():
         target = ['srcbuild' if t == 'src' else t for t in args.target]
@@ -503,6 +505,7 @@ def zup(args):
     env = check_env(srcroot=None)
     if args.tag:
         env.restore(args.tag, shallow=True)
+    manifestHash = env.ensure_manifestrepo().hash[:7]
     with env.buildroot.as_cwd():
         rc = subprocess.call(["make",
                               "GA_BUILD_IMAGE={}".format(args.begin_image),
@@ -511,6 +514,7 @@ def zup(args):
                                   env.root.strpath, 'src')
                               ),
                               "OUTPUT={}".format(args.output),
+                              "TAG_HASH={}".format(manifestHash),
                               "zup"]
         )
         sys.exit(rc)
