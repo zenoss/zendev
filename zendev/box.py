@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
     vb.customize ["modifyvm", :id, "--cpus", 4]
     {% set vdi_count = 1 %}
     {% for vdi in vdis %}
-    vb.customize ["storageattach", :id, "--storagectl", "SATA Controller", 
+    vb.customize ["storageattach", :id, "--storagectl", "IDE Controller", 
                   "--port", {{ vdi_count }}, "--device", 0, "--type", "hdd", "--medium",
                   "{{ vdi }}"]{% set vdi_count = vdi_count + 1 %}{% endfor %}
   end

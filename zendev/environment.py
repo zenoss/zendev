@@ -42,7 +42,11 @@ class MultiprocessingProgress(RemoteProgress):
 
 def doit(repo, fname):
     repo.progress = MultiprocessingProgress(repo.path)
-    getattr(repo, fname)()
+    try:
+        getattr(repo, fname)()
+    except Exception as e:
+        error(e.message)
+
 
 
 def init_config_dir():
