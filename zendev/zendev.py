@@ -18,7 +18,7 @@ from . import config as zcfg
 from . import environment as zenv
 from .environment import ZenDevEnvironment
 from .environment import NotInitialized
-from .cmd import box, cluster, serviced, feature, repos, tags, environment, build
+from .cmd import box, cluster, serviced, feature, repos, tags, environment, build, zup
 
 class fargs(object):
     pass
@@ -109,6 +109,7 @@ def parse_args():
     tags.add_commands(subparsers, restoreCompleter)
     feature.add_commands(subparsers)
     serviced.add_commands(subparsers)
+    zup.add_commands(subparsers)
 
     argcomplete.autocomplete(parser)
 
