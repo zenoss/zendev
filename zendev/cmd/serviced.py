@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 import subprocess
@@ -105,3 +106,72 @@ class Serviced(object):
                 shell=True, stdout=subprocess.PIPE)
         svcid, stderr = p.communicate()
         subprocess.call([self.serviced, "service", "start", svcid.strip()])
+
+
+def run_serviced(args, env):
+    timeout = 60
+    _serviced = Serviced(env())
+    if args.reset:
+        _serviced.reset()
+    if args.arguments and args.arguments[0] == '--':
+        args.arguments = args.arguments[1:]
+    if args.root:
+        print >> sys.stderr, "--root is deprecated, as it is now the default. See --no-root."
+    _serviced.start(not args.no_root, args.uiport, args.arguments, registry=args.with_docker_registry)
+    try:
+        while not _serviced.is_ready():
+            if not timeout:
+                print "Timed out waiting for serviced!"
+                sys.exit(1)
+            print "Not ready yet. Checking again in 1 second."
+            time.sleep(1)
+            timeout -= 1
+        print "serviced is ready!"
+        if args.deploy:
+            _serviced.add_host()
+            tplid = _serviced.add_template()
+            if args.no_auto_assign_ips:
+                _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips")
+            else:
+                _serviced.deploy(tplid)
+        if args.startall:
+            _serviced.startall()
+            # Join the subprocess
+        _serviced.wait()
+    except Exception:
+        _serviced.stop()
+        raise
+    except (KeyboardInterrupt, SystemExit):
+        _serviced.stop()
+        sys.exit(0)
+
+
+def attach(args, env):
+    subprocess.call("serviced service attach '%s'; stty sane" % args.specifier, shell=True)
+
+
+def add_commands(subparsers):
+    serviced_parser = subparsers.add_parser('serviced')
+    serviced_parser.add_argument('-r', '--root', action='store_true',
+                                 help="Run serviced as root (DEPRECATED. Currently ignored; see --no-root)")
+    serviced_parser.add_argument('-d', '--deploy', action='store_true',
+                                 help="Add Zenoss service definitions and deploy an instance")
+    serviced_parser.add_argument('-a', '--startall', action='store_true',
+                                 help="Start all services once deployed")
+    serviced_parser.add_argument('-x', '--reset', action='store_true',
+                                 help="Clean service state and kill running containers first")
+    serviced_parser.add_argument('--no-root', dest="no_root",
+                                 action='store_true', help="Don't run serviced as root")
+    serviced_parser.add_argument('--no-auto-assign-ips', action='store_true',
+                                 help="Do NOT auto-assign IP addresses to services requiring an IP address")
+    serviced_parser.add_argument('--with-docker-registry', action='store_true', default=False,
+                                 help="Use the internal docker registry (necessary for multihost)")
+    serviced_parser.add_argument('-u', '--uiport', type=int, default=443,
+                                 help="UI port")
+    serviced_parser.add_argument('arguments', nargs=argparse.REMAINDER)
+    serviced_parser.set_defaults(functor=run_serviced)
+
+    attach_parser = subparsers.add_parser('attach')
+    attach_parser.add_argument('specifier', metavar="SERVICEID|SERVICENAME|DOCKERID",
+                               help="Attach to a container matching SERVICEID|SERVICENAME|DOCKERID in service instances")
+    attach_parser.set_defaults(functor=attach)

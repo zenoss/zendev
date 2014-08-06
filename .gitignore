@@ -48,3 +48,5 @@ docs/zendev.rst
 packer_cache
 output-virtualbox-iso
 *.box
+
+.idea
