@@ -383,6 +383,11 @@ def each(args):
             subprocess.call(args.command)
 
 
+def deploy(args):
+    """
+    Create deployments of Vagrant boxes with serviced and/or Zenoss installed
+    """
+
 def build(args):
     srcroot = None
     if args.manifest and not args.noenv:
@@ -673,6 +678,11 @@ def parse_args():
     each_parser.add_argument('-r', '--repo', dest="repos", nargs='*')
     each_parser.add_argument('command', nargs="*")
     each_parser.set_defaults(functor=each)
+
+    deploy_parser = subparsers.add_parser('deploy')
+    deploy_parser.add_argument('deploy_type', choices=['single', 'multi'],
+            default='single')
+    deploy_parser.set_defaults(functor=deploy)
 
     cluster_parser = subparsers.add_parser('cluster')
     cluster_subparsers = cluster_parser.add_subparsers()
