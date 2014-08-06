@@ -67,7 +67,7 @@ def restoreCompleter(prefix, **kwargs):
     return (x for x in check_env().list_tags() if x.startswith(prefix))
 
 
-def bootstrap(args):
+def bootstrap(args, env):
     print here("bootstrap.sh").strpath
 
 
