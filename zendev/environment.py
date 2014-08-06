@@ -1,24 +1,23 @@
 import sys
-import py
 import time
 import os
-import os.path
 import itertools
 from multiprocessing import Queue, Pool
-from contextlib import contextmanager
 from Queue import Empty
+
+import py
 from tabulate import tabulate
+from git.remote import RemoteProgress
 
 from .log import ask, info, error
 from .config import get_config
 from .manifest import Manifest, create_manifest
 from .repo import Repository
-from .box import VagrantManager
-from .cluster import VagrantClusterManager
+from .cmd.box import VagrantManager
+from .cmd.cluster import VagrantClusterManager
 from .utils import Reprinter, colored, here
-from .utils import is_git_repo, resolve
+from .utils import is_git_repo
 from .progress import GitProgressBar, SimpleGitProgressBar
-from git.remote import RemoteProgress
 
 
 CONFIG_DIR = '.zendev'

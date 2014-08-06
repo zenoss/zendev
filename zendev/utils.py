@@ -90,3 +90,24 @@ def resolve(path):
     return path
 
 here = py.path.local(__file__).dirpath().join
+
+
+def add_repo_narg(parser):
+    parser.add_argument('repos', nargs='*', help='List of repositories')
+
+
+def repofilter(repos=()):
+    """
+    Create a function that will return only those repos specified, or all if
+    nothing was specified.
+    """
+    patterns = [re.compile(r, re.I) for r in repos]
+
+    def filter_(repo):
+        if repos:
+            return any(p.search(repo.name) for p in patterns)
+        return True
+
+    return filter_
+
+

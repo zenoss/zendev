@@ -5,7 +5,7 @@ import py
 import subprocess
 from jinja2 import Template
 
-from .utils import colored, here
+from ..utils import colored, here
 
 
 VAGRANT = Template("""
@@ -152,3 +152,83 @@ echo "zendev use %s" >> /home/zenoss/.bashrc
     def ls(self):
         for d in self._root.listdir(lambda p:p.join('Vagrantfile').check()):
             print "%s/%s" % (d.dirname, colored(d.basename, 'white'))
+
+
+
+def cluster_create(args, check_env):
+    """
+    """
+    env = check_env()
+    env.cluster.create(args.name, args.type, args.count, args.domain, args.memory)
+    env.cluster.provision(args.name, args.type)
+
+
+def cluster_remove(args, env):
+    env().cluster.remove(args.name)
+
+
+def cluster_ssh(args, env):
+    env().cluster.ssh(args.name, args.box)
+
+
+def cluster_boot(args, env):
+    env().cluster.boot(args.name)
+
+
+def cluster_up(args, env):
+    env().cluster.up(args.name, args.box)
+
+
+def cluster_shutdown(args, env):
+    env().cluster.shutdown(args.name)
+
+
+def cluster_halt(args, env):
+    env().cluster.halt(args.name, args.box)
+
+
+def cluster_ls(args, env):
+    env().cluster.ls()
+
+
+def add_commands(subparsers):
+    cluster_parser = subparsers.add_parser('cluster')
+    cluster_subparsers = cluster_parser.add_subparsers()
+
+    cluster_create_parser = cluster_subparsers.add_parser('create')
+    cluster_create_parser.add_argument('name', metavar="NAME")
+    cluster_create_parser.add_argument('--type', required=True, choices=BOXES)
+    cluster_create_parser.add_argument('--count', type=int, default=1)
+    cluster_create_parser.add_argument('--memory', type=int, default=4096)
+    cluster_create_parser.add_argument('--domain', default='zenoss.loc')
+    cluster_create_parser.set_defaults(functor=cluster_create)
+
+    cluster_boot_parser = cluster_subparsers.add_parser('boot')
+    cluster_boot_parser.add_argument('name', metavar="NAME")
+    cluster_boot_parser.set_defaults(functor=cluster_boot)
+
+    cluster_up_parser = cluster_subparsers.add_parser('up')
+    cluster_up_parser.add_argument('name', metavar="NAME")
+    cluster_up_parser.add_argument('box', metavar="BOX")
+    cluster_up_parser.set_defaults(functor=cluster_up)
+
+    cluster_shutdown_parser = cluster_subparsers.add_parser('shutdown')
+    cluster_shutdown_parser.add_argument('name', metavar="NAME")
+    cluster_shutdown_parser.set_defaults(functor=cluster_shutdown)
+
+    cluster_halt_parser = cluster_subparsers.add_parser('halt')
+    cluster_halt_parser.add_argument('name', metavar="NAME")
+    cluster_halt_parser.add_argument('box', metavar="BOX")
+    cluster_halt_parser.set_defaults(functor=cluster_halt)
+
+    cluster_remove_parser = cluster_subparsers.add_parser('destroy')
+    cluster_remove_parser.add_argument('name', metavar="NAME")
+    cluster_remove_parser.set_defaults(functor=cluster_remove)
+
+    cluster_ssh_parser = cluster_subparsers.add_parser('ssh')
+    cluster_ssh_parser.add_argument('name', metavar="NAME")
+    cluster_ssh_parser.add_argument('box', metavar="BOX")
+    cluster_ssh_parser.set_defaults(functor=cluster_ssh)
+
+    cluster_ls_parser = cluster_subparsers.add_parser('ls')
+    cluster_ls_parser.set_defaults(functor=cluster_ls)

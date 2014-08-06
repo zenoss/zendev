@@ -1,11 +1,10 @@
 from cStringIO import StringIO
 
 import os
-import py
 import subprocess
 from jinja2 import Template
 
-from .utils import colored, here
+from ..utils import colored, here
 
 
 VAGRANT = Template("""
@@ -155,4 +154,71 @@ echo "zendev use %s" >> /home/zenoss/.bashrc
     def ls(self):
         for d in self._root.listdir(lambda p:p.join('Vagrantfile').check()):
             print "%s/%s" % (d.dirname, colored(d.basename, 'white'))
-        
+
+
+def box_create(args, check_env):
+    """
+    """
+    env = check_env()
+    env.vagrant.create(args.name, args.type, args.btrfs, args.vfs, args.memory)
+    env.vagrant.provision(args.name, args.type)
+    env.vagrant.ssh(args.name)
+
+
+def box_remove(args, check_env):
+    env = check_env()
+    env.vagrant.remove(args.name)
+
+
+def box_ssh(args, check_env):
+    check_env().vagrant.ssh(args.name)
+
+
+def box_up(args, check_env):
+    check_env().vagrant.up(args.name)
+
+
+def box_halt(args, check_env):
+    check_env().vagrant.halt(args.name)
+
+
+def box_ls(args, check_env):
+    check_env().vagrant.ls()
+
+
+def add_commands(subparsers):
+    box_parser = subparsers.add_parser('box')
+    box_subparsers = box_parser.add_subparsers()
+
+    box_create_parser = box_subparsers.add_parser('create')
+    box_create_parser.add_argument('name', metavar="NAME")
+    box_create_parser.add_argument('--type', required=True, choices=BOXES)
+    box_create_parser.add_argument('--btrfs', type=int, default=0)
+    box_create_parser.add_argument('--vfs', type=int, default=0)
+    box_create_parser.add_argument('--memory', default="1024*8",
+                                   help="memory in mb")
+    box_create_parser.set_defaults(functor=box_create)
+
+    box_up_parser = box_subparsers.add_parser('up')
+    box_up_parser.add_argument('name', metavar="NAME")
+    box_up_parser.set_defaults(functor=box_up)
+
+    box_halt_parser = box_subparsers.add_parser('halt')
+    box_halt_parser.add_argument('name', metavar="NAME")
+    box_halt_parser.set_defaults(functor=box_halt)
+
+    box_remove_parser = box_subparsers.add_parser('destroy')
+    box_remove_parser.add_argument('name', metavar="NAME")
+    box_remove_parser.set_defaults(functor=box_remove)
+
+    box_ssh_parser = box_subparsers.add_parser('ssh')
+    box_ssh_parser.add_argument('name', metavar="NAME")
+    box_ssh_parser.set_defaults(functor=box_ssh)
+
+    box_ls_parser = box_subparsers.add_parser('ls')
+    box_ls_parser.set_defaults(functor=box_ls)
+
+    ssh_parser = subparsers.add_parser('ssh')
+    ssh_parser.add_argument('name', metavar="NAME")
+    ssh_parser.set_defaults(functor=box_ssh)
+

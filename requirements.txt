@@ -1,3 +1,5 @@
+requests
+jinja2
 nose
 py
 gitflow
