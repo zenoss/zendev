@@ -2,10 +2,19 @@ import argparse
 import os
 import sys
 import subprocess
+import tempfile
 import time
 
 import py.path
 import requests
+
+
+DEVSHELLSTARTUP = """
+/serviced/serviced service proxy %s 0 sleep 9999999999999999999 &>/dev/null &
+echo Welcome to the Zenoss Dev Shell!
+/bin/setuser zenoss /bin/bash
+exit
+"""
 
 
 class Serviced(object):
@@ -150,6 +159,29 @@ def attach(args, env):
     subprocess.call("serviced service attach '%s'; stty sane" % args.specifier, shell=True)
 
 
+def devshell(args, env):
+    """
+    Start up a shell with the imports of the Zope service but no command.
+    """
+    env = env()
+    _serviced = env._gopath.join("src/github.com/control-center/serviced/serviced").strpath
+    zopesvc = subprocess.check_output(
+        "%s service list | grep -i %s | awk {'print $2;exit'}" % (_serviced, args.svcname),
+        shell=True).strip()
+
+    m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
+    with tempfile.NamedTemporaryFile() as f:
+        f.write(DEVSHELLSTARTUP % zopesvc)
+        f.flush()
+        cmd = "docker run --privileged --rm -w /opt/zenoss -v %s:/.bashrc -v %s:/serviced/serviced -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/home/zenoss/.m2 -i -t zendev/devimg /bin/bash" % (
+            f.name,
+            _serviced,
+            env.root.strpath,
+            env.root.join("zenhome").strpath,
+            m2.strpath)
+        subprocess.call(cmd, shell=True)
+
+
 def add_commands(subparsers):
     serviced_parser = subparsers.add_parser('serviced')
     serviced_parser.add_argument('-r', '--root', action='store_true',
@@ -175,3 +207,8 @@ def add_commands(subparsers):
     attach_parser.add_argument('specifier', metavar="SERVICEID|SERVICENAME|DOCKERID",
                                help="Attach to a container matching SERVICEID|SERVICENAME|DOCKERID in service instances")
     attach_parser.set_defaults(functor=attach)
+
+    devshell_parser = subparsers.add_parser('devshell')
+    devshell_parser.add_argument('svcname', nargs="?", default="zope")
+    devshell_parser.set_defaults(functor=devshell)
+

@@ -63,3 +63,6 @@ def get_config():
     config.save()
     return config
 
+
+def get_envname():
+    return get_config().current
