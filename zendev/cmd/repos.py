@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 
@@ -5,6 +6,7 @@ from ..log import error
 from ..manifest import create_manifest
 from ..config import get_config, get_envname
 from ..utils import colored, add_repo_narg, repofilter
+
 
 def add(args, env):
     """
@@ -75,7 +77,8 @@ def each(args, env):
 
 def cd(args, env):
     """
-    Print the directory of the repository if specified or the environment if not.
+    Print the directory of the repository if specified or the environment if
+    not.
     """
     env = env()
     if args.repo:
@@ -120,7 +123,7 @@ def add_commands(subparsers):
 
     status_parser = subparsers.add_parser('status')
     status_parser.add_argument('-a', '--all', action='store_true',
-                               help="Display all repos, whether or not they have changes.")
+               help="Display all repos, whether or not they have changes.")
     add_repo_narg(status_parser)
     status_parser.set_defaults(functor=status)
 
@@ -132,5 +135,3 @@ def add_commands(subparsers):
     cd_parser = subparsers.add_parser('cd')
     cd_parser.add_argument('repo', nargs='?', metavar="REPO")
     cd_parser.set_defaults(functor=cd)
-
-
