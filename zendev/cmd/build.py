@@ -1,7 +1,6 @@
 import subprocess
 import sys
 import os
-import tempfile
 
 import py
 
@@ -25,11 +24,10 @@ def build(args, env):
         target = ['srcbuild' if t == 'src' else t for t in args.target]
         if args.clean:
             subprocess.call(["make", "clean"])
-            for zapp in ["metric-consumer", "metric-service"]:
-                bashcommand = "cd /mnt/src/%s && pwd && mvn clean" % zapp
-                cmd = "docker run --privileged --rm -v %s/src:/mnt/src -i -t zenoss/rpmbuild:centos7 bash -c '%s'" % (
+            bashcommand = "find /mnt/src/ -maxdepth 2 -name pom.xml|while read file; do (cd $(dirname $file) && echo -n cleaning: && pwd && mvn clean); done"
+            cmd = "docker run --privileged --rm -v %s/src:/mnt/src -i -t zenoss/rpmbuild:centos7 bash -c '%s'" % (
                     env.root.strpath, bashcommand)
-                subprocess.call(cmd, shell=True)
+            subprocess.call(cmd, shell=True)
         rc = subprocess.call(["make", "OUTPUT=%s" % args.output] + target)
         sys.exit(rc)
 
