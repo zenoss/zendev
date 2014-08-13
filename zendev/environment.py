@@ -254,7 +254,8 @@ class ZenDevEnvironment(object):
         else:
             if not repodir.check(dir=True):
                 info("Checking out manifest repository")
-                repo.progress = SimpleGitProgressBar(repo.name)
+                if sys.stdout.isatty():
+                    repo.progress = SimpleGitProgressBar(repo.name)
                 repo.clone()
                 print
         return repo
@@ -330,7 +331,8 @@ class ZenDevEnvironment(object):
         else:
             if not builddir.check(dir=True):
                 info("Checking out build repository")
-                repo.progress = SimpleGitProgressBar(repo.name)
+                if sys.stdout.isatty():
+                    repo.progress = SimpleGitProgressBar(repo.name)
                 repo.clone()
                 print
             else:
