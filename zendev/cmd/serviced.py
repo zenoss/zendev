@@ -27,6 +27,11 @@ class Serviced(object):
         self.serviced = self.env._gopath.join("bin/serviced").strpath
         self.uiport = None
 
+    @property
+    def varpath(self):
+        return self.env.root.ensure("var", dir=True).ensure("serviced",
+                dir=True)
+
     def reset(self):
         print "Stopping any running serviced"
         subprocess.call(['sudo', 'pkill', 'serviced'])
@@ -35,13 +40,14 @@ class Serviced(object):
         if running:
             subprocess.call(["docker", "kill"] + running.splitlines())
         print "Cleaning state"
-        subprocess.call("sudo rm -rf /tmp/serviced-*", shell=True)
+        subprocess.call("sudo rm -rf %s" % self.varpath.strpath, shell=True)
 
     def start(self, root=False, uiport=443, arguments=None, registry=False):
         print "Starting serviced..."
         self.uiport = uiport
         args = []
         envvars = self.env.envvars()
+        envvars['SERVICED_VARPATH'] = self.varpath.strpath
         if registry:
             envvars['SERVICED_REGISTRY'] = 'true'
         if root:
