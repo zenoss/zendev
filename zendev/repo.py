@@ -178,10 +178,14 @@ class Repository(object):
             return
         self.message("Changes found in %s:%s! Rebasing %s..." % (
             self.name, remote_name, local_name))
-        self.stash()
+        weStashed = False
+        if any(self.changes):
+            weStashed = True
+            self.stash()
         self.repo.git.rebase(remote_name, output_stream=sys.stderr)
         try:
-            self.apply_stash()
+            if weStashed:
+                self.apply_stash()
         except GitCommandError:
             pass
 
