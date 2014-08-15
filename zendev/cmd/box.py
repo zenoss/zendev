@@ -112,6 +112,10 @@ class VagrantManager(object):
             provision_script="""
 chown zenoss:zenoss /home/zenoss/%s
 su - zenoss -c "cd /home/zenoss && zendev init %s"
+echo "
+if [ -f ~/.bash_serviced ]; then 
+    . ~/.bash_serviced
+fi" >> /home/zenoss/.bashrc
 echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
 echo "zendev use %s" >> /home/zenoss/.bashrc
 %s
