@@ -48,6 +48,7 @@ class Serviced(object):
         args = []
         envvars = self.env.envvars()
         envvars['SERVICED_VARPATH'] = self.varpath.strpath
+        envvars['TZ'] = 'UTC'
         if registry:
             envvars['SERVICED_REGISTRY'] = 'true'
         if root:
