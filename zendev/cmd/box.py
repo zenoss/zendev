@@ -41,9 +41,9 @@ CONTROLPLANE = "controlplane"
 SOURCEBUILD = "sourcebuild"
 
 BOXES = {
-    CONTROLPLANE: "ubuntu-14.04-europa-v1",
+    CONTROLPLANE: "ubuntu-14.04-europa-v2",
     SOURCEBUILD: "f19-docker-zendeps",
-    "ubuntu": "ubuntu-14.04-europa-v1",
+    "ubuntu": "ubuntu-14.04-europa-v2",
     "fedora": "f19-docker-zendeps"
 }
 

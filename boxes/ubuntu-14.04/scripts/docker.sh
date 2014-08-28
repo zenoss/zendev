@@ -1,4 +1,4 @@
-apt-get -y install docker.io
+wget -O - http://get.docker.io | sh
 ln -s /usr/bin/docker.io /usr/bin/docker
 
 usermod -a -G docker zenoss
