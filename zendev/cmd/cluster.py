@@ -12,13 +12,13 @@ VAGRANT = Template("""
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-$script = <<SCRIPT
+$script = <<'SCRIPT'
 {{ provision_script }} 
 SCRIPT
 
 Vagrant.configure("2") do |config|
   (1..{{ box_count }}).each do |i|
-    config.vm.define vm_name = "{{ cluster_name }}-%02d.{{ cluster_domain }}" % i do |config|
+    config.vm.define vm_name = "{{ cluster_name }}-%02d" % i do |config|
       config.vm.box = "{{ box_name }}"
       config.vm.box_url = "http://vagrant.zendev.org/boxes/{{ box_name }}.box"
       config.vm.network :private_network, :ip => '0.0.0.0', :auto_network => true
@@ -42,12 +42,17 @@ CONTROLPLANE = "controlplane"
 SOURCEBUILD = "sourcebuild"
 
 BOXES = {
-    CONTROLPLANE: "ubuntu-13.04-docker-v1",
+    CONTROLPLANE: "ubuntu-14.04-europa-v2",
     SOURCEBUILD: "f19-docker-zendeps",
-    "ubuntu": "ubuntu-13.04-docker-v1",
+    "ubuntu": "ubuntu-14.04-europa-v2",
     "fedora": "f19-docker-zendeps"
 }
 
+ETC_HOSTS = """
+127.0.0.1    localhost
+
+# Shared hosts for zendev cluster
+"""
 
 class VagrantClusterManager(object):
     """
@@ -78,13 +83,16 @@ class VagrantClusterManager(object):
             return False
         return True
 
-    def create(self, name, purpose=CONTROLPLANE, count=1, domain="zenoss.loc", memory=4096):
+    def create(self, name, purpose=CONTROLPLANE, count=1, memory=4096):
         if not self.verify_auto_network():
             raise Exception("Unable to find or install vagrant-auto_network plugin.")
         elif self._root.join(name).check(dir=True):
             raise Exception("Vagrant box %s already exists" % name)
 
         vbox_dir = self._root.ensure(name, dir=True)
+
+        vbox_dir.ensure("etc_hosts").write(ETC_HOSTS)
+
         shared = (
             (self.env.zendev.strpath, "/home/zenoss/zendev"),
             (self.env.srcroot.strpath, "/home/zenoss/%s/src" % self.env.name),
@@ -97,21 +105,22 @@ class VagrantClusterManager(object):
             cluster_name=name,
             box_count=count,
             box_memory=memory,
-            cluster_domain=domain,
             box_name=BOXES.get(purpose),
             shared_folders=shared,
             provision_script="""
-hid=$(%s | cut -c2-10)
-a=${hid:6:2}
-b=${hid:4:2}
-c=${hid:2:2}
-d=${hid:0:2}
-echo -ne \\\\\\\\x$a\\\\\\\\x$b\\\\\\\\x$c\\\\\\\\x$d > /etc/hostid
-chown zenoss:zenoss /home/zenoss/%s
-su - zenoss -c "cd /home/zenoss && zendev init %s"
+[ -e /etc/hostid ] || printf %%x $(date +%%s) > /etc/hostid
+
+chown zenoss:zenoss /home/zenoss/%(env_name)s
+su - zenoss -c "cd /home/zenoss && zendev init %(env_name)s"
 echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
-echo "zendev use %s" >> /home/zenoss/.bashrc
-""" % ("date +%s", self.env.name, self.env.name, self.env.name)))
+echo "zendev use %(env_name)s" >> /home/zenoss/.bashrc
+
+ln -sf /vagrant/etc_hosts /etc/hosts
+if ! $(grep -q ^$HOSTNAME /vagrant/etc_hosts 2>/dev/null) ; then
+    IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
+    echo $HOSTNAME $IP >> /vagrant/etc_hosts
+fi
+""" % {'env_name':self.env.name} ))
 
     def boot(self, name):
         cluster = self._get_cluster(name)
@@ -159,7 +168,7 @@ def cluster_create(args, check_env):
     """
     """
     env = check_env()
-    env.cluster.create(args.name, args.type, args.count, args.domain, args.memory)
+    env.cluster.create(args.name, args.type, args.count, args.memory)
     env.cluster.provision(args.name, args.type)
 
 
