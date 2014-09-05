@@ -12,7 +12,13 @@ import requests
 DEVSHELLSTARTUP = """
 /serviced/serviced service proxy %s 0 sleep 9999999999999999999 &>/dev/null &
 echo Welcome to the Zenoss Dev Shell!
-/bin/setuser zenoss /bin/bash
+/bin/setuser zenoss /bin/bash %s
+exit
+"""
+
+SILENTDEVSHELLSTARTUP = """
+/serviced/serviced service proxy %s 0 sleep 9999999999999999999 &>/dev/null &
+/bin/setuser zenoss /bin/bash %s
 exit
 """
 
@@ -176,9 +182,17 @@ def devshell(args, env):
         "%s service list | grep -i %s | awk {'print $2;exit'}" % (_serviced, args.svcname),
         shell=True).strip()
 
+    if args.command:
+        command = "-lc '%s'" % " ".join(args.command)
+        STARTUP=SILENTDEVSHELLSTARTUP
+    else:
+        command = ""
+        STARTUP=DEVSHELLSTARTUP
+
+    
     m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
     with tempfile.NamedTemporaryFile() as f:
-        f.write(DEVSHELLSTARTUP % zopesvc)
+        f.write(STARTUP % (zopesvc, command))
         f.flush()
         cmd = "docker run --privileged --rm -w /opt/zenoss -v %s:/.bashrc -v %s:/serviced/serviced -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/home/zenoss/.m2 -i -t zendev/devimg /bin/bash" % (
             f.name,
@@ -187,7 +201,6 @@ def devshell(args, env):
             env.root.join("zenhome").strpath,
             m2.strpath)
         subprocess.call(cmd, shell=True)
-
 
 def add_commands(subparsers):
     serviced_parser = subparsers.add_parser('serviced')
@@ -217,5 +230,6 @@ def add_commands(subparsers):
 
     devshell_parser = subparsers.add_parser('devshell')
     devshell_parser.add_argument('svcname', nargs="?", default="zope")
+    devshell_parser.add_argument('-c', dest='command', nargs=argparse.REMAINDER)
     devshell_parser.set_defaults(functor=devshell)
 
