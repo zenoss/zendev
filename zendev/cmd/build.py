@@ -28,8 +28,30 @@ def build(args, env):
             cmd = "docker run --privileged --rm -v %s/src:/mnt/src -i -t zenoss/rpmbuild:centos7 bash -c '%s'" % (
                     env.root.strpath, bashcommand)
             subprocess.call(cmd, shell=True)
-        rc = subprocess.call(["make", "OUTPUT=%s" % args.output] + target)
+        packs = get_resmgr_packs(env) if args.resmgr else ["ZenPacks.zenoss.ZenJMX", "ZenPacks.zenoss.PythonCollector"]
+        if "devimg" in target:
+            # Figure out which zenpacks to install.
+            for pack in args.packs:
+                if not pack.startswith("ZenPacks"):
+                    pack = "ZenPacks.zenoss." + pack
+                    packs.append(pack)
+        rc = subprocess.call(["make", "OUTPUT=%s" % args.output,
+                              'ZENPACKS=%s' % ' '.join(packs)] + target)
         sys.exit(rc)
+
+
+def get_resmgr_packs(env):
+    packs = []
+    with env.buildroot.as_cwd():
+        with open("pkg/zenoss_resmgr_zenpacks.mk") as f:
+            for line in f:
+                if line.startswith("zenoss_resmgr.zp_to_build"):
+                    pack = line.split()[-1]
+                    packs.append(pack)
+                elif line.startswith("zenoss_resmgr.zp_to_not_install"):
+                    pack = line.split()[-1]
+                    packs.remove(pack)
+    return packs
 
 
 def add_commands(subparsers):
@@ -47,6 +69,11 @@ def add_commands(subparsers):
                               help="Build an RPS image (requires the --ga_image argument)")
     build_parser.add_argument('--ga_image', help="When building an RPS image, "
                                                  "specify the GA image tag to use")
+    build_parser.add_argument('-p', '--with-pack', dest="packs", action="append",
+            default=(),
+            help="In a devimg build, ZenPacks to install into the image")
+    build_parser.add_argument('--resmgr', action="store_true", required=False,
+            help="Install resmgr ZenPacks")
     build_parser.add_argument('target', metavar='TARGET', nargs="+",
                               choices=['src', 'core', 'resmgr',
                                        'svcdef-core', 'svcdef-resmgr',
