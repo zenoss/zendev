@@ -9,25 +9,29 @@ host filesystem.
 
 Building the Image
 ==================
-First step is to create the image, ``zendev/devimg``. Currently, only Core is
-available at this high level, although the underlying steps are there to
-support Resource Manager as well. Time permitting! Contributions welcome! Run:
+First step is to create the image, ``zendev/devimg``. You may choose to build
+an image that includes any ZenPacks available in your source tree; there is a
+shortcut option to build a straight Resource Manager image.
 
 .. code-block:: bash
 
     # Make sure you have necessary repos (first time only)
-    zendev add $(zendev root)/build/manifests/{core,zenpacks.core}.json
-    zendev sync
+    zendev restore develop
 
-    # Build
+    # Build Core image
     zendev build devimg
+
+    # Build Core image + a couple zenpacks
+    zendev build devimg -p EnterpriseCollector -p DistributedCollector
+
+    # Build Resource Manager image
+    zendev build devimg --resmgr
 
 The image this creates has:
  * Your zendev source root mounted at ``/mnt/src``
  * Your zendev zenhome mounted at ``/opt/zenoss``
  * A full Zenoss source build run
- * Some ZenPacks installed (currently ZenJMX and PythonCollector, since they
-   have service definitions in Zenoss.core)
+ * ZenPacks installed (ZenJMX and PythonCollector + whatever you specified)
  * ``$(zendev root)/src/core/Products`` symlinked to ``/opt/zenoss/Products``
  * A `zenoss` user with the same GID/UID as your current user, so you don't
    have permission problems with the mounted source (sudoer, NOPASSWD)
@@ -45,8 +49,8 @@ serviced`` (this replaces ``zendev resetserviced``).
 
 .. code-block:: bash
 
-    usage: zendev serviced [-h] [-r] [-d] [-a] [-x] [--no-auto-assign-ips]
-                           [-u UIPORT] [-- ARG [ARG...]]
+    usage: zendev serviced [-h] [-r] [-d] [-a] [-x] [--template TEMPLATE] 
+                           [--no-auto-assign-ips] [-u UIPORT] [-- ARG [ARG...]]
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -54,7 +58,10 @@ serviced`` (this replaces ``zendev resetserviced``).
                             see --no-root)
       -d, --deploy          Add Zenoss service definitions and deploy an instance
       -a, --startall        Start all services once deployed
+
       -x, --reset           Clean service state and kill running containers first
+      --template            {Zenoss.core,Zenoss.core.full,Zenoss.resmgr.lite,Zenoss.resmgr}
+                            Zenoss service template directory to compile and add
       --no-root             Don't run serviced as root
       --no-auto-assign-ips  Do NOT auto-assign IP addresses to services requiring
                             an IP address
@@ -63,7 +70,10 @@ serviced`` (this replaces ``zendev resetserviced``).
 
 
 Any arguments beyond the standard ``--`` will not be parsed by zendev, and will
-isntead be passed directly to serviced.
+instead be passed directly to serviced.
+
+Note: if you use ``--template`` to deploy a Zenoss.resmgr template, you must
+previously have built the devimg with the necessary ZenPacks installed.
 
 Now you can make any changes you want to the source on your host, then bounce
 the service in the control plane UI or CLI to have your changes take effect.
