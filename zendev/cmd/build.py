@@ -35,6 +35,9 @@ def build(args, env):
                 if not pack.startswith("ZenPacks"):
                     pack = "ZenPacks.zenoss." + pack
                     packs.append(pack)
+        # CatalogService is not currently compatible with zendev
+        if "ZenPacks.zenoss.CatalogService" in packs:
+            packs.remove("ZenPacks.zenoss.CatalogService")
         rc = subprocess.call(["make", "OUTPUT=%s" % args.output,
                               'ZENPACKS=%s' % ' '.join(packs)] + target)
         sys.exit(rc)
