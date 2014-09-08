@@ -108,9 +108,9 @@ class Serviced(object):
         time.sleep(1)
         subprocess.call(deploy_command)
 
-    def add_template(self):
+    def add_template(self, template="Zenoss.core"):
         print "Adding template"
-        tpldir = self.env.buildroot.join("services/Zenoss.core").strpath
+        tpldir = self.env.buildroot.join("services/" + template).strpath
         proc = subprocess.Popen([self.serviced, "template", "compile",
             "--map=zenoss/zenoss5x,zendev/devimg", tpldir],
             stdout=subprocess.PIPE)
@@ -151,7 +151,7 @@ def run_serviced(args, env):
         print "serviced is ready!"
         if args.deploy:
             _serviced.add_host()
-            tplid = _serviced.add_template()
+            tplid = _serviced.add_template(args.template)
             if args.no_auto_assign_ips:
                 _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips")
             else:
@@ -212,6 +212,8 @@ def add_commands(subparsers):
                                  help="Start all services once deployed")
     serviced_parser.add_argument('-x', '--reset', action='store_true',
                                  help="Clean service state and kill running containers first")
+    serviced_parser.add_argument('--template', help="Zenoss service template directory to compile and add", 
+            choices=["Zenoss.core", "Zenoss.core.full", "Zenoss.resmgr.lite", "Zenoss.resmgr"], default="Zenoss.core")
     serviced_parser.add_argument('--no-root', dest="no_root",
                                  action='store_true', help="Don't run serviced as root")
     serviced_parser.add_argument('--no-auto-assign-ips', action='store_true',
