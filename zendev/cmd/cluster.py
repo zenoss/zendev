@@ -5,6 +5,8 @@ import py
 import subprocess
 from jinja2 import Template
 
+from box import BOXES, verify_auto_network, get_shared_directories, make_vdis
+
 from ..utils import colored, here
 
 
@@ -28,6 +30,12 @@ Vagrant.configure("2") do |config|
       config.vm.provider :virtualbox do |vb|
         vb.customize ["modifyvm", :id, "--memory", "{{ box_memory }}"]
         vb.customize ["modifyvm", :id, "--cpus", 4]
+        {% set vdi_count = 1 %}
+        {% for vdi in vdis %}
+#TODO: vdis needs to handle vdi/box
+        vb.customize ["storageattach", :id, "--storagectl", "IDE Controller",
+                      "--port", {{ vdi_count }}, "--device", 0, "--type", "hdd", "--medium",
+                      "{{ vdi }}"]{% set vdi_count = vdi_count + 1 %}{% endfor %}
       end
 
       {% for root, target in shared_folders %}
@@ -38,15 +46,21 @@ Vagrant.configure("2") do |config|
 end
 """)
 
-CONTROLPLANE = "controlplane"
-SOURCEBUILD = "sourcebuild"
+PROVISION_SCRIPT = """
+[ -e /etc/hostid ] || printf %%x $(date +%%s) > /etc/hostid
 
-BOXES = {
-    CONTROLPLANE: "ubuntu-14.04-europa-v2",
-    SOURCEBUILD: "f19-docker-zendeps",
-    "ubuntu": "ubuntu-14.04-europa-v2",
-    "fedora": "f19-docker-zendeps"
-}
+chown zenoss:zenoss /home/zenoss/%(env_name)s
+su - zenoss -c "cd /home/zenoss && zendev init %(env_name)s"
+echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
+echo "zendev use %(env_name)s" >> /home/zenoss/.bashrc
+
+ln -sf /vagrant/etc_hosts /etc/hosts
+if ! $(grep -q ^$HOSTNAME /vagrant/etc_hosts 2>/dev/null) ; then
+    IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
+    echo $HOSTNAME $IP >> /vagrant/etc_hosts
+fi
+%(formatDrive)s
+"""
 
 ETC_HOSTS = """
 127.0.0.1    localhost
@@ -66,61 +80,33 @@ class VagrantClusterManager(object):
         import vagrant
         return vagrant.Vagrant(self._root.join(name).strpath)
 
-    def _install_auto_network(self):
-        rc = subprocess.call(["vagrant", "plugin", "install","vagrant-auto_network"])
-        if rc:
-            return rc
-        subprocess.call("wget -qO- https://github.com/adrienthebo/vagrant-auto_network/commit/7de30cb2ce72cc8f979b8dbe5c9581646512ab1a.diff "
-                "| patch -p1 -d ~/.vagrant.d/gems/gems/vagrant-auto_network*", shell=True)
-        return 0
-
-    def verify_auto_network(self):
-        try:
-            if subprocess.call("vagrant plugin list | grep vagrant-auto_network", shell=True):
-                if self._install_auto_network():
-                    return False
-        except Exception:
-            return False
-        return True
-
-    def create(self, name, purpose=CONTROLPLANE, count=1, memory=4096):
-        if not self.verify_auto_network():
+    def create(self, name, purpose, count=1, memory=4096):
+        if not verify_auto_network():
             raise Exception("Unable to find or install vagrant-auto_network plugin.")
         elif self._root.join(name).check(dir=True):
             raise Exception("Vagrant box %s already exists" % name)
-
         vbox_dir = self._root.ensure(name, dir=True)
-
-        vbox_dir.ensure("etc_hosts").write(ETC_HOSTS)
-
-        shared = (
-            (self.env.zendev.strpath, "/home/zenoss/zendev"),
-            (self.env.srcroot.strpath, "/home/zenoss/%s/src" % self.env.name),
-            (self.env.buildroot.strpath, "/home/zenoss/%s/build" % self.env.name),
-            (self.env.configroot.strpath, "/home/zenoss/%s/%s" % (
-                self.env.name, self.env.configroot.basename)),
-        )
-
-        vbox_dir.ensure("Vagrantfile").write(VAGRANT.render(
+        shared = get_shared_directories(self.env)
+        vdis, formatDrive = [], []
+        for i in range(count):
+            relPath = "mnt/%s_%02d" % (self.env.name, i)
+            v,f = make_vdis(self._root, relPath, 0)
+            vdis.append(v)
+            formatDrive.append(f)
+        params = dict(
             cluster_name=name,
             box_count=count,
             box_memory=memory,
             box_name=BOXES.get(purpose),
             shared_folders=shared,
-            provision_script="""
-[ -e /etc/hostid ] || printf %%x $(date +%%s) > /etc/hostid
-
-chown zenoss:zenoss /home/zenoss/%(env_name)s
-su - zenoss -c "cd /home/zenoss && zendev init %(env_name)s"
-echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
-echo "zendev use %(env_name)s" >> /home/zenoss/.bashrc
-
-ln -sf /vagrant/etc_hosts /etc/hosts
-if ! $(grep -q ^$HOSTNAME /vagrant/etc_hosts 2>/dev/null) ; then
-    IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
-    echo $HOSTNAME $IP >> /vagrant/etc_hosts
-fi
-""" % {'env_name':self.env.name} ))
+            vdis=vdis,  #TODO: vdis needs to handle vdi/box
+            provision_script=PROVISION_SCRIPT % {
+                'env_name': self.env.name,
+                'formatDrive': "\n".join(formatDrive)
+            }
+        )
+        vbox_dir.ensure("etc_hosts").write(ETC_HOSTS)
+        vbox_dir.ensure("Vagrantfile").write(VAGRANT.render(params))
 
     def boot(self, name):
         cluster = self._get_cluster(name)
