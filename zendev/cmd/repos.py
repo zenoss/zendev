@@ -17,6 +17,24 @@ def add(args, env):
     manifest.save()
 
 
+def addrepo(args, env):
+    """
+    Add a repo
+    """
+
+    if not args.repository:
+        error("No repository was specified.")
+        sys.exit(1)
+
+    if not args.path:
+        error("No path was specified.")
+        sys.exit(1)
+
+
+    manifest = env().manifest
+    manifest.add(args.path, args.repository, args.ref)
+
+
 def remove(args, env):
     """
     Remove a repository.
@@ -106,6 +124,13 @@ def add_commands(subparsers):
     add_parser = subparsers.add_parser('add')
     add_parser.add_argument('manifest', nargs='+', metavar="MANIFEST")
     add_parser.set_defaults(functor=add)
+
+    addrepo_parser = subparsers.add_parser('addrepo')
+    addrepo_parser.add_argument('path', help="Path to Source")
+    addrepo_parser.add_argument('repository', help="Repository in github")
+    addrepo_parser.add_argument('ref', nargs="?",
+                                default='develop', help="git ref or branch name")
+    addrepo_parser.set_defaults(functor=addrepo)
 
     rm_parser = subparsers.add_parser('rm')
     add_repo_narg(rm_parser)
