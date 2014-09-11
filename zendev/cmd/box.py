@@ -12,7 +12,8 @@ VAGRANT = Template("""
 # vi: set ft=ruby :
 
 $script = <<SCRIPT
-{{ provision_script }} 
+{{ provision_script }}{%for i in range(vdis) %}
+{{"mkfs.btrfs -L volume.btrfs.%d /dev/sd%s"|format(i+1, "bcdef"[i])}} {%endfor%}
 SCRIPT
 
 Vagrant.configure("2") do |config|
@@ -23,17 +24,22 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", {{vm_memory}}]
-    vb.customize ["modifyvm", :id, "--cpus", 4]
-    {% set vdi_count = 1 %}{% for vdi in vdis %}
-    vb.customize ["storageattach", :id, "--storagectl", "IDE Controller", 
-                  "--port", {{ vdi_count }}, "--device", 0, "--type", "hdd", "--medium",
-                  "{{ vdi }}"]{% set vdi_count = vdi_count + 1 %}{% endfor %}
+    vb.customize ["modifyvm", :id, "--cpus", 4] {% if vdis %}
+    (1..{{ vdis }}).each do |vol|
+      disc_file = "mnt/btrfs_#{vol}.vdi"
+      unless File.exist?(disc_file)
+        vb.customize ['createhd', '--filename', disc_file, '--size', 24 * 1024]
+      end
+      vb.customize ["storageattach", :id, "--storagectl", "IDE Controller",
+                    "--port", vol, "--device", 0, "--type", "hdd", "--medium",
+                    disc_file ]
+    end{% endif %}
   end
-
   {% for root, target in shared_folders %}
   config.vm.synced_folder "{{ root }}", "{{ target }}"{% endfor %}
   {% if provision_script %}config.vm.provision "shell", inline: $script{% endif %}
 end
+
 """)
 
 PROVISION_SCRIPT = """
@@ -45,7 +51,6 @@ if [ -f ~/.bash_serviced ]; then
 fi" >> /home/zenoss/.bashrc
 echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
 echo "zendev use %(env_name)s" >> /home/zenoss/.bashrc
-%(formatDrive)s
 """
 
 CONTROLPLANE = "controlplane"
@@ -91,27 +96,6 @@ def get_shared_directories(env):
                                                          env.configroot.basename)),
     )
 
-
-def make_vdis(root, relpath, btrfs):
-    def make_vdi(root, relpath, diskname, size):
-        with root.ensure_dir().as_cwd():
-            disk = os.path.join(relpath, diskname)
-            subprocess.call(
-                ["VBoxManage", "createhd", "--filename", disk, "--size",
-                 str(size)])
-            return disk
-    vdis = []
-    formatDrive = []
-    drive = "b"
-    # Set up the btrfs volumes
-    for i in range(btrfs):
-        vdis.append(make_vdi(root, relpath, "btrfs_%d.vdi" % (i + 1), 24 * 1024))
-        formatDrive.append(
-            "mkfs.btrfs -L volume.btrfs.%d /dev/sd%s" % ((i + 1), drive))
-        drive = chr(ord(drive) + 1)
-    return vdis, formatDrive
-
-
 class VagrantManager(object):
     """
     Manages Vagrant boxes.
@@ -131,17 +115,13 @@ class VagrantManager(object):
             raise Exception("Vagrant box %s already exists" % name)
         vbox_dir = self._root.ensure(name, dir=True)
         shared = get_shared_directories(self.env)
-        vdis, formatDrive = make_vdis(self._root.join(name), 'mnt', btrfs)
         params = dict(
             instance_name=name,
             box_name=BOXES.get(purpose),
-            vdis=vdis,
+            vdis=btrfs,
             shared_folders=shared,
             vm_memory=memory,
-            provision_script= PROVISION_SCRIPT % {
-                'env_name': self.env.name,
-                'formatDrive': "\n".join(formatDrive)
-            }
+            provision_script= PROVISION_SCRIPT % {'env_name': self.env.name}
         )
         vbox_dir.ensure("Vagrantfile").write(VAGRANT.render(**params))
 
