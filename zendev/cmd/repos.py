@@ -33,6 +33,7 @@ def addrepo(args, env):
 
     manifest = env().manifest
     manifest.add(args.path, args.repository, args.ref)
+    manifest.save()
 
 
 def remove(args, env):
