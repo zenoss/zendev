@@ -5,9 +5,18 @@ from vagrantManager import VagrantManager
 VAGRANT = Template("""
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
+# Vagrantfile created by zendev box
 
 $script = <<SCRIPT
-{{ provision_script }}{%for i in range(vdis) %}
+chown zenoss:zenoss /home/zenoss/{{env_name}}
+su - zenoss -c "cd /home/zenoss && zendev init {{env_name}}"
+echo "
+if [ -f ~/.bash_serviced ]; then
+    . ~/.bash_serviced
+fi" >> /home/zenoss/.bashrc
+echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
+echo "zendev use {{env_name}}" >> /home/zenoss/.bashrc
+{%for i in range(vdis) %}
 {{"mkfs.btrfs -L volume.btrfs.%d /dev/sd%s"|format(i+1, "bcdef"[i])}} {%endfor%}
 SCRIPT
 
@@ -37,17 +46,6 @@ end
 
 """)
 
-PROVISION_SCRIPT = """
-chown zenoss:zenoss /home/zenoss/%(env_name)s
-su - zenoss -c "cd /home/zenoss && zendev init %(env_name)s"
-echo "
-if [ -f ~/.bash_serviced ]; then
-    . ~/.bash_serviced
-fi" >> /home/zenoss/.bashrc
-echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
-echo "zendev use %(env_name)s" >> /home/zenoss/.bashrc
-"""
-
 
 class VagrantBoxManager(VagrantManager):
     def __init__(self, environment):
@@ -60,7 +58,7 @@ class VagrantBoxManager(VagrantManager):
             vdis=btrfs,
             shared_folders=self.get_shared_directories(),
             vm_memory=memory,
-            provision_script=PROVISION_SCRIPT % {'env_name': self.env.name}
+            env_name=self.env.name
         ))
 
 

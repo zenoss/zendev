@@ -6,9 +6,20 @@ from vagrantManager import VagrantManager
 VAGRANT = Template("""
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
+# Vagrantfile created by zendev cluster
 
 $script = <<SCRIPT
-{{ provision_script }}{%for i in range(vdis) %}
+[ -e /etc/hostid ] || printf %%x $(date +%%s) > /etc/hostid
+chown zenoss:zenoss /home/zenoss/%(env_name)s
+su - zenoss -c "cd /home/zenoss && zendev init %(env_name)s"
+echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
+echo "zendev use %(env_name)s" >> /home/zenoss/.bashrc
+ln -sf /vagrant/etc_hosts /etc/hosts
+if ! $(grep -q ^$HOSTNAME /vagrant/etc_hosts 2>/dev/null) ; then
+    IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
+    echo $HOSTNAME $IP >> /vagrant/etc_hosts
+fi
+{%for i in range(vdis) %}
 {{"mkfs.btrfs -L volume.btrfs.%d /dev/sd%s"|format(i+1, "bcdef"[i])}} {%endfor%}
 SCRIPT
 
@@ -40,20 +51,6 @@ end
 
 """)
 
-PROVISION_SCRIPT = """
-[ -e /etc/hostid ] || printf %%x $(date +%%s) > /etc/hostid
-
-chown zenoss:zenoss /home/zenoss/%(env_name)s
-su - zenoss -c "cd /home/zenoss && zendev init %(env_name)s"
-echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
-echo "zendev use %(env_name)s" >> /home/zenoss/.bashrc
-ln -sf /vagrant/etc_hosts /etc/hosts
-if ! $(grep -q ^$HOSTNAME /vagrant/etc_hosts 2>/dev/null) ; then
-    IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
-    echo $HOSTNAME $IP >> /vagrant/etc_hosts
-fi
-"""
-
 ETC_HOSTS = """
 127.0.0.1    localhost
 
@@ -77,7 +74,7 @@ class VagrantClusterManager(VagrantManager):
             box_name=VagrantManager.BOXES.get(purpose),
             shared_folders=self.get_shared_directories(),
             vdis=btrfs,
-            provision_script=PROVISION_SCRIPT % {'env_name': self.env.name}
+            env_name=self.env.name,
         ))
 
 
