@@ -1,11 +1,6 @@
-from cStringIO import StringIO
-
-import os
-import subprocess
 from jinja2 import Template
 
-from ..utils import colored, here
-
+from vagrantManager import VagrantManager
 
 VAGRANT = Template("""
 # -*- mode: ruby -*-
@@ -53,114 +48,23 @@ echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
 echo "zendev use %(env_name)s" >> /home/zenoss/.bashrc
 """
 
-CONTROLPLANE = "controlplane"
-SOURCEBUILD = "sourcebuild"
 
-BOXES = {
-    CONTROLPLANE: "ubuntu-14.04-europa-v3",
-    SOURCEBUILD: "f19-docker-zendeps",
-    "ubuntu": "ubuntu-14.04-europa-v3",
-    "fedora": "f19-docker-zendeps"
-}
-
-
-def _install_auto_network():
-    rc = subprocess.call(
-        ["vagrant", "plugin", "install", "vagrant-auto_network"])
-    if rc:
-        return rc
-    subprocess.call(
-        "wget -qO- https://github.com/adrienthebo/vagrant-auto_network/commit/7de30cb2ce72cc8f979b8dbe5c9581646512ab1a.diff "
-        "| patch -p1 -d ~/.vagrant.d/gems/gems/vagrant-auto_network*",
-        shell=True)
-    return 0
-
-
-def verify_auto_network():
-    try:
-        if subprocess.call("vagrant plugin list | grep vagrant-auto_network",
-                           shell=True):
-            if _install_auto_network():
-                return False
-    except Exception:
-        return False
-    return True
-
-
-def get_shared_directories(env):
-    return (
-        (env.zendev.strpath, "/home/zenoss/zendev"),
-        (env.srcroot.strpath, "/home/zenoss/%s/src" % env.name),
-        (env.buildroot.strpath, "/home/zenoss/%s/build" % env.name),
-        (env.configroot.strpath, "/home/zenoss/%s/%s" % (env.name,
-                                                         env.configroot.basename)),
-    )
-
-class VagrantManager(object):
-    """
-    Manages Vagrant boxes.
-    """
+class VagrantBoxManager(VagrantManager):
     def __init__(self, environment):
-        self.env = environment
-        self._root = self.env.vagrantroot
+        super(VagrantBoxManager, self).__init__(environment, environment.vagrantroot)
 
-    def _get_box(self, name):
-        import vagrant
-        return vagrant.Vagrant(self._root.join(name).strpath)
-
-    def create(self, name, purpose=CONTROLPLANE, btrfs=0, vfs=0, memory="8192"):
-        if not verify_auto_network():
-            raise Exception("Unable to find or install vagrant-auto_network plugin.")
-        elif self._root.join(name).check(dir=True):
-            raise Exception("Vagrant box %s already exists" % name)
-        vbox_dir = self._root.ensure(name, dir=True)
-        shared = get_shared_directories(self.env)
-        params = dict(
+    def _create(self, name, purpose, btrfs, vfs, memory):
+        self._root.ensure_dir(name).ensure("Vagrantfile").write(VAGRANT.render(
             instance_name=name,
-            box_name=BOXES.get(purpose),
+            box_name=VagrantManager.BOXES.get(purpose),
             vdis=btrfs,
-            shared_folders=shared,
+            shared_folders=self.get_shared_directories(),
             vm_memory=memory,
-            provision_script= PROVISION_SCRIPT % {'env_name': self.env.name}
-        )
-        vbox_dir.ensure("Vagrantfile").write(VAGRANT.render(**params))
-
-    def up(self, name):
-        box = self._get_box(name)
-        box.up()
-
-    def halt(self, name):
-        box = self._get_box(name)
-        box.halt()
-
-    def remove(self, name):
-        box = self._get_box(name)
-        box.destroy()
-        self._root.join(name).remove()
-
-    def provision(self, name, type_):
-        import vagrant
-        type_ = "ubuntu" if BOXES.get(type_)==BOXES["ubuntu"] else "fedora"
-        provision_script = subprocess.check_output(["bash", 
-            here("provision-%s.sh" % type_).strpath])
-        with self._root.join(name).as_cwd():
-            proc = subprocess.Popen([vagrant.VAGRANT_EXE, "up"], 
-                    stdin=subprocess.PIPE)
-            stdout, stderr = proc.communicate(provision_script)
-
-    def ssh(self, name):
-        import vagrant
-        with self._root.join(name).as_cwd():
-            subprocess.call([vagrant.VAGRANT_EXE, 'ssh'])
-
-    def ls(self):
-        for d in self._root.listdir(lambda p:p.join('Vagrantfile').check()):
-            print "%s/%s" % (d.dirname, colored(d.basename, 'white'))
+            provision_script=PROVISION_SCRIPT % {'env_name': self.env.name}
+        ))
 
 
 def box_create(args, check_env):
-    """
-    """
     env = check_env()
     env.vagrant.create(args.name, args.type, args.btrfs, args.vfs, args.memory)
     env.vagrant.provision(args.name, args.type)
@@ -194,7 +98,8 @@ def add_commands(subparsers):
 
     box_create_parser = box_subparsers.add_parser('create')
     box_create_parser.add_argument('name', metavar="NAME")
-    box_create_parser.add_argument('--type', required=True, choices=BOXES)
+    box_create_parser.add_argument('--type', choices=VagrantManager.BOXES,
+                                   default="ubuntu")
     box_create_parser.add_argument('--btrfs', type=int, default=0,
                                    help="Number of btrfs volumes")
     box_create_parser.add_argument('--vfs', type=int, default=0)

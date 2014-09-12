@@ -1,12 +1,6 @@
-from cStringIO import StringIO
-
-import os
-import py
-import subprocess
 from jinja2 import Template
 
-from box import BOXES, verify_auto_network, get_shared_directories
-from ..utils import colored, here
+from vagrantManager import VagrantManager
 
 
 VAGRANT = Template("""
@@ -19,8 +13,8 @@ $script = <<SCRIPT
 SCRIPT
 
 Vagrant.configure("2") do |config|
-  (1..{{ box_count }}).each do |i|
-    config.vm.define vm_name = "{{ cluster_name }}-%02d" % i do |config|
+  (1..{{ box_count }}).each do |box|
+    config.vm.define vm_name = "{{ cluster_name }}-%02d" % box do |config|
       config.vm.box = "{{ box_name }}"
       config.vm.box_url = "http://vagrant.zendev.org/boxes/{{ box_name }}.box"
       config.vm.network :private_network, :ip => '0.0.0.0', :auto_network => true
@@ -66,77 +60,25 @@ ETC_HOSTS = """
 # Shared hosts for zendev cluster
 """
 
-class VagrantClusterManager(object):
+class VagrantClusterManager(VagrantManager):
     """
     Manages a cluster of Vagrant boxes.
     """
     def __init__(self, environment):
-        self.env = environment
-        self._root = self.env.clusterroot
+        super(VagrantClusterManager, self).__init__(environment, environment.clusterroot)
 
-    def _get_cluster(self, name):
-        import vagrant
-        return vagrant.Vagrant(self._root.join(name).strpath)
-
-    def create(self, name, purpose, count=1, btrfs=0, memory=4096):
-        if not verify_auto_network():
-            raise Exception("Unable to find or install vagrant-auto_network plugin.")
-        elif self._root.join(name).check(dir=True):
-            raise Exception("Vagrant box %s already exists" % name)
-        vbox_dir = self._root.ensure(name, dir=True)
-        shared = get_shared_directories(self.env)
-        params = dict(
+    def _create(self, name, purpose, count, btrfs, memory):
+        vagrant_dir = self._root.ensure_dir(name)
+        vagrant_dir.ensure("etc_hosts").write(ETC_HOSTS)
+        vagrant_dir.ensure("Vagrantfile").write(VAGRANT.render(
             cluster_name=name,
             box_count=count,
             box_memory=memory,
-            box_name=BOXES.get(purpose),
-            shared_folders=shared,
+            box_name=VagrantManager.BOXES.get(purpose),
+            shared_folders=self.get_shared_directories(),
             vdis=btrfs,
             provision_script=PROVISION_SCRIPT % {'env_name': self.env.name}
-        )
-        vbox_dir.ensure("etc_hosts").write(ETC_HOSTS)
-        vbox_dir.ensure("Vagrantfile").write(VAGRANT.render(params))
-
-    def boot(self, name):
-        cluster = self._get_cluster(name)
-        cluster.up()
-
-    def up(self, name, box):
-        cluster = self._get_cluster(name)
-        cluster.up(vm_name=box)
-
-    def shutdown(self, name):
-        cluster = self._get_cluster(name)
-        cluster.halt()
-
-    def halt(self, name, box):
-        cluster = self._get_cluster(name)
-        cluster.halt(vm_name=box)
-
-    def remove(self, name):
-        cluster = self._get_cluster(name)
-        cluster.destroy()
-        self._root.join(name).remove()
-
-    def provision(self, name, type_):
-        import vagrant
-        type_ = "ubuntu" if BOXES.get(type_)==BOXES["ubuntu"] else "fedora"
-        provision_script = subprocess.check_output(["bash", 
-            here("provision-%s.sh" % type_).strpath])
-        with self._root.join(name).as_cwd():
-            proc = subprocess.Popen([vagrant.VAGRANT_EXE, "up"], 
-                    stdin=subprocess.PIPE)
-            stdout, stderr = proc.communicate(provision_script)
-
-    def ssh(self, name, box):
-        import vagrant
-        with self._root.join(name).as_cwd():
-            subprocess.call([vagrant.VAGRANT_EXE, 'ssh', box])
-
-    def ls(self):
-        for d in self._root.listdir(lambda p:p.join('Vagrantfile').check()):
-            print "%s/%s" % (d.dirname, colored(d.basename, 'white'))
-
+        ))
 
 
 def cluster_create(args, check_env):
@@ -154,7 +96,7 @@ def cluster_ssh(args, env):
 
 
 def cluster_boot(args, env):
-    env().cluster.boot(args.name)
+    env().cluster.up(args.name)
 
 
 def cluster_up(args, env):
@@ -162,7 +104,7 @@ def cluster_up(args, env):
 
 
 def cluster_shutdown(args, env):
-    env().cluster.shutdown(args.name)
+    env().cluster.halt(args.name)
 
 
 def cluster_halt(args, env):
@@ -179,7 +121,8 @@ def add_commands(subparsers):
 
     cluster_create_parser = cluster_subparsers.add_parser('create')
     cluster_create_parser.add_argument('name', metavar="NAME")
-    cluster_create_parser.add_argument('--type', required=True, choices=BOXES)
+    cluster_create_parser.add_argument('--type', choices=VagrantManager.BOXES,
+                                       default="ubuntu")
     cluster_create_parser.add_argument('--count', type=int, default=1)
     cluster_create_parser.add_argument('--memory', type=int, default=4096)
     cluster_create_parser.add_argument('--domain', default='zenoss.loc')
@@ -211,7 +154,6 @@ def add_commands(subparsers):
 
     cluster_ssh_parser = cluster_subparsers.add_parser('ssh')
     cluster_ssh_parser.add_argument('name', metavar="NAME")
-    cluster_ssh_parser.add_argument('box', metavar="BOX")
     cluster_ssh_parser.set_defaults(functor=cluster_ssh)
 
     cluster_ls_parser = cluster_subparsers.add_parser('ls')
