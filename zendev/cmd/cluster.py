@@ -9,15 +9,25 @@ VAGRANT = Template("""
 # Vagrantfile created by zendev cluster
 
 $script = <<SCRIPT
-[ -e /etc/hostid ] || printf %%x $(date +%%s) > /etc/hostid
-chown zenoss:zenoss /home/zenoss/%(env_name)s
-su - zenoss -c "cd /home/zenoss && zendev init %(env_name)s"
+chown zenoss:zenoss /home/zenoss/{{env_name}}
+su - zenoss -c "cd /home/zenoss && zendev init {{env_name}}"
+echo "
+if [ -f ~/.bash_serviced ]; then
+    . ~/.bash_serviced
+fi" >> /home/zenoss/.bashrc
 echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
-echo "zendev use %(env_name)s" >> /home/zenoss/.bashrc
+echo "zendev use {{env_name}}" >> /home/zenoss/.bashrc
+[ -e /etc/hostid ] || printf %x $(date +%s) > /etc/hostid
 ln -sf /vagrant/etc_hosts /etc/hosts
 if ! $(grep -q ^$HOSTNAME /vagrant/etc_hosts 2>/dev/null) ; then
-    IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
-    echo $HOSTNAME $IP >> /vagrant/etc_hosts
+    echo 's/^.*inet addr:\\\\([^ ]*\\\\).*/\\\\1/p'
+    IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\\\\([^ ]*\\\\).*/\\\\1/p')
+    echo $IP $HOSTNAME >> /vagrant/etc_hosts
+fi
+ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
+if ! $(grep -q ^${HOSTNAME}_MASTER /vagrant/bash_serviced 2>/dev/null) ; then
+    echo "s/^\\\\(# serviced$\\\\)/${HOSTNAME}_MASTER=vb_host\\\\n\\\\1\\\\n/"
+    sed -ie "s/^\\\\(# serviced$\\\\)/${HOSTNAME}_MASTER=vb_host\\\\n\\\\1\\\\n/" /vagrant/bash_serviced 
 fi
 {%for i in range(vdis) %}
 {{"mkfs.btrfs -L volume.btrfs.%d /dev/sd%s"|format(i+1, "bcdef"[i])}} {%endfor%}
@@ -25,7 +35,7 @@ SCRIPT
 
 Vagrant.configure("2") do |config|
   (1..{{ box_count }}).each do |box|
-    config.vm.define vm_name = "{{ cluster_name }}-%02d" % box do |config|
+    config.vm.define vm_name = "{{ cluster_name }}%02d" % box do |config|
       config.vm.box = "{{ box_name }}"
       config.vm.box_url = "http://vagrant.zendev.org/boxes/{{ box_name }}.box"
       config.vm.network :private_network, :ip => '0.0.0.0', :auto_network => true
@@ -44,17 +54,33 @@ Vagrant.configure("2") do |config|
         end{% endif %}
       end{% for root, target in shared_folders %}
       config.vm.synced_folder "{{ root }}", "{{ target }}"{% endfor %}
-      {% if provision_script %}config.vm.provision "shell", inline: $script{% endif %}
+      config.vm.provision "shell", inline: $script
     end
   end
 end
 
 """)
 
+
+# the virtualbox host (as set by vagrant-auto-network) is 10.20.1.1
 ETC_HOSTS = """
-127.0.0.1    localhost
+127.0.0.1   localhost
+10.20.1.1   vb_host     # virtualbox_host
 
 # Shared hosts for zendev cluster
+"""
+
+BASH_SERVICED = """
+#! /bin/bash
+
+# serviced
+eval export MASTER=\$${HOSTNAME}_MASTER
+export SERVICED_DOCKER_REGISTRY=$MASTER:5000
+export SERVICED_STATS_PORT=$MASTER:8442
+export SERVICED_ENDPOINT=$MASTER:4979
+export SERVICED_LOG_ADDRESS=$MASTER:5042
+export SERVICED_OUTBOUND_IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
+export SERVICED_REGISTRY=1
 """
 
 class VagrantClusterManager(VagrantManager):
@@ -67,6 +93,7 @@ class VagrantClusterManager(VagrantManager):
     def _create(self, name, purpose, count, btrfs, memory):
         vagrant_dir = self._root.ensure_dir(name)
         vagrant_dir.ensure("etc_hosts").write(ETC_HOSTS)
+        vagrant_dir.ensure("bash_serviced").write(BASH_SERVICED)
         vagrant_dir.ensure("Vagrantfile").write(VAGRANT.render(
             cluster_name=name,
             box_count=count,
@@ -151,6 +178,7 @@ def add_commands(subparsers):
 
     cluster_ssh_parser = cluster_subparsers.add_parser('ssh')
     cluster_ssh_parser.add_argument('name', metavar="NAME")
+    cluster_ssh_parser.add_argument('box', metavar="BOX")
     cluster_ssh_parser.set_defaults(functor=cluster_ssh)
 
     cluster_ls_parser = cluster_subparsers.add_parser('ls')

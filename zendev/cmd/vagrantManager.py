@@ -63,20 +63,21 @@ class VagrantManager(object):
         return vagrant.Vagrant(self._root.join(name).strpath)
 
     def up(self, name, box=None):
-        box = self._get_box(name)
-        box.up(vm_name=box)
+        vagrant = self._get_box(name)
+        vagrant.up(vm_name=box)
 
     def halt(self, name, box=None):
-        box = self._get_box(name)
-        box.halt(vm_name=box)
+        vagrant = self._get_box(name)
+        vagrant.halt(vm_name=box)
 
     def remove(self, name):
-        box = self._get_box(name)
-        box.destroy()
+        vagrant = self._get_box(name)
+        vagrant.destroy()
         self._root.join(name).remove()
 
     def provision(self, name, type_):
         import vagrant
+        BOXES=VagrantManager.BOXES
         type_ = "ubuntu" if BOXES.get(type_)==BOXES["ubuntu"] else "fedora"
         provision_script = subprocess.check_output(["bash",
             here("provision-%s.sh" % type_).strpath])

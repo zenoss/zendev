@@ -41,7 +41,7 @@ Vagrant.configure("2") do |config|
   end
   {% for root, target in shared_folders %}
   config.vm.synced_folder "{{ root }}", "{{ target }}"{% endfor %}
-  {% if provision_script %}config.vm.provision "shell", inline: $script{% endif %}
+  config.vm.provision "shell", inline: $script
 end
 
 """)
