@@ -8,7 +8,7 @@ VAGRANT = Template("""
 # vi: set ft=ruby :
 # Vagrantfile created by zendev cluster
 
-$script = <<SCRIPT
+$script = <<'SCRIPT'
 chown zenoss:zenoss /home/zenoss/{{env_name}}
 su - zenoss -c "cd /home/zenoss && zendev init {{env_name}}"
 echo "
@@ -20,14 +20,12 @@ echo "zendev use {{env_name}}" >> /home/zenoss/.bashrc
 [ -e /etc/hostid ] || printf %x $(date +%s) > /etc/hostid
 ln -sf /vagrant/etc_hosts /etc/hosts
 if ! $(grep -q ^$HOSTNAME /vagrant/etc_hosts 2>/dev/null) ; then
-    echo 's/^.*inet addr:\\\\([^ ]*\\\\).*/\\\\1/p'
-    IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\\\\([^ ]*\\\\).*/\\\\1/p')
+    IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\\([^ ]*\\).*/\\1/p')
     echo $IP $HOSTNAME >> /vagrant/etc_hosts
 fi
 ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
 if ! $(grep -q ^${HOSTNAME}_MASTER /vagrant/bash_serviced 2>/dev/null) ; then
-    echo "s/^\\\\(# serviced$\\\\)/${HOSTNAME}_MASTER=vb_host\\\\n\\\\1\\\\n/"
-    sed -ie "s/^\\\\(# serviced$\\\\)/${HOSTNAME}_MASTER=vb_host\\\\n\\\\1\\\\n/" /vagrant/bash_serviced 
+    sed -ie "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER=vb_host\\n\\1\\n/" /vagrant/bash_serviced 
 fi
 {%for i in range(vdis) %}
 {{"mkfs.btrfs -L volume.btrfs.%d /dev/sd%s"|format(i+1, "bcdef"[i])}} {%endfor%}
