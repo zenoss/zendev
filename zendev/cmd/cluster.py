@@ -25,7 +25,7 @@ if ! $(grep -q ^$HOSTNAME /vagrant/etc_hosts 2>/dev/null) ; then
 fi
 ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
 if ! $(grep -q ^${HOSTNAME}_MASTER /vagrant/bash_serviced 2>/dev/null) ; then
-    sed -ie "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER=vb_host\\n\\1\\n/" /vagrant/bash_serviced 
+    sed -i "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER=vb_host\\n\\1/" /vagrant/bash_serviced
 fi
 {%for i in range(vdis) %}
 {{"mkfs.btrfs -L volume.btrfs.%d /dev/sd%s"|format(i+1, "bcdef"[i])}} {%endfor%}
@@ -60,13 +60,13 @@ end
 """)
 
 
-# the virtualbox host (as set by vagrant-auto-network) is 10.20.1.1
+
 ETC_HOSTS = """
 127.0.0.1   localhost
-10.20.1.1   vb_host     # virtualbox_host
+%s   vb_host
 
 # Shared hosts for zendev cluster
-"""
+""" % VagrantManager.VIRTUALBOX_HOST_IP
 
 BASH_SERVICED = """
 #! /bin/bash

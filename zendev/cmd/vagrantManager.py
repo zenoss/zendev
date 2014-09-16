@@ -16,6 +16,9 @@ class VagrantManager(object):
         "fedora": "f19-docker-zendeps"
     }
 
+    # The IP of the virtualbox host, as set by vagrant-auto_network plugin.
+    VIRTUALBOX_HOST_IP = "10.20.1.1"
+
     def __init__(self, environment, root):
         self.env = environment
         self._root = root
