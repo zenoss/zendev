@@ -41,7 +41,7 @@ def use(args, env):
     env(args.name).use()
 
 
-def drop(args):
+def drop(args, env):
     """
     Drop a zendev environment.
     """
