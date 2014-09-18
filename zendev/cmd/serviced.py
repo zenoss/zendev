@@ -131,7 +131,7 @@ class Serviced(object):
 
 
 def run_serviced(args, env):
-    timeout = 60
+    timeout = 600
     _serviced = Serviced(env())
     if args.reset:
         _serviced.reset()
@@ -145,7 +145,7 @@ def run_serviced(args, env):
             if not timeout:
                 print "Timed out waiting for serviced!"
                 sys.exit(1)
-            print "Not ready yet. Checking again in 1 second."
+            print "Not ready yet (countdown:%d). Checking again in 1 second." % timeout
             time.sleep(1)
             timeout -= 1
         print "serviced is ready!"
