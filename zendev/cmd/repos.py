@@ -2,6 +2,8 @@ import os
 import subprocess
 import sys
 
+import py
+
 from ..log import error
 from ..manifest import create_manifest
 from ..config import get_config, get_envname
@@ -71,8 +73,11 @@ def each(args, env):
     """
     for repo in env().repos(args.repofilter):
         print repo.name
-        with repo.path.as_cwd():
-            subprocess.call(args.command)
+        try:
+            with repo.path.as_cwd():
+                subprocess.call(args.command)
+        except py.error.ENOENT:
+            error('%s is missing. Try "zendev sync" first.' % repo.name)
 
 
 def cd(args, env):
