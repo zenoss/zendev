@@ -277,10 +277,14 @@
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="s">&quot;Changes found in </span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">! Rebasing </span><span class="si">%s</span><span class="s">...&quot;</span> <span class="o">%</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">remote_name</span><span class="p">,</span> <span class="n">local_name</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stash</span><span class="p">()</span>
+        <span class="n">weStashed</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changes</span><span class="p">):</span>
+            <span class="n">weStashed</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stash</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">rebase</span><span class="p">(</span><span class="n">remote_name</span><span class="p">,</span> <span class="n">output_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">apply_stash</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">weStashed</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">apply_stash</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">GitCommandError</span><span class="p">:</span>
             <span class="k">pass</span>
 </div>

@@ -73,9 +73,8 @@
   <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
   <ul class="dropdown-menu localtoc"><ul>
 <li><a class="reference internal" href="#">zendev package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-zendev.box">zendev.box module</a></li>
-<li><a class="reference internal" href="#module-zendev.cluster">zendev.cluster module</a></li>
 <li><a class="reference internal" href="#module-zendev.config">zendev.config module</a></li>
 <li><a class="reference internal" href="#module-zendev.environment">zendev.environment module</a></li>
 <li><a class="reference internal" href="#module-zendev.github">zendev.github module</a></li>
@@ -83,7 +82,6 @@
 <li><a class="reference internal" href="#module-zendev.manifest">zendev.manifest module</a></li>
 <li><a class="reference internal" href="#module-zendev.progress">zendev.progress module</a></li>
 <li><a class="reference internal" href="#module-zendev.repo">zendev.repo module</a></li>
-<li><a class="reference internal" href="#module-zendev.serviced">zendev.serviced module</a></li>
 <li><a class="reference internal" href="#module-zendev.utils">zendev.utils module</a></li>
 <li><a class="reference internal" href="#module-zendev.zendev">zendev.zendev module</a></li>
 <li><a class="reference internal" href="#module-zendev">Module contents</a></li>
@@ -118,123 +116,29 @@
   
   <div class="section" id="zendev-package">
 <h1>zendev package<a class="headerlink" href="#zendev-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="zendev.cmd.html">zendev.cmd package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.box">zendev.cmd.box module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.build">zendev.cmd.build module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.cluster">zendev.cmd.cluster module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.environment">zendev.cmd.environment module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.feature">zendev.cmd.feature module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.repos">zendev.cmd.repos module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.serviced">zendev.cmd.serviced module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.tags">zendev.cmd.tags module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.zup">zendev.cmd.zup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-zendev.box">
-<span id="zendev-box-module"></span><h2>zendev.box module<a class="headerlink" href="#module-zendev.box" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="zendev.box.VagrantManager">
-<em class="property">class </em><tt class="descclassname">zendev.box.</tt><tt class="descname">VagrantManager</tt><big>(</big><em>environment</em><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Manages Vagrant boxes.</p>
-<dl class="method">
-<dt id="zendev.box.VagrantManager.create">
-<tt class="descname">create</tt><big>(</big><em>name</em>, <em>purpose='controlplane'</em>, <em>btrfs=0</em>, <em>vfs=0</em>, <em>memory='8192'</em><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.create" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.box.VagrantManager.halt">
-<tt class="descname">halt</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.halt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.halt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.box.VagrantManager.ls">
-<tt class="descname">ls</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.ls" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.box.VagrantManager.make_vdi">
-<tt class="descname">make_vdi</tt><big>(</big><em>name</em>, <em>diskname</em>, <em>size</em><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.make_vdi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.make_vdi" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.box.VagrantManager.provision">
-<tt class="descname">provision</tt><big>(</big><em>name</em>, <em>type_</em><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.provision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.provision" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.box.VagrantManager.remove">
-<tt class="descname">remove</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.remove" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.box.VagrantManager.ssh">
-<tt class="descname">ssh</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.ssh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.ssh" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.box.VagrantManager.up">
-<tt class="descname">up</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.up" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.box.VagrantManager.verify_auto_network">
-<tt class="descname">verify_auto_network</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/box.html#VagrantManager.verify_auto_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.box.VagrantManager.verify_auto_network" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-zendev.cluster">
-<span id="zendev-cluster-module"></span><h2>zendev.cluster module<a class="headerlink" href="#module-zendev.cluster" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="zendev.cluster.VagrantClusterManager">
-<em class="property">class </em><tt class="descclassname">zendev.cluster.</tt><tt class="descname">VagrantClusterManager</tt><big>(</big><em>environment</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Manages a cluster of Vagrant boxes.</p>
-<dl class="method">
-<dt id="zendev.cluster.VagrantClusterManager.boot">
-<tt class="descname">boot</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.boot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.boot" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.cluster.VagrantClusterManager.create">
-<tt class="descname">create</tt><big>(</big><em>name</em>, <em>purpose='controlplane'</em>, <em>count=1</em>, <em>domain='zenoss.loc'</em>, <em>memory=4096</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.create" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.cluster.VagrantClusterManager.halt">
-<tt class="descname">halt</tt><big>(</big><em>name</em>, <em>box</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.halt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.halt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.cluster.VagrantClusterManager.ls">
-<tt class="descname">ls</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.ls" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.cluster.VagrantClusterManager.provision">
-<tt class="descname">provision</tt><big>(</big><em>name</em>, <em>type_</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.provision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.provision" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.cluster.VagrantClusterManager.remove">
-<tt class="descname">remove</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.remove" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.cluster.VagrantClusterManager.shutdown">
-<tt class="descname">shutdown</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.shutdown" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.cluster.VagrantClusterManager.ssh">
-<tt class="descname">ssh</tt><big>(</big><em>name</em>, <em>box</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.ssh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.ssh" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.cluster.VagrantClusterManager.up">
-<tt class="descname">up</tt><big>(</big><em>name</em>, <em>box</em><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.up" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.cluster.VagrantClusterManager.verify_auto_network">
-<tt class="descname">verify_auto_network</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/cluster.html#VagrantClusterManager.verify_auto_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cluster.VagrantClusterManager.verify_auto_network" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </div>
 <div class="section" id="module-zendev.config">
 <span id="zendev-config-module"></span><h2>zendev.config module<a class="headerlink" href="#module-zendev.config" title="Permalink to this headline">¶</a></h2>
@@ -279,6 +183,11 @@
 <tt class="descclassname">zendev.config.</tt><tt class="descname">get_config</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/config.html#get_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.get_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="function">
+<dt id="zendev.config.get_envname">
+<tt class="descclassname">zendev.config.</tt><tt class="descname">get_envname</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/config.html#get_envname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.get_envname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="module-zendev.environment">
 <span id="zendev-environment-module"></span><h2>zendev.environment module<a class="headerlink" href="#module-zendev.environment" title="Permalink to this headline">¶</a></h2>
@@ -288,7 +197,7 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">git.util.RemoteProgress</span></tt></p>
 <dl class="attribute">
 <dt id="zendev.environment.MultiprocessingProgress.QUEUE">
-<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x30a1fd0&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x356e990&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -769,70 +678,6 @@ Matches zero or more characters at the beginning of the string</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-zendev.serviced">
-<span id="zendev-serviced-module"></span><h2>zendev.serviced module<a class="headerlink" href="#module-zendev.serviced" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="zendev.serviced.Serviced">
-<em class="property">class </em><tt class="descclassname">zendev.serviced.</tt><tt class="descname">Serviced</tt><big>(</big><em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<dl class="method">
-<dt id="zendev.serviced.Serviced.add_host">
-<tt class="descname">add_host</tt><big>(</big><em>host='172.17.42.1:4979'</em>, <em>pool='default'</em><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.add_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.add_host" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.serviced.Serviced.add_template">
-<tt class="descname">add_template</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.add_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.add_template" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.serviced.Serviced.deploy">
-<tt class="descname">deploy</tt><big>(</big><em>template</em>, <em>pool='default'</em>, <em>svcname='HBase'</em>, <em>noAutoAssignIpFlag=''</em><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.deploy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.deploy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="zendev.serviced.Serviced.env">
-<tt class="descname">env</tt><em class="property"> = None</em><a class="headerlink" href="#zendev.serviced.Serviced.env" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.serviced.Serviced.is_ready">
-<tt class="descname">is_ready</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.is_ready"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.is_ready" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="zendev.serviced.Serviced.proc">
-<tt class="descname">proc</tt><em class="property"> = None</em><a class="headerlink" href="#zendev.serviced.Serviced.proc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.serviced.Serviced.reset">
-<tt class="descname">reset</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.reset" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.serviced.Serviced.start">
-<tt class="descname">start</tt><big>(</big><em>root=False</em>, <em>uiport=443</em>, <em>arguments=None</em>, <em>registry=False</em><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.start" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.serviced.Serviced.startall">
-<tt class="descname">startall</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.startall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.startall" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.serviced.Serviced.stop">
-<tt class="descname">stop</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.stop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zendev.serviced.Serviced.wait">
-<tt class="descname">wait</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/serviced.html#Serviced.wait"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.serviced.Serviced.wait" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
 <div class="section" id="module-zendev.utils">
 <span id="zendev-utils-module"></span><h2>zendev.utils module<a class="headerlink" href="#module-zendev.utils" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -857,6 +702,11 @@ Matches zero or more characters at the beginning of the string</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="zendev.utils.add_repo_narg">
+<tt class="descclassname">zendev.utils.</tt><tt class="descname">add_repo_narg</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#add_repo_narg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.add_repo_narg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="zendev.utils.colored">
 <tt class="descclassname">zendev.utils.</tt><tt class="descname">colored</tt><big>(</big><em>s</em>, <em>color=None</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#colored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.colored" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -879,6 +729,13 @@ Matches zero or more characters at the beginning of the string</p>
 <dd></dd></dl>
 
 <dl class="function">
+<dt id="zendev.utils.repofilter">
+<tt class="descclassname">zendev.utils.</tt><tt class="descname">repofilter</tt><big>(</big><em>repos=()</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#repofilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.repofilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a function that will return only those repos specified, or all if
+nothing was specified.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="zendev.utils.resolve">
 <tt class="descclassname">zendev.utils.</tt><tt class="descname">resolve</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.resolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>If path is a URL, download the file somewhere and return the file path.</p>
@@ -888,70 +745,8 @@ Matches zero or more characters at the beginning of the string</p>
 <div class="section" id="module-zendev.zendev">
 <span id="zendev-zendev-module"></span><h2>zendev.zendev module<a class="headerlink" href="#module-zendev.zendev" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="zendev.zendev.add">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">add</tt><big>(</big><em>args</em>, <em>paths=()</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a manifest.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.add_repo_narg">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">add_repo_narg</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#add_repo_narg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.add_repo_narg" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.attach">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">attach</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#attach"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.attach" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="zendev.zendev.bootstrap">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">bootstrap</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#bootstrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.bootstrap" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.box_create">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">box_create</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#box_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.box_create" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.box_halt">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">box_halt</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#box_halt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.box_halt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.box_ls">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">box_ls</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#box_ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.box_ls" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.box_remove">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">box_remove</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#box_remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.box_remove" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.box_ssh">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">box_ssh</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#box_ssh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.box_ssh" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.box_up">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">box_up</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#box_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.box_up" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.build">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">build</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.build" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.cd">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cd</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print the directory of the repository if specified or the environment if not.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.changelog">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">changelog</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#changelog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.changelog" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">bootstrap</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#bootstrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.bootstrap" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -959,120 +754,10 @@ Matches zero or more characters at the beginning of the string</p>
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">check_env</tt><big>(</big><em>name=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#check_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.check_env" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="zendev.zendev.clone">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">clone</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.clone" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.cluster_boot">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_boot</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_boot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_boot" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.cluster_create">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_create</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_create" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.cluster_halt">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_halt</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_halt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_halt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.cluster_ls">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_ls</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_ls" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.cluster_remove">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_remove</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_remove" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.cluster_shutdown">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_shutdown</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_shutdown" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.cluster_ssh">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_ssh</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_ssh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_ssh" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.cluster_up">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">cluster_up</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#cluster_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.cluster_up" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.devshell">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">devshell</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#devshell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.devshell" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start up a shell with the imports of the Zope service but no command.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.drop">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">drop</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#drop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.drop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Drop a zendev environment.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.each">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">each</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#each"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.each" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute a command in each repo&#8217;s directory.</p>
-</dd></dl>
-
 <dl class="class">
 <dt id="zendev.zendev.fargs">
 <em class="property">class </em><tt class="descclassname">zendev.zendev.</tt><tt class="descname">fargs</tt><a class="reference internal" href="_modules/zendev/zendev.html#fargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.fargs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.feature_finish">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">feature_finish</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#feature_finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.feature_finish" title="Permalink to this definition">¶</a></dt>
-<dd><p>finish all git repositories with feature name</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.feature_list">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">feature_list</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#feature_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.feature_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>List git flow feature for all repositories.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.feature_pull">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">feature_pull</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#feature_pull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.feature_pull" title="Permalink to this definition">¶</a></dt>
-<dd><p>Request github pull-request for repositories with feature name</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.feature_start">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">feature_start</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#feature_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.feature_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start git flow feature for all requested repositories.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.freeze">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">freeze</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#freeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.freeze" title="Permalink to this definition">¶</a></dt>
-<dd><p>Output JSON representation of manifests.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.get_envname">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">get_envname</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#get_envname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.get_envname" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.init">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">init</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.init" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize an environment.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.ls">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">ls</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.ls" title="Permalink to this definition">¶</a></dt>
-<dd><p>Output information about repositories.</p>
 </dd></dl>
 
 <dl class="function">
@@ -1086,58 +771,18 @@ Matches zero or more characters at the beginning of the string</p>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="zendev.zendev.remove">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">remove</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.remove" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove a repository.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.repofilter">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">repofilter</tt><big>(</big><em>repos=()</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#repofilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.repofilter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a function that will return only those repos specified, or all if
-nothing was specified.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.restore">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">restore</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#restore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.restore" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
 <dt id="zendev.zendev.restoreCompleter">
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">restoreCompleter</tt><big>(</big><em>prefix</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#restoreCompleter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.restoreCompleter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.zendev.root">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">root</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.root" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">root</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.root" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.zendev.selfupdate">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">selfupdate</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#selfupdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.selfupdate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.serviced">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">serviced</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#serviced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.serviced" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.status">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">status</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.status" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print status.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.sync">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">sync</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#sync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.sync" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clone or update any existing repositories, push any commits.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.tag">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">tag</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.tag" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">zendev.zendev.</tt><tt class="descname">selfupdate</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#selfupdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.selfupdate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -1145,18 +790,6 @@ nothing was specified.</p>
 <tt class="descclassname">zendev.zendev.</tt><tt class="descname">temp_env</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#temp_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.temp_env" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a temporary environment and patches everything to use it for the
 lifespan of the context manager.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.use">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">use</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#use"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.use" title="Permalink to this definition">¶</a></dt>
-<dd><p>Use a zendev environment.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="zendev.zendev.zup">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">zup</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#zup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.zup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do zup-related things like build zups, which is a blast.</p>
 </dd></dl>
 
 </div>

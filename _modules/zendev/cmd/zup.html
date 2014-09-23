@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>zendev.cmd.zup &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="../../../index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="../../../index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Working With Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../repos.html">Working With Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../build.html">Building Zenoss With zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cluster.html">Vagrant Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../packer.html">Building the Development Base Box</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../improve.html">Improving zendev</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"></ul>
+</li>
+          
+          
+            
+          
+          
+            <li></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <h1>Source code for zendev.cmd.zup</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">py</span>
+
+
+<div class="viewcode-block" id="zup"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.zup.zup">[docs]</a><span class="k">def</span> <span class="nf">zup</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Do zup-related things like build zups, which is a blast.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">env</span><span class="p">(</span><span class="n">srcroot</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">_manifestHash</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span><span class="o">.</span><span class="n">hash</span><span class="p">[:</span><span class="mi">7</span><span class="p">]</span>
+    <span class="k">with</span> <span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;make&quot;</span><span class="p">,</span>
+                              <span class="s">&quot;GA_BUILD_IMAGE={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">begin_image</span><span class="p">),</span>
+                              <span class="s">&quot;PRODUCT={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">product</span><span class="p">),</span>
+                              <span class="s">&quot;SRCROOT={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                  <span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&#39;src&#39;</span><span class="p">)</span>
+                              <span class="p">),</span>
+                              <span class="s">&quot;OUTPUT={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">),</span>
+                              <span class="s">&quot;TAG_HASH={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_manifestHash</span><span class="p">),</span>
+                              <span class="s">&quot;zup&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.zup.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
+    <span class="n">zup_description</span> <span class="o">=</span> <span class="s">&quot;Build a zup!  This will spawn a container that will talk &quot;</span> \
+                      <span class="s">&quot;to docker on the host machine running zendev.  Currently, &quot;</span> \
+                      <span class="s">&quot;the HOST param is ignored in favor of bind mounting the &quot;</span> \
+                      <span class="s">&quot;local host&#39;s unix socket into the container.&quot;</span>
+    <span class="n">zup_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;zup&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">zup_description</span><span class="p">)</span>
+    <span class="n">zup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;--output&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;DIRECTORY&#39;</span><span class="p">,</span>
+                            <span class="n">default</span><span class="o">=</span><span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">()</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;output&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
+    <span class="n">zup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-t&#39;</span><span class="p">,</span> <span class="s">&#39;--tag&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;TAG&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Checkout a given manifest tag before building a zup.  &quot;</span>
+                                 <span class="s">&quot;Useful primarily for using a specific ref of platform-build &quot;</span>
+                                 <span class="s">&quot;(specified in the manifest) to do your zup building.&quot;</span><span class="p">)</span>
+    <span class="n">zup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;begin_image&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;The GA image that should be used as &quot;</span>
+                                                <span class="s">&quot;the baseline for building ZUPs.  &quot;</span>
+                                                <span class="s">&quot;Should be in the format &quot;</span>
+                                                <span class="s">&quot;&#39;imageName:tag&#39;&quot;</span><span class="p">)</span>
+    <span class="n">zup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--no-cleanup&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Do NOT cleanup docker &quot;</span>
+                                                 <span class="s">&quot;containers created during &quot;</span>
+                                                 <span class="s">&quot;zup creation.  This should &quot;</span>
+                                                 <span class="s">&quot;really only be used for &quot;</span>
+                                                 <span class="s">&quot;debugging purposes, as you &quot;</span>
+                                                 <span class="s">&quot;will need to manually clean &quot;</span>
+                                                 <span class="s">&quot;up after yourself if you use&quot;</span>
+                                                 <span class="s">&quot;this flag.&quot;</span><span class="p">,</span>
+                            <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;cleanup&quot;</span><span class="p">)</span>
+    <span class="n">zup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;product&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Product to build a zup for&quot;</span><span class="p">,</span>
+                            <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;zenoss-5.0.0&#39;</span><span class="p">])</span>
+
+    <span class="n">zup_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">zup</span><span class="p">)</span></div>
+</pre></div>
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

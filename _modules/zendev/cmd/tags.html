@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>zendev.cmd.tags &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="../../../index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="../../../index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Working With Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../repos.html">Working With Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../build.html">Building Zenoss With zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cluster.html">Vagrant Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../packer.html">Building the Development Base Box</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../improve.html">Improving zendev</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"></ul>
+</li>
+          
+          
+            
+          
+          
+            <li></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <h1>Source code for zendev.cmd.tags</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+
+<span class="kn">from</span> <span class="nn">..log</span> <span class="kn">import</span> <span class="n">error</span>
+
+
+<div class="viewcode-block" id="changelog"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.tags.changelog">[docs]</a><span class="k">def</span> <span class="nf">changelog</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="n">buf</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">env</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">frommanifest</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_manifest</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">error</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> is an invalid tag. See available tags with `zendev tag --list`&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">tag1</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">tomanifest</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_manifest</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag2</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tag2</span> <span class="k">else</span> <span class="n">env</span><span class="o">.</span><span class="n">manifest</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">error</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> is an invalid tag. See available tags with `zendev tag --list`&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">tag2</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">repos</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;build&#39;</span><span class="p">:</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;../build&#39;</span>
+        <span class="n">ref1</span> <span class="o">=</span> <span class="n">frommanifest</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;repos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ref&#39;</span><span class="p">)</span>
+        <span class="n">ref2</span> <span class="o">=</span> <span class="n">tomanifest</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;repos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ref&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ref1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">ref2</span> <span class="ow">or</span> <span class="n">ref1</span> <span class="o">==</span> <span class="n">ref2</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">changelog</span><span class="p">(</span><span class="n">ref1</span><span class="p">,</span> <span class="n">ref2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+            <span class="n">buf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">u&quot;&quot;&quot;</span>
+<span class="s">{repo_name} | {repo_url}</span>
+<span class="s">=============================================================================</span>
+<span class="s">{changelog}</span>
+<span class="s">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">repo_name</span><span class="o">=</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">repo_url</span><span class="o">=</span><span class="n">repo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">changelog</span><span class="o">=</span><span class="n">result</span><span class="p">))</span>
+    <span class="n">full_log</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">isatty</span><span class="p">():</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s">&quot;less&quot;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">full_log</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span> <span class="n">full_log</span>
+
+</div>
+<div class="viewcode-block" id="restore"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.tags.restore">[docs]</a><span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="tag"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.tags.tag">[docs]</a><span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">list_tags</span><span class="p">():</span>
+            <span class="k">print</span> <span class="n">tag</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">delete</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="n">error</span><span class="p">(</span><span class="s">&quot;Missing the name of a tag to delete&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;develop&#39;</span><span class="p">:</span>
+            <span class="n">error</span><span class="p">(</span><span class="s">&quot;You can&#39;t delete develop!&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">tag_delete</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="n">error</span><span class="p">(</span><span class="s">&quot;Missing the name of a tag to create&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">strict</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">from_ref</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.tags.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">,</span> <span class="n">completer</span><span class="p">):</span>
+    <span class="n">restore_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;restore&#39;</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">restore_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">completer</span>
+    <span class="n">restore_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">restore</span><span class="p">)</span>
+
+    <span class="n">tag_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;tag&#39;</span><span class="p">)</span>
+    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--strict&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-l&#39;</span><span class="p">,</span> <span class="s">&#39;--list&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="s">&#39;--force&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-D&#39;</span><span class="p">,</span> <span class="s">&#39;--delete&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-F&#39;</span><span class="p">,</span> <span class="s">&#39;--from&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;from_ref&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;?&quot;</span><span class="p">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">completer</span>
+    <span class="n">tag_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">tag</span><span class="p">)</span>
+
+    <span class="n">changelog_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;changelog&#39;</span><span class="p">)</span>
+    <span class="n">changelog_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;tag1&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;TAG&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">completer</span>
+    <span class="n">changelog_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;tag2&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;TAG&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;?&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">completer</span>
+    <span class="n">changelog_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">changelog</span><span class="p">)</span></div>
+</pre></div>
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

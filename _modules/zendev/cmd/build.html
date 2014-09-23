@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>zendev.cmd.build &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="../../../index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="../../../index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Working With Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../repos.html">Working With Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../build.html">Building Zenoss With zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cluster.html">Vagrant Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../packer.html">Building the Development Base Box</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../improve.html">Improving zendev</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"></ul>
+</li>
+          
+          
+            
+          
+          
+            <li></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <h1>Source code for zendev.cmd.build</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">py</span>
+
+<div class="viewcode-block" id="build"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.build.build">[docs]</a><span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="n">srcroot</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">manifest</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">noenv</span><span class="p">:</span>
+        <span class="n">srcroot</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">env</span><span class="p">(</span><span class="n">manifest</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">manifest</span><span class="p">,</span> <span class="n">srcroot</span><span class="o">=</span><span class="n">srcroot</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">manifest</span><span class="p">:</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">createtag</span><span class="p">:</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">createtag</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">rps</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;GA_IMAGE_TAG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">ga_image</span>
+        <span class="n">_manifestHash</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">ensure_manifestrepo</span><span class="p">()</span><span class="o">.</span><span class="n">hash</span><span class="p">[:</span><span class="mi">7</span><span class="p">]</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;TAG_HASH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_manifestHash</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">envvars</span><span class="p">())</span>
+    <span class="k">with</span> <span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;srcbuild&#39;</span> <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s">&#39;src&#39;</span> <span class="k">else</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">clean</span><span class="p">:</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;make&quot;</span><span class="p">,</span> <span class="s">&quot;clean&quot;</span><span class="p">])</span>
+            <span class="n">bashcommand</span> <span class="o">=</span> <span class="s">&quot;find /mnt/src/ -maxdepth 2 -name pom.xml|while read file; do (cd $(dirname $file) &amp;&amp; echo -n cleaning: &amp;&amp; pwd &amp;&amp; mvn clean); done&quot;</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;docker run --privileged --rm -v </span><span class="si">%s</span><span class="s">/src:/mnt/src -i -t zenoss/rpmbuild:centos7 bash -c &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="n">bashcommand</span><span class="p">)</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">packs</span> <span class="o">=</span> <span class="n">get_resmgr_packs</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">resmgr</span> <span class="k">else</span> <span class="p">[</span><span class="s">&quot;ZenPacks.zenoss.ZenJMX&quot;</span><span class="p">,</span> <span class="s">&quot;ZenPacks.zenoss.PythonCollector&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&quot;devimg&quot;</span> <span class="ow">in</span> <span class="n">target</span><span class="p">:</span>
+            <span class="c"># Figure out which zenpacks to install.</span>
+            <span class="k">for</span> <span class="n">pack</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">packs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">pack</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;ZenPacks&quot;</span><span class="p">):</span>
+                    <span class="n">pack</span> <span class="o">=</span> <span class="s">&quot;ZenPacks.zenoss.&quot;</span> <span class="o">+</span> <span class="n">pack</span>
+                    <span class="n">packs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pack</span><span class="p">)</span>
+        <span class="c"># CatalogService is not currently compatible with zendev</span>
+        <span class="k">if</span> <span class="s">&quot;ZenPacks.zenoss.CatalogService&quot;</span> <span class="ow">in</span> <span class="n">packs</span><span class="p">:</span>
+            <span class="n">packs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&quot;ZenPacks.zenoss.CatalogService&quot;</span><span class="p">)</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;make&quot;</span><span class="p">,</span> <span class="s">&quot;OUTPUT=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">,</span>
+                              <span class="s">&#39;ZENPACKS=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">packs</span><span class="p">)]</span> <span class="o">+</span> <span class="n">target</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_resmgr_packs"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.build.get_resmgr_packs">[docs]</a><span class="k">def</span> <span class="nf">get_resmgr_packs</span><span class="p">(</span><span class="n">env</span><span class="p">):</span>
+    <span class="n">packs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;pkg/zenoss_resmgr_zenpacks.mk&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;zenoss_resmgr.zp_to_build&quot;</span><span class="p">):</span>
+                    <span class="n">pack</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">packs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pack</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;zenoss_resmgr.zp_to_not_install&quot;</span><span class="p">):</span>
+                    <span class="n">pack</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">packs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">pack</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">packs</span>
+
+</div>
+<div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.build.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
+    <span class="n">build_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;build&#39;</span><span class="p">)</span>
+    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-t&#39;</span><span class="p">,</span> <span class="s">&#39;--tag&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;TAG&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-m&#39;</span><span class="p">,</span> <span class="s">&#39;--manifest&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;+&quot;</span><span class="p">,</span>
+                              <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;MANIFEST&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;--output&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;DIRECTORY&#39;</span><span class="p">,</span>
+                              <span class="n">default</span><span class="o">=</span><span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">()</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;output&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
+    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-c&#39;</span><span class="p">,</span> <span class="s">&#39;--clean&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
+                              <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--create-tag&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;createtag&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                              <span class="n">help</span><span class="o">=</span><span class="s">&quot;Tag the source for this build&quot;</span><span class="p">)</span>
+    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--rps&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
+                              <span class="n">help</span><span class="o">=</span><span class="s">&quot;Build an RPS image (requires the --ga_image argument)&quot;</span><span class="p">)</span>
+    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--ga_image&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;When building an RPS image, &quot;</span>
+                                                 <span class="s">&quot;specify the GA image tag to use&quot;</span><span class="p">)</span>
+    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="s">&#39;--with-pack&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;packs&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;append&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="p">(),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s">&quot;In a devimg build, ZenPacks to install into the image&quot;</span><span class="p">)</span>
+    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--resmgr&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Install resmgr ZenPacks&quot;</span><span class="p">)</span>
+    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;target&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;TARGET&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;+&quot;</span><span class="p">,</span>
+                              <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;src&#39;</span><span class="p">,</span> <span class="s">&#39;core&#39;</span><span class="p">,</span> <span class="s">&#39;resmgr&#39;</span><span class="p">,</span>
+                                       <span class="s">&#39;svcdef-core&#39;</span><span class="p">,</span> <span class="s">&#39;svcdef-resmgr&#39;</span><span class="p">,</span>
+                                       <span class="s">&#39;svcdefpkg-core&#39;</span><span class="p">,</span> <span class="s">&#39;svcdefpkg-resmgr&#39;</span><span class="p">,</span>
+                                       <span class="s">&#39;svcpkg-core&#39;</span><span class="p">,</span> <span class="s">&#39;svcpkg-resmgr&#39;</span><span class="p">,</span> <span class="s">&#39;svcpkg&#39;</span><span class="p">,</span>
+                                       <span class="s">&#39;serviced&#39;</span><span class="p">,</span> <span class="s">&#39;devimg&#39;</span><span class="p">,</span> <span class="s">&#39;img-core&#39;</span><span class="p">,</span>
+                                       <span class="s">&#39;img-resmgr&#39;</span><span class="p">,</span> <span class="s">&#39;rps-img-core&#39;</span><span class="p">,</span>
+                                       <span class="s">&#39;rps-img-resmgr&#39;</span><span class="p">])</span>
+    <span class="n">build_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">build</span><span class="p">)</span>
+</pre></div></div>
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

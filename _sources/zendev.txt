@@ -1,24 +1,15 @@
 zendev package
 ==============
 
+Subpackages
+-----------
+
+.. toctree::
+
+    zendev.cmd
+
 Submodules
 ----------
-
-zendev.box module
------------------
-
-.. automodule:: zendev.box
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-zendev.cluster module
----------------------
-
-.. automodule:: zendev.cluster
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 zendev.config module
 --------------------
@@ -72,14 +63,6 @@ zendev.repo module
 ------------------
 
 .. automodule:: zendev.repo
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-zendev.serviced module
-----------------------
-
-.. automodule:: zendev.serviced
     :members:
     :undoc-members:
     :show-inheritance:

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>zendev.cmd.repos &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="../../../index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="../../../index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Working With Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../repos.html">Working With Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../build.html">Building Zenoss With zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cluster.html">Vagrant Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../packer.html">Building the Development Base Box</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../improve.html">Improving zendev</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"></ul>
+</li>
+          
+          
+            
+          
+          
+            <li></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <h1>Source code for zendev.cmd.repos</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">py</span>
+
+<span class="kn">from</span> <span class="nn">..log</span> <span class="kn">import</span> <span class="n">error</span>
+<span class="kn">from</span> <span class="nn">..manifest</span> <span class="kn">import</span> <span class="n">create_manifest</span>
+<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">get_config</span><span class="p">,</span> <span class="n">get_envname</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">colored</span><span class="p">,</span> <span class="n">add_repo_narg</span><span class="p">,</span> <span class="n">repofilter</span>
+
+
+<div class="viewcode-block" id="add"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.repos.add">[docs]</a><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a manifest.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">manifest</span> <span class="o">=</span> <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">manifest</span>
+    <span class="n">manifest</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">create_manifest</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">manifest</span> <span class="ow">or</span> <span class="p">()))</span>
+    <span class="n">manifest</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="remove"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.repos.remove">[docs]</a><span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove a repository.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
+        <span class="n">error</span><span class="p">(</span><span class="s">&quot;No repositories were specified.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">repofilter</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="freeze"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.repos.freeze">[docs]</a><span class="k">def</span> <span class="nf">freeze</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Output JSON representation of manifests.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">print</span> <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="ls"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.repos.ls">[docs]</a><span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Output information about repositories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">()</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">get_envname</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">env</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">environments</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">colored</span><span class="p">(</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="s">&#39;blue&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">env</span> <span class="o">==</span> <span class="n">cur</span> <span class="k">else</span> <span class="s">&#39; &#39;</span>
+        <span class="k">print</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">env</span>
+
+</div>
+<div class="viewcode-block" id="sync"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.repos.sync">[docs]</a><span class="k">def</span> <span class="nf">sync</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clone or update any existing repositories, push any commits.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">repofilter</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="status"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.repos.status">[docs]</a><span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print status.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
+        <span class="n">filter_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repofilter</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
+        <span class="n">filter_</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filter_</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">check</span><span class="p">()</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">changes</span><span class="p">)</span>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">filter_</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="each"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.repos.each">[docs]</a><span class="k">def</span> <span class="nf">each</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Execute a command in each repo&#39;s directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">repofilter</span><span class="p">):</span>
+        <span class="k">print</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">repo</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
+                <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">py</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+            <span class="n">error</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> is missing. Try &quot;zendev sync&quot; first.&#39;</span> <span class="o">%</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="cd"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.repos.cd">[docs]</a><span class="k">def</span> <span class="nf">cd</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print the directory of the repository if specified or the environment if</span>
+<span class="sd">    not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">env</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="p">:</span>
+        <span class="n">repos</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="n">repofilter</span><span class="p">([</span><span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">repos</span><span class="p">:</span>
+            <span class="c"># try to fall back to a directory in our srcroot</span>
+            <span class="n">nonRepoPath</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">nonRepoPath</span><span class="p">):</span>
+                <span class="n">env</span><span class="o">.</span><span class="n">bash</span><span class="p">(</span><span class="s">&#39;cd &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">nonRepoPath</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">error</span><span class="p">(</span><span class="s">&quot;No repo matching </span><span class="si">%s</span><span class="s"> found&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">repos</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">repo</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strpath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+                <span class="n">env</span><span class="o">.</span><span class="n">bash</span><span class="p">(</span><span class="s">&#39;cd &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">repo</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">bash</span><span class="p">(</span><span class="s">&#39;cd &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">repos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">bash</span><span class="p">(</span><span class="s">&#39;cd &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.repos.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
+
+    <span class="n">add_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;add&#39;</span><span class="p">)</span>
+    <span class="n">add_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;manifest&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;+&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;MANIFEST&quot;</span><span class="p">)</span>
+    <span class="n">add_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">add</span><span class="p">)</span>
+
+    <span class="n">rm_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;rm&#39;</span><span class="p">)</span>
+    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">rm_parser</span><span class="p">)</span>
+    <span class="n">rm_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">remove</span><span class="p">)</span>
+
+    <span class="n">ls_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ls&#39;</span><span class="p">)</span>
+    <span class="n">ls_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">ls</span><span class="p">)</span>
+
+    <span class="n">freeze_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;freeze&#39;</span><span class="p">)</span>
+    <span class="n">freeze_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">freeze</span><span class="p">)</span>
+
+    <span class="n">sync_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;sync&#39;</span><span class="p">)</span>
+    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">sync_parser</span><span class="p">)</span>
+    <span class="n">sync_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">sync</span><span class="p">)</span>
+
+    <span class="n">status_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;status&#39;</span><span class="p">)</span>
+    <span class="n">status_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-a&#39;</span><span class="p">,</span> <span class="s">&#39;--all&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+               <span class="n">help</span><span class="o">=</span><span class="s">&quot;Display all repos, whether or not they have changes.&quot;</span><span class="p">)</span>
+    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">status_parser</span><span class="p">)</span>
+    <span class="n">status_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+    <span class="n">each_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;each&#39;</span><span class="p">)</span>
+    <span class="n">each_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-r&#39;</span><span class="p">,</span> <span class="s">&#39;--repo&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;repos&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">)</span>
+    <span class="n">each_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;command&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;*&quot;</span><span class="p">)</span>
+    <span class="n">each_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">each</span><span class="p">)</span>
+
+    <span class="n">cd_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;cd&#39;</span><span class="p">)</span>
+    <span class="n">cd_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;REPO&quot;</span><span class="p">)</span>
+    <span class="n">cd_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cd</span><span class="p">)</span></div>
+</pre></div>
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

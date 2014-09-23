@@ -98,26 +98,25 @@
   
   <h1>Source code for zendev.environment</h1><div class="highlight"><pre>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">py</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">Pool</span>
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span> <span class="nn">Queue</span> <span class="kn">import</span> <span class="n">Empty</span>
+
+<span class="kn">import</span> <span class="nn">py</span>
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
+<span class="kn">from</span> <span class="nn">git.remote</span> <span class="kn">import</span> <span class="n">RemoteProgress</span>
 
 <span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">ask</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">error</span>
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">get_config</span>
 <span class="kn">from</span> <span class="nn">.manifest</span> <span class="kn">import</span> <span class="n">Manifest</span><span class="p">,</span> <span class="n">create_manifest</span>
 <span class="kn">from</span> <span class="nn">.repo</span> <span class="kn">import</span> <span class="n">Repository</span>
-<span class="kn">from</span> <span class="nn">.box</span> <span class="kn">import</span> <span class="n">VagrantManager</span>
-<span class="kn">from</span> <span class="nn">.cluster</span> <span class="kn">import</span> <span class="n">VagrantClusterManager</span>
+<span class="kn">from</span> <span class="nn">.cmd.box</span> <span class="kn">import</span> <span class="n">VagrantManager</span>
+<span class="kn">from</span> <span class="nn">.cmd.cluster</span> <span class="kn">import</span> <span class="n">VagrantClusterManager</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Reprinter</span><span class="p">,</span> <span class="n">colored</span><span class="p">,</span> <span class="n">here</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">is_git_repo</span><span class="p">,</span> <span class="n">resolve</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">is_git_repo</span>
 <span class="kn">from</span> <span class="nn">.progress</span> <span class="kn">import</span> <span class="n">GitProgressBar</span><span class="p">,</span> <span class="n">SimpleGitProgressBar</span>
-<span class="kn">from</span> <span class="nn">git.remote</span> <span class="kn">import</span> <span class="n">RemoteProgress</span>
 
 
 <span class="n">CONFIG_DIR</span> <span class="o">=</span> <span class="s">&#39;.zendev&#39;</span>
@@ -141,7 +140,11 @@
 </div></div>
 <div class="viewcode-block" id="doit"><a class="viewcode-back" href="../../zendev.html#zendev.environment.doit">[docs]</a><span class="k">def</span> <span class="nf">doit</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
     <span class="n">repo</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">MultiprocessingProgress</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-    <span class="nb">getattr</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">fname</span><span class="p">)()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">fname</span><span class="p">)()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+
 
 </div>
 <div class="viewcode-block" id="init_config_dir"><a class="viewcode-back" href="../../zendev.html#zendev.environment.init_config_dir">[docs]</a><span class="k">def</span> <span class="nf">init_config_dir</span><span class="p">():</span>
@@ -350,7 +353,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">repodir</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
                 <span class="n">info</span><span class="p">(</span><span class="s">&quot;Checking out manifest repository&quot;</span><span class="p">)</span>
-                <span class="n">repo</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">SimpleGitProgressBar</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">isatty</span><span class="p">():</span>
+                    <span class="n">repo</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">SimpleGitProgressBar</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="n">repo</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
                 <span class="k">print</span>
         <span class="k">return</span> <span class="n">repo</span>
@@ -426,7 +430,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">builddir</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
                 <span class="n">info</span><span class="p">(</span><span class="s">&quot;Checking out build repository&quot;</span><span class="p">)</span>
-                <span class="n">repo</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">SimpleGitProgressBar</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">isatty</span><span class="p">():</span>
+                    <span class="n">repo</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">SimpleGitProgressBar</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="n">repo</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
                 <span class="k">print</span>
             <span class="k">else</span><span class="p">:</span>
@@ -453,6 +458,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="n">filter_</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">force_branch</span><span class="p">:</span>
+                <span class="n">info</span><span class="p">(</span><span class="s">&quot;Syncing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
             <span class="n">repo</span><span class="o">.</span><span class="n">merge_from_remote</span><span class="p">()</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;Remote changes have been merged&quot;</span><span class="p">)</span>

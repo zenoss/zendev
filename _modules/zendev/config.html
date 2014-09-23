@@ -161,7 +161,11 @@
     <span class="n">config</span> <span class="o">=</span> <span class="n">ZendevConfig</span><span class="p">(</span><span class="n">zendevhome</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;environments.json&#39;</span><span class="p">))</span>
     <span class="n">config</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">config</span>
-</pre></div></div>
+
+</div>
+<div class="viewcode-block" id="get_envname"><a class="viewcode-back" href="../../zendev.html#zendev.config.get_envname">[docs]</a><span class="k">def</span> <span class="nf">get_envname</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">get_config</span><span class="p">()</span><span class="o">.</span><span class="n">current</span></div>
+</pre></div>
 
 </div>
 <footer class="footer">

@@ -120,15 +120,20 @@ process by creating a lightweight image that mounts Zenoss source from your
 host filesystem.</p>
 <div class="section" id="building-the-image">
 <h2>Building the Image<a class="headerlink" href="#building-the-image" title="Permalink to this headline">¶</a></h2>
-<p>First step is to create the image, <tt class="docutils literal"><span class="pre">zendev/devimg</span></tt>. Currently, only Core is
-available at this high level, although the underlying steps are there to
-support Resource Manager as well. Time permitting! Contributions welcome! Run:</p>
+<p>First step is to create the image, <tt class="docutils literal"><span class="pre">zendev/devimg</span></tt>. You may choose to build
+an image that includes any ZenPacks available in your source tree; there is a
+shortcut option to build a straight Resource Manager image.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Make sure you have necessary repos (first time only)</span>
-zendev add <span class="k">$(</span>zendev root<span class="k">)</span>/build/manifests/<span class="o">{</span>core,zenpacks.core<span class="o">}</span>.json
-zendev sync
+zendev restore develop
 
-<span class="c"># Build</span>
+<span class="c"># Build Core image</span>
 zendev build devimg
+
+<span class="c"># Build Core image + a couple zenpacks</span>
+zendev build devimg -p EnterpriseCollector -p DistributedCollector
+
+<span class="c"># Build Resource Manager image</span>
+zendev build devimg --resmgr
 </pre></div>
 </div>
 <dl class="docutils">
@@ -137,8 +142,7 @@ zendev build devimg
 <li>Your zendev source root mounted at <tt class="docutils literal"><span class="pre">/mnt/src</span></tt></li>
 <li>Your zendev zenhome mounted at <tt class="docutils literal"><span class="pre">/opt/zenoss</span></tt></li>
 <li>A full Zenoss source build run</li>
-<li>Some ZenPacks installed (currently ZenJMX and PythonCollector, since they
-have service definitions in Zenoss.core)</li>
+<li>ZenPacks installed (ZenJMX and PythonCollector + whatever you specified)</li>
 <li><tt class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/src/core/Products</span></tt> symlinked to <tt class="docutils literal"><span class="pre">/opt/zenoss/Products</span></tt></li>
 <li>A <cite>zenoss</cite> user with the same GID/UID as your current user, so you don&#8217;t
 have permission problems with the mounted source (sudoer, NOPASSWD)</li>
@@ -155,8 +159,8 @@ without having to do any image rebuilding.</p>
 <h2>Running Control Plane<a class="headerlink" href="#running-control-plane" title="Permalink to this headline">¶</a></h2>
 <p>Once your image exists, you can start the control plane using <tt class="docutils literal"><span class="pre">zendev</span>
 <span class="pre">serviced</span></tt> (this replaces <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">resetserviced</span></tt>).</p>
-<div class="highlight-bash"><div class="highlight"><pre>usage: zendev serviced [-h] [-r] [-d] [-a] [-x] [--no-auto-assign-ips]
-                       [-u UIPORT] [-- ARG [ARG...]]
+<div class="highlight-bash"><div class="highlight"><pre>usage: zendev serviced [-h] [-r] [-d] [-a] [-x] [--template TEMPLATE]
+                       [--no-auto-assign-ips] [-u UIPORT] [-- ARG [ARG...]]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -164,7 +168,10 @@ optional arguments:
                         see --no-root)
   -d, --deploy          Add Zenoss service definitions and deploy an instance
   -a, --startall        Start all services once deployed
+
   -x, --reset           Clean service state and kill running containers first
+  --template            {Zenoss.core,Zenoss.core.full,Zenoss.resmgr.lite,Zenoss.resmgr}
+                        Zenoss service template directory to compile and add
   --no-root             Don&#39;t run serviced as root
   --no-auto-assign-ips  Do NOT auto-assign IP addresses to services requiring
                         an IP address
@@ -173,7 +180,9 @@ optional arguments:
 </pre></div>
 </div>
 <p>Any arguments beyond the standard <tt class="docutils literal"><span class="pre">--</span></tt> will not be parsed by zendev, and will
-isntead be passed directly to serviced.</p>
+instead be passed directly to serviced.</p>
+<p>Note: if you use <tt class="docutils literal"><span class="pre">--template</span></tt> to deploy a Zenoss.resmgr template, you must
+previously have built the devimg with the necessary ZenPacks installed.</p>
 <p>Now you can make any changes you want to the source on your host, then bounce
 the service in the control plane UI or CLI to have your changes take effect.</p>
 </div>

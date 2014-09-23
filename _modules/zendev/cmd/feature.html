@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>zendev.cmd.feature &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="../../../index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="../../../index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Working With Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../repos.html">Working With Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../build.html">Building Zenoss With zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cluster.html">Vagrant Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../packer.html">Building the Development Base Box</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../improve.html">Improving zendev</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"></ul>
+</li>
+          
+          
+            
+          
+          
+            <li></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <h1>Source code for zendev.cmd.feature</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">add_repo_narg</span>
+
+
+<div class="viewcode-block" id="feature_start"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.feature.feature_start">[docs]</a><span class="k">def</span> <span class="nf">feature_start</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Start git flow feature for all requested repositories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filter_</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
+        <span class="n">filter_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repofilter</span>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">start_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="feature_list"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.feature.feature_list">[docs]</a><span class="k">def</span> <span class="nf">feature_list</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List git flow feature for all repositories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">list_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="feature_pull"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.feature.feature_pull">[docs]</a><span class="k">def</span> <span class="nf">feature_pull</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Request github pull-request for repositories with feature name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filter_</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
+        <span class="n">filter_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repofilter</span>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">pull_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="feature_finish"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.feature.feature_finish">[docs]</a><span class="k">def</span> <span class="nf">feature_finish</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    finish all git repositories with feature name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filter_</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
+        <span class="n">filter_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repofilter</span>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">finish_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.feature.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
+    <span class="n">feature_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;feature&#39;</span><span class="p">)</span>
+    <span class="n">feature_subparser</span> <span class="o">=</span> <span class="n">feature_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">()</span>
+
+    <span class="n">feature_start_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;start&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Start feature branch on specified &#39;</span>
+                                                                      <span class="s">&#39;repositories&#39;</span><span class="p">)</span>
+    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
+    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">feature_start_parser</span><span class="p">)</span>
+    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_start</span><span class="p">)</span>
+
+    <span class="n">feature_start_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;list&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;List all repos containing the specified &quot;</span>
+                                                                     <span class="s">&quot;feature branch&quot;</span><span class="p">)</span>
+    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
+    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_list</span><span class="p">)</span>
+
+    <span class="n">feature_pull_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;pull&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Create pull request for feature branch&quot;</span><span class="p">)</span>
+    <span class="n">feature_pull_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
+    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">feature_pull_parser</span><span class="p">)</span>
+    <span class="n">feature_pull_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_pull</span><span class="p">)</span>
+
+    <span class="n">feature_finish_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;finish&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Finish the feature branch&#39;</span><span class="p">)</span>
+    <span class="n">feature_finish_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Name of the feature branch&quot;</span><span class="p">)</span>
+    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">feature_finish_parser</span><span class="p">)</span>
+    <span class="n">feature_finish_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_finish</span><span class="p">)</span>
+</pre></div></div>
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

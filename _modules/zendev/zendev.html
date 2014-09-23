@@ -103,35 +103,25 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">argcomplete</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
 
+<span class="kn">import</span> <span class="nn">argcomplete</span>
 <span class="kn">import</span> <span class="nn">py</span>
 
 <span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">error</span>
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">get_config</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">colored</span><span class="p">,</span> <span class="n">here</span>
-<span class="kn">from</span> <span class="nn">.manifest</span> <span class="kn">import</span> <span class="n">create_manifest</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">get_config</span><span class="p">,</span> <span class="n">get_envname</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">here</span><span class="p">,</span> <span class="n">repofilter</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">zcfg</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">environment</span> <span class="k">as</span> <span class="n">zenv</span>
-<span class="kn">from</span> <span class="nn">.environment</span> <span class="kn">import</span> <span class="n">ZenDevEnvironment</span><span class="p">,</span> <span class="n">init_config_dir</span>
+<span class="kn">from</span> <span class="nn">.environment</span> <span class="kn">import</span> <span class="n">ZenDevEnvironment</span>
 <span class="kn">from</span> <span class="nn">.environment</span> <span class="kn">import</span> <span class="n">NotInitialized</span>
-<span class="kn">from</span> <span class="nn">.box</span> <span class="kn">import</span> <span class="n">BOXES</span>
-<span class="kn">from</span> <span class="nn">.serviced</span> <span class="kn">import</span> <span class="n">Serviced</span>
+<span class="kn">from</span> <span class="nn">.cmd</span> <span class="kn">import</span> <span class="n">box</span><span class="p">,</span> <span class="n">cluster</span><span class="p">,</span> <span class="n">serviced</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">repos</span><span class="p">,</span> <span class="n">tags</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">build</span><span class="p">,</span> <span class="n">zup</span>
 
-
-<div class="viewcode-block" id="get_envname"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.get_envname">[docs]</a><span class="k">def</span> <span class="nf">get_envname</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">get_config</span><span class="p">()</span><span class="o">.</span><span class="n">current</span>
-</div>
 <div class="viewcode-block" id="fargs"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.fargs">[docs]</a><span class="k">class</span> <span class="nc">fargs</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">pass</span>
+
 </div>
 <span class="nd">@contextmanager</span>
 <div class="viewcode-block" id="temp_env"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.temp_env">[docs]</a><span class="k">def</span> <span class="nf">temp_env</span><span class="p">():</span>
@@ -142,13 +132,13 @@
     <span class="n">td</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
     <span class="n">_old</span><span class="p">,</span> <span class="n">zenv</span><span class="o">.</span><span class="n">CONFIG_DIR</span> <span class="o">=</span> <span class="n">zenv</span><span class="o">.</span><span class="n">CONFIG_DIR</span><span class="p">,</span> <span class="n">td</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;config&#39;</span><span class="p">)</span>
     <span class="n">_old</span><span class="p">,</span> <span class="n">zcfg</span><span class="o">.</span><span class="n">CONFIG_DIR</span> <span class="o">=</span> <span class="n">zcfg</span><span class="o">.</span><span class="n">CONFIG_DIR</span><span class="p">,</span> <span class="n">td</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;config&#39;</span><span class="p">)</span>
-    <span class="n">_zdebash</span><span class="p">,</span> <span class="n">ZenDevEnvironment</span><span class="o">.</span><span class="n">bash</span> <span class="o">=</span> <span class="n">ZenDevEnvironment</span><span class="o">.</span><span class="n">bash</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">x</span><span class="p">:</span><span class="bp">None</span>
+    <span class="n">_zdebash</span><span class="p">,</span> <span class="n">ZenDevEnvironment</span><span class="o">.</span><span class="n">bash</span> <span class="o">=</span> <span class="n">ZenDevEnvironment</span><span class="o">.</span><span class="n">bash</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">x</span><span class="p">:</span> <span class="bp">None</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">td</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;root&#39;</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">fargs</span><span class="p">()</span>
     <span class="n">args</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">strpath</span>
     <span class="n">args</span><span class="o">.</span><span class="n">default_repos</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="n">args</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">init</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">check_env</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">envvars</span><span class="p">())</span>
     <span class="k">yield</span>
     <span class="n">zenv</span><span class="o">.</span><span class="n">CONFIG_DIR</span> <span class="o">=</span> <span class="n">_old</span>
@@ -172,449 +162,22 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="repofilter"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.repofilter">[docs]</a><span class="k">def</span> <span class="nf">repofilter</span><span class="p">(</span><span class="n">repos</span><span class="o">=</span><span class="p">()):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create a function that will return only those repos specified, or all if</span>
-<span class="sd">    nothing was specified.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">repos</span><span class="p">]</span>
-    <span class="k">def</span> <span class="nf">filter_</span><span class="p">(</span><span class="n">repo</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">repos</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">True</span>
-    <span class="k">return</span> <span class="n">filter_</span>
-
-</div>
-<div class="viewcode-block" id="bootstrap"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.bootstrap">[docs]</a><span class="k">def</span> <span class="nf">bootstrap</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="k">print</span> <span class="n">here</span><span class="p">(</span><span class="s">&quot;bootstrap.sh&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
-
-</div>
-<div class="viewcode-block" id="root"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.root">[docs]</a><span class="k">def</span> <span class="nf">root</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
-    <span class="k">print</span> <span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">strpath</span>
-
-</div>
-<div class="viewcode-block" id="selfupdate"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.selfupdate">[docs]</a><span class="k">def</span> <span class="nf">selfupdate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">here</span><span class="p">()</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;git&quot;</span><span class="p">,</span> <span class="s">&quot;pull&quot;</span><span class="p">])</span>
-
-</div>
-<div class="viewcode-block" id="serviced"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.serviced">[docs]</a><span class="k">def</span> <span class="nf">serviced</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">timeout</span> <span class="o">=</span> <span class="mi">60</span>
-    <span class="n">serviced</span> <span class="o">=</span> <span class="n">Serviced</span><span class="p">(</span><span class="n">check_env</span><span class="p">())</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">reset</span><span class="p">:</span>
-        <span class="n">serviced</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">arguments</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;--&#39;</span><span class="p">:</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">arguments</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">root</span><span class="p">:</span>
-        <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;--root is deprecated, as it is now the default. See --no-root.&quot;</span>
-    <span class="n">serviced</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_root</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">uiport</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">arguments</span><span class="p">,</span>
-            <span class="n">registry</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">with_docker_registry</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">while</span> <span class="ow">not</span> <span class="n">serviced</span><span class="o">.</span><span class="n">is_ready</span><span class="p">():</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">timeout</span><span class="p">:</span>
-                <span class="k">print</span> <span class="s">&quot;Timed out waiting for serviced!&quot;</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="k">print</span> <span class="s">&quot;Not ready yet. Checking again in 1 second.&quot;</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">timeout</span> <span class="o">-=</span> <span class="mi">1</span>
-        <span class="k">print</span> <span class="s">&quot;serviced is ready!&quot;</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">deploy</span><span class="p">:</span>
-            <span class="n">serviced</span><span class="o">.</span><span class="n">add_host</span><span class="p">()</span>
-            <span class="n">tplid</span> <span class="o">=</span> <span class="n">serviced</span><span class="o">.</span><span class="n">add_template</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_auto_assign_ips</span><span class="p">:</span>
-                <span class="n">serviced</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">template</span><span class="o">=</span><span class="n">tplid</span><span class="p">,</span> <span class="n">noAutoAssignIpFlag</span><span class="o">=</span><span class="s">&quot;--manual-assign-ips&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">serviced</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">tplid</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">startall</span><span class="p">:</span>
-            <span class="n">serviced</span><span class="o">.</span><span class="n">startall</span><span class="p">()</span>
-        <span class="c"># Join the subprocess</span>
-        <span class="n">serviced</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="n">serviced</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-        <span class="k">raise</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyboardInterrupt</span><span class="p">,</span> <span class="ne">SystemExit</span><span class="p">):</span>
-        <span class="n">serviced</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="feature_start"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.feature_start">[docs]</a><span class="k">def</span> <span class="nf">feature_start</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Start git flow feature for all requested repositories.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">filter_</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
-        <span class="n">filter_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repofilter</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">start_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="feature_list"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.feature_list">[docs]</a><span class="k">def</span> <span class="nf">feature_list</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    List git flow feature for all repositories.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">list_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="feature_pull"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.feature_pull">[docs]</a><span class="k">def</span> <span class="nf">feature_pull</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Request github pull-request for repositories with feature name</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">filter_</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
-        <span class="n">filter_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repofilter</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">pull_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="feature_finish"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.feature_finish">[docs]</a><span class="k">def</span> <span class="nf">feature_finish</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    finish all git repositories with feature name</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">filter_</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span> <span class="n">filter_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repofilter</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">finish_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="init"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.init">[docs]</a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initialize an environment.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">()</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">path</span>  <span class="c"># TODO: Better name-getting</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">()</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">env</span> <span class="o">=</span> <span class="n">ZenDevEnvironment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">NotInitialized</span><span class="p">:</span>
-            <span class="n">init_config_dir</span><span class="p">()</span>
-            <span class="n">env</span> <span class="o">=</span> <span class="n">ZenDevEnvironment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">use</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">env</span>
-
-</div>
-<div class="viewcode-block" id="add"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.add">[docs]</a><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">paths</span><span class="o">=</span><span class="p">()):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a manifest.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">manifest</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">manifest</span>
-    <span class="n">manifest</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">create_manifest</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">manifest</span> <span class="ow">or</span> <span class="p">()))</span>
-    <span class="n">manifest</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-
-</div>
-<div class="viewcode-block" id="remove"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.remove">[docs]</a><span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Remove a repository.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
-        <span class="n">error</span><span class="p">(</span><span class="s">&quot;No repositories were specified.&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">env</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">repofilter</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="freeze"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.freeze">[docs]</a><span class="k">def</span> <span class="nf">freeze</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Output JSON representation of manifests.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">print</span> <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
-
-</div>
-<div class="viewcode-block" id="ls"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.ls">[docs]</a><span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Output information about repositories.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">()</span>
-    <span class="n">cur</span> <span class="o">=</span> <span class="n">get_envname</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">env</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">environments</span><span class="p">:</span>
-        <span class="n">prefix</span> <span class="o">=</span> <span class="n">colored</span><span class="p">(</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="s">&#39;blue&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">env</span><span class="o">==</span><span class="n">cur</span> <span class="k">else</span> <span class="s">&#39; &#39;</span>
-        <span class="k">print</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">env</span>
-
-</div>
-<div class="viewcode-block" id="box_create"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.box_create">[docs]</a><span class="k">def</span> <span class="nf">box_create</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
-    <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">btrfs</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">vfs</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
-    <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">provision</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
-    <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">ssh</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="box_remove"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.box_remove">[docs]</a><span class="k">def</span> <span class="nf">box_remove</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
-    <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="box_ssh"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.box_ssh">[docs]</a><span class="k">def</span> <span class="nf">box_ssh</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">ssh</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="box_up"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.box_up">[docs]</a><span class="k">def</span> <span class="nf">box_up</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="box_halt"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.box_halt">[docs]</a><span class="k">def</span> <span class="nf">box_halt</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">halt</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="box_ls"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.box_ls">[docs]</a><span class="k">def</span> <span class="nf">box_ls</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">ls</span><span class="p">()</span>
-
-</div>
-<div class="viewcode-block" id="cluster_create"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.cluster_create">[docs]</a><span class="k">def</span> <span class="nf">cluster_create</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
-    <span class="n">env</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
-    <span class="n">env</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">provision</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="cluster_remove"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.cluster_remove">[docs]</a><span class="k">def</span> <span class="nf">cluster_remove</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
-    <span class="n">env</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="cluster_ssh"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.cluster_ssh">[docs]</a><span class="k">def</span> <span class="nf">cluster_ssh</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">ssh</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">box</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="cluster_boot"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.cluster_boot">[docs]</a><span class="k">def</span> <span class="nf">cluster_boot</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">boot</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="cluster_up"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.cluster_up">[docs]</a><span class="k">def</span> <span class="nf">cluster_up</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">box</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="cluster_shutdown"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.cluster_shutdown">[docs]</a><span class="k">def</span> <span class="nf">cluster_shutdown</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="cluster_halt"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.cluster_halt">[docs]</a><span class="k">def</span> <span class="nf">cluster_halt</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">halt</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">box</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="cluster_ls"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.cluster_ls">[docs]</a><span class="k">def</span> <span class="nf">cluster_ls</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">ls</span><span class="p">()</span>
-
-</div>
-<div class="viewcode-block" id="restore"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.restore">[docs]</a><span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-</div>
 <div class="viewcode-block" id="restoreCompleter"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.restoreCompleter">[docs]</a><span class="k">def</span> <span class="nf">restoreCompleter</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">list_tags</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">))</span>
 
 </div>
-<div class="viewcode-block" id="tag"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.tag">[docs]</a><span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">list_tags</span><span class="p">():</span>
-            <span class="k">print</span> <span class="n">tag</span>
-    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">delete</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-            <span class="n">error</span><span class="p">(</span><span class="s">&quot;Missing the name of a tag to delete&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;develop&#39;</span><span class="p">:</span>
-            <span class="n">error</span><span class="p">(</span><span class="s">&quot;You can&#39;t delete develop!&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">tag_delete</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-            <span class="n">error</span><span class="p">(</span><span class="s">&quot;Missing the name of a tag to create&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">strict</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">from_ref</span><span class="p">)</span>
+<div class="viewcode-block" id="bootstrap"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.bootstrap">[docs]</a><span class="k">def</span> <span class="nf">bootstrap</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="k">print</span> <span class="n">here</span><span class="p">(</span><span class="s">&quot;bootstrap.sh&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
 
 </div>
-<div class="viewcode-block" id="cd"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.cd">[docs]</a><span class="k">def</span> <span class="nf">cd</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Print the directory of the repository if specified or the environment if not.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="p">:</span>
-        <span class="n">repos</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="n">repofilter</span><span class="p">([</span><span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">repos</span><span class="p">:</span>
-            <span class="c"># try to fall back to a directory in our srcroot</span>
-            <span class="n">nonRepoPath</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">nonRepoPath</span><span class="p">):</span>
-                <span class="n">env</span><span class="o">.</span><span class="n">bash</span><span class="p">(</span><span class="s">&#39;cd &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">nonRepoPath</span><span class="p">)</span>
-                <span class="k">return</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">error</span><span class="p">(</span><span class="s">&quot;No repo matching </span><span class="si">%s</span><span class="s"> found&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">repos</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">repo</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strpath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
-                <span class="n">env</span><span class="o">.</span><span class="n">bash</span><span class="p">(</span><span class="s">&#39;cd &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">repo</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
-                <span class="k">return</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">bash</span><span class="p">(</span><span class="s">&#39;cd &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">repos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">bash</span><span class="p">(</span><span class="s">&#39;cd &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
+<div class="viewcode-block" id="root"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.root">[docs]</a><span class="k">def</span> <span class="nf">root</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="k">print</span> <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">strpath</span>
 
 </div>
-<div class="viewcode-block" id="sync"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.sync">[docs]</a><span class="k">def</span> <span class="nf">sync</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Clone or update any existing repositories, push any commits.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">repofilter</span><span class="p">)</span>
+<div class="viewcode-block" id="selfupdate"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.selfupdate">[docs]</a><span class="k">def</span> <span class="nf">selfupdate</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">here</span><span class="p">()</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;git&quot;</span><span class="p">,</span> <span class="s">&quot;pull&quot;</span><span class="p">])</span>
 
-</div>
-<div class="viewcode-block" id="status"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.status">[docs]</a><span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Print status.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
-        <span class="n">filter_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repofilter</span>
-    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
-        <span class="n">filter_</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">filter_</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">check</span><span class="p">()</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">changes</span><span class="p">)</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">filter_</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="each"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.each">[docs]</a><span class="k">def</span> <span class="nf">each</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Execute a command in each repo&#39;s directory.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">repofilter</span><span class="p">):</span>
-        <span class="k">print</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span>
-        <span class="k">with</span> <span class="n">repo</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="build"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.build">[docs]</a><span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">srcroot</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">manifest</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">noenv</span><span class="p">:</span>
-        <span class="n">srcroot</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">(</span><span class="n">manifest</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">manifest</span><span class="p">,</span> <span class="n">srcroot</span><span class="o">=</span><span class="n">srcroot</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">manifest</span><span class="p">:</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">createtag</span><span class="p">:</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">createtag</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">rps</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;GA_IMAGE_TAG&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">ga_image</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">envvars</span><span class="p">())</span>
-    <span class="k">with</span> <span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;srcbuild&#39;</span> <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s">&#39;src&#39;</span> <span class="k">else</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">clean</span><span class="p">:</span>
-            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;make&quot;</span><span class="p">,</span> <span class="s">&quot;clean&quot;</span><span class="p">])</span>
-        <span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;make&quot;</span><span class="p">,</span> <span class="s">&quot;OUTPUT=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">]</span> <span class="o">+</span> <span class="n">target</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="changelog"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.changelog">[docs]</a><span class="k">def</span> <span class="nf">changelog</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">buf</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">frommanifest</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_manifest</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag1</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="n">error</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> is an invalid tag. See available tags with `zendev tag --list`&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">tag1</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">tomanifest</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_manifest</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag2</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tag2</span> <span class="k">else</span> <span class="n">env</span><span class="o">.</span><span class="n">manifest</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="n">error</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> is an invalid tag. See available tags with `zendev tag --list`&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">tag2</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">repos</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;build&#39;</span><span class="p">:</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;../build&#39;</span>
-        <span class="n">ref1</span> <span class="o">=</span> <span class="n">frommanifest</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;repos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ref&#39;</span><span class="p">)</span>
-        <span class="n">ref2</span> <span class="o">=</span> <span class="n">tomanifest</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;repos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ref&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">ref1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">ref2</span> <span class="ow">or</span> <span class="n">ref1</span> <span class="o">==</span> <span class="n">ref2</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">changelog</span><span class="p">(</span><span class="n">ref1</span><span class="p">,</span> <span class="n">ref2</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
-            <span class="n">buf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">u&quot;&quot;&quot;</span>
-<span class="s">{repo_name} | {repo_url}</span>
-<span class="s">=============================================================================</span>
-<span class="s">{changelog}</span>
-<span class="s">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">repo_name</span><span class="o">=</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">repo_url</span><span class="o">=</span><span class="n">repo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">changelog</span><span class="o">=</span><span class="n">result</span><span class="p">))</span>
-    <span class="n">full_log</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">isatty</span><span class="p">():</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s">&quot;less&quot;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">full_log</span><span class="p">)</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span> <span class="n">full_log</span>
-
-</div>
-<div class="viewcode-block" id="attach"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.attach">[docs]</a><span class="k">def</span> <span class="nf">attach</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Yo, you can probably just use serviced attach&quot;</span>
-    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;serviced service attach &#39;</span><span class="si">%s</span><span class="s">&#39;; stty sane&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">specifier</span><span class="p">,</span>
-                    <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-
-</div>
-<span class="n">DEVSHELLSTARTUP</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">/serviced/serviced service proxy </span><span class="si">%s</span><span class="s"> 0 sleep 9999999999999999999 &amp;&gt;/dev/null &amp;</span>
-<span class="s">echo Welcome to the Zenoss Dev Shell!</span>
-<span class="s">/bin/setuser zenoss /bin/bash</span>
-<span class="s">exit</span>
-<span class="s">&quot;&quot;&quot;</span>
-
-
-<div class="viewcode-block" id="devshell"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.devshell">[docs]</a><span class="k">def</span> <span class="nf">devshell</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Start up a shell with the imports of the Zope service but no command.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
-    <span class="n">serviced</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">_gopath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;src/github.com/control-center/serviced/serviced&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
-    <span class="n">zopesvc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> service list | grep -i </span><span class="si">%s</span><span class="s"> | awk {&#39;print $2;exit&#39;}&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">serviced</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">svcname</span><span class="p">),</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    
-    <span class="n">m2</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s">&quot;~&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;.m2&quot;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">DEVSHELLSTARTUP</span> <span class="o">%</span> <span class="n">zopesvc</span><span class="p">)</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;docker run --privileged --rm -w /opt/zenoss -v </span><span class="si">%s</span><span class="s">:/.bashrc -v </span><span class="si">%s</span><span class="s">:/serviced/serviced -v </span><span class="si">%s</span><span class="s">/src:/mnt/src -v </span><span class="si">%s</span><span class="s">:/opt/zenoss -v </span><span class="si">%s</span><span class="s">:/home/zenoss/.m2 -i -t zendev/devimg /bin/bash&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">serviced</span><span class="p">,</span>
-            <span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
-            <span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;zenhome&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
-            <span class="n">m2</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="clone"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.clone">[docs]</a><span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">ZenDevEnvironment</span><span class="p">(</span><span class="n">srcroot</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">manifest</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">manifest</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">shallow</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">shallow</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="use"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.use">[docs]</a><span class="k">def</span> <span class="nf">use</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Use a zendev environment.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_env</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">use</span><span class="p">()</span>
-
-</div>
-<div class="viewcode-block" id="drop"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.drop">[docs]</a><span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Drop a zendev environment.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">get_config</span><span class="p">()</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">purge</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="zup"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.zup">[docs]</a><span class="k">def</span> <span class="nf">zup</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Do zup-related things like build zups, which is a blast.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">(</span><span class="n">srcroot</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-        <span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;make&quot;</span><span class="p">,</span>
-                              <span class="s">&quot;GA_BUILD_IMAGE={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">begin_image</span><span class="p">),</span>
-                              <span class="s">&quot;PRODUCT={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">product</span><span class="p">),</span>
-                              <span class="s">&quot;SRCROOT={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                                  <span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&#39;src&#39;</span><span class="p">)</span>
-                              <span class="p">),</span>
-                              <span class="s">&quot;zup&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="add_repo_narg"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.add_repo_narg">[docs]</a><span class="k">def</span> <span class="nf">add_repo_narg</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;repos&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;List of repositories&#39;</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="parse_args"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.parse_args">[docs]</a><span class="k">def</span> <span class="nf">parse_args</span><span class="p">():</span>
@@ -623,244 +186,10 @@
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--script&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
                         <span class="n">help</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span><span class="p">)</span>
 
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-n&#39;</span><span class="p">,</span> <span class="s">&#39;--noenv&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> 
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-n&#39;</span><span class="p">,</span> <span class="s">&#39;--noenv&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
                         <span class="n">help</span><span class="o">=</span><span class="s">&quot;Run in a temporary environment&quot;</span><span class="p">)</span>
 
     <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s">&#39;subparser&#39;</span><span class="p">)</span>
-
-    <span class="n">zup_description</span> <span class="o">=</span> <span class="s">&quot;Build a zup!  This will spawn a container that will talk &quot;</span> \
-                      <span class="s">&quot;to docker on the host machine running zendev.  Currently, &quot;</span> \
-                      <span class="s">&quot;the HOST param is ignored in favor of bind mounting the &quot;</span> \
-                      <span class="s">&quot;local host&#39;s unix socket into the container.&quot;</span>
-    <span class="n">zup_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;zup&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">zup_description</span><span class="p">)</span>
-    <span class="n">zup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-t&#39;</span><span class="p">,</span> <span class="s">&#39;--tag&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;TAG&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Checkout a given manifest tag before building a zup.  &quot;</span>
-            <span class="s">&quot;Useful primarily for using a specific ref of platform-build &quot;</span>
-            <span class="s">&quot;(specified in the manifest) to do your zup building.&quot;</span><span class="p">)</span>
-    <span class="n">zup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;begin_image&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;The GA image that should be used as &quot;</span>
-                                          <span class="s">&quot;the baseline for building ZUPs.  &quot;</span>
-                                          <span class="s">&quot;Should be in the format &quot;</span>
-                                          <span class="s">&quot;&#39;imageName:tag&#39;&quot;</span><span class="p">)</span>
-    <span class="n">zup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--no-cleanup&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Do NOT cleanup docker &quot;</span>
-                                                 <span class="s">&quot;containers created during &quot;</span>
-                                                 <span class="s">&quot;zup creation.  This should &quot;</span>
-                                                 <span class="s">&quot;really only be used for &quot;</span>
-                                                 <span class="s">&quot;debugging purposes, as you &quot;</span>
-                                                 <span class="s">&quot;will need to manually clean &quot;</span>
-                                                 <span class="s">&quot;up after yourself if you use&quot;</span>
-                                                 <span class="s">&quot;this flag.&quot;</span><span class="p">,</span>
-                            <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;cleanup&quot;</span><span class="p">)</span>
-    <span class="n">zup_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;product&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Product to build a zup for&quot;</span><span class="p">,</span>
-                            <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;zenoss-5.0.0&#39;</span><span class="p">])</span>
-
-    <span class="n">zup_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">zup</span><span class="p">)</span>
-
-    <span class="n">init_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;init&#39;</span><span class="p">)</span>
-    <span class="n">init_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;PATH&quot;</span><span class="p">)</span>
-    <span class="n">init_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-t&#39;</span><span class="p">,</span> <span class="s">&#39;--tag&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;TAG&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">init_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">init</span><span class="p">)</span>
-
-    <span class="n">use_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;use&#39;</span><span class="p">)</span>
-    <span class="n">use_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;ENVIRONMENT&#39;</span><span class="p">)</span>
-    <span class="n">use_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">use</span><span class="p">)</span>
-
-    <span class="n">build_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;build&#39;</span><span class="p">)</span>
-    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-t&#39;</span><span class="p">,</span> <span class="s">&#39;--tag&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;TAG&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-m&#39;</span><span class="p">,</span> <span class="s">&#39;--manifest&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;+&quot;</span><span class="p">,</span>
-                              <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;MANIFEST&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;--output&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;DIRECTORY&#39;</span><span class="p">,</span>
-                              <span class="n">default</span><span class="o">=</span><span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">()</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;output&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
-    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-c&#39;</span><span class="p">,</span> <span class="s">&#39;--clean&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-                              <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--create-tag&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;createtag&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                              <span class="n">help</span><span class="o">=</span><span class="s">&quot;Tag the source for this build&quot;</span><span class="p">)</span>
-    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--rps&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-                              <span class="n">help</span><span class="o">=</span><span class="s">&quot;Build an RPS image (requires the --ga_image argument)&quot;</span><span class="p">)</span>
-    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--ga_image&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;When building an RPS image, &quot;</span>
-                                                 <span class="s">&quot;specify the GA image tag to use&quot;</span><span class="p">)</span>
-    <span class="n">build_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;target&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;TARGET&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;+&quot;</span><span class="p">,</span>
-                              <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;src&#39;</span><span class="p">,</span> <span class="s">&#39;core&#39;</span><span class="p">,</span> <span class="s">&#39;resmgr&#39;</span><span class="p">,</span>
-                                       <span class="s">&#39;svcdef-core&#39;</span><span class="p">,</span> <span class="s">&#39;svcdef-resmgr&#39;</span><span class="p">,</span>
-                                       <span class="s">&#39;svcdefpkg-core&#39;</span><span class="p">,</span> <span class="s">&#39;svcdefpkg-resmgr&#39;</span><span class="p">,</span>
-                                       <span class="s">&#39;svcpkg-core&#39;</span><span class="p">,</span> <span class="s">&#39;svcpkg-resmgr&#39;</span><span class="p">,</span> <span class="s">&#39;svcpkg&#39;</span><span class="p">,</span>
-                                       <span class="s">&#39;serviced&#39;</span><span class="p">,</span> <span class="s">&#39;devimg&#39;</span><span class="p">,</span> <span class="s">&#39;img-core&#39;</span><span class="p">,</span>
-                                       <span class="s">&#39;img-resmgr&#39;</span><span class="p">,</span> <span class="s">&#39;rps-img-core&#39;</span><span class="p">,</span>
-                                       <span class="s">&#39;rps-img-resmgr&#39;</span><span class="p">])</span>
-    <span class="n">build_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">build</span><span class="p">)</span>
-
-    <span class="n">devshell_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;devshell&#39;</span><span class="p">)</span>
-    <span class="n">devshell_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;svcname&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&quot;zope&quot;</span><span class="p">)</span>
-    <span class="n">devshell_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">devshell</span><span class="p">)</span>
-
-    <span class="n">drop_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;drop&#39;</span><span class="p">)</span>
-    <span class="n">drop_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;ENVIRONMENT&#39;</span><span class="p">)</span>
-    <span class="n">drop_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--purge&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">drop_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">drop</span><span class="p">)</span>
-
-    <span class="n">add_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;add&#39;</span><span class="p">)</span>
-    <span class="n">add_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;manifest&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;+&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;MANIFEST&quot;</span><span class="p">)</span>
-    <span class="n">add_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">add</span><span class="p">)</span>
-
-    <span class="n">rm_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;rm&#39;</span><span class="p">)</span>
-    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">rm_parser</span><span class="p">)</span>
-    <span class="n">rm_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">remove</span><span class="p">)</span>
-
-    <span class="n">ls_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ls&#39;</span><span class="p">)</span>
-    <span class="n">ls_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">ls</span><span class="p">)</span>
-
-    <span class="n">cd_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;cd&#39;</span><span class="p">)</span>
-    <span class="n">cd_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;REPO&quot;</span><span class="p">)</span>
-    <span class="n">cd_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cd</span><span class="p">)</span>
-
-    <span class="n">freeze_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;freeze&#39;</span><span class="p">)</span>
-    <span class="n">freeze_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">freeze</span><span class="p">)</span>
-
-    <span class="n">sync_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;sync&#39;</span><span class="p">)</span>
-    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">sync_parser</span><span class="p">)</span>
-    <span class="n">sync_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">sync</span><span class="p">)</span>
-
-    <span class="n">status_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;status&#39;</span><span class="p">)</span>
-    <span class="n">status_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-a&#39;</span><span class="p">,</span> <span class="s">&#39;--all&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> 
-        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Display all repos, whether or not they have changes.&quot;</span><span class="p">)</span>
-    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">status_parser</span><span class="p">)</span>
-    <span class="n">status_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
-
-    <span class="n">clone_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;clone&#39;</span><span class="p">)</span>
-    <span class="n">clone_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-t&#39;</span><span class="p">,</span> <span class="s">&#39;--tag&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;TAG&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Manifest tag to restore&quot;</span><span class="p">)</span>
-    <span class="n">clone_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-m&#39;</span><span class="p">,</span> <span class="s">&#39;--manifest&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;+&#39;</span><span class="p">,</span>
-            <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;MANIFEST&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Manifest to use&quot;</span><span class="p">)</span>
-    <span class="n">clone_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-s&#39;</span><span class="p">,</span> <span class="s">&#39;--shallow&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Only check out the most recent commit for each repo&quot;</span><span class="p">)</span>
-    <span class="n">clone_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;output&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;SRCROOT&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Target directory into which to clone&quot;</span><span class="p">)</span>
-    <span class="n">clone_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">clone</span><span class="p">)</span>
-
-    <span class="c">#feature parser</span>
-    <span class="n">feature_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;feature&#39;</span><span class="p">)</span>
-    <span class="n">feature_subparser</span> <span class="o">=</span> <span class="n">feature_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">()</span>
-
-    <span class="n">feature_start_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;start&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Start feature branch on specified &#39;</span>
-                                                                      <span class="s">&#39;repositories&#39;</span><span class="p">)</span>
-    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
-    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">feature_start_parser</span><span class="p">)</span>
-    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_start</span><span class="p">)</span>
-
-    <span class="n">feature_start_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;list&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;List all repos containing the specified &quot;</span>
-                                                                     <span class="s">&quot;feature branch&quot;</span><span class="p">)</span>
-    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
-    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_list</span><span class="p">)</span>
-
-    <span class="n">feature_pull_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;pull&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Create pull request for feature branch&quot;</span><span class="p">)</span>
-    <span class="n">feature_pull_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
-    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">feature_pull_parser</span><span class="p">)</span>
-    <span class="n">feature_pull_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_pull</span><span class="p">)</span>
-
-    <span class="n">feature_finish_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;finish&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Finish the feature branch&#39;</span><span class="p">)</span>
-    <span class="n">feature_finish_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Name of the feature branch&quot;</span><span class="p">)</span>
-    <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">feature_finish_parser</span><span class="p">)</span>
-    <span class="n">feature_finish_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_finish</span><span class="p">)</span>
-
-    <span class="n">each_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;each&#39;</span><span class="p">)</span>
-    <span class="n">each_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-r&#39;</span><span class="p">,</span> <span class="s">&#39;--repo&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;repos&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">)</span>
-    <span class="n">each_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;command&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;*&quot;</span><span class="p">)</span>
-    <span class="n">each_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">each</span><span class="p">)</span>
-
-    <span class="n">cluster_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;cluster&#39;</span><span class="p">)</span>
-    <span class="n">cluster_subparsers</span> <span class="o">=</span> <span class="n">cluster_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">()</span>
-
-    <span class="n">cluster_create_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;create&#39;</span><span class="p">)</span>
-    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--type&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">BOXES</span><span class="p">)</span>
-    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--count&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--memory&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4096</span><span class="p">)</span>
-    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--domain&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&#39;zenoss.loc&#39;</span><span class="p">)</span>
-    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_create</span><span class="p">)</span>
-
-    <span class="n">cluster_boot_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;boot&#39;</span><span class="p">)</span>
-    <span class="n">cluster_boot_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_boot_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_boot</span><span class="p">)</span>
-
-    <span class="n">cluster_up_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;up&#39;</span><span class="p">)</span>
-    <span class="n">cluster_up_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_up_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;box&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;BOX&quot;</span><span class="p">)</span>
-    <span class="n">cluster_up_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_up</span><span class="p">)</span>
-
-    <span class="n">cluster_shutdown_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;shutdown&#39;</span><span class="p">)</span>
-    <span class="n">cluster_shutdown_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_shutdown_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_shutdown</span><span class="p">)</span>
-
-    <span class="n">cluster_halt_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;halt&#39;</span><span class="p">)</span>
-    <span class="n">cluster_halt_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_halt_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;box&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;BOX&quot;</span><span class="p">)</span>
-    <span class="n">cluster_halt_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_halt</span><span class="p">)</span>
-
-    <span class="n">cluster_remove_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;destroy&#39;</span><span class="p">)</span>
-    <span class="n">cluster_remove_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_remove_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_remove</span><span class="p">)</span>
-
-    <span class="n">cluster_ssh_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ssh&#39;</span><span class="p">)</span>
-    <span class="n">cluster_ssh_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_ssh_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;box&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;BOX&quot;</span><span class="p">)</span>
-    <span class="n">cluster_ssh_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_ssh</span><span class="p">)</span>
-
-    <span class="n">cluster_ls_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ls&#39;</span><span class="p">)</span>
-    <span class="n">cluster_ls_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_ls</span><span class="p">)</span>
-
-    <span class="n">box_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;box&#39;</span><span class="p">)</span>
-    <span class="n">box_subparsers</span> <span class="o">=</span> <span class="n">box_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">()</span>
-
-    <span class="n">box_create_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;create&#39;</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--type&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">BOXES</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--btrfs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--vfs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--memory&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&quot;1024*8&quot;</span><span class="p">,</span>
-                                  <span class="n">help</span><span class="o">=</span><span class="s">&quot;memory in mb&quot;</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_create</span><span class="p">)</span>
-
-    <span class="n">box_up_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;up&#39;</span><span class="p">)</span>
-    <span class="n">box_up_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">box_up_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_up</span><span class="p">)</span>
-
-    <span class="n">box_halt_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;halt&#39;</span><span class="p">)</span>
-    <span class="n">box_halt_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">box_halt_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_halt</span><span class="p">)</span>
-
-    <span class="n">box_remove_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;destroy&#39;</span><span class="p">)</span>
-    <span class="n">box_remove_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">box_remove_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_remove</span><span class="p">)</span>
-
-    <span class="n">box_ssh_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ssh&#39;</span><span class="p">)</span>
-    <span class="n">box_ssh_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">box_ssh_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_ssh</span><span class="p">)</span>
-
-    <span class="n">box_ls_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ls&#39;</span><span class="p">)</span>
-    <span class="n">box_ls_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_ls</span><span class="p">)</span>
-
-    <span class="n">restore_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;restore&#39;</span><span class="p">)</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">restore_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">a</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">restoreCompleter</span>
-    <span class="n">restore_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">restore</span><span class="p">)</span>
-
-    <span class="n">tag_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;tag&#39;</span><span class="p">)</span>
-    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--strict&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-l&#39;</span><span class="p">,</span> <span class="s">&#39;--list&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="s">&#39;--force&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-D&#39;</span><span class="p">,</span> <span class="s">&#39;--delete&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-F&#39;</span><span class="p">,</span> <span class="s">&#39;--from&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;from_ref&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;?&quot;</span><span class="p">)</span>
-    <span class="n">a</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">restoreCompleter</span>
-    <span class="n">tag_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">tag</span><span class="p">)</span>
-
-    <span class="n">changelog_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;changelog&#39;</span><span class="p">)</span>
-    <span class="n">changelog_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;tag1&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;TAG&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">restoreCompleter</span>
-    <span class="n">changelog_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;tag2&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;TAG&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;?&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">restoreCompleter</span>
-    <span class="n">changelog_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">changelog</span><span class="p">)</span>
-
-    <span class="n">ssh_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ssh&#39;</span><span class="p">)</span>
-    <span class="n">ssh_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">ssh_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_ssh</span><span class="p">)</span>
 
     <span class="n">bootstrap_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;bootstrap&#39;</span><span class="p">)</span>
     <span class="n">bootstrap_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">bootstrap</span><span class="p">)</span>
@@ -868,33 +197,18 @@
     <span class="n">root_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;root&#39;</span><span class="p">)</span>
     <span class="n">root_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
 
-    <span class="n">serviced_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;serviced&#39;</span><span class="p">)</span>
-    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-r&#39;</span><span class="p">,</span> <span class="s">&#39;--root&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Run serviced as root (DEPRECATED. Currently ignored; see --no-root)&quot;</span><span class="p">)</span>
-    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="s">&#39;--deploy&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Add Zenoss service definitions and deploy an instance&quot;</span><span class="p">)</span>
-    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-a&#39;</span><span class="p">,</span> <span class="s">&#39;--startall&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Start all services once deployed&quot;</span><span class="p">)</span>
-    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-x&#39;</span><span class="p">,</span> <span class="s">&#39;--reset&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Clean service state and kill running containers first&quot;</span><span class="p">)</span>
-    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--no-root&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;no_root&quot;</span><span class="p">,</span>
-            <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Don&#39;t run serviced as root&quot;</span><span class="p">)</span>
-    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--no-auto-assign-ips&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Do NOT auto-assign IP addresses to services requiring an IP address&quot;</span><span class="p">)</span>
-    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--with-docker-registry&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Use the internal docker registry (necessary for multihost)&quot;</span><span class="p">)</span>
-    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-u&#39;</span><span class="p">,</span> <span class="s">&#39;--uiport&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">443</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s">&quot;UI port&quot;</span><span class="p">)</span>
-    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;arguments&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">REMAINDER</span><span class="p">)</span>
-    <span class="n">serviced_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">serviced</span><span class="p">)</span>
-
     <span class="n">update_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;selfupdate&#39;</span><span class="p">)</span>
     <span class="n">update_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">selfupdate</span><span class="p">)</span>
 
-    <span class="n">attach_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;attach&#39;</span><span class="p">)</span>
-    <span class="n">attach_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;specifier&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;SERVICEID|SERVICENAME|DOCKERID&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Attach to a container matching SERVICEID|SERVICENAME|DOCKERID in service instances&quot;</span><span class="p">)</span>
-    <span class="n">attach_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">attach</span><span class="p">)</span>
+    <span class="n">environment</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
+    <span class="n">repos</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
+    <span class="n">build</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
+    <span class="n">box</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
+    <span class="n">cluster</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
+    <span class="n">tags</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">,</span> <span class="n">restoreCompleter</span><span class="p">)</span>
+    <span class="n">feature</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
+    <span class="n">serviced</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
+    <span class="n">zup</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
 
     <span class="n">argcomplete</span><span class="o">.</span><span class="n">autocomplete</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
 
@@ -902,10 +216,11 @@
 
     <span class="c"># Doing this here instead of in the functor because I want access to the</span>
     <span class="c"># parser to properly throw the parsing error</span>
+    <span class="n">build_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">_subparsers</span><span class="o">.</span><span class="n">_group_actions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="s">&#39;build&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subparser</span> <span class="o">==</span> <span class="s">&#39;build&#39;</span><span class="p">:</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">rps</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">ga_image</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">rps</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">ga_image</span><span class="p">):</span>
             <span class="n">build_parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;The --rps and --ga_image arguments must be used together&quot;</span><span class="p">)</span>
-        <span class="c"># Enforce using --rps with an rps-img-% target</span>
+            <span class="c"># Enforce using --rps with an rps-img-% target</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">rps</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;rps-img-&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">))</span> <span class="ow">or</span> \
                 <span class="p">(</span><span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">rps</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;rps-img-&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">)):</span>
             <span class="n">build_parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Must call an &#39;rps-img-%&#39; target with the --rps arg&quot;</span><span class="p">)</span>
@@ -920,9 +235,9 @@
     <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">noenv</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">temp_env</span><span class="p">():</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">functor</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">functor</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">check_env</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">functor</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">functor</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">check_env</span><span class="p">)</span>
 
 </div>
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>

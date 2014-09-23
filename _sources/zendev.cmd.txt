@@ -1,0 +1,86 @@
+zendev.cmd package
+==================
+
+Submodules
+----------
+
+zendev.cmd.box module
+---------------------
+
+.. automodule:: zendev.cmd.box
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+zendev.cmd.build module
+-----------------------
+
+.. automodule:: zendev.cmd.build
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+zendev.cmd.cluster module
+-------------------------
+
+.. automodule:: zendev.cmd.cluster
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+zendev.cmd.environment module
+-----------------------------
+
+.. automodule:: zendev.cmd.environment
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+zendev.cmd.feature module
+-------------------------
+
+.. automodule:: zendev.cmd.feature
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+zendev.cmd.repos module
+-----------------------
+
+.. automodule:: zendev.cmd.repos
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+zendev.cmd.serviced module
+--------------------------
+
+.. automodule:: zendev.cmd.serviced
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+zendev.cmd.tags module
+----------------------
+
+.. automodule:: zendev.cmd.tags
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+zendev.cmd.zup module
+---------------------
+
+.. automodule:: zendev.cmd.zup
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: zendev.cmd
+    :members:
+    :undoc-members:
+    :show-inheritance:

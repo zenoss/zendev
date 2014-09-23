@@ -189,7 +189,26 @@
     <span class="k">return</span> <span class="n">path</span>
 </div>
 <span class="n">here</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">dirpath</span><span class="p">()</span><span class="o">.</span><span class="n">join</span>
-</pre></div>
+
+
+<div class="viewcode-block" id="add_repo_narg"><a class="viewcode-back" href="../../zendev.html#zendev.utils.add_repo_narg">[docs]</a><span class="k">def</span> <span class="nf">add_repo_narg</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;repos&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;List of repositories&#39;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="repofilter"><a class="viewcode-back" href="../../zendev.html#zendev.utils.repofilter">[docs]</a><span class="k">def</span> <span class="nf">repofilter</span><span class="p">(</span><span class="n">repos</span><span class="o">=</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a function that will return only those repos specified, or all if</span>
+<span class="sd">    nothing was specified.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">repos</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">filter_</span><span class="p">(</span><span class="n">repo</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">repos</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">return</span> <span class="n">filter_</span>
+</pre></div></div>
 
 </div>
 <footer class="footer">
