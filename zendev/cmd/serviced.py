@@ -113,7 +113,7 @@ class Serviced(object):
         if template is None:
             tplpath = self.env.buildroot.join("services/Zenoss.core").strpath
         else:
-            tentative = py.path.local().join(template)
+            tentative = py.path.local(template)
             if tentative.exists():
                 tplpath = tentative.strpath
             else:
