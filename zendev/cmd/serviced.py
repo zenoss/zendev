@@ -177,7 +177,7 @@ def devshell(args, env):
     Start up a shell with the imports of the Zope service but no command.
     """
     env = env()
-    _serviced = env._gopath.join("src/github.com/control-center/serviced/serviced").strpath
+    _serviced = env._gopath.join("bin/serviced").strpath
     zopesvc = subprocess.check_output(
         "%s service list | grep -i %s | awk {'print $2;exit'}" % (_serviced, args.svcname),
         shell=True).strip()
