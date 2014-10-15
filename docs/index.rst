@@ -17,6 +17,7 @@ Contents:
    repos
    build
    devimg
+   test
    vagrant
    cluster
    packer
