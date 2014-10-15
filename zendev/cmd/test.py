@@ -55,12 +55,14 @@ def zen_image_tests(args, env, devimg=False, resmgr=False):
     return subprocess.call(cmd)
 
 
-def serviced_tests(args, env, integration=False):
-    pass
-
-
-def serviced_smoke_tests(args, env):
-    pass
+def serviced_tests(args, env, smoke=False):
+    env = env()
+    envvars = os.environ.copy()
+    envvars.update(env.envvars())
+    repo = env.repos(lambda x: x.name.endswith('control-center/serviced'))[0]
+    cmd = ["make", "smoketest"] if smoke else ["make", "test"]
+    with repo.path.as_cwd():
+        return subprocess.call(cmd, env=envvars)
 
 
 def test(args, env):
@@ -72,18 +74,18 @@ def test(args, env):
         rc = zen_image_tests(args, env, resmgr=True)
     elif args.core:
         rc = zen_image_tests(args, env)
-
     if rc > 0:
         sys.exit(rc)
 
-    if args.serviced_int:
-        serviced_tests(args, env, integration=True)
-    elif args.serviced_unit:
-        serviced_tests(args, env, integration=False)
+    if args.serviced_unit:
+        rc = serviced_tests(args, env, smoke=False)
+        if rc > 0:
+            sys.exit(rc)
 
     if args.serviced_smoke:
-        serviced_smoke_tests(args, env)
-
+        rc = serviced_tests(args, env, smoke=True)
+        if rc > 0:
+            sys.exit(rc)
 
     #srcroot = None
     #if args.manifest and not args.noenv:
@@ -135,24 +137,21 @@ def add_commands(subparsers):
     test_parser.add_argument('-c', '--zenoss-core', action="store_true",
             help="Build a core image and run Zenoss unit tests",
             dest="core", default=False)
-    test_parser.add_argument('-u', '--serviced-unit', action="store_true",
+    test_parser.add_argument('-u', '--serviced', action="store_true",
             help="Run serviced unit tests",
             dest="serviced_unit", default=False)
-    test_parser.add_argument('-i', '--serviced-integration',
-            help="Run serviced unit and integration tests",
-            action="store_true", dest="serviced_int", default=False)
     test_parser.add_argument('-s', '--serviced-smoke', action="store_true",
             help="Run serviced smoke tests",
             dest="serviced_smoke", default=False)
-    test_parser.add_argument('--with-consumer', action="store_true",
-            help="Run metric-consumer unit tests",
-            dest="with_consumer", default=False)
-    test_parser.add_argument('--with-query', action="store_true",
-            help="Run query unit tests",
-            dest="with_query", default=False)
-    test_parser.add_argument('--with-zep', action="store_true",
-            help="Run ZEP unit tests",
-            dest="with_zep", default=False)
+    #test_parser.add_argument('--with-consumer', action="store_true",
+    #        help="Run metric-consumer unit tests",
+    #        dest="with_consumer", default=False)
+    #test_parser.add_argument('--with-query', action="store_true",
+    #        help="Run query unit tests",
+    #        dest="with_query", default=False)
+    #test_parser.add_argument('--with-zep', action="store_true",
+    #        help="Run ZEP unit tests",
+    #        dest="with_zep", default=False)
     test_parser.add_argument('arguments', nargs=argparse.REMAINDER)
 
     test_parser.set_defaults(functor=test)
