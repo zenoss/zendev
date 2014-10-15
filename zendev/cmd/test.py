@@ -61,68 +61,35 @@ def serviced_tests(args, env, smoke=False):
     envvars.update(env.envvars())
     repo = env.repos(lambda x: x.name.endswith('control-center/serviced'))[0]
     cmd = ["make", "smoketest"] if smoke else ["make", "test"]
+    cmd.extend(args.arguments[1:])
     with repo.path.as_cwd():
         return subprocess.call(cmd, env=envvars)
 
 
 def test(args, env):
+    rcs = []
 
-    rc = 0
     if args.devimg:
         rc = zen_image_tests(args, env, devimg=True)
     elif args.resmgr:
         rc = zen_image_tests(args, env, resmgr=True)
     elif args.core:
         rc = zen_image_tests(args, env)
-    if rc > 0:
-        sys.exit(rc)
+    rcs.append(rc)
 
     if args.serviced_unit:
         rc = serviced_tests(args, env, smoke=False)
-        if rc > 0:
-            sys.exit(rc)
+        rcs.append(rc)
 
     if args.serviced_smoke:
         rc = serviced_tests(args, env, smoke=True)
-        if rc > 0:
-            sys.exit(rc)
+        rcs.append(rc)
 
-    #srcroot = None
-    #if args.manifest and not args.noenv:
-    #    srcroot = py.path.local.mkdtemp()
-    #env = env(manifest=args.manifest, srcroot=srcroot)
-    #if args.tag:
-    #    env.restore(args.tag, shallow=True)
-    #if args.manifest:
-    #    env.clone(shallow=True)
-    #if args.createtag:
-    #    env.tag(args.createtag, strict=True)
-    #if args.rps:
-    #    os.environ['GA_IMAGE_TAG'] = args.ga_image
-    #    _manifestHash = env.ensure_manifestrepo().hash[:7]
-    #    os.environ['TAG_HASH'] = _manifestHash
-    #os.environ.update(env.envvars())
-    #with env.buildroot.as_cwd():
-    #    target = ['srcbuild' if t == 'src' else t for t in args.target]
-    #    if args.clean:
-    #        subprocess.call(["make", "clean"])
-    #        bashcommand = "find /mnt/src/ -maxdepth 2 -name pom.xml|while read file; do (cd $(dirname $file) && echo -n cleaning: && pwd && mvn clean); done"
-    #        cmd = "docker run --privileged --rm -v %s/src:/mnt/src -i -t zenoss/rpmbuild:centos7 bash -c '%s'" % (
-    #                env.root.strpath, bashcommand)
-    #        subprocess.call(cmd, shell=True)
-    #    packs = get_resmgr_packs(env) if args.resmgr else ["ZenPacks.zenoss.ZenJMX", "ZenPacks.zenoss.PythonCollector"]
-    #    if "devimg" in target:
-    #        # Figure out which zenpacks to install.
-    #        for pack in args.packs:
-    #            if not pack.startswith("ZenPacks"):
-    #                pack = "ZenPacks.zenoss." + pack
-    #                packs.append(pack)
-    #    # CatalogService is not currently compatible with zendev
-    #    if "ZenPacks.zenoss.CatalogService" in packs:
-    #        packs.remove("ZenPacks.zenoss.CatalogService")
-    #    rc = subprocess.call(["make", "OUTPUT=%s" % args.output,
-    #                          'ZENPACKS=%s' % ' '.join(packs)] + target)
-    #    sys.exit(rc)
+    if not rcs:
+        sys.exit("No tests were specified.")
+
+    if any(rcs):
+        sys.exit("Some tests failed.")
 
 
 def add_commands(subparsers):
