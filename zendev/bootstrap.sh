@@ -4,9 +4,11 @@ zendev () {
     PID=$$
     export ZDCTLCHANNEL=$(mktemp -u /tmp/zd.${PID}.XXXXXXX)
     ${ZENDEV_SCRIPT} $@
+    RC=$?
     source "${ZDCTLCHANNEL}" > /dev/null 2>&1
     rm -f ${ZDCTLCHANNEL}
     unset ZDCTLCHANNEL
+    return ${RC}
 }
 
 alias cdz="zendev cd"
