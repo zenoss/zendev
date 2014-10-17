@@ -63,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Running Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
@@ -173,6 +174,10 @@
   </dt>
 
         
+  <dt><a href="zendev.cmd.html#zendev.cmd.test.add_commands">(in module zendev.cmd.test)</a>
+  </dt>
+
+        
   <dt><a href="zendev.cmd.html#zendev.cmd.zup.add_commands">(in module zendev.cmd.zup)</a>
   </dt>
 
@@ -233,12 +238,12 @@
   <dt><a href="zendev.cmd.html#zendev.cmd.box.box_ls">box_ls() (in module zendev.cmd.box)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.cmd.html#zendev.cmd.box.box_remove">box_remove() (in module zendev.cmd.box)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.cmd.html#zendev.cmd.box.box_ssh">box_ssh() (in module zendev.cmd.box)</a>
   </dt>
@@ -253,6 +258,10 @@
 
       
   <dt><a href="zendev.cmd.html#zendev.cmd.build.build">build() (in module zendev.cmd.build)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.test.build_image">build_image() (in module zendev.cmd.test)</a>
   </dt>
 
       
@@ -281,6 +290,10 @@
       </dl></dd>
       
   <dt><a href="zendev.html#zendev.repo.Repository.changes">changes (zendev.repo.Repository attribute)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.test.check_devimg">check_devimg() (in module zendev.cmd.test)</a>
   </dt>
 
       
@@ -553,6 +566,10 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.github.get_oauth_token">get_oauth_token() (in module zendev.github)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.test.get_packs">get_packs() (in module zendev.cmd.test)</a>
   </dt>
 
       
@@ -914,6 +931,10 @@
   </dt>
 
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.test.serviced_tests">serviced_tests() (in module zendev.cmd.test)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.repo.Repository.shallow_clone">shallow_clone() (zendev.repo.Repository method)</a>
   </dt>
 
@@ -929,6 +950,8 @@
   <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.srcroot">srcroot (zendev.environment.ZenDevEnvironment attribute)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.cmd.html#zendev.cmd.box.VagrantManager.ssh">ssh() (zendev.cmd.box.VagrantManager method)</a>
   </dt>
@@ -939,8 +962,6 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.start">start() (zendev.cmd.serviced.Serviced method)</a>
   </dt>
@@ -1007,14 +1028,18 @@
   <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.tag_delete">tag_delete() (zendev.environment.ZenDevEnvironment method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.repo.Repository.tag_names">tag_names (zendev.repo.Repository attribute)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.zendev.temp_env">temp_env() (in module zendev.zendev)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.test.test">test() (in module zendev.cmd.test)</a>
   </dt>
 
   </dl></td>
@@ -1114,6 +1139,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.test.zen_image_tests">zen_image_tests() (in module zendev.cmd.test)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#module-zendev">zendev (module)</a>
   </dt>
 
@@ -1160,15 +1189,19 @@
   </dt>
 
       
-  <dt><a href="zendev.cmd.html#module-zendev.cmd.zup">zendev.cmd.zup (module)</a>
+  <dt><a href="zendev.cmd.html#module-zendev.cmd.test">zendev.cmd.test (module)</a>
   </dt>
 
       
-  <dt><a href="zendev.html#module-zendev.config">zendev.config (module)</a>
+  <dt><a href="zendev.cmd.html#module-zendev.cmd.zup">zendev.cmd.zup (module)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="zendev.html#module-zendev.config">zendev.config (module)</a>
+  </dt>
+
       
   <dt><a href="zendev.html#module-zendev.environment">zendev.environment (module)</a>
   </dt>

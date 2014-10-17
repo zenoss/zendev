@@ -68,6 +68,14 @@ zendev.cmd.tags module
     :undoc-members:
     :show-inheritance:
 
+zendev.cmd.test module
+----------------------
+
+.. automodule:: zendev.cmd.test
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 zendev.cmd.zup module
 ---------------------
 

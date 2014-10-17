@@ -62,6 +62,7 @@
 <li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Running Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
@@ -82,6 +83,7 @@
 <li><a class="reference internal" href="#module-zendev.cmd.repos">zendev.cmd.repos module</a></li>
 <li><a class="reference internal" href="#module-zendev.cmd.serviced">zendev.cmd.serviced module</a></li>
 <li><a class="reference internal" href="#module-zendev.cmd.tags">zendev.cmd.tags module</a></li>
+<li><a class="reference internal" href="#module-zendev.cmd.test">zendev.cmd.test module</a></li>
 <li><a class="reference internal" href="#module-zendev.cmd.zup">zendev.cmd.zup module</a></li>
 <li><a class="reference internal" href="#module-zendev.cmd">Module contents</a></li>
 </ul>
@@ -561,6 +563,44 @@ not.</p>
 <dl class="function">
 <dt id="zendev.cmd.tags.tag">
 <tt class="descclassname">zendev.cmd.tags.</tt><tt class="descname">tag</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/tags.html#tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.tags.tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-zendev.cmd.test">
+<span id="zendev-cmd-test-module"></span><h2>zendev.cmd.test module<a class="headerlink" href="#module-zendev.cmd.test" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="zendev.cmd.test.add_commands">
+<tt class="descclassname">zendev.cmd.test.</tt><tt class="descname">add_commands</tt><big>(</big><em>subparsers</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/test.html#add_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.test.add_commands" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.test.build_image">
+<tt class="descclassname">zendev.cmd.test.</tt><tt class="descname">build_image</tt><big>(</big><em>args</em>, <em>env</em>, <em>resmgr=False</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/test.html#build_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.test.build_image" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.test.check_devimg">
+<tt class="descclassname">zendev.cmd.test.</tt><tt class="descname">check_devimg</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/cmd/test.html#check_devimg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.test.check_devimg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.test.get_packs">
+<tt class="descclassname">zendev.cmd.test.</tt><tt class="descname">get_packs</tt><big>(</big><em>env</em>, <em>resmgr=False</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/test.html#get_packs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.test.get_packs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.test.serviced_tests">
+<tt class="descclassname">zendev.cmd.test.</tt><tt class="descname">serviced_tests</tt><big>(</big><em>args</em>, <em>env</em>, <em>smoke=False</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/test.html#serviced_tests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.test.serviced_tests" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.test.test">
+<tt class="descclassname">zendev.cmd.test.</tt><tt class="descname">test</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/test.html#test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.test.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.test.zen_image_tests">
+<tt class="descclassname">zendev.cmd.test.</tt><tt class="descname">zen_image_tests</tt><big>(</big><em>args</em>, <em>env</em>, <em>devimg=False</em>, <em>resmgr=False</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/test.html#zen_image_tests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.test.zen_image_tests" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
