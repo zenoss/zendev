@@ -130,6 +130,21 @@ class Serviced(object):
         print "Added template", tplid
         return tplid
 
+    def set_zope_debug(self):
+        # serviced service list zope | sed 's/runzope/zopectl fg/' | serviced service edit zope
+        print "Run zope in debug mode"
+        svclist = subprocess.Popen([self.serviced, "service", "list", "zope"],
+            stdout=subprocess.PIPE)
+        stdout, _ = svclist.communicate()
+        stdout.replace("runzope", "zopectl fg")
+        print "Replacing zope command debug"
+        svcedit = subprocess.Popen([self.serviced, "service", "edit", "zope"],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        svcid, _ = svcedit.communicate(stdout)
+        svcid = svcid.strip()
+        print "Set debug for zope service", svcid
+        return svcid
+
     def startall(self):
         p = subprocess.Popen("%s service list | awk '/Zenoss/ {print $2; exit}'" % self.serviced,
                 shell=True, stdout=subprocess.PIPE)
@@ -163,6 +178,7 @@ def run_serviced(args, env):
                 _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips")
             else:
                 _serviced.deploy(tplid)
+            _serviced.set_zope_debug()
         if args.startall:
             _serviced.startall()
             # Join the subprocess
