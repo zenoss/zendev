@@ -47,7 +47,7 @@ def zen_image_tests(args, env, devimg=False, resmgr=False):
             if rc > 0:
                 return rc
         image = "zendev_test"
-    cmd = ["docker", "run", "--rm"]
+    cmd = ["docker", "run", "-t", "-i", "--rm"]
     for mount in mounts.iteritems():
         cmd.extend(["-v", "%s:%s" % mount])
     cmd.extend([image, "/usr/bin/run_tests.sh"])
