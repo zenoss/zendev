@@ -18,13 +18,13 @@ fi" >> /home/zenoss/.bashrc
 echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
 echo "zendev use {{env_name}}" >> /home/zenoss/.bashrc
 [ -e /etc/hostid ] || printf %x $(date +%s) > /etc/hostid
-ln -sf /vagrant/etc_hosts /etc/hosts
-if ! $(grep -q ^$HOSTNAME /vagrant/etc_hosts 2>/dev/null) ; then
+if [ ! -L /etc/hosts ] ; then
+    ln -sf /vagrant/etc_hosts /etc/hosts
     IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\\([^ ]*\\).*/\\1/p')
     echo $IP $HOSTNAME >> /vagrant/etc_hosts
 fi
-ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
-if ! $(grep -q ^${HOSTNAME}_MASTER /vagrant/bash_serviced 2>/dev/null) ; then
+if [ ! -L /home/zenoss/.bash_serviced ] ; then
+    ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
     sed -i "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER=vb_host\\n\\1/" /vagrant/bash_serviced
 fi
 {%for i in range(vdis) %}
