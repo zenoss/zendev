@@ -10,9 +10,9 @@ class VagrantManager(object):
     SOURCEBUILD = "sourcebuild"
 
     BOXES = {
-        CONTROLPLANE: "ubuntu-14.04-europa-v2",
+        CONTROLPLANE: "ubuntu-14.04-europa-v3",
         SOURCEBUILD: "f19-docker-zendeps",
-        "ubuntu": "ubuntu-14.04-europa-v2",
+        "ubuntu": "ubuntu-14.04-europa-v3",
         "fedora": "f19-docker-zendeps"
     }
 
