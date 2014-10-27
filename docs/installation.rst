@@ -45,6 +45,8 @@ Ubuntu
 
     # Add the current user to the docker group
     sudo usermod -a -G docker ${USER}
+    sudo usermod -a -G sudo ${USER}    # if ubuntu
+    sudo usermod -a -G wheel ${USER}   # if RHEL/Centos
 
     # Login again to get docker group (requires password reentry)
     exec su -l ${USER}
@@ -194,11 +196,14 @@ When your box comes back up, authenticate to hub.docker.com:
     # Get back to source directory
     cd ${SRCDIR}
 
-    # Create the environment
+    # Create the environment for building core devimg
     zendev init europa --tag develop
 
     # Start using the environment
     zendev use europa
+
+    # Optional: add enterprise zenpacks for building resmgr devimg
+    zendev add ~/src/europa/build/manifests/zenpacks.commercial.json
 
 9. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
     and (if you install Vagrant_ and VirtualBox_) create Vagrant boxes to run
@@ -222,11 +227,15 @@ When your box comes back up, authenticate to hub.docker.com:
 
     # Build the Zenoss Docker repo image (also may take a while)
     zendev build devimg
+        # optionally: build resmgr devimg
+        zendev build --resmgr devimg  
 
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of
     # Zenoss (warning: blows away state!) 
     zendev serviced --reset --deploy
+        # optionally: deploy resmgr
+        zendev serviced --reset --deploy --template Zenoss.resmgr
 
 OS X
 ----
