@@ -226,16 +226,14 @@ When your box comes back up, authenticate to hub.docker.com:
     make
 
     # Build the Zenoss Docker repo image (also may take a while)
-    zendev build devimg
-        # optionally: build resmgr devimg
-        zendev build --resmgr devimg  
+    zendev build devimg             # to build core
+    zendev build --resmgr devimg    # to build resmgr
 
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of
     # Zenoss (warning: blows away state!) 
-    zendev serviced --reset --deploy
-        # optionally: deploy resmgr
-        zendev serviced --reset --deploy --template Zenoss.resmgr
+    zendev serviced --reset --deploy                                # to deploy core
+    zendev serviced --reset --deploy --template Zenoss.resmgr.lite  # to deploy resmgr lite
 
 OS X
 ----
