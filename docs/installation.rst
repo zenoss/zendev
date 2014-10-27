@@ -32,7 +32,7 @@ Ubuntu
     sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
     # Install Docker
-    curl -sL https://get.docker.io/ubuntu/ | sudo sh
+    curl -sSL https://get.docker.io/ubuntu/ | sudo sh
 
 3. Add your user to the ``docker`` group:
 
