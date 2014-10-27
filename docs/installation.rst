@@ -34,11 +34,6 @@ Ubuntu
     # Install Docker
     curl -sL https://get.docker.io/ubuntu/ | sudo sh
 
-    # Install our own version of nsenter
-    wget http://artifacts.zenoss.loc/europa/docker-smuggle_2.24.2-1_amd64.deb
-    sudo dpkg -i docker-smuggle_*.deb
-    sudo apt-get install -f 
-
 3. Add your user to the ``docker`` group:
 
 .. code-block:: bash
