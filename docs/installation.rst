@@ -87,8 +87,8 @@ When your box comes back up, authenticate to hub.docker.com:
     sudo apt-get install -y mercurial bzr git
 
     # Download Go 1.3 and unpack it into /usr/local
-    sudo apt-get install -y wget
-    wget -qO- http://golang.org/dl/go1.3.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
+    sudo apt-get install -y wget curl
+    curl -s https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz | sudo tar -xzC /usr/local
 
     # Set GOROOT and PATH appropriately
     cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
