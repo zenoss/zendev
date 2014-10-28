@@ -108,6 +108,24 @@ class Serviced(object):
         time.sleep(1)
         subprocess.call(deploy_command)
 
+    def remove_catalogservice(self, services):
+        if not services:
+            return
+
+        for svc in services:
+            if svc['Name'] and svc['Name'] == 'zencatalogservice':
+                services.remove(svc)
+                continue
+
+            if svc['HealthChecks'] and 'catalogservice_answering' in svc['HealthChecks']:
+                svc['HealthChecks'].pop("catalogservice_answering", None)
+            if svc['Prereqs']:
+                for prereq in svc['Prereqs']:
+                    if prereq['Name'] == 'zencatalogservice response':
+                        svc['Prereqs'].remove(prereq)
+
+            self.remove_catalogservice(svc['Services'])
+
     def add_template(self, template=None):
         print "Adding template"
         if template is None:
@@ -123,6 +141,14 @@ class Serviced(object):
             stdout=subprocess.PIPE)
         stdout, _ = proc.communicate()
         print "Compiled new template"
+
+        if 'resmgr' in template:
+            import json;
+            compiled=json.loads(stdout);
+            self.remove_catalogservice(compiled['Services'])
+            stdout = json.dumps(compiled, sort_keys=True, indent=4, separators=(',', ': '))
+            print "Removed zencatalogservice from resmgr template"
+
         addtpl = subprocess.Popen([self.serviced, "template", "add"],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         tplid, _ = addtpl.communicate(stdout)
