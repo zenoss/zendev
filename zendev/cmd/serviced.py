@@ -140,10 +140,7 @@ class Serviced(object):
         print "Replacing zope command debug"
         svcedit = subprocess.Popen([self.serviced, "service", "edit", "zope"],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        svcid, _ = svcedit.communicate(stdout)
-        svcid = svcid.strip()
-        print "Set debug for zope service", svcid
-        return svcid
+        svcedit.communicate(stdout)
 
     def startall(self):
         p = subprocess.Popen("%s service list | awk '/Zenoss/ {print $2; exit}'" % self.serviced,
