@@ -1,4 +1,5 @@
 import argparse
+import json;
 import os
 import sys
 import subprocess
@@ -108,23 +109,36 @@ class Serviced(object):
         time.sleep(1)
         subprocess.call(deploy_command)
 
-    def remove_catalogservice(self, services):
+    def remove_catalogservice(self, services, svc):
+        if svc['Name'] and svc['Name'] == 'zencatalogservice':
+            services.remove(svc)
+            print "Removed zencatalogservice from resmgr template"
+            return
+
+        if svc['HealthChecks'] and 'catalogservice_answering' in svc['HealthChecks']:
+            svc['HealthChecks'].pop("catalogservice_answering", None)
+        if svc['Prereqs']:
+            for prereq in svc['Prereqs']:
+                if prereq['Name'] == 'zencatalogservice response':
+                    svc['Prereqs'].remove(prereq)
+
+    def zope_debug(self, services, svc):
+        if svc['Name'] and svc['Name'] == 'Zope':
+            print "Set Zope to debug in template"
+            svc['Command'] = svc['Command'].replace("runzope", "zopectl fg")
+
+            if svc['HealthChecks']:
+                for _, hc in list(svc['HealthChecks'].items()):
+                    if "runzope" in hc['Script']:
+                        hc['Script'] = hc['Script'].replace("runzope", "zopectl")
+
+    def walk_services(self, services, visitor):
         if not services:
             return
 
         for svc in services:
-            if svc['Name'] and svc['Name'] == 'zencatalogservice':
-                services.remove(svc)
-                continue
-
-            if svc['HealthChecks'] and 'catalogservice_answering' in svc['HealthChecks']:
-                svc['HealthChecks'].pop("catalogservice_answering", None)
-            if svc['Prereqs']:
-                for prereq in svc['Prereqs']:
-                    if prereq['Name'] == 'zencatalogservice response':
-                        svc['Prereqs'].remove(prereq)
-
-            self.remove_catalogservice(svc['Services'])
+            visitor(services, svc)
+            self.walk_services(svc['Services'], visitor)
 
     def add_template(self, template=None):
         print "Adding template"
@@ -142,12 +156,11 @@ class Serviced(object):
         stdout, _ = proc.communicate()
         print "Compiled new template"
 
+        compiled=json.loads(stdout);
+        self.walk_services(compiled['Services'], self.zope_debug)
         if 'resmgr' in template:
-            import json;
-            compiled=json.loads(stdout);
-            self.remove_catalogservice(compiled['Services'])
-            stdout = json.dumps(compiled, sort_keys=True, indent=4, separators=(',', ': '))
-            print "Removed zencatalogservice from resmgr template"
+            self.walk_services(compiled['Services'], self.remove_catalogservice)
+        stdout = json.dumps(compiled, sort_keys=True, indent=4, separators=(',', ': '))
 
         addtpl = subprocess.Popen([self.serviced, "template", "add"],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -155,18 +168,6 @@ class Serviced(object):
         tplid = tplid.strip()
         print "Added template", tplid
         return tplid
-
-    def set_zope_debug(self):
-        # serviced service list zope | sed 's/runzope/zopectl fg/' | serviced service edit zope
-        print "Run zope in debug mode"
-        svclist = subprocess.Popen([self.serviced, "service", "list", "zope"],
-            stdout=subprocess.PIPE)
-        stdout, _ = svclist.communicate()
-        stdout.replace("runzope", "zopectl fg")
-        print "Replacing zope command debug"
-        svcedit = subprocess.Popen([self.serviced, "service", "edit", "zope"],
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        svcedit.communicate(stdout)
 
     def startall(self):
         p = subprocess.Popen("%s service list | awk '/Zenoss/ {print $2; exit}'" % self.serviced,
@@ -201,7 +202,6 @@ def run_serviced(args, env):
                 _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips")
             else:
                 _serviced.deploy(tplid)
-            _serviced.set_zope_debug()
         if args.startall:
             _serviced.startall()
             # Join the subprocess
