@@ -72,13 +72,23 @@ BASH_SERVICED = """
 #! /bin/bash
 
 # serviced
-eval export MASTER=\$${HOSTNAME}_MASTER
-export SERVICED_DOCKER_REGISTRY=$MASTER:5000
-export SERVICED_STATS_PORT=$MASTER:8442
-export SERVICED_ENDPOINT=$MASTER:4979
-export SERVICED_LOG_ADDRESS=$MASTER:5042
-export SERVICED_OUTBOUND_IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
+eval export SERVICED_MASTER_ID=\$${HOSTNAME}_MASTER
+
 export SERVICED_REGISTRY=1
+export SERVICED_AGENT=1
+export SERVICED_MASTER=$( test "$SERVICED_MASTER_ID" != "$HOSTNAME" ; echo $? )
+if [ "$SERVICED_MASTER" == "1" ] ; then
+    # master only
+    export SERVICED_OUTBOUND_IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
+else
+    # agent only
+    export SERVICED_ZK=$SERVICED_MASTER_ID:2181
+    export SERVICED_ENDPOINT=$SERVICED_MASTER_ID:4979
+    export SERVICED_DOCKER_REGISTRY=$SERVICED_MASTER_ID:5000
+    export SERVICED_LOG_ADDRESS=$SERVICED_MASTER_ID:5042
+    export SERVICED_STATS_PORT=$SERVICED_MASTER_ID:8443
+    export SERVICED_LOGSTASH_ES=$SERVICED_MASTER_ID:9100
+fi
 """
 
 class VagrantClusterManager(VagrantManager):
