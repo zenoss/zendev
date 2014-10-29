@@ -34,6 +34,21 @@ Ubuntu
     # Install Docker
     curl -sSL https://get.docker.io/ubuntu/ | sudo sh
 
+
+If you are operating under AWS, check if docker is using the devicemapper driver.
+    Run the "docker info" command and look at the storage driver section. If it
+    says "devicemapper", stop docker, install linux-image-extra, and reinstall
+    docker to use AUFS as a storage driver.
+
+.. code-block:: bash
+    sudo stop docker
+    sudo apt-get remove lxc-docker
+    sudo apt-get autoremove
+    sudo rm -rf /var/lib/docker
+    sudo apt-get update
+    sudo apt-get install linux-image-extra-`uname -r`
+    sudo apt-get install lxc-docker
+
 3. Add your user to the ``docker`` group:
 
 .. code-block:: bash
