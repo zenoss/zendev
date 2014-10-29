@@ -1,7 +1,8 @@
 from jinja2 import Template
-
+import os
 from vagrantManager import VagrantManager
 
+HOSTNAME=os.uname()[1]
 
 VAGRANT = Template("""
 # -*- mode: ruby -*-
@@ -25,7 +26,7 @@ if [ ! -L /etc/hosts ] ; then
 fi
 if [ ! -L /home/zenoss/.bash_serviced ] ; then
     ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
-    sed -i "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER=vb_host\\n\\1/" /vagrant/bash_serviced
+    sed -i "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER={{hostname}}\\n\\1/" /vagrant/bash_serviced
 fi
 {%for i in range(vdis) %}
 {{"mkfs.btrfs -L volume.btrfs.%d /dev/sd%s"|format(i+1, "bcdef"[i])}} {%endfor%}
@@ -63,10 +64,10 @@ end
 
 ETC_HOSTS = """
 127.0.0.1   localhost
-%s   vb_host
+%s  %s 
 
 # Shared hosts for zendev cluster
-""" % VagrantManager.VIRTUALBOX_HOST_IP
+""" % (VagrantManager.VIRTUALBOX_HOST_IP, HOSTNAME)
 
 BASH_SERVICED = """
 #! /bin/bash
@@ -110,6 +111,7 @@ class VagrantClusterManager(VagrantManager):
             shared_folders=self.get_shared_directories(),
             vdis=btrfs,
             env_name=self.env.name,
+            hostname=HOSTNAME
         ))
 
 
