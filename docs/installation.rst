@@ -41,6 +41,7 @@ If you are operating under AWS, check if docker is using the devicemapper driver
     docker to use AUFS as a storage driver.
 
 .. code-block:: bash
+
     sudo stop docker
     sudo apt-get remove lxc-docker
     sudo apt-get autoremove
