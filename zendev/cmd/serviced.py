@@ -158,7 +158,7 @@ class Serviced(object):
 
         compiled=json.loads(stdout);
         self.walk_services(compiled['Services'], self.zope_debug)
-        if 'resmgr' in template:
+        if template and 'resmgr' in template:
             self.walk_services(compiled['Services'], self.remove_catalogservice)
         stdout = json.dumps(compiled, sort_keys=True, indent=4, separators=(',', ': '))
 
