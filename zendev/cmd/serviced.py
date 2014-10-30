@@ -210,22 +210,30 @@ def devshell(args, env):
     """
     env = env()
     _serviced = env._gopath.join("bin/serviced").strpath
+
+    command = "su - zenoss"
     if args.command:
-        command = "su - zenoss -c '%s'" % " ".join(args.command)
-    else:
-        command = "su - zenoss"
+        command += " -c '%s'" % " ".join(args.command)
 
     m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
-    with tempfile.NamedTemporaryFile() as f:
-        cmd = "%s service shell -i --mount %s/src,/mnt/src --mount %s,/opt/zenoss --mount %s,/home/zenoss/.m2 %s %s" % (
+    if args.docker:
+        cmd = "docker run --privileged --rm -w /opt/zenoss -v %s:/serviced/serviced -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/home/zenoss/.m2 -i -t zendev/devimg %s" % (
             _serviced,
             env.root.strpath,
             env.root.join("zenhome").strpath,
             m2.strpath,
-            args.svcname,
             command
         )
-        subprocess.call(cmd, shell=True)
+    else:
+        cmd = "%s service shell -i --mount %s/src,/mnt/src --mount %s,/opt/zenoss --mount %s,/home/zenoss/.m2 '%s' %s" % (
+            _serviced,
+            env.root.strpath,
+            env.root.join("zenhome").strpath,
+            m2.strpath,
+            args.service,
+            command
+        )
+    subprocess.call(cmd, shell=True)
 
 def add_commands(subparsers):
     serviced_parser = subparsers.add_parser('serviced')
@@ -256,7 +264,9 @@ def add_commands(subparsers):
     attach_parser.set_defaults(functor=attach)
 
     devshell_parser = subparsers.add_parser('devshell')
-    devshell_parser.add_argument('svcname', nargs="?", default="zope")
-    devshell_parser.add_argument('-c', dest='command', nargs=argparse.REMAINDER)
+    devshell_parser.add_argument('-d', '--docker', action='store_true',
+                                 help="docker run instead of serviced shell")
+    devshell_parser.add_argument('-s', '--service', default='zope', help="run serviced shell for service")
+    devshell_parser.add_argument('command', nargs=argparse.REMAINDER, metavar='COMMAND')
     devshell_parser.set_defaults(functor=devshell)
 
