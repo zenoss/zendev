@@ -2,7 +2,8 @@ import subprocess
 import sys
 import os
 import re
-
+import tempfile
+import uuid
 import py
 
 packlists = {
@@ -11,6 +12,12 @@ packlists = {
     }
 
 def build(args, env):
+    if "impact-devimg" in args.target:
+        build_impact(args, env)
+    else:
+        build_zenoss(args, env)
+
+def build_zenoss(args, env):
     srcroot = None
     if args.manifest and not args.noenv:
         srcroot = py.path.local.mkdtemp()
@@ -53,6 +60,32 @@ def build(args, env):
                               'ZENPACKS=%s' % ' '.join(packs)] + target)
         sys.exit(rc)
 
+
+def build_impact(args, env):
+    impact_image = 'zenoss/impact-unstable:latest'
+    container_id='impact_devimg_'+uuid.uuid1().hex
+    # TODO: embedding the version number in the link means that we have do rebuild the image
+    #  if the version changes.  Better if the pom.xml set up a non-versioned symlink to the
+    # versioned file; then this could link to the non-versioned symlink.
+    startup="""
+        SRC=/mnt/src/impact/impact-server
+        DST=/opt/zenoss_impact
+        VSN=4.2.6.70.0-SNAPSHOT
+        ln -fs $SRC/zenoss-dsa/target/zenoss-dsa-$VSN.war $DST/webapps/impact-server.war
+        ln -fs $SRC/model-adapters-common/target/model-adapters-common-$VSN.jar $DST/lib/ext/adapters
+        ln -fs $SRC/model-adapters-zenoss/target/model-adapters-zenoss-$VSN.jar $DST/lib/ext/adapters/zenoss
+    """
+    with tempfile.NamedTemporaryFile() as f:
+        f.write(startup)
+        f.flush()
+        cmd = 'docker run -v %s:/root/impact_devimg_init --name %s %s /bin/sh /root/impact_devimg_init' % (
+            f.name,
+            container_id,
+            impact_image
+        )
+        subprocess.call(cmd, shell=True)
+    subprocess.call('docker commit %s %s' % (container_id, impact_image), shell=True)
+    subprocess.call('docker rm %s' % container_id, shell=True)
 
 zpline = re.compile(r'^[ \t]*zenoss_(?P<product>\w+).zp_to_(?P<action>[\w_]*)[ \t]*\+?=[ \t]*(?P<pack>[\w\.]*)[ \t]*$')
 
@@ -105,6 +138,6 @@ def add_commands(subparsers):
                                        'svcpkg-core', 'svcpkg-resmgr', 'svcpkg',
                                        'serviced', 'devimg', 'img-core',
                                        'img-resmgr', 'rps-img-core',
-                                       'rps-img-resmgr'])
+                                       'rps-img-resmgr', 'impact-devimg'])
     build_parser.set_defaults(functor=build)
 
