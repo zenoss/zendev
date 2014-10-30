@@ -13,12 +13,14 @@ import requests
 DEVSHELLSTARTUP = """
 /serviced/serviced service proxy %s 0 sleep 9999999999999999999 &>/dev/null &
 echo Welcome to the Zenoss Dev Shell!
+export CONTROLPLANE_SERVICED_ID=%s
 /bin/setuser zenoss /bin/bash %s
 exit
 """
 
 SILENTDEVSHELLSTARTUP = """
 /serviced/serviced service proxy %s 0 sleep 9999999999999999999 &>/dev/null &
+export CONTROLPLANE_SERVICED_ID=%s
 /bin/setuser zenoss /bin/bash %s
 exit
 """
@@ -235,10 +237,9 @@ def devshell(args, env):
         command = ""
         STARTUP=DEVSHELLSTARTUP
 
-    
     m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
     with tempfile.NamedTemporaryFile() as f:
-        f.write(STARTUP % (zopesvc, command))
+        f.write(STARTUP % (zopesvc, zopesvc, command))
         f.flush()
         cmd = "docker run --privileged --rm -w /opt/zenoss -v %s:/root/.bashrc -v %s:/serviced/serviced -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/home/zenoss/.m2 -i -t zendev/devimg /bin/bash" % (
             f.name,
