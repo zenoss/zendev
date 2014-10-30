@@ -240,7 +240,7 @@ def devshell(args, env):
     with tempfile.NamedTemporaryFile() as f:
         f.write(STARTUP % (zopesvc, command))
         f.flush()
-        cmd = "docker run --privileged --rm -w /opt/zenoss -v %s:/.bashrc -v %s:/serviced/serviced -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/home/zenoss/.m2 -i -t zendev/devimg /bin/bash" % (
+        cmd = "docker run --privileged --rm -w /opt/zenoss -v %s:/root/.bashrc -v %s:/serviced/serviced -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/home/zenoss/.m2 -i -t zendev/devimg /bin/bash" % (
             f.name,
             _serviced,
             env.root.strpath,
