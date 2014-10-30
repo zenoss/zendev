@@ -34,9 +34,12 @@ def build(args, env):
             cmd = "docker run --privileged --rm -v %s/src:/mnt/src -i -t zenoss/rpmbuild:centos7 bash -c '%s'" % (
                     env.root.strpath, bashcommand)
             subprocess.call(cmd, shell=True)
-        packs = get_packs_from_mk(env, 'resmgr') if args.resmgr else \
-                get_packs_from_mk(env, 'ucspm') if args.ucspm else \
-                ["ZenPacks.zenoss.ZenJMX", "ZenPacks.zenoss.PythonCollector"]
+        packs = ["ZenPacks.zenoss.ZenJMX", "ZenPacks.zenoss.PythonCollector"]
+        if args.resmgr:
+            packs = get_packs_from_mk(env, 'resmgr')
+        elif args.ucspm:
+            packs = get_packs_from_mk(env, 'ucspm')
+
         if "devimg" in target:
             # Figure out which zenpacks to install.
             for pack in args.packs:
