@@ -1,5 +1,5 @@
 import argparse
-import json;
+import json
 import os
 import sys
 import subprocess
@@ -8,22 +8,6 @@ import time
 
 import py.path
 import requests
-
-
-DEVSHELLSTARTUP = """
-/serviced/serviced service proxy %s 0 sleep 9999999999999999999 &>/dev/null &
-echo Welcome to the Zenoss Dev Shell!
-export CONTROLPLANE_SERVICED_ID=%s
-/bin/setuser zenoss /bin/bash %s
-exit
-"""
-
-SILENTDEVSHELLSTARTUP = """
-/serviced/serviced service proxy %s 0 sleep 9999999999999999999 &>/dev/null &
-export CONTROLPLANE_SERVICED_ID=%s
-/bin/setuser zenoss /bin/bash %s
-exit
-"""
 
 
 class Serviced(object):
@@ -226,27 +210,21 @@ def devshell(args, env):
     """
     env = env()
     _serviced = env._gopath.join("bin/serviced").strpath
-    zopesvc = subprocess.check_output(
-        "%s service list | grep -i %s | awk {'print $2;exit'}" % (_serviced, args.svcname),
-        shell=True).strip()
-
     if args.command:
-        command = "-lc '%s'" % " ".join(args.command)
-        STARTUP=SILENTDEVSHELLSTARTUP
+        command = "su - zenoss -c '%s'" % " ".join(args.command)
     else:
-        command = ""
-        STARTUP=DEVSHELLSTARTUP
+        command = "su - zenoss"
 
     m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
     with tempfile.NamedTemporaryFile() as f:
-        f.write(STARTUP % (zopesvc, zopesvc, command))
-        f.flush()
-        cmd = "docker run --privileged --rm -w /opt/zenoss -v %s:/root/.bashrc -v %s:/serviced/serviced -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/home/zenoss/.m2 -i -t zendev/devimg /bin/bash" % (
-            f.name,
+        cmd = "%s service shell -i --mount %s/src,/mnt/src --mount %s,/opt/zenoss --mount %s,/home/zenoss/.m2 %s %s" % (
             _serviced,
             env.root.strpath,
             env.root.join("zenhome").strpath,
-            m2.strpath)
+            m2.strpath,
+            args.svcname,
+            command
+        )
         subprocess.call(cmd, shell=True)
 
 def add_commands(subparsers):
