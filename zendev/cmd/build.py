@@ -1,8 +1,14 @@
 import subprocess
 import sys
 import os
+import re
 
 import py
+
+packlists = {
+        'resmgr': 'pkg/zenoss_resmgr_zenpacks.mk',
+        'ucspm': 'pkg/zenoss_ucspm_zenpacks.mk',
+    }
 
 def build(args, env):
     srcroot = None
@@ -28,7 +34,12 @@ def build(args, env):
             cmd = "docker run --privileged --rm -v %s/src:/mnt/src -i -t zenoss/rpmbuild:centos7 bash -c '%s'" % (
                     env.root.strpath, bashcommand)
             subprocess.call(cmd, shell=True)
-        packs = get_resmgr_packs(env) if args.resmgr else ["ZenPacks.zenoss.ZenJMX", "ZenPacks.zenoss.PythonCollector"]
+        packs = ["ZenPacks.zenoss.ZenJMX", "ZenPacks.zenoss.PythonCollector"]
+        if args.resmgr:
+            packs = get_packs_from_mk(env, 'resmgr')
+        elif args.ucspm:
+            packs = get_packs_from_mk(env, 'ucspm')
+
         if "devimg" in target:
             # Figure out which zenpacks to install.
             for pack in args.packs:
@@ -43,19 +54,27 @@ def build(args, env):
         sys.exit(rc)
 
 
-def get_resmgr_packs(env):
+zpline = re.compile(r'^[ \t]*zenoss_(?P<product>\w+).zp_to_(?P<action>[\w_]*)[ \t]*\+?=[ \t]*(?P<pack>[\w\.]*)[ \t]*$')
+
+def get_packs_from_mk(env, product):
     packs = []
+    removepacks = []
     with env.buildroot.as_cwd():
-        with open("pkg/zenoss_resmgr_zenpacks.mk") as f:
+        with open(packlists[product]) as f:
             for line in f:
-                if line.startswith("zenoss_resmgr.zp_to_build"):
-                    pack = line.split()[-1]
-                    packs.append(pack)
-                elif line.startswith("zenoss_resmgr.zp_to_not_install"):
-                    pack = line.split()[-1]
-                    packs.remove(pack)
+                match = zpline.match(line)
+                if match:
+                    if match.group('action') == 'build':
+                        packs.append(match.group('pack'))
+                    elif match.group('action') == 'not_install':
+                        removepacks.append(match.group('pack'))
+    for pack in removepacks:
+        if pack in packs:
+            packs.remove(pack)
     return packs
 
+def get_resmgr_packs(env):
+    return get_packs_from_mk(env, 'resmgr')
 
 def add_commands(subparsers):
     build_parser = subparsers.add_parser('build')
@@ -77,6 +96,8 @@ def add_commands(subparsers):
             help="In a devimg build, ZenPacks to install into the image")
     build_parser.add_argument('--resmgr', action="store_true", required=False,
             help="Install resmgr ZenPacks")
+    build_parser.add_argument('--ucspm', action="store_true", required=False,
+            help="Install UCS-PM ZenPacks")
     build_parser.add_argument('target', metavar='TARGET', nargs="+",
                               choices=['src', 'core', 'resmgr',
                                        'svcdef-core', 'svcdef-resmgr',
