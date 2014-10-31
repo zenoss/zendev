@@ -18,15 +18,22 @@ class Manifest(object):
                 self._data = json.load(f)
         else:
             self._data = {
-                'repos':{}
+                'repos': {}
             }
+
+    def add(self, path, repo, ref="develop"):
+        'Add a repo'
+        self.repos().setdefault(path, {
+            'name': path,
+            'repo': repo,
+            'ref': ref
+        })
 
     def repos(self):
         return self._data.setdefault('repos', {})
 
     def save(self):
-        self._path.write(json.dumps(self._data, 
-            indent=4))
+        self._path.write(json.dumps(self._data, indent=4))
 
     def freeze(self):
         return json.dumps(self._data, indent=4)

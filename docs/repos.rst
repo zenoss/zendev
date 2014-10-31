@@ -69,6 +69,18 @@ described in the added manifests using regex matching. This is
 
 ``cdz`` is an alias for ``zendev cd`` installed by the zendev bootstrap.
 
+Adding Repositories
+-------------------
+Repositories can be added from the environment using the ``addrepo`` command.
+
+.. code-bloc:: bash
+
+    # adds the github repo ZenPacks.zenoss.LDAPMonitor
+    # the first arg is the destination path
+    # the second arg is the repo on github
+    # the third arg is an optional branch or git ref
+    zendev addrepo zenpacks/ZenPacks.zenoss.LDAPMonitor zenoss/ZenPacks.zenoss.LDAPMonitor [branch]
+
 Removing Repositories
 ---------------------
 Repositories can be removed from the environment using the ``rm`` command,
