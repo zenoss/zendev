@@ -129,13 +129,13 @@ class Serviced(object):
     def add_template(self, template=None):
         print "Adding template"
         if template is None:
-            tplpath = self.env.srcroot.join("services/service/Zenoss.core").strpath
+            tplpath = self.env.srcroot.join("service/services/Zenoss.core").strpath
         else:
             tentative = py.path.local(template)
             if tentative.exists():
                 tplpath = tentative.strpath
             else:
-                tplpath = self.env.srcroot.join("services/service/" + template).strpath
+                tplpath = self.env.srcroot.join("service/services/" + template).strpath
         proc = subprocess.Popen([self.serviced, "template", "compile",
             "--map=zenoss/zenoss5x,zendev/devimg", tplpath],
             stdout=subprocess.PIPE)
