@@ -30,11 +30,11 @@ if [ ! -L /home/zenoss/.bash_serviced ] ; then
 fi
 
 # split vdi disk into equal size partitions for each fs
-fstype={{vdi_type}}
+fstype={{fstype}}
 disk=/dev/sdb
 parted $disk mktable msdos
-nparts={{vdis}}
-incr=$(( ({{vdi_size}} / $nparts ) * 1024 ))
+nparts={{fses}}
+incr=$(( {{fssize}} * 1024 ))
 mounts=("/opt/serviced/var" "/var/lib/docker")
 ii=0
 while (( $ii < $nparts )); do
@@ -65,11 +65,11 @@ Vagrant.configure("2") do |config|
       config.vm.hostname = vm_name
       config.vm.provider :virtualbox do |vb|
         vb.customize ["modifyvm", :id, "--memory", "{{ box_memory }}"]
-        vb.customize ["modifyvm", :id, "--cpus", {{ cpus }}]{% if vdis %}
+        vb.customize ["modifyvm", :id, "--cpus", {{ cpus }}]{% if fses %}
         (1..1).each do |vol|
-          disc_file = "mnt/#{vm_name}/{{vdi_type}}_#{vol}.vdi"
+          disc_file = "mnt/#{vm_name}/{{fstype}}_#{vol}.vdi"
           unless File.exist?(disc_file)
-            vb.customize ['createhd', '--filename', disc_file, '--size', {{ vdi_size }} * 1024]
+            vb.customize ['createhd', '--filename', disc_file, '--size', {{ fses }} * {{ fssize }} * 1024]
           end
           vb.customize ["storageattach", :id, "--storagectl", "IDE Controller",
                         "--port", vol, "--device", 0, "--type", "hdd", "--medium",
@@ -133,9 +133,9 @@ class VagrantClusterManager(VagrantManager):
             box_memory=memory,
             box_name=VagrantManager.BOXES.get(purpose),
             shared_folders=self.get_shared_directories(),
-            vdis=btrfs,
-            vdi_type="btrfs",
-            vdi_size=24,
+            fses=btrfs,
+            fstype="btrfs",
+            fssize=24,
             cpus=4,
             env_name=self.env.name,
             hostname=HOSTNAME
