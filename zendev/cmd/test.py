@@ -3,7 +3,7 @@ import subprocess
 import sys
 import os
 
-from zendev.cmd.build import get_resmgr_packs
+from zendev.cmd.build import get_packs
 
 
 def check_devimg():
@@ -20,17 +20,12 @@ def build_image(args, env, resmgr=False):
     pass
 
 
-def get_packs(env, resmgr=False):
-    return get_resmgr_packs(env) if resmgr else [
-            "ZenPacks.zenoss.ZenJMX", "ZenPacks.zenoss.PythonCollector"]
-
-
-def zen_image_tests(args, env, devimg=False, resmgr=False):
+def zen_image_tests(args, env, product=''):
     env = env()
     envvars = os.environ.copy()
     envvars.update(env.envvars())
     mounts = {envvars["SRCROOT"]: "/mnt/src"}
-    if devimg:
+    if product == 'devimg':
         check_devimg()
         image = "zendev/devimg"
         mounts[os.path.join(envvars["HOME"], ".m2")] = "/home/zenoss/.m2"
@@ -41,7 +36,7 @@ def zen_image_tests(args, env, devimg=False, resmgr=False):
         envvars['devimg_MOUNTS'] = ''
         envvars['devimg_TAGNAME'] = 'zendev_test'
         envvars['devimg_CONTAINER'] = 'zendev_test'
-        envvars['ZENPACKS'] = ' '.join(get_packs(env, resmgr))
+        envvars['ZENPACKS'] = ' '.join(get_packs(env, product))
         with env.buildroot.as_cwd():
             rc = subprocess.call(["make", "devimg"], env=envvars)
             if rc > 0:
@@ -70,9 +65,11 @@ def test(args, env):
     rcs = []
 
     if args.devimg:
-        rc = zen_image_tests(args, env, devimg=True)
+        rc = zen_image_tests(args, env, product='devimg')
     elif args.resmgr:
-        rc = zen_image_tests(args, env, resmgr=True)
+        rc = zen_image_tests(args, env, product='resmgr')
+    elif args.ucspm:
+        rc = zen_image_tests(args, env, product='ucspm')
     elif args.core:
         rc = zen_image_tests(args, env)
     rcs.append(rc)
@@ -101,6 +98,9 @@ def add_commands(subparsers):
     test_parser.add_argument('-r', '--zenoss-resmgr', action="store_true",
             help="Build a resmgr image and run Zenoss unit tests",
             dest="resmgr", default=False)
+    test_parser.add_argument('-p', '--zenoss-ucspm', action="store_true",
+            help="Build a ucspm image and run Zenoss unit tests",
+            dest="ucspm", default=False)
     test_parser.add_argument('-c', '--zenoss-core', action="store_true",
             help="Build a core image and run Zenoss unit tests",
             dest="core", default=False)
