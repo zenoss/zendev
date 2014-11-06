@@ -30,13 +30,15 @@ if [ ! -L /home/zenoss/.bash_serviced ] ; then
 fi
 
 # create a filesystem on each added disk
-{%for i in range(fses) %}
-{{"mkfs.%s -L fs-sd%s /dev/sd%s"|format(fstype, "bcdefghi"[i], "bcdefghi"[i])}}
-{{"mkdir -p /mnt/fs-sd%s"|format("bcdefghi"[i])}}
-{{"echo '/dev/sd%s  /mnt/fs-sd%s  %s  defaults  0  1' >>/etc/fstab"|format("bcdefghi"[i], "bcdefghi"[i], fstype)}}
+{%set letters = "bcdefghijklmnopqrstuvwxyz"%}
+{%set mountpoints = ["/var/lib/docker", "/opt/serviced/var"] %}
+{%for i in range(fses) %} {%set devname = "sd%s"|format(letters[i])%} {%set device = "/dev/%s"|format(devname)%}
+{%if mountpoints|length > i %} {%set mountpoint = mountpoints[i]%} {%else%} {%set mountpoint = "/mnt/fs-%s"|format(devname)%} {%endif%}
+{{"mkfs.%s -L fs-%s %s"|format(fstype, devname, device)}}
+{{"mkdir -p %s"|format(mountpoint)}}
+{{"echo '%s  %s  %s  defaults  0  1' >>/etc/fstab"|format(device, mountpoint, fstype)}}
 {%endfor%}
 mount -a
-# TODO make first two mount points: "/var/lib/docker" and "/opt/serviced/var"
 SCRIPT
 
 Vagrant.configure("2") do |config|
