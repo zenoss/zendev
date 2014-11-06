@@ -28,8 +28,32 @@ if [ ! -L /home/zenoss/.bash_serviced ] ; then
     ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
     sed -i "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER={{hostname}}\\n\\1/" /vagrant/bash_serviced
 fi
-{%for i in range(vdis) %}
-{{"mkfs.btrfs -L volume.btrfs.%d /dev/sd%s"|format(i+1, "bcdef"[i])}} {%endfor%}
+
+# split vdi disk into equal size partitions for each fs
+fstype={{vdi_type}}
+disk=/dev/sdb
+parted $disk mktable msdos
+nparts={{vdis}}
+incr=$(( ({{vdi_size}} / $nparts ) * 1024 ))
+mounts=("/opt/serviced/var" "/var/lib/docker")
+ii=0
+while (( $ii < $nparts )); do
+    di=$(($ii+1))
+    parted $disk mkpart primary ext2 $(($ii*$incr)) $(($di*$incr))
+    part="$disk$di"
+    label="fs-$di"
+    mkfs.$fstype -L $label $part
+    mount=/mnt/$label
+    if [[ -n ${mounts[$ii]} ]]; then
+        mount=${mounts[$ii]}
+    else
+        mount="/mnt/$label"
+    fi
+    mkdir -p $mount
+    echo "$part  $mount  $fstype  defaults  0  1" >>/etc/fstab
+    ii=$(($ii + 1))
+done
+mount -a
 SCRIPT
 
 Vagrant.configure("2") do |config|
@@ -41,11 +65,11 @@ Vagrant.configure("2") do |config|
       config.vm.hostname = vm_name
       config.vm.provider :virtualbox do |vb|
         vb.customize ["modifyvm", :id, "--memory", "{{ box_memory }}"]
-        vb.customize ["modifyvm", :id, "--cpus", 4]{% if vdis %}
-        (1..{{ vdis }}).each do |vol|
-          disc_file = "mnt/#{vm_name}/btrfs_#{vol}.vdi"
+        vb.customize ["modifyvm", :id, "--cpus", {{ cpus }}]{% if vdis %}
+        (1..1).each do |vol|
+          disc_file = "mnt/#{vm_name}/{{vdi_type}}_#{vol}.vdi"
           unless File.exist?(disc_file)
-            vb.customize ['createhd', '--filename', disc_file, '--size', 24 * 1024]
+            vb.customize ['createhd', '--filename', disc_file, '--size', {{ vdi_size }} * 1024]
           end
           vb.customize ["storageattach", :id, "--storagectl", "IDE Controller",
                         "--port", vol, "--device", 0, "--type", "hdd", "--medium",
@@ -110,6 +134,9 @@ class VagrantClusterManager(VagrantManager):
             box_name=VagrantManager.BOXES.get(purpose),
             shared_folders=self.get_shared_directories(),
             vdis=btrfs,
+            vdi_type="btrfs",
+            vdi_size=24,
+            cpus=4,
             env_name=self.env.name,
             hostname=HOSTNAME
         ))
