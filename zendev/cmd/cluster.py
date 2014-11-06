@@ -29,31 +29,14 @@ if [ ! -L /home/zenoss/.bash_serviced ] ; then
     sed -i "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER={{hostname}}\\n\\1/" /vagrant/bash_serviced
 fi
 
-# split vdi disk into equal size partitions for each fs
-fstype={{fstype}}
-disk=/dev/sdb
-parted $disk mktable msdos
-nparts={{fses}}
-incr=$(( {{fssize}} * 1024 ))
-mounts=("/opt/serviced/var" "/var/lib/docker")
-ii=0
-while (( $ii < $nparts )); do
-    di=$(($ii+1))
-    parted $disk mkpart primary ext2 $(($ii*$incr)) $(($di*$incr))
-    part="$disk$di"
-    label="fs-$di"
-    mkfs.$fstype -L $label $part
-    mount=/mnt/$label
-    if [[ -n ${mounts[$ii]} ]]; then
-        mount=${mounts[$ii]}
-    else
-        mount="/mnt/$label"
-    fi
-    mkdir -p $mount
-    echo "$part  $mount  $fstype  defaults  0  1" >>/etc/fstab
-    ii=$(($ii + 1))
-done
+# create a filesystem on each added disk
+{%for i in range(fses) %}
+{{"mkfs.%s -L fs-sd%s /dev/sd%s"|format(fstype, "bcdefghi"[i], "bcdefghi"[i])}}
+{{"mkdir -p /mnt/fs-sd%s"|format("bcdefghi"[i])}}
+{{"echo '/dev/sd%s  /mnt/fs-sd%s  %s  defaults  0  1' >>/etc/fstab"|format("bcdefghi"[i], "bcdefghi"[i], fstype)}}
+{%endfor%}
 mount -a
+# TODO make first two mount points: "/var/lib/docker" and "/opt/serviced/var"
 SCRIPT
 
 Vagrant.configure("2") do |config|
@@ -66,12 +49,17 @@ Vagrant.configure("2") do |config|
       config.vm.provider :virtualbox do |vb|
         vb.customize ["modifyvm", :id, "--memory", "{{ box_memory }}"]
         vb.customize ["modifyvm", :id, "--cpus", {{ cpus }}]{% if fses %}
-        (1..1).each do |vol|
+        disc_file = "mnt/#{vm_name}/{{fstype}}_1.vdi"
+        unless File.exist?(disc_file)
+          vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata", "--controller", "IntelAhci",
+                       "--portcount", {{fses}}, "--hostiocache", "on", "--bootable", "off"]
+        end
+        (1..{{fses}}).each do |vol|
           disc_file = "mnt/#{vm_name}/{{fstype}}_#{vol}.vdi"
           unless File.exist?(disc_file)
-            vb.customize ['createhd', '--filename', disc_file, '--size', {{ fses }} * {{ fssize }} * 1024]
+            vb.customize ['createhd', '--filename', disc_file, '--size', {{ fssize }} * 1024]
           end
-          vb.customize ["storageattach", :id, "--storagectl", "IDE Controller",
+          vb.customize ["storageattach", :id, "--storagectl", "SATA",
                         "--port", vol, "--device", 0, "--type", "hdd", "--medium",
                         disc_file ]
         end{% endif %}
