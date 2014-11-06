@@ -113,6 +113,7 @@ def get_packs(env, product):
     packs = ["ZenPacks.zenoss.ZenJMX", "ZenPacks.zenoss.PythonCollector"]
     if product:
         packs = get_packs_from_mk(env, product)
+    return packs
 
 def add_commands(subparsers):
     build_parser = subparsers.add_parser('build')
