@@ -41,11 +41,14 @@ def build_zenoss(args, env):
             cmd = "docker run --privileged --rm -v %s/src:/mnt/src -i -t zenoss/rpmbuild:centos7 bash -c '%s'" % (
                     env.root.strpath, bashcommand)
             subprocess.call(cmd, shell=True)
-        packs = ["ZenPacks.zenoss.ZenJMX", "ZenPacks.zenoss.PythonCollector"]
+
+        product = ''
         if args.resmgr:
-            packs = get_packs_from_mk(env, 'resmgr')
+            product = 'resmgr'
         elif args.ucspm:
-            packs = get_packs_from_mk(env, 'ucspm')
+            product = 'ucspm'
+
+        packs = get_packs(env, product)
 
         if "devimg" in target:
             # Figure out which zenpacks to install.
@@ -106,8 +109,11 @@ def get_packs_from_mk(env, product):
             packs.remove(pack)
     return packs
 
-def get_resmgr_packs(env):
-    return get_packs_from_mk(env, 'resmgr')
+def get_packs(env, product):
+    packs = ["ZenPacks.zenoss.ZenJMX", "ZenPacks.zenoss.PythonCollector"]
+    if product:
+        packs = get_packs_from_mk(env, product)
+    return packs
 
 def add_commands(subparsers):
     build_parser = subparsers.add_parser('build')
@@ -132,12 +138,12 @@ def add_commands(subparsers):
     build_parser.add_argument('--ucspm', action="store_true", required=False,
             help="Install UCS-PM ZenPacks")
     build_parser.add_argument('target', metavar='TARGET', nargs="+",
-                              choices=['src', 'core', 'resmgr',
-                                       'svcdef-core', 'svcdef-resmgr',
-                                       'svcdefpkg-core', 'svcdefpkg-resmgr',
-                                       'svcpkg-core', 'svcpkg-resmgr', 'svcpkg',
+                              choices=['src', 'core', 'resmgr', 'ucspm',
+                                       'svcdef-core', 'svcdef-resmgr', 'svcdev-ucspm',
+                                       'svcdefpkg-core', 'svcdefpkg-resmgr', 'svcdefpkg-ucspm',
+                                       'svcpkg-core', 'svcpkg-resmgr', 'svcpkg-ucspm', 'svcpkg',
                                        'serviced', 'devimg', 'img-core',
-                                       'img-resmgr', 'rps-img-core',
-                                       'rps-img-resmgr', 'impact-devimg'])
+                                       'img-resmgr', 'img-ucspm', 'rps-img-core',
+                                       'rps-img-resmgr', 'rps-img-ucspm', 'impact-devimg'])
     build_parser.set_defaults(functor=build)
 
