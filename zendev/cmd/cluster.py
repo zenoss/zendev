@@ -1,6 +1,7 @@
 from jinja2 import Template
 import os
 from vagrantManager import VagrantManager
+import subprocess
 
 HOSTNAME=os.uname()[1]
 
@@ -28,6 +29,14 @@ if [ ! -L /home/zenoss/.bash_serviced ] ; then
     ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
     sed -i "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER={{hostname}}\\n\\1/" /vagrant/bash_serviced
 fi
+for file in id_rsa.pub id_rsa; do 
+    if [ ! -L /home/zenoss/.ssh/$file ]; then
+        ln -sf /vagrant/$file /home/zenoss/.ssh/$file
+        if [[ $file == *.pub ]]; then
+            cat /home/zenoss/.ssh/$file >> /home/zenoss/.ssh/authorized_keys
+        fi
+    fi
+done
 
 # create a filesystem on each added disk
 {%set letters = "bcdefghijklmnopqrstuvwxyz"%}
@@ -130,6 +139,7 @@ class VagrantClusterManager(VagrantManager):
             env_name=self.env.name,
             hostname=HOSTNAME
         ))
+        subprocess.call("ssh-keygen -f %s/id_rsa -t rsa -N ''" % vagrant_dir, shell=True)
 
 
 def cluster_create(args, check_env):
