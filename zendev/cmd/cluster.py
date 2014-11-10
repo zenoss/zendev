@@ -29,25 +29,32 @@ if [ ! -L /home/zenoss/.bash_serviced ] ; then
     ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
     sed -i "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER={{hostname}}\\n\\1/" /vagrant/bash_serviced
 fi
-for file in id_rsa.pub id_rsa; do 
-    if [ ! -L /home/zenoss/.ssh/$file ]; then
-        ln -sf /vagrant/$file /home/zenoss/.ssh/$file
-        if [[ $file == *.pub ]]; then
-            cat /home/zenoss/.ssh/$file >> /home/zenoss/.ssh/authorized_keys
-        fi
-    fi
-done
+if [ ! -L /home/zenoss/.ssh/id_rsa ]; then
+    ln -sf /vagrant/$file /home/zenoss/.ssh/id_rsa
+fi
+if [ ! -L /home/zenoss/.ssh/id_rsa.pub ]; then
+    ln -sf /vagrant/$file /home/zenoss/.ssh/id_rsa.pub
+    cat /home/zenoss/.ssh/id_rsa.pub >> /home/zenoss/.ssh/authorized_keys
+fi
 
-# create a filesystem on each added disk
-{%set letters = "bcdefghijklmnopqrstuvwxyz"%}
-{%set mountpoints = ["/var/lib/docker", "/opt/serviced/var"] %}
-{%for i in range(fses) %} {%set devname = "sd%s"|format(letters[i])%} {%set device = "/dev/%s"|format(devname)%}
-{%if mountpoints|length > i %} {%set mountpoint = mountpoints[i]%} {%else%} {%set mountpoint = "/mnt/fs-%s"|format(devname)%} {%endif%}
-{{"mkfs.%s -L fs-%s %s"|format(fstype, devname, device)}}
-{{"mkdir -p %s"|format(mountpoint)}}
-{{"echo '%s  %s  %s  defaults  0  1' >>/etc/fstab"|format(device, mountpoint, fstype)}}
-{%endfor%}
-mount -a
+{% if fses -%}
+    # create a filesystem on each added disk
+    {%set letters = "bcdefghijklmnopqrstuvwxyz"%}
+    {%set mountpoints = ["/var/lib/docker", "/opt/serviced/var"] %}
+    {%for i in range(fses) %}
+        {%set devname = "sd%s"|format(letters[i])%}
+        {%set device = "/dev/%s"|format(devname)%}
+        {%if mountpoints|length > i %}
+            {%set mountpoint = mountpoints[i]%}
+        {%else%}
+            {%set mountpoint = "/mnt/fs-%s"|format(devname)%}
+        {%endif%}
+        {{- "mkfs.%s -L fs-%s %s\n"|format(fstype, devname, device)}}
+        {{- "mkdir -p %s\n"|format(mountpoint)}}
+        {{- "echo '%s  %s  %s  defaults  0  1' >>/etc/fstab"|format(device, mountpoint, fstype)}}
+    {%endfor%}
+    {{- "mount -a"}}
+{%endif%}
 SCRIPT
 
 Vagrant.configure("2") do |config|
@@ -59,29 +66,33 @@ Vagrant.configure("2") do |config|
       config.vm.hostname = vm_name
       config.vm.provider :virtualbox do |vb|
         vb.customize ["modifyvm", :id, "--memory", "{{ box_memory }}"]
-        vb.customize ["modifyvm", :id, "--cpus", {{ cpus }}]{% if fses %}
-        disc_file = "mnt/#{vm_name}/{{fstype}}_1.vdi"
-        unless File.exist?(disc_file)
+        vb.customize ["modifyvm", :id, "--cpus", {{ cpus }}]
+        {% if fses %}
+        disc_dir = "mnt/#{vm_name}"
+        unless File.exist?(disc_dir)
           vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata", "--controller", "IntelAhci",
                        "--portcount", {{fses}}, "--hostiocache", "on", "--bootable", "off"]
         end
         (1..{{fses}}).each do |vol|
-          disc_file = "mnt/#{vm_name}/{{fstype}}_#{vol}.vdi"
+          disc_file = "#{disc_dir}/{{fstype}}_#{vol}.vdi"
           unless File.exist?(disc_file)
             vb.customize ['createhd', '--filename', disc_file, '--size', {{ fssize }} * 1024]
           end
           vb.customize ["storageattach", :id, "--storagectl", "SATA",
                         "--port", vol, "--device", 0, "--type", "hdd", "--medium",
                         disc_file ]
-        end{% endif %}
-      end{% for root, target in shared_folders %}
-      config.vm.synced_folder "{{ root }}", "{{ target }}"{% endfor %}
+        end
+        {% endif %}
+      end
+      {% for root, target in shared_folders %}
+      config.vm.synced_folder "{{ root }}", "{{ target }}"
+      {% endfor %}
       config.vm.provision "shell", inline: $script
     end
   end
 end
 
-""")
+""", trim_blocks=True, lstrip_blocks=True)
 
 
 
@@ -139,7 +150,8 @@ class VagrantClusterManager(VagrantManager):
             env_name=self.env.name,
             hostname=HOSTNAME
         ))
-        subprocess.call("ssh-keygen -f %s/id_rsa -t rsa -N ''" % vagrant_dir, shell=True)
+        subprocess.call("ssh-keygen -f %s/id_rsa -t rsa -N ''" % vagrant_dir, shell=True,
+                        stdout=subprocess.PIPE)
 
 
 def cluster_create(args, check_env):
