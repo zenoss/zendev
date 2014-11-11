@@ -139,7 +139,7 @@ def add_commands(subparsers):
             help="Install UCS-PM ZenPacks")
     build_parser.add_argument('target', metavar='TARGET', nargs="+",
                               choices=['src', 'core', 'resmgr', 'ucspm',
-                                       'svcdef-core', 'svcdef-resmgr', 'svcdev-ucspm',
+                                       'svcdef-core', 'svcdef-resmgr', 'svcdef-ucspm',
                                        'svcdefpkg-core', 'svcdefpkg-resmgr', 'svcdefpkg-ucspm',
                                        'svcpkg-core', 'svcpkg-resmgr', 'svcpkg-ucspm', 'svcpkg',
                                        'serviced', 'devimg', 'img-core',
