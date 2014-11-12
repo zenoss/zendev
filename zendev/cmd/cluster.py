@@ -10,53 +10,6 @@ VAGRANT = Template("""
 # vi: set ft=ruby :
 # Vagrantfile created by zendev cluster
 
-$script = <<'SCRIPT'
-chown zenoss:zenoss /home/zenoss/{{env_name}}
-su - zenoss -c "cd /home/zenoss && zendev init {{env_name}}"
-echo "
-if [ -f ~/.bash_serviced ]; then
-    . ~/.bash_serviced
-fi" >> /home/zenoss/.bashrc
-echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
-echo "zendev use {{env_name}}" >> /home/zenoss/.bashrc
-[ -e /etc/hostid ] || printf %x $(date +%s) > /etc/hostid
-if [ ! -L /etc/hosts ] ; then
-    ln -sf /vagrant/etc_hosts /etc/hosts
-    IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\\([^ ]*\\).*/\\1/p')
-    echo $IP $HOSTNAME >> /vagrant/etc_hosts
-fi
-if [ ! -L /home/zenoss/.bash_serviced ] ; then
-    ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
-    sed -i "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER={{hostname}}\\n\\1/" /vagrant/bash_serviced
-fi
-if [ ! -L /home/zenoss/.ssh/id_rsa ]; then
-    ln -sf /vagrant/$file /home/zenoss/.ssh/id_rsa
-fi
-if [ ! -L /home/zenoss/.ssh/id_rsa.pub ]; then
-    ln -sf /vagrant/$file /home/zenoss/.ssh/id_rsa.pub
-    cat /home/zenoss/.ssh/id_rsa.pub >> /home/zenoss/.ssh/authorized_keys
-fi
-
-{% if fses -%}
-    # create a filesystem on each added disk
-    {%set letters = "bcdefghijklmnopqrstuvwxyz"%}
-    {%set mountpoints = ["/var/lib/docker", "/opt/serviced/var"] %}
-    {%for i in range(fses) %}
-        {%set devname = "sd%s"|format(letters[i])%}
-        {%set device = "/dev/%s"|format(devname)%}
-        {%if mountpoints|length > i %}
-            {%set mountpoint = mountpoints[i]%}
-        {%else%}
-            {%set mountpoint = "/mnt/fs-%s"|format(devname)%}
-        {%endif%}
-        {{- "mkfs.%s -L fs-%s %s\n"|format(fstype, devname, device)}}
-        {{- "mkdir -p %s\n"|format(mountpoint)}}
-        {{- "echo '%s  %s  %s  defaults  0  1' >>/etc/fstab"|format(device, mountpoint, fstype)}}
-    {%endfor%}
-    {{- "mount -a"}}
-{%endif%}
-SCRIPT
-
 Vagrant.configure("2") do |config|
   (1..{{ box_count }}).each do |box|
     config.vm.define vm_name = "{{ cluster_name }}%02d" % box do |config|
@@ -87,13 +40,61 @@ Vagrant.configure("2") do |config|
       {% for root, target in shared_folders %}
       config.vm.synced_folder "{{ root }}", "{{ target }}"
       {% endfor %}
-      config.vm.provision "shell", inline: $script
+      config.vm.provision "shell", inline: "[ ! -f /vagrant/first_boot.sh ] || source /vagrant/first_boot.sh "
     end
   end
 end
-
 """, trim_blocks=True, lstrip_blocks=True)
 
+
+FIRST_BOOT = Template ("""
+#! /bin/bash
+# init.sh file created by zendev cluster
+
+chown zenoss:zenoss /home/zenoss/{{env_name}}
+su - zenoss -c "cd /home/zenoss && zendev init {{env_name}}"
+
+echo "
+if [ -f ~/.bash_serviced ]; then
+    . ~/.bash_serviced
+fi" >> /home/zenoss/.bashrc
+echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
+echo "zendev use {{env_name}}" >> /home/zenoss/.bashrc
+
+printf %x $(date +%s) > /etc/hostid
+
+ln -sf /vagrant/etc_hosts /etc/hosts
+IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\\([^ ]*\\).*/\\1/p')
+echo $IP $HOSTNAME >> /vagrant/etc_hosts
+
+ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
+sed -i "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER={{hostname}}\\n\\1/" /vagrant/bash_serviced
+ln -sf /vagrant/id_rsa /home/zenoss/.ssh/id_rsa
+
+ln -sf /vagrant/id_rsa.pub /home/zenoss/.ssh/id_rsa.pub
+cat /home/zenoss/.ssh/id_rsa.pub >> /home/zenoss/.ssh/authorized_keys
+
+{% if fses -%}
+    # create a filesystem on each added disk
+    {%set letters = "bcdefghijklmnopqrstuvwxyz"%}
+    {%set mountpoints = ["/var/lib/docker", "/opt/serviced/var"] %}
+    {%for i in range(fses) %}
+        {%set devname = "sd%s"|format(letters[i])%}
+        {%set device = "/dev/%s"|format(devname)%}
+        {%if mountpoints|length > i %}
+            {%set mountpoint = mountpoints[i]%}
+        {%else%}
+            {%set mountpoint = "/mnt/fs-%s"|format(devname)%}
+        {%endif%}
+        {{- "mkfs.%s -L fs-%s %s\n"|format(fstype, devname, device)}}
+        {{- "mkdir -p %s\n"|format(mountpoint)}}
+        {{- "echo '%s  %s  %s  defaults  0  1' >>/etc/fstab"|format(device, mountpoint, fstype)}}
+    {%endfor%}
+    {{- "mount -a"}}
+{%endif%}
+
+mv /vagrant/first_boot.sh /vagrant/first_boot.sh.orig
+""", trim_blocks=True, lstrip_blocks=True)
 
 
 ETC_HOSTS = """
@@ -147,6 +148,10 @@ class VagrantClusterManager(VagrantManager):
             fstype="btrfs",
             fssize=24,
             cpus=4,
+        ))
+        vagrant_dir.ensure("first_boot.sh").write(FIRST_BOOT.render(
+            fses=btrfs,
+            fstype="btrfs",
             env_name=self.env.name,
             hostname=HOSTNAME
         ))
