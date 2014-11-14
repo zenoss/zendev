@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
       {% for root, target in shared_folders %}
       config.vm.synced_folder "{{ root }}", "{{ target }}"
       {% endfor %}
-      config.vm.provision "shell", inline: "[ ! -f /vagrant/first_boot.sh ] || source /vagrant/first_boot.sh "
+      config.vm.provision "shell", inline: "[ ! -f /vagrant/first_boot.sh-#{vm_name} ] && source /vagrant/first_boot.sh "
     end
   end
 end
@@ -93,7 +93,7 @@ cat /home/zenoss/.ssh/id_rsa.pub >> /home/zenoss/.ssh/authorized_keys
     {{- "mount -a"}}
 {%endif%}
 
-mv /vagrant/first_boot.sh /vagrant/first_boot.sh.orig
+cp -p /vagrant/first_boot.sh /vagrant/first_boot.sh-$(hostname)
 """, trim_blocks=True, lstrip_blocks=True)
 
 
