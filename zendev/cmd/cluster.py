@@ -42,7 +42,7 @@ Vagrant.configure("2") do |config|
       {% for root, target in shared_folders %}
       config.vm.synced_folder "{{ root }}", "{{ target }}"
       {% endfor %}
-      config.vm.provision "shell", inline: "[ ! -f /vagrant/first_boot.sh-#{vm_name} ] && source /vagrant/first_boot.sh "
+      config.vm.provision "shell", inline: "[ ! -f /vagrant/first_boot/#{vm_name} ] && source /vagrant/first_boot.sh "
     end
   end
 end
@@ -51,7 +51,7 @@ end
 
 FIRST_BOOT = Template ("""
 #! /bin/bash
-# init.sh file created by zendev cluster
+# first_boot.sh file created by zendev cluster
 
 chown zenoss:zenoss /home/zenoss/{{env_name}}
 su - zenoss -c "cd /home/zenoss && zendev init {{env_name}}"
@@ -65,6 +65,15 @@ echo "zendev use {{env_name}}" >> /home/zenoss/.bashrc
 
 printf %x $(date +%s) > /etc/hostid
 
+# We want to share etc/hosts between hosts.  Therefore we link it to a file on a mounted
+# directory (/vagrant).  However, when we reboot the VM, we will need a copy of /etc/hosts
+# before the /vagrant directory is mounted.  So, unmount /vagrant, copy /etc/hosts into
+# /vagrant, then remount it.  Before unmounting, capture the arguments we will need to
+# remount it.
+MOUNT_CMD=$(awk '/^vagrant /{printf "mount -t %s -o %s %s %s", $3, $4, $1, $2}' /etc/mtab)
+umount vagrant
+cp /etc/hosts /vagrant/etc_hosts
+$MOUNT_CMD
 ln -sf /vagrant/etc_hosts /etc/hosts
 IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\\([^ ]*\\).*/\\1/p')
 echo $IP $HOSTNAME >> /vagrant/etc_hosts
@@ -95,7 +104,8 @@ cat /home/zenoss/.ssh/id_rsa.pub >> /home/zenoss/.ssh/authorized_keys
     {{- "mount -a"}}
 {%endif%}
 
-cp -p /vagrant/first_boot.sh /vagrant/first_boot.sh-$(hostname)
+mkdir -p /vagrant/first_boot
+touch /vagrant/first_boot/$(hostname)
 """, trim_blocks=True, lstrip_blocks=True)
 
 
