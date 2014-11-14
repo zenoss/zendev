@@ -173,16 +173,8 @@ def cluster_ssh(args, env):
     env().cluster.ssh(args.name, args.box)
 
 
-def cluster_boot(args, env):
-    env().cluster.up(args.name)
-
-
 def cluster_up(args, env):
     env().cluster.up(args.name, args.box)
-
-
-def cluster_shutdown(args, env):
-    env().cluster.halt(args.name)
 
 
 def cluster_halt(args, env):
@@ -198,7 +190,7 @@ def add_commands(subparsers):
     cluster_subparsers = cluster_parser.add_subparsers()
 
     cluster_create_parser = cluster_subparsers.add_parser('create')
-    cluster_create_parser.add_argument('name', metavar="NAME")
+    cluster_create_parser.add_argument('name', metavar="CLUSTER_NAME")
     cluster_create_parser.add_argument('--type', choices=VagrantManager.BOXES,
                                        default="ubuntu")
     cluster_create_parser.add_argument('--count', type=int, default=1)
@@ -208,30 +200,22 @@ def add_commands(subparsers):
                                    help="Number of btrfs volumes")
     cluster_create_parser.set_defaults(functor=cluster_create)
 
-    cluster_boot_parser = cluster_subparsers.add_parser('boot')
-    cluster_boot_parser.add_argument('name', metavar="NAME")
-    cluster_boot_parser.set_defaults(functor=cluster_boot)
-
     cluster_up_parser = cluster_subparsers.add_parser('up')
-    cluster_up_parser.add_argument('name', metavar="NAME")
-    cluster_up_parser.add_argument('box', metavar="BOX")
+    cluster_up_parser.add_argument('name', metavar="CLUSTER_NAME")
+    cluster_up_parser.add_argument('box', nargs='?', metavar="BOX")
     cluster_up_parser.set_defaults(functor=cluster_up)
 
-    cluster_shutdown_parser = cluster_subparsers.add_parser('shutdown')
-    cluster_shutdown_parser.add_argument('name', metavar="NAME")
-    cluster_shutdown_parser.set_defaults(functor=cluster_shutdown)
-
     cluster_halt_parser = cluster_subparsers.add_parser('halt')
-    cluster_halt_parser.add_argument('name', metavar="NAME")
-    cluster_halt_parser.add_argument('box', metavar="BOX")
+    cluster_halt_parser.add_argument('name', metavar="CLUSTER_NAME")
+    cluster_halt_parser.add_argument('box', nargs ='?', metavar="BOX")
     cluster_halt_parser.set_defaults(functor=cluster_halt)
 
     cluster_remove_parser = cluster_subparsers.add_parser('destroy')
-    cluster_remove_parser.add_argument('name', metavar="NAME")
+    cluster_remove_parser.add_argument('name', metavar="CLUSTER_NAME")
     cluster_remove_parser.set_defaults(functor=cluster_remove)
 
     cluster_ssh_parser = cluster_subparsers.add_parser('ssh')
-    cluster_ssh_parser.add_argument('name', metavar="NAME")
+    cluster_ssh_parser.add_argument('name', metavar="CLUSTER_NAME")
     cluster_ssh_parser.add_argument('box', metavar="BOX")
     cluster_ssh_parser.set_defaults(functor=cluster_ssh)
 
