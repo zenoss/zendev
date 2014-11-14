@@ -1,7 +1,9 @@
 from jinja2 import Template
 import os
+import sys
 from vagrantManager import VagrantManager
 import subprocess
+from ..log import error
 
 HOSTNAME=os.uname()[1]
 
@@ -158,6 +160,17 @@ class VagrantClusterManager(VagrantManager):
         subprocess.call("ssh-keygen -f %s/id_rsa -t rsa -N ''" % vagrant_dir, shell=True,
                         stdout=subprocess.PIPE)
 
+    def ls(self, name):
+        if not name:
+            super(VagrantClusterManager, self).ls()
+	else:
+            if not self._root.join(name).exists():
+                error('No cluster matching "%s" found' % name)
+                sys.exit(1)
+            # Each box in the cluster has its own entry under .vagrant/machines.
+            for d in self._root.join(name, '.vagrant', 'machines').listdir():
+                print d.basename
+
 
 def cluster_create(args, check_env):
     env = check_env()
@@ -182,7 +195,7 @@ def cluster_halt(args, env):
 
 
 def cluster_ls(args, env):
-    env().cluster.ls()
+    env().cluster.ls(args.name)
 
 
 def add_commands(subparsers):
@@ -220,4 +233,5 @@ def add_commands(subparsers):
     cluster_ssh_parser.set_defaults(functor=cluster_ssh)
 
     cluster_ls_parser = cluster_subparsers.add_parser('ls')
+    cluster_ls_parser.add_argument('name', nargs='?', metavar="CLUSTER_NAME")
     cluster_ls_parser.set_defaults(functor=cluster_ls)
