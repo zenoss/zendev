@@ -146,7 +146,7 @@ class VagrantClusterManager(VagrantManager):
     def __init__(self, environment):
         super(VagrantClusterManager, self).__init__(environment, environment.clusterroot)
 
-    def _create(self, name, purpose, count, btrfs, memory):
+    def _create(self, name, purpose, count, btrfs, memory, cpus, fssize):
         vagrant_dir = self._root.ensure_dir(name)
         vagrant_dir.ensure("etc_hosts").write(ETC_HOSTS)
         vagrant_dir.ensure("bash_serviced").write(BASH_SERVICED)
@@ -158,8 +158,8 @@ class VagrantClusterManager(VagrantManager):
             shared_folders=self.get_shared_directories(),
             fses=btrfs,
             fstype="btrfs",
-            fssize=24,
-            cpus=4,
+            fssize=fssize,
+            cpus=cpus,
         ))
         vagrant_dir.ensure("first_boot.sh").write(FIRST_BOOT.render(
             fses=btrfs,
@@ -184,7 +184,7 @@ class VagrantClusterManager(VagrantManager):
 
 def cluster_create(args, check_env):
     env = check_env()
-    env.cluster.create(args.name, args.type, args.count, args.btrfs, args.memory)
+    env.cluster.create(args.name, args.type, args.count, args.btrfs, args.memory, args.cpus, args.fssize)
     env.cluster.provision(args.name, args.type)
 
 
@@ -220,7 +220,11 @@ def add_commands(subparsers):
     cluster_create_parser.add_argument('--memory', type=int, default=4096)
     cluster_create_parser.add_argument('--domain', default='zenoss.loc')
     cluster_create_parser.add_argument('--btrfs', type=int, default=0,
-                                   help="Number of btrfs volumes")
+                                       help="Number of btrfs volumes")
+    cluster_create_parser.add_argument('--cpus', type=int, default=2,
+                                       help="Number of cpus")
+    cluster_create_parser.add_argument('--fssize', type=int, default=24,
+                                       help="Size of file system (GB)")
     cluster_create_parser.set_defaults(functor=cluster_create)
 
     cluster_up_parser = cluster_subparsers.add_parser('up')

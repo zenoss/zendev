@@ -23,13 +23,13 @@ class VagrantManager(object):
         self.env = environment
         self._root = root
 
-    def create(self, name, purpose=CONTROLPLANE, btrfs=0, vfs=0, memory="8192"):
+    def create(self, name, *args, **kwargs):
         if not self._verify_auto_network():
             raise Exception("Unable to find or install vagrant-auto_network plugin.")
         elif self._root.join(name).check(dir=True):
             raise Exception("Vagrant box %s already exists" % name)
         self._root.ensure_dir(name)
-        self._create(name, purpose, btrfs, vfs, memory)
+        self._create(name, *args, **kwargs)
 
     def _install_auto_network(self):
         rc = subprocess.call(
