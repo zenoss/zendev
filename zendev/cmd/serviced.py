@@ -42,12 +42,14 @@ class Serviced(object):
         envvars = self.env.envvars()
         envvars['SERVICED_VARPATH'] = self.varpath.strpath
         envvars['TZ'] = 'UTC'
+        envvars['SERVICED_MASTER'] = os.getenv('SERVICED_MASTER', '1')
+        envvars['SERVICED_AGENT'] = os.getenv('SERVICED_AGENT', '1')
         if registry:
             envvars['SERVICED_REGISTRY'] = 'true'
         if root:
             args.extend(["sudo", "-E"])
             args.extend("%s=%s" % x for x in envvars.iteritems())
-        args.extend([self.serviced, "-master", "-agent",
+        args.extend([self.serviced,
             "--mount", "zendev/devimg,%s,/home/zenoss/.m2" % py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True),
             "--mount", "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath,
             "--mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,

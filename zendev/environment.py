@@ -13,7 +13,7 @@ from .log import ask, info, error
 from .config import get_config
 from .manifest import Manifest, create_manifest
 from .repo import Repository
-from .cmd.box import VagrantManager
+from .cmd.box import VagrantBoxManager
 from .cmd.cluster import VagrantClusterManager
 from .utils import Reprinter, colored, here
 from .utils import is_git_repo
@@ -105,7 +105,7 @@ class ZenDevEnvironment(object):
         self._manifestroot = self._root.join('.manifest')
         self._manifest = create_manifest(manifest or self._config.join('manifest'))
         self._add_build_repo(self._manifest, self._srcroot, self._buildroot)
-        self._vagrant = VagrantManager(self)
+        self._vagrant = VagrantBoxManager(self)
         self._cluster = VagrantClusterManager(self)
         self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
 

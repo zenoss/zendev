@@ -1,165 +1,190 @@
-from cStringIO import StringIO
-
-import os
-import py
-import subprocess
 from jinja2 import Template
+import os
+import sys
+from vagrantManager import VagrantManager
+import subprocess
+from ..log import error
 
-from ..utils import colored, here
-
+HOSTNAME=os.uname()[1]
 
 VAGRANT = Template("""
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-
-$script = <<SCRIPT
-{{ provision_script }} 
-SCRIPT
+# Vagrantfile created by zendev cluster
 
 Vagrant.configure("2") do |config|
-  (1..{{ box_count }}).each do |i|
-    config.vm.define vm_name = "{{ cluster_name }}-%02d.{{ cluster_domain }}" % i do |config|
+  (1..{{ box_count }}).each do |box|
+    config.vm.define vm_name = "{{ cluster_name }}%02d" % box do |config|
       config.vm.box = "{{ box_name }}"
       config.vm.box_url = "http://vagrant.zendev.org/boxes/{{ box_name }}.box"
       config.vm.network :private_network, :ip => '0.0.0.0', :auto_network => true
-
       config.vm.hostname = vm_name
-
       config.vm.provider :virtualbox do |vb|
         vb.customize ["modifyvm", :id, "--memory", "{{ box_memory }}"]
-        vb.customize ["modifyvm", :id, "--cpus", 4]
+        vb.customize ["modifyvm", :id, "--cpus", {{ cpus }}]
+        {% if fses %}
+        disc_dir = "mnt/#{vm_name}"
+        unless File.exist?(disc_dir)
+          vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata", "--controller", "IntelAhci",
+                       "--portcount", {{fses}}, "--hostiocache", "on", "--bootable", "off"]
+        end
+        (1..{{fses}}).each do |vol|
+          disc_file = "#{disc_dir}/{{fstype}}_#{vol}.vdi"
+          unless File.exist?(disc_file)
+            vb.customize ['createhd', '--filename', disc_file, '--size', {{ fssize }} * 1024]
+          end
+          vb.customize ["storageattach", :id, "--storagectl", "SATA",
+                        "--port", vol, "--device", 0, "--type", "hdd", "--medium",
+                        disc_file ]
+        end
+        {% endif %}
       end
-
       {% for root, target in shared_folders %}
-      config.vm.synced_folder "{{ root }}", "{{ target }}"{% endfor %}
-      {% if provision_script %}config.vm.provision "shell", inline: $script{% endif %}
+      config.vm.synced_folder "{{ root }}", "{{ target }}"
+      {% endfor %}
+      config.vm.provision "shell", inline: "[ ! -f /vagrant/first_boot/#{vm_name} ] && source /vagrant/first_boot.sh "
     end
   end
 end
-""")
-
-CONTROLPLANE = "controlplane"
-SOURCEBUILD = "sourcebuild"
-
-BOXES = {
-    CONTROLPLANE: "ubuntu-13.04-docker-v1",
-    SOURCEBUILD: "f19-docker-zendeps",
-    "ubuntu": "ubuntu-13.04-docker-v1",
-    "fedora": "f19-docker-zendeps"
-}
+""", trim_blocks=True, lstrip_blocks=True)
 
 
-class VagrantClusterManager(object):
+FIRST_BOOT = Template ("""
+#! /bin/bash
+# first_boot.sh file created by zendev cluster
+
+chown zenoss:zenoss /home/zenoss/{{env_name}}
+su - zenoss -c "cd /home/zenoss && zendev init {{env_name}}"
+
+echo "
+if [ -f ~/.bash_serviced ]; then
+    . ~/.bash_serviced
+fi" >> /home/zenoss/.bashrc
+echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
+echo "zendev use {{env_name}}" >> /home/zenoss/.bashrc
+
+printf %x $(date +%s) > /etc/hostid
+
+# We want to share etc/hosts between hosts.  Therefore we link it to a file on a mounted
+# directory (/vagrant).  However, when we reboot the VM, we will need a copy of /etc/hosts
+# before the /vagrant directory is mounted.  So, unmount /vagrant, copy /etc/hosts into
+# /vagrant, then remount it.  Before unmounting, capture the arguments we will need to
+# remount it.
+MOUNT_CMD=$(awk '/^vagrant /{printf "mount -t %s -o %s %s %s", $3, $4, $1, $2}' /etc/mtab)
+umount vagrant
+cp /etc/hosts /vagrant/etc_hosts
+$MOUNT_CMD
+ln -sf /vagrant/etc_hosts /etc/hosts
+IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\\([^ ]*\\).*/\\1/p')
+echo $IP $HOSTNAME >> /vagrant/etc_hosts
+
+ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced
+sed -i "s/^\\(# serviced$\\)/${HOSTNAME}_MASTER={{hostname}}\\n\\1/" /vagrant/bash_serviced
+ln -sf /vagrant/id_rsa /home/zenoss/.ssh/id_rsa
+
+ln -sf /vagrant/id_rsa.pub /home/zenoss/.ssh/id_rsa.pub
+cat /home/zenoss/.ssh/id_rsa.pub >> /home/zenoss/.ssh/authorized_keys
+
+{% if fses -%}
+    # create a filesystem on each added disk
+    {%set letters = "bcdefghijklmnopqrstuvwxyz"%}
+    {%set mountpoints = ["/var/lib/docker", "/opt/serviced/var"] %}
+    {%for i in range(fses) %}
+        {%set devname = "sd%s"|format(letters[i])%}
+        {%set device = "/dev/%s"|format(devname)%}
+        {%if mountpoints|length > i %}
+            {%set mountpoint = mountpoints[i]%}
+        {%else%}
+            {%set mountpoint = "/mnt/fs-%s"|format(devname)%}
+        {%endif%}
+        {{- "mkfs.%s -L fs-%s %s\n"|format(fstype, devname, device)}}
+        {{- "mkdir -p %s\n"|format(mountpoint)}}
+        {{- "echo '%s  %s  %s  defaults  0  1' >>/etc/fstab"|format(device, mountpoint, fstype)}}
+    {%endfor%}
+    {{- "mount -a"}}
+{%endif%}
+
+mkdir -p /vagrant/first_boot
+touch /vagrant/first_boot/$(hostname)
+""", trim_blocks=True, lstrip_blocks=True)
+
+
+ETC_HOSTS = """
+127.0.0.1   localhost
+%s  %s 
+
+# Shared hosts for zendev cluster
+""" % (VagrantManager.VIRTUALBOX_HOST_IP, HOSTNAME)
+
+BASH_SERVICED = """
+#! /bin/bash
+
+# serviced
+eval export SERVICED_MASTER_ID=\$${HOSTNAME}_MASTER
+
+export SERVICED_REGISTRY=1
+export SERVICED_AGENT=1
+export SERVICED_MASTER=$( test "$SERVICED_MASTER_ID" != "$HOSTNAME" ; echo $? )
+if [ "$SERVICED_MASTER" == "1" ] ; then
+    # master only
+    export SERVICED_OUTBOUND_IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
+else
+    # agent only
+    export SERVICED_ZK=$SERVICED_MASTER_ID:2181
+    export SERVICED_ENDPOINT=$SERVICED_MASTER_ID:4979
+    export SERVICED_DOCKER_REGISTRY=$SERVICED_MASTER_ID:5000
+    export SERVICED_LOG_ADDRESS=$SERVICED_MASTER_ID:5042
+    export SERVICED_STATS_PORT=$SERVICED_MASTER_ID:8443
+    export SERVICED_LOGSTASH_ES=$SERVICED_MASTER_ID:9100
+fi
+"""
+
+class VagrantClusterManager(VagrantManager):
     """
     Manages a cluster of Vagrant boxes.
     """
     def __init__(self, environment):
-        self.env = environment
-        self._root = self.env.clusterroot
+        super(VagrantClusterManager, self).__init__(environment, environment.clusterroot)
 
-    def _get_cluster(self, name):
-        import vagrant
-        return vagrant.Vagrant(self._root.join(name).strpath)
-
-    def _install_auto_network(self):
-        rc = subprocess.call(["vagrant", "plugin", "install","vagrant-auto_network"])
-        if rc:
-            return rc
-        subprocess.call("wget -qO- https://github.com/adrienthebo/vagrant-auto_network/commit/7de30cb2ce72cc8f979b8dbe5c9581646512ab1a.diff "
-                "| patch -p1 -d ~/.vagrant.d/gems/gems/vagrant-auto_network*", shell=True)
-        return 0
-
-    def verify_auto_network(self):
-        try:
-            if subprocess.call("vagrant plugin list | grep vagrant-auto_network", shell=True):
-                if self._install_auto_network():
-                    return False
-        except Exception:
-            return False
-        return True
-
-    def create(self, name, purpose=CONTROLPLANE, count=1, domain="zenoss.loc", memory=4096):
-        if not self.verify_auto_network():
-            raise Exception("Unable to find or install vagrant-auto_network plugin.")
-        elif self._root.join(name).check(dir=True):
-            raise Exception("Vagrant box %s already exists" % name)
-
-        vbox_dir = self._root.ensure(name, dir=True)
-        shared = (
-            (self.env.zendev.strpath, "/home/zenoss/zendev"),
-            (self.env.srcroot.strpath, "/home/zenoss/%s/src" % self.env.name),
-            (self.env.buildroot.strpath, "/home/zenoss/%s/build" % self.env.name),
-            (self.env.configroot.strpath, "/home/zenoss/%s/%s" % (
-                self.env.name, self.env.configroot.basename)),
-        )
-
-        vbox_dir.ensure("Vagrantfile").write(VAGRANT.render(
+    def _create(self, name, purpose, count, btrfs, memory, cpus, fssize):
+        vagrant_dir = self._root.ensure_dir(name)
+        vagrant_dir.ensure("etc_hosts").write(ETC_HOSTS)
+        vagrant_dir.ensure("bash_serviced").write(BASH_SERVICED)
+        vagrant_dir.ensure("Vagrantfile").write(VAGRANT.render(
             cluster_name=name,
             box_count=count,
             box_memory=memory,
-            cluster_domain=domain,
-            box_name=BOXES.get(purpose),
-            shared_folders=shared,
-            provision_script="""
-hid=$(%s | cut -c2-10)
-a=${hid:6:2}
-b=${hid:4:2}
-c=${hid:2:2}
-d=${hid:0:2}
-echo -ne \\\\\\\\x$a\\\\\\\\x$b\\\\\\\\x$c\\\\\\\\x$d > /etc/hostid
-chown zenoss:zenoss /home/zenoss/%s
-su - zenoss -c "cd /home/zenoss && zendev init %s"
-echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
-echo "zendev use %s" >> /home/zenoss/.bashrc
-""" % ("date +%s", self.env.name, self.env.name, self.env.name)))
+            box_name=VagrantManager.BOXES.get(purpose),
+            shared_folders=self.get_shared_directories(),
+            fses=btrfs,
+            fstype="btrfs",
+            fssize=fssize,
+            cpus=cpus,
+        ))
+        vagrant_dir.ensure("first_boot.sh").write(FIRST_BOOT.render(
+            fses=btrfs,
+            fstype="btrfs",
+            env_name=self.env.name,
+            hostname=HOSTNAME
+        ))
+        subprocess.call("ssh-keygen -f %s/id_rsa -t rsa -N ''" % vagrant_dir, shell=True,
+                        stdout=subprocess.PIPE)
 
-    def boot(self, name):
-        cluster = self._get_cluster(name)
-        cluster.up()
-
-    def up(self, name, box):
-        cluster = self._get_cluster(name)
-        cluster.up(vm_name=box)
-
-    def shutdown(self, name):
-        cluster = self._get_cluster(name)
-        cluster.halt()
-
-    def halt(self, name, box):
-        cluster = self._get_cluster(name)
-        cluster.halt(vm_name=box)
-
-    def remove(self, name):
-        cluster = self._get_cluster(name)
-        cluster.destroy()
-        self._root.join(name).remove()
-
-    def provision(self, name, type_):
-        import vagrant
-        type_ = "ubuntu" if BOXES.get(type_)==BOXES["ubuntu"] else "fedora"
-        provision_script = subprocess.check_output(["bash", 
-            here("provision-%s.sh" % type_).strpath])
-        with self._root.join(name).as_cwd():
-            proc = subprocess.Popen([vagrant.VAGRANT_EXE, "up"], 
-                    stdin=subprocess.PIPE)
-            stdout, stderr = proc.communicate(provision_script)
-
-    def ssh(self, name, box):
-        import vagrant
-        with self._root.join(name).as_cwd():
-            subprocess.call([vagrant.VAGRANT_EXE, 'ssh', box])
-
-    def ls(self):
-        for d in self._root.listdir(lambda p:p.join('Vagrantfile').check()):
-            print "%s/%s" % (d.dirname, colored(d.basename, 'white'))
-
+    def ls(self, name):
+        if not name:
+            super(VagrantClusterManager, self).ls()
+	else:
+            if not self._root.join(name).exists():
+                error('No cluster matching "%s" found' % name)
+                sys.exit(1)
+            # Each box in the cluster has its own entry under .vagrant/machines.
+            for d in self._root.join(name, '.vagrant', 'machines').listdir():
+                print d.basename
 
 
 def cluster_create(args, check_env):
-    """
-    """
     env = check_env()
-    env.cluster.create(args.name, args.type, args.count, args.domain, args.memory)
+    env.cluster.create(args.name, args.type, args.count, args.btrfs, args.memory, args.cpus, args.fssize)
     env.cluster.provision(args.name, args.type)
 
 
@@ -171,16 +196,8 @@ def cluster_ssh(args, env):
     env().cluster.ssh(args.name, args.box)
 
 
-def cluster_boot(args, env):
-    env().cluster.boot(args.name)
-
-
 def cluster_up(args, env):
     env().cluster.up(args.name, args.box)
-
-
-def cluster_shutdown(args, env):
-    env().cluster.shutdown(args.name)
 
 
 def cluster_halt(args, env):
@@ -188,7 +205,7 @@ def cluster_halt(args, env):
 
 
 def cluster_ls(args, env):
-    env().cluster.ls()
+    env().cluster.ls(args.name)
 
 
 def add_commands(subparsers):
@@ -196,39 +213,39 @@ def add_commands(subparsers):
     cluster_subparsers = cluster_parser.add_subparsers()
 
     cluster_create_parser = cluster_subparsers.add_parser('create')
-    cluster_create_parser.add_argument('name', metavar="NAME")
-    cluster_create_parser.add_argument('--type', required=True, choices=BOXES)
+    cluster_create_parser.add_argument('name', metavar="CLUSTER_NAME")
+    cluster_create_parser.add_argument('--type', choices=VagrantManager.BOXES,
+                                       default="ubuntu")
     cluster_create_parser.add_argument('--count', type=int, default=1)
     cluster_create_parser.add_argument('--memory', type=int, default=4096)
     cluster_create_parser.add_argument('--domain', default='zenoss.loc')
+    cluster_create_parser.add_argument('--btrfs', type=int, default=0,
+                                       help="Number of btrfs volumes")
+    cluster_create_parser.add_argument('--cpus', type=int, default=2,
+                                       help="Number of cpus")
+    cluster_create_parser.add_argument('--fssize', type=int, default=24,
+                                       help="Size of file system (GB)")
     cluster_create_parser.set_defaults(functor=cluster_create)
 
-    cluster_boot_parser = cluster_subparsers.add_parser('boot')
-    cluster_boot_parser.add_argument('name', metavar="NAME")
-    cluster_boot_parser.set_defaults(functor=cluster_boot)
-
     cluster_up_parser = cluster_subparsers.add_parser('up')
-    cluster_up_parser.add_argument('name', metavar="NAME")
-    cluster_up_parser.add_argument('box', metavar="BOX")
+    cluster_up_parser.add_argument('name', metavar="CLUSTER_NAME")
+    cluster_up_parser.add_argument('box', nargs='?', metavar="BOX")
     cluster_up_parser.set_defaults(functor=cluster_up)
 
-    cluster_shutdown_parser = cluster_subparsers.add_parser('shutdown')
-    cluster_shutdown_parser.add_argument('name', metavar="NAME")
-    cluster_shutdown_parser.set_defaults(functor=cluster_shutdown)
-
     cluster_halt_parser = cluster_subparsers.add_parser('halt')
-    cluster_halt_parser.add_argument('name', metavar="NAME")
-    cluster_halt_parser.add_argument('box', metavar="BOX")
+    cluster_halt_parser.add_argument('name', metavar="CLUSTER_NAME")
+    cluster_halt_parser.add_argument('box', nargs ='?', metavar="BOX")
     cluster_halt_parser.set_defaults(functor=cluster_halt)
 
     cluster_remove_parser = cluster_subparsers.add_parser('destroy')
-    cluster_remove_parser.add_argument('name', metavar="NAME")
+    cluster_remove_parser.add_argument('name', metavar="CLUSTER_NAME")
     cluster_remove_parser.set_defaults(functor=cluster_remove)
 
     cluster_ssh_parser = cluster_subparsers.add_parser('ssh')
-    cluster_ssh_parser.add_argument('name', metavar="NAME")
+    cluster_ssh_parser.add_argument('name', metavar="CLUSTER_NAME")
     cluster_ssh_parser.add_argument('box', metavar="BOX")
     cluster_ssh_parser.set_defaults(functor=cluster_ssh)
 
     cluster_ls_parser = cluster_subparsers.add_parser('ls')
+    cluster_ls_parser.add_argument('name', nargs='?', metavar="CLUSTER_NAME")
     cluster_ls_parser.set_defaults(functor=cluster_ls)
