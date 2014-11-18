@@ -14,8 +14,7 @@ Acceptable box types are: ``ubuntu``, ``fedora``, ``controlplane``, and ``source
 
 The cluster must be given a name that will be used to manage the whole cluster. 
 The individual box names are derived from the cluster name by appending a two
-digit number to the cluster name. The FQDN for each box is formed by appending
-the domain string, zenoss.loc by default, to the box name. The number of boxes
+digit number to the cluster name. The number of boxes
 in a cluster is specified by the ``count`` option. The amount of memory allocated
 to each box is specified by the ``memory`` option.
 
@@ -25,7 +24,7 @@ to each box is specified by the ``memory`` option.
     zendev cluster create --type ubuntu --count 5 demo
 
     # Create a new cluster of 3 ubuntu boxes named 4p with 2MB of RAM each in the fourpoints.io domain
-    zendev cluster create --type ubuntu --count 3 --memory 2048 --domain fourpoints.io 4p
+    zendev cluster create --type ubuntu --count 3 --memory 2048 4p
 
 Listing Clusters
 ----------------
@@ -35,15 +34,22 @@ Listing Clusters
 
     # List all the clusters
     zendev cluster ls
+    
+To list the boxes within a cluster, specify the cluster name: ``zendev cluster ls CLUSTER``
 
-Booting up a cluster
+.. code-block:: bash
+
+    # List boxes in the cluster named CLUSTER
+    zendev cluster ls CLUSTER
+
+Starting up a cluster
 --------------------
-``zendev cluster boot`` will start all the boxes in a given cluster.
+``zendev cluster up`` will start all the boxes in a given cluster.
 
 .. code-block:: bash
 
     # Start all the boxes in the cluster named CLUSTER
-    zendev cluster boot CLUSTER
+    zendev cluster up CLUSTER
 
 Starting a single box in a cluster
 ----------------------------------
@@ -54,14 +60,14 @@ Starting a single box in a cluster
     # Start the box named BOX in the cluster CLUSTER
     zendev cluster up CLUSTER BOX
 
-Shutting down all the boxes in a cluster
+Halting all the boxes in a cluster
 ----------------------------------------
-``zendev cluster shutdown`` will stop all the boxes in a given cluster.
+``zendev cluster halt`` will stop all the boxes in a given cluster.
 
 .. code-block:: bash
 
     # Stop all the boxes in the cluster named CLUSTER
-    zendev cluster shutdown CLUSTER
+    zendev cluster halt CLUSTER
 
 Shutdown a specific box in a cluster
 ------------------------------------
