@@ -119,6 +119,25 @@
     <span class="n">manifest</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
 </div>
+<div class="viewcode-block" id="addrepo"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.repos.addrepo">[docs]</a><span class="k">def</span> <span class="nf">addrepo</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a repo</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">repository</span><span class="p">:</span>
+        <span class="n">error</span><span class="p">(</span><span class="s">&quot;No repository was specified.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+        <span class="n">error</span><span class="p">(</span><span class="s">&quot;No path was specified.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+    <span class="n">manifest</span> <span class="o">=</span> <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">manifest</span>
+    <span class="n">manifest</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">repository</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
+    <span class="n">manifest</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+</div>
 <div class="viewcode-block" id="remove"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.repos.remove">[docs]</a><span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove a repository.</span>
@@ -211,6 +230,13 @@
     <span class="n">add_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;add&#39;</span><span class="p">)</span>
     <span class="n">add_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;manifest&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;+&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;MANIFEST&quot;</span><span class="p">)</span>
     <span class="n">add_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">add</span><span class="p">)</span>
+
+    <span class="n">addrepo_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;addrepo&#39;</span><span class="p">)</span>
+    <span class="n">addrepo_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Path to Source&quot;</span><span class="p">)</span>
+    <span class="n">addrepo_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;repository&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Repository in github&quot;</span><span class="p">)</span>
+    <span class="n">addrepo_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;ref&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;?&quot;</span><span class="p">,</span>
+                                <span class="n">default</span><span class="o">=</span><span class="s">&#39;develop&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;git ref or branch name&quot;</span><span class="p">)</span>
+    <span class="n">addrepo_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">addrepo</span><span class="p">)</span>
 
     <span class="n">rm_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;rm&#39;</span><span class="p">)</span>
     <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">rm_parser</span><span class="p">)</span>

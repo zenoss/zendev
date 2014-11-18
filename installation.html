@@ -145,12 +145,22 @@ sudo apt-get update
 sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
 <span class="c"># Install Docker</span>
-curl -sL https://get.docker.io/ubuntu/ | sudo sh
-
-<span class="c"># Install our own version of nsenter</span>
-wget http://artifacts.zenoss.loc/europa/docker-smuggle_2.24.2-1_amd64.deb
-sudo dpkg -i docker-smuggle_*.deb
-sudo apt-get install -f
+curl -sSL https://get.docker.io/ubuntu/ | sudo sh
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>If you are operating under AWS, check if docker is using the devicemapper driver.</dt>
+<dd>Run the &#8220;docker info&#8221; command and look at the storage driver section. If it
+says &#8220;devicemapper&#8221;, stop docker, install linux-image-extra, and reinstall
+docker to use AUFS as a storage driver.</dd>
+</dl>
+<div class="highlight-bash"><div class="highlight"><pre>sudo stop docker
+sudo apt-get remove lxc-docker
+sudo apt-get autoremove
+sudo rm -rf /var/lib/docker
+sudo apt-get update
+sudo apt-get install linux-image-extra-<span class="sb">`</span>uname -r<span class="sb">`</span>
+sudo apt-get install lxc-docker
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
@@ -158,6 +168,8 @@ sudo apt-get install -f
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the current user to the docker group</span>
 sudo usermod -a -G docker <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
+sudo usermod -a -G sudo <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>    <span class="c"># if ubuntu</span>
+sudo usermod -a -G wheel <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>   <span class="c"># if RHEL/Centos</span>
 
 <span class="c"># Login again to get docker group (requires password reentry)</span>
 <span class="nb">exec </span>su -l <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
@@ -171,14 +183,9 @@ sudo service docker restart
 </pre></div>
 </div>
 <p>If you see an empty list of containers (i.e., a row of column names), you&#8217;re
-good. Now modify the Docker upstart script to handle resolution of local DNS:</p>
-<div class="highlight-bash"><div class="highlight"><pre>cat  <span class="s">&lt;&lt;\EOF | sudo sed -f /dev/fd/0 -i /etc/init/docker.conf</span>
-<span class="s">    s/DOCKER_OPTS=.*$/\0\n\tDOCKER_OPTS=&quot;$DOCKER_OPTS -dns=10.87.113.13 -dns=10.88.102.13 -dns=10.175.211.10&quot;/</span>
-<span class="s">EOF</span>
-</pre></div>
-</div>
+good.</p>
 <p>Next, modify <tt class="docutils literal"><span class="pre">/etc/security/limits.conf</span></tt> to up the file limits:</p>
-<div class="highlight-bash"><div class="highlight"><pre>cat <span class="s">&lt;&lt;\EOF | sudo /bin/bash -c &quot;cat &gt; /etc/security/limits.conf&quot;</span>
+<div class="highlight-bash"><div class="highlight"><pre>cat <span class="s">&lt;&lt;\EOF | sudo /bin/bash -c &quot;cat &gt;&gt; /etc/security/limits.conf&quot;</span>
 <span class="s">*      hard   nofile   1048576</span>
 <span class="s">*      soft   nofile   1048576</span>
 <span class="s">root   hard   nofile   1048576</span>
@@ -199,8 +206,8 @@ good. Now modify the Docker upstart script to handle resolution of local DNS:</p
 sudo apt-get install -y mercurial bzr git
 
 <span class="c"># Download Go 1.3 and unpack it into /usr/local</span>
-sudo apt-get install -y wget
-wget -qO- http://golang.org/dl/go1.3.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
+sudo apt-get install -y wget curl
+curl -s https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz | sudo tar -xzC /usr/local
 
 <span class="c"># Set GOROOT and PATH appropriately</span>
 cat <span class="s">&lt;&lt;\EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/golang.sh&quot;</span>
@@ -296,11 +303,14 @@ sudo pip install -e <span class="k">${</span><span class="nv">SRCDIR</span><span
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Get back to source directory</span>
 <span class="nb">cd</span> <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>
 
-<span class="c"># Create the environment</span>
+<span class="c"># Create the environment for building core devimg</span>
 zendev init europa --tag develop
 
 <span class="c"># Start using the environment</span>
 zendev use europa
+
+<span class="c"># Optional: add enterprise zenpacks for building resmgr devimg</span>
+zendev add ~/src/europa/build/manifests/zenpacks.commercial.json
 </pre></div>
 </div>
 <ol class="arabic" start="9">
@@ -327,12 +337,14 @@ cdz serviced
 make
 
 <span class="c"># Build the Zenoss Docker repo image (also may take a while)</span>
-zendev build devimg
+zendev build devimg             <span class="c"># to build core</span>
+zendev build --resmgr devimg    <span class="c"># to build resmgr</span>
 
 <span class="c"># Run a totally clean instance of serviced, automatically adding localhost</span>
 <span class="c"># as a host, adding the Zenoss template, and deploying an instance of</span>
 <span class="c"># Zenoss (warning: blows away state!)</span>
-zendev serviced --reset --deploy
+zendev serviced --reset --deploy                                <span class="c"># to deploy core</span>
+zendev serviced --reset --deploy --template Zenoss.resmgr.lite  <span class="c"># to deploy resmgr lite</span>
 </pre></div>
 </div>
 </div>

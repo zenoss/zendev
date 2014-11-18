@@ -98,168 +98,193 @@
 
   
   <h1>Source code for zendev.cmd.cluster</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">cStringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
-
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">py</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">vagrantManager</span> <span class="kn">import</span> <span class="n">VagrantManager</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">from</span> <span class="nn">..log</span> <span class="kn">import</span> <span class="n">error</span>
 
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">colored</span><span class="p">,</span> <span class="n">here</span>
-
+<span class="n">HOSTNAME</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">uname</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
 
 <span class="n">VAGRANT</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&quot;&quot;&quot;</span>
 <span class="s"># -*- mode: ruby -*-</span>
 <span class="s"># vi: set ft=ruby :</span>
-
-<span class="s">$script = &lt;&lt;SCRIPT</span>
-<span class="s">{{ provision_script }} </span>
-<span class="s">SCRIPT</span>
+<span class="s"># Vagrantfile created by zendev cluster</span>
 
 <span class="s">Vagrant.configure(&quot;2&quot;) do |config|</span>
-<span class="s">  (1..{{ box_count }}).each do |i|</span>
-<span class="s">    config.vm.define vm_name = &quot;{{ cluster_name }}-</span><span class="si">%02d</span><span class="s">.{{ cluster_domain }}&quot; </span><span class="si">% i</span><span class="s"> do |config|</span>
+<span class="s">  (1..{{ box_count }}).each do |box|</span>
+<span class="s">    config.vm.define vm_name = &quot;{{ cluster_name }}</span><span class="si">%02d</span><span class="s">&quot; % box do |config|</span>
 <span class="s">      config.vm.box = &quot;{{ box_name }}&quot;</span>
 <span class="s">      config.vm.box_url = &quot;http://vagrant.zendev.org/boxes/{{ box_name }}.box&quot;</span>
 <span class="s">      config.vm.network :private_network, :ip =&gt; &#39;0.0.0.0&#39;, :auto_network =&gt; true</span>
-
 <span class="s">      config.vm.hostname = vm_name</span>
-
 <span class="s">      config.vm.provider :virtualbox do |vb|</span>
 <span class="s">        vb.customize [&quot;modifyvm&quot;, :id, &quot;--memory&quot;, &quot;{{ box_memory }}&quot;]</span>
-<span class="s">        vb.customize [&quot;modifyvm&quot;, :id, &quot;--cpus&quot;, 4]</span>
+<span class="s">        vb.customize [&quot;modifyvm&quot;, :id, &quot;--cpus&quot;, {{ cpus }}]</span>
+<span class="s">        {</span><span class="si">% i</span><span class="s">f fses %}</span>
+<span class="s">        disc_dir = &quot;mnt/#{vm_name}&quot;</span>
+<span class="s">        unless File.exist?(disc_dir)</span>
+<span class="s">          vb.customize [&quot;storagectl&quot;, :id, &quot;--name&quot;, &quot;SATA&quot;, &quot;--add&quot;, &quot;sata&quot;, &quot;--controller&quot;, &quot;IntelAhci&quot;,</span>
+<span class="s">                       &quot;--portcount&quot;, {{fses}}, &quot;--hostiocache&quot;, &quot;on&quot;, &quot;--bootable&quot;, &quot;off&quot;]</span>
+<span class="s">        end</span>
+<span class="s">        (1..{{fses}}).each do |vol|</span>
+<span class="s">          disc_file = &quot;#{disc_dir}/{{fstype}}_#{vol}.vdi&quot;</span>
+<span class="s">          unless File.exist?(disc_file)</span>
+<span class="s">            vb.customize [&#39;createhd&#39;, &#39;--filename&#39;, disc_file, &#39;--size&#39;, {{ fssize }} * 1024]</span>
+<span class="s">          end</span>
+<span class="s">          vb.customize [&quot;storageattach&quot;, :id, &quot;--storagectl&quot;, &quot;SATA&quot;,</span>
+<span class="s">                        &quot;--port&quot;, vol, &quot;--device&quot;, 0, &quot;--type&quot;, &quot;hdd&quot;, &quot;--medium&quot;,</span>
+<span class="s">                        disc_file ]</span>
+<span class="s">        end</span>
+<span class="s">        {</span><span class="si">% e</span><span class="s">ndif %}</span>
 <span class="s">      end</span>
-
 <span class="s">      {</span><span class="si">% f</span><span class="s">or root, target in shared_folders %}</span>
-<span class="s">      config.vm.synced_folder &quot;{{ root }}&quot;, &quot;{{ target }}&quot;{</span><span class="si">% e</span><span class="s">ndfor %}</span>
-<span class="s">      {</span><span class="si">% i</span><span class="s">f provision_script %}config.vm.provision &quot;shell&quot;, inline: $script{</span><span class="si">% e</span><span class="s">ndif %}</span>
+<span class="s">      config.vm.synced_folder &quot;{{ root }}&quot;, &quot;{{ target }}&quot;</span>
+<span class="s">      {</span><span class="si">% e</span><span class="s">ndfor %}</span>
+<span class="s">      config.vm.provision &quot;shell&quot;, inline: &quot;[ ! -f /vagrant/first_boot/#{vm_name} ] &amp;&amp; source /vagrant/first_boot.sh &quot;</span>
 <span class="s">    end</span>
 <span class="s">  end</span>
 <span class="s">end</span>
-<span class="s">&quot;&quot;&quot;</span><span class="p">)</span>
-
-<span class="n">CONTROLPLANE</span> <span class="o">=</span> <span class="s">&quot;controlplane&quot;</span>
-<span class="n">SOURCEBUILD</span> <span class="o">=</span> <span class="s">&quot;sourcebuild&quot;</span>
-
-<span class="n">BOXES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">CONTROLPLANE</span><span class="p">:</span> <span class="s">&quot;ubuntu-13.04-docker-v1&quot;</span><span class="p">,</span>
-    <span class="n">SOURCEBUILD</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span><span class="p">,</span>
-    <span class="s">&quot;ubuntu&quot;</span><span class="p">:</span> <span class="s">&quot;ubuntu-13.04-docker-v1&quot;</span><span class="p">,</span>
-    <span class="s">&quot;fedora&quot;</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span>
-<span class="p">}</span>
+<span class="s">&quot;&quot;&quot;</span><span class="p">,</span> <span class="n">trim_blocks</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">lstrip_blocks</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="VagrantClusterManager"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager">[docs]</a><span class="k">class</span> <span class="nc">VagrantClusterManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="n">FIRST_BOOT</span> <span class="o">=</span> <span class="n">Template</span> <span class="p">(</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">#! /bin/bash</span>
+<span class="s"># first_boot.sh file created by zendev cluster</span>
+
+<span class="s">chown zenoss:zenoss /home/zenoss/{{env_name}}</span>
+<span class="s">su - zenoss -c &quot;cd /home/zenoss &amp;&amp; zendev init {{env_name}}&quot;</span>
+
+<span class="s">echo &quot;</span>
+<span class="s">if [ -f ~/.bash_serviced ]; then</span>
+<span class="s">    . ~/.bash_serviced</span>
+<span class="s">fi&quot; &gt;&gt; /home/zenoss/.bashrc</span>
+<span class="s">echo &quot;source $(zendev bootstrap)&quot; &gt;&gt; /home/zenoss/.bashrc</span>
+<span class="s">echo &quot;zendev use {{env_name}}&quot; &gt;&gt; /home/zenoss/.bashrc</span>
+
+<span class="s">printf </span><span class="si">%x</span><span class="s"> $(date +</span><span class="si">%s</span><span class="s">) &gt; /etc/hostid</span>
+
+<span class="s"># We want to share etc/hosts between hosts.  Therefore we link it to a file on a mounted</span>
+<span class="s"># directory (/vagrant).  However, when we reboot the VM, we will need a copy of /etc/hosts</span>
+<span class="s"># before the /vagrant directory is mounted.  So, unmount /vagrant, copy /etc/hosts into</span>
+<span class="s"># /vagrant, then remount it.  Before unmounting, capture the arguments we will need to</span>
+<span class="s"># remount it.</span>
+<span class="s">MOUNT_CMD=$(awk &#39;/^vagrant /{printf &quot;mount -t </span><span class="si">%s</span><span class="s"> -o </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;, $3, $4, $1, $2}&#39; /etc/mtab)</span>
+<span class="s">umount vagrant</span>
+<span class="s">cp /etc/hosts /vagrant/etc_hosts</span>
+<span class="s">$MOUNT_CMD</span>
+<span class="s">ln -sf /vagrant/etc_hosts /etc/hosts</span>
+<span class="s">IP=$(ifconfig eth1 | sed -n &#39;s/^.*inet addr:</span><span class="se">\\</span><span class="s">([^ ]*</span><span class="se">\\</span><span class="s">).*/</span><span class="se">\\</span><span class="s">1/p&#39;)</span>
+<span class="s">echo $IP $HOSTNAME &gt;&gt; /vagrant/etc_hosts</span>
+
+<span class="s">ln -sf /vagrant/bash_serviced /home/zenoss/.bash_serviced</span>
+<span class="s">sed -i &quot;s/^</span><span class="se">\\</span><span class="s">(# serviced$</span><span class="se">\\</span><span class="s">)/${HOSTNAME}_MASTER={{hostname}}</span><span class="se">\\</span><span class="s">n</span><span class="se">\\</span><span class="s">1/&quot; /vagrant/bash_serviced</span>
+<span class="s">ln -sf /vagrant/id_rsa /home/zenoss/.ssh/id_rsa</span>
+
+<span class="s">ln -sf /vagrant/id_rsa.pub /home/zenoss/.ssh/id_rsa.pub</span>
+<span class="s">cat /home/zenoss/.ssh/id_rsa.pub &gt;&gt; /home/zenoss/.ssh/authorized_keys</span>
+
+<span class="s">{</span><span class="si">% i</span><span class="s">f fses -%}</span>
+<span class="s">    # create a filesystem on each added disk</span>
+<span class="s">    {</span><span class="si">%s</span><span class="s">et letters = &quot;bcdefghijklmnopqrstuvwxyz&quot;%}</span>
+<span class="s">    {</span><span class="si">%s</span><span class="s">et mountpoints = [&quot;/var/lib/docker&quot;, &quot;/opt/serviced/var&quot;] %}</span>
+<span class="s">    {</span><span class="si">%f</span><span class="s">or i in range(fses) %}</span>
+<span class="s">        {</span><span class="si">%s</span><span class="s">et devname = &quot;sd</span><span class="si">%s</span><span class="s">&quot;|format(letters[i])%}</span>
+<span class="s">        {</span><span class="si">%s</span><span class="s">et device = &quot;/dev/</span><span class="si">%s</span><span class="s">&quot;|format(devname)%}</span>
+<span class="s">        {</span><span class="si">%i</span><span class="s">f mountpoints|length &gt; i %}</span>
+<span class="s">            {</span><span class="si">%s</span><span class="s">et mountpoint = mountpoints[i]%}</span>
+<span class="s">        {</span><span class="si">%e</span><span class="s">lse%}</span>
+<span class="s">            {</span><span class="si">%s</span><span class="s">et mountpoint = &quot;/mnt/fs-</span><span class="si">%s</span><span class="s">&quot;|format(devname)%}</span>
+<span class="s">        {</span><span class="si">%e</span><span class="s">ndif%}</span>
+<span class="s">        {{- &quot;mkfs.</span><span class="si">%s</span><span class="s"> -L fs-</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;|format(fstype, devname, device)}}</span>
+<span class="s">        {{- &quot;mkdir -p </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;|format(mountpoint)}}</span>
+<span class="s">        {{- &quot;echo &#39;</span><span class="si">%s</span><span class="s">  </span><span class="si">%s</span><span class="s">  </span><span class="si">%s</span><span class="s">  defaults  0  1&#39; &gt;&gt;/etc/fstab&quot;|format(device, mountpoint, fstype)}}</span>
+<span class="s">    {</span><span class="si">%e</span><span class="s">ndfor%}</span>
+<span class="s">    {{- &quot;mount -a&quot;}}</span>
+<span class="s">{</span><span class="si">%e</span><span class="s">ndif%}</span>
+
+<span class="s">mkdir -p /vagrant/first_boot</span>
+<span class="s">touch /vagrant/first_boot/$(hostname)</span>
+<span class="s">&quot;&quot;&quot;</span><span class="p">,</span> <span class="n">trim_blocks</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">lstrip_blocks</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+
+<span class="n">ETC_HOSTS</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">127.0.0.1   localhost</span>
+<span class="si">%s</span><span class="s">  </span><span class="si">%s</span><span class="s"> </span>
+
+<span class="s"># Shared hosts for zendev cluster</span>
+<span class="s">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">VagrantManager</span><span class="o">.</span><span class="n">VIRTUALBOX_HOST_IP</span><span class="p">,</span> <span class="n">HOSTNAME</span><span class="p">)</span>
+
+<span class="n">BASH_SERVICED</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">#! /bin/bash</span>
+
+<span class="s"># serviced</span>
+<span class="s">eval export SERVICED_MASTER_ID=\$${HOSTNAME}_MASTER</span>
+
+<span class="s">export SERVICED_REGISTRY=1</span>
+<span class="s">export SERVICED_AGENT=1</span>
+<span class="s">export SERVICED_MASTER=$( test &quot;$SERVICED_MASTER_ID&quot; != &quot;$HOSTNAME&quot; ; echo $? )</span>
+<span class="s">if [ &quot;$SERVICED_MASTER&quot; == &quot;1&quot; ] ; then</span>
+<span class="s">    # master only</span>
+<span class="s">    export SERVICED_OUTBOUND_IP=$(ifconfig eth1 | sed -n &#39;s/^.*inet addr:\([^ ]*\).*/</span><span class="se">\\</span><span class="s">1/p&#39;)</span>
+<span class="s">else</span>
+<span class="s">    # agent only</span>
+<span class="s">    export SERVICED_ZK=$SERVICED_MASTER_ID:2181</span>
+<span class="s">    export SERVICED_ENDPOINT=$SERVICED_MASTER_ID:4979</span>
+<span class="s">    export SERVICED_DOCKER_REGISTRY=$SERVICED_MASTER_ID:5000</span>
+<span class="s">    export SERVICED_LOG_ADDRESS=$SERVICED_MASTER_ID:5042</span>
+<span class="s">    export SERVICED_STATS_PORT=$SERVICED_MASTER_ID:8443</span>
+<span class="s">    export SERVICED_LOGSTASH_ES=$SERVICED_MASTER_ID:9100</span>
+<span class="s">fi</span>
+<span class="s">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="VagrantClusterManager"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager">[docs]</a><span class="k">class</span> <span class="nc">VagrantClusterManager</span><span class="p">(</span><span class="n">VagrantManager</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages a cluster of Vagrant boxes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">environment</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">clusterroot</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">VagrantClusterManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">environment</span><span class="o">.</span><span class="n">clusterroot</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">vagrant</span>
-        <span class="k">return</span> <span class="n">vagrant</span><span class="o">.</span><span class="n">Vagrant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_install_auto_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;vagrant&quot;</span><span class="p">,</span> <span class="s">&quot;plugin&quot;</span><span class="p">,</span> <span class="s">&quot;install&quot;</span><span class="p">,</span><span class="s">&quot;vagrant-auto_network&quot;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">rc</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">rc</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;wget -qO- https://github.com/adrienthebo/vagrant-auto_network/commit/7de30cb2ce72cc8f979b8dbe5c9581646512ab1a.diff &quot;</span>
-                <span class="s">&quot;| patch -p1 -d ~/.vagrant.d/gems/gems/vagrant-auto_network*&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span>
-
-<div class="viewcode-block" id="VagrantClusterManager.verify_auto_network"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.verify_auto_network">[docs]</a>    <span class="k">def</span> <span class="nf">verify_auto_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;vagrant plugin list | grep vagrant-auto_network&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_install_auto_network</span><span class="p">():</span>
-                    <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">return</span> <span class="bp">True</span>
-</div>
-<div class="viewcode-block" id="VagrantClusterManager.create"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="n">CONTROLPLANE</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s">&quot;zenoss.loc&quot;</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="mi">4096</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_auto_network</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Unable to find or install vagrant-auto_network plugin.&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Vagrant box </span><span class="si">%s</span><span class="s"> already exists&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
-
-        <span class="n">vbox_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="n">shared</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">zendev</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/zendev&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/src&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/build&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">configroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">configroot</span><span class="o">.</span><span class="n">basename</span><span class="p">)),</span>
-        <span class="p">)</span>
-
-        <span class="n">vbox_dir</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;Vagrantfile&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">VAGRANT</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">purpose</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">btrfs</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">cpus</span><span class="p">,</span> <span class="n">fssize</span><span class="p">):</span>
+        <span class="n">vagrant_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">ensure_dir</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">vagrant_dir</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;etc_hosts&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ETC_HOSTS</span><span class="p">)</span>
+        <span class="n">vagrant_dir</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;bash_serviced&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">BASH_SERVICED</span><span class="p">)</span>
+        <span class="n">vagrant_dir</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;Vagrantfile&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">VAGRANT</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
             <span class="n">cluster_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">box_count</span><span class="o">=</span><span class="n">count</span><span class="p">,</span>
             <span class="n">box_memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
-            <span class="n">cluster_domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
-            <span class="n">box_name</span><span class="o">=</span><span class="n">BOXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">purpose</span><span class="p">),</span>
-            <span class="n">shared_folders</span><span class="o">=</span><span class="n">shared</span><span class="p">,</span>
-            <span class="n">provision_script</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span>
-<span class="s">hid=$(</span><span class="si">%s</span><span class="s"> | cut -c2-10)</span>
-<span class="s">a=${hid:6:2}</span>
-<span class="s">b=${hid:4:2}</span>
-<span class="s">c=${hid:2:2}</span>
-<span class="s">d=${hid:0:2}</span>
-<span class="s">echo -ne </span><span class="se">\\\\\\\\</span><span class="s">x$a</span><span class="se">\\\\\\\\</span><span class="s">x$b</span><span class="se">\\\\\\\\</span><span class="s">x$c</span><span class="se">\\\\\\\\</span><span class="s">x$d &gt; /etc/hostid</span>
-<span class="s">chown zenoss:zenoss /home/zenoss/</span><span class="si">%s</span><span class="s"></span>
-<span class="s">su - zenoss -c &quot;cd /home/zenoss &amp;&amp; zendev init </span><span class="si">%s</span><span class="s">&quot;</span>
-<span class="s">echo &quot;source $(zendev bootstrap)&quot; &gt;&gt; /home/zenoss/.bashrc</span>
-<span class="s">echo &quot;zendev use </span><span class="si">%s</span><span class="s">&quot; &gt;&gt; /home/zenoss/.bashrc</span>
-<span class="s">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;date +</span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">)))</span>
-</div>
-<div class="viewcode-block" id="VagrantClusterManager.boot"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.boot">[docs]</a>    <span class="k">def</span> <span class="nf">boot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="n">cluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cluster</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">cluster</span><span class="o">.</span><span class="n">up</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="VagrantClusterManager.up"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.up">[docs]</a>    <span class="k">def</span> <span class="nf">up</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">box</span><span class="p">):</span>
-        <span class="n">cluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cluster</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">cluster</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">vm_name</span><span class="o">=</span><span class="n">box</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="VagrantClusterManager.shutdown"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="n">cluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cluster</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">cluster</span><span class="o">.</span><span class="n">halt</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="VagrantClusterManager.halt"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.halt">[docs]</a>    <span class="k">def</span> <span class="nf">halt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">box</span><span class="p">):</span>
-        <span class="n">cluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cluster</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">cluster</span><span class="o">.</span><span class="n">halt</span><span class="p">(</span><span class="n">vm_name</span><span class="o">=</span><span class="n">box</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="VagrantClusterManager.remove"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="n">cluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cluster</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">cluster</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="VagrantClusterManager.provision"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.provision">[docs]</a>    <span class="k">def</span> <span class="nf">provision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">vagrant</span>
-        <span class="n">type_</span> <span class="o">=</span> <span class="s">&quot;ubuntu&quot;</span> <span class="k">if</span> <span class="n">BOXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span><span class="o">==</span><span class="n">BOXES</span><span class="p">[</span><span class="s">&quot;ubuntu&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&quot;fedora&quot;</span>
-        <span class="n">provision_script</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s">&quot;bash&quot;</span><span class="p">,</span> 
-            <span class="n">here</span><span class="p">(</span><span class="s">&quot;provision-</span><span class="si">%s</span><span class="s">.sh&quot;</span> <span class="o">%</span> <span class="n">type_</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">])</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-            <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">vagrant</span><span class="o">.</span><span class="n">VAGRANT_EXE</span><span class="p">,</span> <span class="s">&quot;up&quot;</span><span class="p">],</span> 
-                    <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
-            <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">provision_script</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="VagrantClusterManager.ssh"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.ssh">[docs]</a>    <span class="k">def</span> <span class="nf">ssh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">box</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">vagrant</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="n">vagrant</span><span class="o">.</span><span class="n">VAGRANT_EXE</span><span class="p">,</span> <span class="s">&#39;ssh&#39;</span><span class="p">,</span> <span class="n">box</span><span class="p">])</span>
-</div>
-<div class="viewcode-block" id="VagrantClusterManager.ls"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.ls">[docs]</a>    <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span><span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;Vagrantfile&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">()):</span>
-            <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">dirname</span><span class="p">,</span> <span class="n">colored</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">))</span>
+            <span class="n">box_name</span><span class="o">=</span><span class="n">VagrantManager</span><span class="o">.</span><span class="n">BOXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">purpose</span><span class="p">),</span>
+            <span class="n">shared_folders</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_shared_directories</span><span class="p">(),</span>
+            <span class="n">fses</span><span class="o">=</span><span class="n">btrfs</span><span class="p">,</span>
+            <span class="n">fstype</span><span class="o">=</span><span class="s">&quot;btrfs&quot;</span><span class="p">,</span>
+            <span class="n">fssize</span><span class="o">=</span><span class="n">fssize</span><span class="p">,</span>
+            <span class="n">cpus</span><span class="o">=</span><span class="n">cpus</span><span class="p">,</span>
+        <span class="p">))</span>
+        <span class="n">vagrant_dir</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;first_boot.sh&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">FIRST_BOOT</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="n">fses</span><span class="o">=</span><span class="n">btrfs</span><span class="p">,</span>
+            <span class="n">fstype</span><span class="o">=</span><span class="s">&quot;btrfs&quot;</span><span class="p">,</span>
+            <span class="n">env_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">hostname</span><span class="o">=</span><span class="n">HOSTNAME</span>
+        <span class="p">))</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;ssh-keygen -f </span><span class="si">%s</span><span class="s">/id_rsa -t rsa -N &#39;&#39;&quot;</span> <span class="o">%</span> <span class="n">vagrant_dir</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
 
+<div class="viewcode-block" id="VagrantClusterManager.ls"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.ls">[docs]</a>    <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">VagrantClusterManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">ls</span><span class="p">()</span>
+	<span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">error</span><span class="p">(</span><span class="s">&#39;No cluster matching &quot;</span><span class="si">%s</span><span class="s">&quot; found&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c"># Each box in the cluster has its own entry under .vagrant/machines.</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s">&#39;.vagrant&#39;</span><span class="p">,</span> <span class="s">&#39;machines&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">listdir</span><span class="p">():</span>
+                <span class="k">print</span> <span class="n">d</span><span class="o">.</span><span class="n">basename</span>
 
 </div></div>
 <div class="viewcode-block" id="cluster_create"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.cluster_create">[docs]</a><span class="k">def</span> <span class="nf">cluster_create</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">check_env</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
-    <span class="n">env</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">btrfs</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">cpus</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">fssize</span><span class="p">)</span>
     <span class="n">env</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">provision</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
 </div>
@@ -271,16 +296,8 @@
     <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">ssh</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">box</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="cluster_boot"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.cluster_boot">[docs]</a><span class="k">def</span> <span class="nf">cluster_boot</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
-    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">boot</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-</div>
 <div class="viewcode-block" id="cluster_up"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.cluster_up">[docs]</a><span class="k">def</span> <span class="nf">cluster_up</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
     <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">box</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="cluster_shutdown"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.cluster_shutdown">[docs]</a><span class="k">def</span> <span class="nf">cluster_shutdown</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
-    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="cluster_halt"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.cluster_halt">[docs]</a><span class="k">def</span> <span class="nf">cluster_halt</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
@@ -288,7 +305,7 @@
 
 </div>
 <div class="viewcode-block" id="cluster_ls"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.cluster_ls">[docs]</a><span class="k">def</span> <span class="nf">cluster_ls</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
-    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">ls</span><span class="p">()</span>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">ls</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
@@ -296,41 +313,41 @@
     <span class="n">cluster_subparsers</span> <span class="o">=</span> <span class="n">cluster_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">()</span>
 
     <span class="n">cluster_create_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;create&#39;</span><span class="p">)</span>
-    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--type&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">BOXES</span><span class="p">)</span>
+    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;CLUSTER_NAME&quot;</span><span class="p">)</span>
+    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--type&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">VagrantManager</span><span class="o">.</span><span class="n">BOXES</span><span class="p">,</span>
+                                       <span class="n">default</span><span class="o">=</span><span class="s">&quot;ubuntu&quot;</span><span class="p">)</span>
     <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--count&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--memory&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4096</span><span class="p">)</span>
     <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--domain&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&#39;zenoss.loc&#39;</span><span class="p">)</span>
+    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--btrfs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                       <span class="n">help</span><span class="o">=</span><span class="s">&quot;Number of btrfs volumes&quot;</span><span class="p">)</span>
+    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--cpus&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                       <span class="n">help</span><span class="o">=</span><span class="s">&quot;Number of cpus&quot;</span><span class="p">)</span>
+    <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--fssize&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
+                                       <span class="n">help</span><span class="o">=</span><span class="s">&quot;Size of file system (GB)&quot;</span><span class="p">)</span>
     <span class="n">cluster_create_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_create</span><span class="p">)</span>
 
-    <span class="n">cluster_boot_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;boot&#39;</span><span class="p">)</span>
-    <span class="n">cluster_boot_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_boot_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_boot</span><span class="p">)</span>
-
     <span class="n">cluster_up_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;up&#39;</span><span class="p">)</span>
-    <span class="n">cluster_up_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_up_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;box&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;BOX&quot;</span><span class="p">)</span>
+    <span class="n">cluster_up_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;CLUSTER_NAME&quot;</span><span class="p">)</span>
+    <span class="n">cluster_up_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;box&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;BOX&quot;</span><span class="p">)</span>
     <span class="n">cluster_up_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_up</span><span class="p">)</span>
 
-    <span class="n">cluster_shutdown_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;shutdown&#39;</span><span class="p">)</span>
-    <span class="n">cluster_shutdown_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_shutdown_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_shutdown</span><span class="p">)</span>
-
     <span class="n">cluster_halt_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;halt&#39;</span><span class="p">)</span>
-    <span class="n">cluster_halt_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">cluster_halt_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;box&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;BOX&quot;</span><span class="p">)</span>
+    <span class="n">cluster_halt_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;CLUSTER_NAME&quot;</span><span class="p">)</span>
+    <span class="n">cluster_halt_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;box&#39;</span><span class="p">,</span> <span class="n">nargs</span> <span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;BOX&quot;</span><span class="p">)</span>
     <span class="n">cluster_halt_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_halt</span><span class="p">)</span>
 
     <span class="n">cluster_remove_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;destroy&#39;</span><span class="p">)</span>
-    <span class="n">cluster_remove_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
+    <span class="n">cluster_remove_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;CLUSTER_NAME&quot;</span><span class="p">)</span>
     <span class="n">cluster_remove_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_remove</span><span class="p">)</span>
 
     <span class="n">cluster_ssh_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ssh&#39;</span><span class="p">)</span>
-    <span class="n">cluster_ssh_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
+    <span class="n">cluster_ssh_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;CLUSTER_NAME&quot;</span><span class="p">)</span>
     <span class="n">cluster_ssh_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;box&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;BOX&quot;</span><span class="p">)</span>
     <span class="n">cluster_ssh_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_ssh</span><span class="p">)</span>
 
     <span class="n">cluster_ls_parser</span> <span class="o">=</span> <span class="n">cluster_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ls&#39;</span><span class="p">)</span>
+    <span class="n">cluster_ls_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;CLUSTER_NAME&quot;</span><span class="p">)</span>
     <span class="n">cluster_ls_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">cluster_ls</span><span class="p">)</span></div>
 </pre></div>
 

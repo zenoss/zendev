@@ -118,15 +118,22 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s">&#39;repos&#39;</span><span class="p">:{}</span>
+                <span class="s">&#39;repos&#39;</span><span class="p">:</span> <span class="p">{}</span>
             <span class="p">}</span>
 
+<div class="viewcode-block" id="Manifest.add"><a class="viewcode-back" href="../../zendev.html#zendev.manifest.Manifest.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s">&quot;develop&quot;</span><span class="p">):</span>
+        <span class="s">&#39;Add a repo&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repos</span><span class="p">()</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span>
+            <span class="s">&#39;repo&#39;</span><span class="p">:</span> <span class="n">repo</span><span class="p">,</span>
+            <span class="s">&#39;ref&#39;</span><span class="p">:</span> <span class="n">ref</span>
+        <span class="p">})</span>
+</div>
 <div class="viewcode-block" id="Manifest.repos"><a class="viewcode-back" href="../../zendev.html#zendev.manifest.Manifest.repos">[docs]</a>    <span class="k">def</span> <span class="nf">repos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;repos&#39;</span><span class="p">,</span> <span class="p">{})</span>
 </div>
 <div class="viewcode-block" id="Manifest.save"><a class="viewcode-back" href="../../zendev.html#zendev.manifest.Manifest.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> 
-            <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="Manifest.freeze"><a class="viewcode-back" href="../../zendev.html#zendev.manifest.Manifest.freeze">[docs]</a>    <span class="k">def</span> <span class="nf">freeze</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>

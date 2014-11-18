@@ -132,6 +132,7 @@
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.serviced">zendev.cmd.serviced module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.tags">zendev.cmd.tags module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.test">zendev.cmd.test module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.vagrantManager">zendev.cmd.vagrantManager module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.zup">zendev.cmd.zup module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd">Module contents</a></li>
 </ul>
@@ -199,7 +200,7 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">git.util.RemoteProgress</span></tt></p>
 <dl class="attribute">
 <dt id="zendev.environment.MultiprocessingProgress.QUEUE">
-<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x400fa50&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x353b450&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -467,6 +468,12 @@ there are no repos passed in, fail.</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>A repository manifest.</p>
 <dl class="method">
+<dt id="zendev.manifest.Manifest.add">
+<tt class="descname">add</tt><big>(</big><em>path</em>, <em>repo</em>, <em>ref='develop'</em><big>)</big><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a repo</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="zendev.manifest.Manifest.freeze">
 <tt class="descname">freeze</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.freeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.freeze" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -732,7 +739,7 @@ Matches zero or more characters at the beginning of the string</p>
 
 <dl class="function">
 <dt id="zendev.utils.repofilter">
-<tt class="descclassname">zendev.utils.</tt><tt class="descname">repofilter</tt><big>(</big><em>repos=()</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#repofilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.repofilter" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">zendev.utils.</tt><tt class="descname">repofilter</tt><big>(</big><em>repos=()</em>, <em>field_fn=&lt;function &lt;lambda&gt; at 0x3509d70&gt;</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#repofilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.repofilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a function that will return only those repos specified, or all if
 nothing was specified.</p>
 </dd></dl>

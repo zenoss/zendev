@@ -98,21 +98,26 @@
 
   
   <h1>Source code for zendev.cmd.box</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">cStringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
-
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
 
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">colored</span><span class="p">,</span> <span class="n">here</span>
-
+<span class="kn">from</span> <span class="nn">vagrantManager</span> <span class="kn">import</span> <span class="n">VagrantManager</span>
 
 <span class="n">VAGRANT</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&quot;&quot;&quot;</span>
 <span class="s"># -*- mode: ruby -*-</span>
 <span class="s"># vi: set ft=ruby :</span>
+<span class="s"># Vagrantfile created by zendev box</span>
 
 <span class="s">$script = &lt;&lt;SCRIPT</span>
-<span class="s">{{ provision_script }} </span>
+<span class="s">chown zenoss:zenoss /home/zenoss/{{env_name}}</span>
+<span class="s">su - zenoss -c &quot;cd /home/zenoss &amp;&amp; zendev init {{env_name}}&quot;</span>
+<span class="s">echo &quot;</span>
+<span class="s">if [ -f ~/.bash_serviced ]; then</span>
+<span class="s">    . ~/.bash_serviced</span>
+<span class="s">fi&quot; &gt;&gt; /home/zenoss/.bashrc</span>
+<span class="s">echo &quot;source $(zendev bootstrap)&quot; &gt;&gt; /home/zenoss/.bashrc</span>
+<span class="s">echo &quot;zendev use {{env_name}}&quot; &gt;&gt; /home/zenoss/.bashrc</span>
+<span class="s">{</span><span class="si">%f</span><span class="s">or i in range(vdis) %}</span>
+<span class="s">{{&quot;mkfs.btrfs -L volume.btrfs.</span><span class="si">%d</span><span class="s"> /dev/sd</span><span class="si">%s</span><span class="s">&quot;|format(i+1, &quot;bcdef&quot;[i])}} {</span><span class="si">%e</span><span class="s">ndfor%}</span>
 <span class="s">SCRIPT</span>
 
 <span class="s">Vagrant.configure(&quot;2&quot;) do |config|</span>
@@ -123,146 +128,41 @@
 
 <span class="s">  config.vm.provider :virtualbox do |vb|</span>
 <span class="s">    vb.customize [&quot;modifyvm&quot;, :id, &quot;--memory&quot;, {{vm_memory}}]</span>
-<span class="s">    vb.customize [&quot;modifyvm&quot;, :id, &quot;--cpus&quot;, 4]</span>
-<span class="s">    {</span><span class="si">% s</span><span class="s">et vdi_count = 1 %}</span>
-<span class="s">    {</span><span class="si">% f</span><span class="s">or vdi in vdis %}</span>
-<span class="s">    vb.customize [&quot;storageattach&quot;, :id, &quot;--storagectl&quot;, &quot;IDE Controller&quot;, </span>
-<span class="s">                  &quot;--port&quot;, {{ vdi_count }}, &quot;--device&quot;, 0, &quot;--type&quot;, &quot;hdd&quot;, &quot;--medium&quot;,</span>
-<span class="s">                  &quot;{{ vdi }}&quot;]{</span><span class="si">% s</span><span class="s">et vdi_count = vdi_count + 1 %}{</span><span class="si">% e</span><span class="s">ndfor %}</span>
+<span class="s">    vb.customize [&quot;modifyvm&quot;, :id, &quot;--cpus&quot;, 4] {</span><span class="si">% i</span><span class="s">f vdis %}</span>
+<span class="s">    (1..{{ vdis }}).each do |vol|</span>
+<span class="s">      disc_file = &quot;mnt/btrfs_#{vol}.vdi&quot;</span>
+<span class="s">      unless File.exist?(disc_file)</span>
+<span class="s">        vb.customize [&#39;createhd&#39;, &#39;--filename&#39;, disc_file, &#39;--size&#39;, 24 * 1024]</span>
+<span class="s">      end</span>
+<span class="s">      vb.customize [&quot;storageattach&quot;, :id, &quot;--storagectl&quot;, &quot;IDE Controller&quot;,</span>
+<span class="s">                    &quot;--port&quot;, vol, &quot;--device&quot;, 0, &quot;--type&quot;, &quot;hdd&quot;, &quot;--medium&quot;,</span>
+<span class="s">                    disc_file ]</span>
+<span class="s">    end{</span><span class="si">% e</span><span class="s">ndif %}</span>
 <span class="s">  end</span>
-
 <span class="s">  {</span><span class="si">% f</span><span class="s">or root, target in shared_folders %}</span>
 <span class="s">  config.vm.synced_folder &quot;{{ root }}&quot;, &quot;{{ target }}&quot;{</span><span class="si">% e</span><span class="s">ndfor %}</span>
-<span class="s">  {</span><span class="si">% i</span><span class="s">f provision_script %}config.vm.provision &quot;shell&quot;, inline: $script{</span><span class="si">% e</span><span class="s">ndif %}</span>
+<span class="s">  config.vm.provision &quot;shell&quot;, inline: $script</span>
 <span class="s">end</span>
+
 <span class="s">&quot;&quot;&quot;</span><span class="p">)</span>
 
-<span class="n">CONTROLPLANE</span> <span class="o">=</span> <span class="s">&quot;controlplane&quot;</span>
-<span class="n">SOURCEBUILD</span> <span class="o">=</span> <span class="s">&quot;sourcebuild&quot;</span>
 
-<span class="n">BOXES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">CONTROLPLANE</span><span class="p">:</span> <span class="s">&quot;ubuntu-14.04-europa-v2&quot;</span><span class="p">,</span>
-    <span class="n">SOURCEBUILD</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span><span class="p">,</span>
-    <span class="s">&quot;ubuntu&quot;</span><span class="p">:</span> <span class="s">&quot;ubuntu-14.04-europa-v2&quot;</span><span class="p">,</span>
-    <span class="s">&quot;fedora&quot;</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span>
-<span class="p">}</span>
-
-
-<div class="viewcode-block" id="VagrantManager"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantManager">[docs]</a><span class="k">class</span> <span class="nc">VagrantManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Manages Vagrant boxes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="VagrantBoxManager"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantBoxManager">[docs]</a><span class="k">class</span> <span class="nc">VagrantBoxManager</span><span class="p">(</span><span class="n">VagrantManager</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">environment</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">vagrantroot</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">VagrantBoxManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">environment</span><span class="o">.</span><span class="n">vagrantroot</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">vagrant</span>
-        <span class="k">return</span> <span class="n">vagrant</span><span class="o">.</span><span class="n">Vagrant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_install_auto_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;vagrant&quot;</span><span class="p">,</span> <span class="s">&quot;plugin&quot;</span><span class="p">,</span> <span class="s">&quot;install&quot;</span><span class="p">,</span><span class="s">&quot;vagrant-auto_network&quot;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">rc</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">rc</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;wget -qO- https://github.com/adrienthebo/vagrant-auto_network/commit/7de30cb2ce72cc8f979b8dbe5c9581646512ab1a.diff &quot;</span>
-                <span class="s">&quot;| patch -p1 -d ~/.vagrant.d/gems/gems/vagrant-auto_network*&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span>
-
-<div class="viewcode-block" id="VagrantManager.verify_auto_network"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantManager.verify_auto_network">[docs]</a>    <span class="k">def</span> <span class="nf">verify_auto_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;vagrant plugin list | grep vagrant-auto_network&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_install_auto_network</span><span class="p">():</span>
-                    <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">return</span> <span class="bp">True</span>
-</div>
-<div class="viewcode-block" id="VagrantManager.create"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantManager.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="n">CONTROLPLANE</span><span class="p">,</span> <span class="n">btrfs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vfs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="s">&quot;8192&quot;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_auto_network</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Unable to find or install vagrant-auto_network plugin.&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Vagrant box </span><span class="si">%s</span><span class="s"> already exists&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
-
-        <span class="n">vbox_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="n">shared</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">zendev</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/zendev&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/src&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/src&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/build&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">configroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">configroot</span><span class="o">.</span><span class="n">basename</span><span class="p">)),</span>
-        <span class="p">)</span>
-
-        <span class="n">vdis</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">formatDrive</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">drive</span> <span class="o">=</span> <span class="s">&quot;b&quot;</span>
-
-        <span class="c"># Set up the btrfs volumes</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">btrfs</span><span class="p">):</span>
-            <span class="n">vdis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">make_vdi</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;btrfs_</span><span class="si">%d</span><span class="s">.vdi&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="mi">24</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">))</span>
-            <span class="n">formatDrive</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;mkfs.btrfs -L volume.btrfs.</span><span class="si">%d</span><span class="s"> /dev/sd</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">drive</span><span class="p">))</span>
-            <span class="n">drive</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">drive</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="n">vbox_dir</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;Vagrantfile&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">VAGRANT</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">purpose</span><span class="p">,</span> <span class="n">btrfs</span><span class="p">,</span> <span class="n">vfs</span><span class="p">,</span> <span class="n">memory</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">ensure_dir</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;Vagrantfile&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">VAGRANT</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
             <span class="n">instance_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">box_name</span><span class="o">=</span><span class="n">BOXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">purpose</span><span class="p">),</span>
-            <span class="n">vdis</span><span class="o">=</span><span class="n">vdis</span><span class="p">,</span>
-            <span class="n">shared_folders</span><span class="o">=</span><span class="n">shared</span><span class="p">,</span>
+            <span class="n">box_name</span><span class="o">=</span><span class="n">VagrantManager</span><span class="o">.</span><span class="n">BOXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">purpose</span><span class="p">),</span>
+            <span class="n">vdis</span><span class="o">=</span><span class="n">btrfs</span><span class="p">,</span>
+            <span class="n">shared_folders</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_shared_directories</span><span class="p">(),</span>
             <span class="n">vm_memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
-            <span class="n">provision_script</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span>
-<span class="s">chown zenoss:zenoss /home/zenoss/</span><span class="si">%s</span><span class="s"></span>
-<span class="s">su - zenoss -c &quot;cd /home/zenoss &amp;&amp; zendev init </span><span class="si">%s</span><span class="s">&quot;</span>
-<span class="s">echo &quot;</span>
-<span class="s">if [ -f ~/.bash_serviced ]; then </span>
-<span class="s">    . ~/.bash_serviced</span>
-<span class="s">fi&quot; &gt;&gt; /home/zenoss/.bashrc</span>
-<span class="s">echo &quot;source $(zendev bootstrap)&quot; &gt;&gt; /home/zenoss/.bashrc</span>
-<span class="s">echo &quot;zendev use </span><span class="si">%s</span><span class="s">&quot; &gt;&gt; /home/zenoss/.bashrc</span>
-<span class="si">%s</span><span class="s"></span>
-<span class="s">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatDrive</span><span class="p">))))</span>
-</div>
-<div class="viewcode-block" id="VagrantManager.up"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantManager.up">[docs]</a>    <span class="k">def</span> <span class="nf">up</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="n">box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_box</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">box</span><span class="o">.</span><span class="n">up</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="VagrantManager.halt"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantManager.halt">[docs]</a>    <span class="k">def</span> <span class="nf">halt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="n">box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_box</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">box</span><span class="o">.</span><span class="n">halt</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="VagrantManager.remove"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantManager.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="n">box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_box</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">box</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="VagrantManager.provision"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantManager.provision">[docs]</a>    <span class="k">def</span> <span class="nf">provision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">vagrant</span>
-        <span class="n">type_</span> <span class="o">=</span> <span class="s">&quot;ubuntu&quot;</span> <span class="k">if</span> <span class="n">BOXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span><span class="o">==</span><span class="n">BOXES</span><span class="p">[</span><span class="s">&quot;ubuntu&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&quot;fedora&quot;</span>
-        <span class="n">provision_script</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s">&quot;bash&quot;</span><span class="p">,</span> 
-            <span class="n">here</span><span class="p">(</span><span class="s">&quot;provision-</span><span class="si">%s</span><span class="s">.sh&quot;</span> <span class="o">%</span> <span class="n">type_</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">])</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-            <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">vagrant</span><span class="o">.</span><span class="n">VAGRANT_EXE</span><span class="p">,</span> <span class="s">&quot;up&quot;</span><span class="p">],</span> 
-                    <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
-            <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">provision_script</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="VagrantManager.make_vdi"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantManager.make_vdi">[docs]</a>    <span class="k">def</span> <span class="nf">make_vdi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">diskname</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-            <span class="n">disk</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;mnt&quot;</span><span class="p">,</span> <span class="n">diskname</span><span class="p">)</span>
-            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;VBoxManage&quot;</span><span class="p">,</span><span class="s">&quot;createhd&quot;</span><span class="p">,</span> <span class="s">&quot;--filename&quot;</span><span class="p">,</span> <span class="n">disk</span><span class="p">,</span> <span class="s">&quot;--size&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">)])</span>
-            <span class="k">return</span> <span class="n">disk</span>
-</div>
-<div class="viewcode-block" id="VagrantManager.ssh"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantManager.ssh">[docs]</a>    <span class="k">def</span> <span class="nf">ssh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">vagrant</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="n">vagrant</span><span class="o">.</span><span class="n">VAGRANT_EXE</span><span class="p">,</span> <span class="s">&#39;ssh&#39;</span><span class="p">])</span>
-</div>
-<div class="viewcode-block" id="VagrantManager.ls"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantManager.ls">[docs]</a>    <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span><span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;Vagrantfile&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">()):</span>
-            <span class="k">print</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">dirname</span><span class="p">,</span> <span class="n">colored</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">))</span>
+            <span class="n">env_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">))</span>
 
-</div></div>
+</div>
 <div class="viewcode-block" id="box_create"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.box_create">[docs]</a><span class="k">def</span> <span class="nf">box_create</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">check_env</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
     <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">btrfs</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">vfs</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
     <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">provision</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
@@ -296,8 +196,10 @@
 
     <span class="n">box_create_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;create&#39;</span><span class="p">)</span>
     <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--type&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">BOXES</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--btrfs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--type&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">VagrantManager</span><span class="o">.</span><span class="n">BOXES</span><span class="p">,</span>
+                                   <span class="n">default</span><span class="o">=</span><span class="s">&quot;ubuntu&quot;</span><span class="p">)</span>
+    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--btrfs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                   <span class="n">help</span><span class="o">=</span><span class="s">&quot;Number of btrfs volumes&quot;</span><span class="p">)</span>
     <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--vfs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--memory&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&quot;1024*8&quot;</span><span class="p">,</span>
                                    <span class="n">help</span><span class="o">=</span><span class="s">&quot;memory in mb&quot;</span><span class="p">)</span>

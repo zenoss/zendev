@@ -99,6 +99,7 @@
   
   <h1>Source code for zendev.cmd.serviced</h1><div class="highlight"><pre>
 <span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
@@ -107,20 +108,6 @@
 
 <span class="kn">import</span> <span class="nn">py.path</span>
 <span class="kn">import</span> <span class="nn">requests</span>
-
-
-<span class="n">DEVSHELLSTARTUP</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">/serviced/serviced service proxy </span><span class="si">%s</span><span class="s"> 0 sleep 9999999999999999999 &amp;&gt;/dev/null &amp;</span>
-<span class="s">echo Welcome to the Zenoss Dev Shell!</span>
-<span class="s">/bin/setuser zenoss /bin/bash </span><span class="si">%s</span><span class="s"></span>
-<span class="s">exit</span>
-<span class="s">&quot;&quot;&quot;</span>
-
-<span class="n">SILENTDEVSHELLSTARTUP</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">/serviced/serviced service proxy </span><span class="si">%s</span><span class="s"> 0 sleep 9999999999999999999 &amp;&gt;/dev/null &amp;</span>
-<span class="s">/bin/setuser zenoss /bin/bash </span><span class="si">%s</span><span class="s"></span>
-<span class="s">exit</span>
-<span class="s">&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="Serviced"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.serviced.Serviced">[docs]</a><span class="k">class</span> <span class="nc">Serviced</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -155,15 +142,18 @@
         <span class="n">envvars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">envvars</span><span class="p">()</span>
         <span class="n">envvars</span><span class="p">[</span><span class="s">&#39;SERVICED_VARPATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">varpath</span><span class="o">.</span><span class="n">strpath</span>
         <span class="n">envvars</span><span class="p">[</span><span class="s">&#39;TZ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;UTC&#39;</span>
+        <span class="n">envvars</span><span class="p">[</span><span class="s">&#39;SERVICED_MASTER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&#39;SERVICED_MASTER&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">)</span>
+        <span class="n">envvars</span><span class="p">[</span><span class="s">&#39;SERVICED_AGENT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&#39;SERVICED_AGENT&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">registry</span><span class="p">:</span>
             <span class="n">envvars</span><span class="p">[</span><span class="s">&#39;SERVICED_REGISTRY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;true&#39;</span>
         <span class="k">if</span> <span class="n">root</span><span class="p">:</span>
             <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&quot;sudo&quot;</span><span class="p">,</span> <span class="s">&quot;-E&quot;</span><span class="p">])</span>
             <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">envvars</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">serviced</span><span class="p">,</span> <span class="s">&quot;-master&quot;</span><span class="p">,</span> <span class="s">&quot;-agent&quot;</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">serviced</span><span class="p">,</span>
             <span class="s">&quot;--mount&quot;</span><span class="p">,</span> <span class="s">&quot;zendev/devimg,</span><span class="si">%s</span><span class="s">,/home/zenoss/.m2&quot;</span> <span class="o">%</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s">&quot;~&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;.m2&quot;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
             <span class="s">&quot;--mount&quot;</span><span class="p">,</span> <span class="s">&quot;zendev/devimg,</span><span class="si">%s</span><span class="s">,/opt/zenoss&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;zenhome&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
             <span class="s">&quot;--mount&quot;</span><span class="p">,</span> <span class="s">&quot;zendev/devimg,</span><span class="si">%s</span><span class="s">,/mnt/src&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
+            <span class="s">&quot;--mount&quot;</span><span class="p">,</span> <span class="s">&quot;/zenoss/impact-unstable:latest,</span><span class="si">%s</span><span class="s">,/mnt/src&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
             <span class="s">&quot;--uiport&quot;</span><span class="p">,</span> <span class="s">&quot;:</span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">uiport</span><span class="p">,</span>
         <span class="p">])</span>
 
@@ -208,21 +198,59 @@
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">deploy_command</span><span class="p">)</span>
 </div>
+<div class="viewcode-block" id="Serviced.remove_catalogservice"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.serviced.Serviced.remove_catalogservice">[docs]</a>    <span class="k">def</span> <span class="nf">remove_catalogservice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">services</span><span class="p">,</span> <span class="n">svc</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;Name&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;Name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;zencatalogservice&#39;</span><span class="p">:</span>
+            <span class="n">services</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">svc</span><span class="p">)</span>
+            <span class="k">print</span> <span class="s">&quot;Removed zencatalogservice from resmgr template&quot;</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;HealthChecks&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="s">&#39;catalogservice_answering&#39;</span> <span class="ow">in</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;HealthChecks&#39;</span><span class="p">]:</span>
+            <span class="n">svc</span><span class="p">[</span><span class="s">&#39;HealthChecks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;catalogservice_answering&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;Prereqs&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">prereq</span> <span class="ow">in</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;Prereqs&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">prereq</span><span class="p">[</span><span class="s">&#39;Name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;zencatalogservice response&#39;</span><span class="p">:</span>
+                    <span class="n">svc</span><span class="p">[</span><span class="s">&#39;Prereqs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">prereq</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Serviced.zope_debug"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.serviced.Serviced.zope_debug">[docs]</a>    <span class="k">def</span> <span class="nf">zope_debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">services</span><span class="p">,</span> <span class="n">svc</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;Name&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;Name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;Zope&#39;</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;Set Zope to debug in template&quot;</span>
+            <span class="n">svc</span><span class="p">[</span><span class="s">&#39;Command&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;Command&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;runzope&quot;</span><span class="p">,</span> <span class="s">&quot;zopectl fg&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;HealthChecks&#39;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">hc</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">svc</span><span class="p">[</span><span class="s">&#39;HealthChecks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                    <span class="k">if</span> <span class="s">&quot;runzope&quot;</span> <span class="ow">in</span> <span class="n">hc</span><span class="p">[</span><span class="s">&#39;Script&#39;</span><span class="p">]:</span>
+                        <span class="n">hc</span><span class="p">[</span><span class="s">&#39;Script&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hc</span><span class="p">[</span><span class="s">&#39;Script&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;runzope&quot;</span><span class="p">,</span> <span class="s">&quot;zopectl&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Serviced.walk_services"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.serviced.Serviced.walk_services">[docs]</a>    <span class="k">def</span> <span class="nf">walk_services</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">services</span><span class="p">,</span> <span class="n">visitor</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">services</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">svc</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+            <span class="n">visitor</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="n">svc</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">walk_services</span><span class="p">(</span><span class="n">svc</span><span class="p">[</span><span class="s">&#39;Services&#39;</span><span class="p">],</span> <span class="n">visitor</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="Serviced.add_template"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.serviced.Serviced.add_template">[docs]</a>    <span class="k">def</span> <span class="nf">add_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">print</span> <span class="s">&quot;Adding template&quot;</span>
         <span class="k">if</span> <span class="n">template</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">tplpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;services/Zenoss.core&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
+            <span class="n">tplpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;service/services/Zenoss.core&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">tentative</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">tentative</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="n">tplpath</span> <span class="o">=</span> <span class="n">tentative</span><span class="o">.</span><span class="n">strpath</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">tplpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;services/&quot;</span> <span class="o">+</span> <span class="n">template</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
+                <span class="n">tplpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;service/services/&quot;</span> <span class="o">+</span> <span class="n">template</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
         <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">serviced</span><span class="p">,</span> <span class="s">&quot;template&quot;</span><span class="p">,</span> <span class="s">&quot;compile&quot;</span><span class="p">,</span>
             <span class="s">&quot;--map=zenoss/zenoss5x,zendev/devimg&quot;</span><span class="p">,</span> <span class="n">tplpath</span><span class="p">],</span>
             <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
         <span class="n">stdout</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="k">print</span> <span class="s">&quot;Compiled new template&quot;</span>
+
+        <span class="n">compiled</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walk_services</span><span class="p">(</span><span class="n">compiled</span><span class="p">[</span><span class="s">&#39;Services&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">zope_debug</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">template</span> <span class="ow">and</span> <span class="p">(</span><span class="s">&#39;ucspm&#39;</span> <span class="ow">in</span> <span class="n">template</span> <span class="ow">or</span> <span class="s">&#39;resmgr&#39;</span> <span class="ow">in</span> <span class="n">template</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">walk_services</span><span class="p">(</span><span class="n">compiled</span><span class="p">[</span><span class="s">&#39;Services&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_catalogservice</span><span class="p">)</span>
+        <span class="n">stdout</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">compiled</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;: &#39;</span><span class="p">))</span>
+
         <span class="n">addtpl</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">serviced</span><span class="p">,</span> <span class="s">&quot;template&quot;</span><span class="p">,</span> <span class="s">&quot;add&quot;</span><span class="p">],</span>
                 <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
         <span class="n">tplid</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">addtpl</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">stdout</span><span class="p">)</span>
@@ -285,29 +313,30 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">env</span><span class="p">()</span>
     <span class="n">_serviced</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">_gopath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;bin/serviced&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
-    <span class="n">zopesvc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
-        <span class="s">&quot;</span><span class="si">%s</span><span class="s"> service list | grep -i </span><span class="si">%s</span><span class="s"> | awk {&#39;print $2;exit&#39;}&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_serviced</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">svcname</span><span class="p">),</span>
-        <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
+    <span class="n">command</span> <span class="o">=</span> <span class="s">&quot;su - zenoss&quot;</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span><span class="p">:</span>
-        <span class="n">command</span> <span class="o">=</span> <span class="s">&quot;-lc &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
-        <span class="n">STARTUP</span><span class="o">=</span><span class="n">SILENTDEVSHELLSTARTUP</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">command</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
-        <span class="n">STARTUP</span><span class="o">=</span><span class="n">DEVSHELLSTARTUP</span>
+        <span class="n">command</span> <span class="o">+=</span> <span class="s">&quot; -c &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
 
-    
     <span class="n">m2</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s">&quot;~&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;.m2&quot;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">STARTUP</span> <span class="o">%</span> <span class="p">(</span><span class="n">zopesvc</span><span class="p">,</span> <span class="n">command</span><span class="p">))</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;docker run --privileged --rm -w /opt/zenoss -v </span><span class="si">%s</span><span class="s">:/.bashrc -v </span><span class="si">%s</span><span class="s">:/serviced/serviced -v </span><span class="si">%s</span><span class="s">/src:/mnt/src -v </span><span class="si">%s</span><span class="s">:/opt/zenoss -v </span><span class="si">%s</span><span class="s">:/home/zenoss/.m2 -i -t zendev/devimg /bin/bash&quot;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">docker</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;docker run --privileged --rm -w /opt/zenoss -v </span><span class="si">%s</span><span class="s">:/serviced/serviced -v </span><span class="si">%s</span><span class="s">/src:/mnt/src -v </span><span class="si">%s</span><span class="s">:/opt/zenoss -v </span><span class="si">%s</span><span class="s">:/home/zenoss/.m2 -i -t zendev/devimg </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
             <span class="n">_serviced</span><span class="p">,</span>
             <span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
             <span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;zenhome&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
-            <span class="n">m2</span><span class="o">.</span><span class="n">strpath</span><span class="p">)</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
+            <span class="n">command</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> service shell -i --mount </span><span class="si">%s</span><span class="s">/src,/mnt/src --mount </span><span class="si">%s</span><span class="s">,/opt/zenoss --mount </span><span class="si">%s</span><span class="s">,/home/zenoss/.m2 &#39;</span><span class="si">%s</span><span class="s">&#39; </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">_serviced</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;zenhome&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">service</span><span class="p">,</span>
+            <span class="n">command</span>
+        <span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.serviced.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
     <span class="n">serviced_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;serviced&#39;</span><span class="p">)</span>
@@ -338,8 +367,10 @@
     <span class="n">attach_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">attach</span><span class="p">)</span>
 
     <span class="n">devshell_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;devshell&#39;</span><span class="p">)</span>
-    <span class="n">devshell_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;svcname&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&quot;zope&quot;</span><span class="p">)</span>
-    <span class="n">devshell_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-c&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;command&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">REMAINDER</span><span class="p">)</span>
+    <span class="n">devshell_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="s">&#39;--docker&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+                                 <span class="n">help</span><span class="o">=</span><span class="s">&quot;docker run instead of serviced shell&quot;</span><span class="p">)</span>
+    <span class="n">devshell_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-s&#39;</span><span class="p">,</span> <span class="s">&#39;--service&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&#39;zope&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;run serviced shell for service&quot;</span><span class="p">)</span>
+    <span class="n">devshell_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;command&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">REMAINDER</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;COMMAND&#39;</span><span class="p">)</span>
     <span class="n">devshell_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">devshell</span><span class="p">)</span>
 </pre></div></div>
 

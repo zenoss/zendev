@@ -76,6 +76,14 @@ zendev.cmd.test module
     :undoc-members:
     :show-inheritance:
 
+zendev.cmd.vagrantManager module
+--------------------------------
+
+.. automodule:: zendev.cmd.vagrantManager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 zendev.cmd.zup module
 ---------------------
 

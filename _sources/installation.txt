@@ -32,12 +32,23 @@ Ubuntu
     sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
     # Install Docker
-    curl -sL https://get.docker.io/ubuntu/ | sudo sh
+    curl -sSL https://get.docker.io/ubuntu/ | sudo sh
 
-    # Install our own version of nsenter
-    wget http://artifacts.zenoss.loc/europa/docker-smuggle_2.24.2-1_amd64.deb
-    sudo dpkg -i docker-smuggle_*.deb
-    sudo apt-get install -f 
+
+If you are operating under AWS, check if docker is using the devicemapper driver.
+    Run the "docker info" command and look at the storage driver section. If it
+    says "devicemapper", stop docker, install linux-image-extra, and reinstall
+    docker to use AUFS as a storage driver.
+
+.. code-block:: bash
+
+    sudo stop docker
+    sudo apt-get remove lxc-docker
+    sudo apt-get autoremove
+    sudo rm -rf /var/lib/docker
+    sudo apt-get update
+    sudo apt-get install linux-image-extra-`uname -r`
+    sudo apt-get install lxc-docker
 
 3. Add your user to the ``docker`` group:
 
@@ -45,6 +56,8 @@ Ubuntu
 
     # Add the current user to the docker group
     sudo usermod -a -G docker ${USER}
+    sudo usermod -a -G sudo ${USER}    # if ubuntu
+    sudo usermod -a -G wheel ${USER}   # if RHEL/Centos
 
     # Login again to get docker group (requires password reentry)
     exec su -l ${USER}
@@ -59,19 +72,13 @@ Test that you can communicate with the docker daemon:
     docker ps
 
 If you see an empty list of containers (i.e., a row of column names), you're
-good. Now modify the Docker upstart script to handle resolution of local DNS:
-
-.. code-block:: bash
-
-    cat  <<\EOF | sudo sed -f /dev/fd/0 -i /etc/init/docker.conf
-        s/DOCKER_OPTS=.*$/\0\n\tDOCKER_OPTS="$DOCKER_OPTS -dns=10.87.113.13 -dns=10.88.102.13 -dns=10.175.211.10"/
-    EOF
+good. 
 
 Next, modify ``/etc/security/limits.conf`` to up the file limits:
 
 .. code-block:: bash
 
-    cat <<\EOF | sudo /bin/bash -c "cat > /etc/security/limits.conf"
+    cat <<\EOF | sudo /bin/bash -c "cat >> /etc/security/limits.conf"
     *      hard   nofile   1048576
     *      soft   nofile   1048576
     root   hard   nofile   1048576
@@ -96,8 +103,8 @@ When your box comes back up, authenticate to hub.docker.com:
     sudo apt-get install -y mercurial bzr git
 
     # Download Go 1.3 and unpack it into /usr/local
-    sudo apt-get install -y wget
-    wget -qO- http://golang.org/dl/go1.3.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
+    sudo apt-get install -y wget curl
+    curl -s https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz | sudo tar -xzC /usr/local
 
     # Set GOROOT and PATH appropriately
     cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
@@ -194,11 +201,14 @@ When your box comes back up, authenticate to hub.docker.com:
     # Get back to source directory
     cd ${SRCDIR}
 
-    # Create the environment
+    # Create the environment for building core devimg
     zendev init europa --tag develop
 
     # Start using the environment
     zendev use europa
+
+    # Optional: add enterprise zenpacks for building resmgr devimg
+    zendev add ~/src/europa/build/manifests/zenpacks.commercial.json
 
 9. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
     and (if you install Vagrant_ and VirtualBox_) create Vagrant boxes to run
@@ -221,12 +231,14 @@ When your box comes back up, authenticate to hub.docker.com:
     make
 
     # Build the Zenoss Docker repo image (also may take a while)
-    zendev build devimg
+    zendev build devimg             # to build core
+    zendev build --resmgr devimg    # to build resmgr
 
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of
     # Zenoss (warning: blows away state!) 
-    zendev serviced --reset --deploy
+    zendev serviced --reset --deploy                                # to deploy core
+    zendev serviced --reset --deploy --template Zenoss.resmgr.lite  # to deploy resmgr lite
 
 OS X
 ----
