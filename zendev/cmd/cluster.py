@@ -1,5 +1,6 @@
 from jinja2 import Template
 import os
+import string
 import sys
 from vagrantManager import VagrantManager
 import subprocess
@@ -110,6 +111,7 @@ touch /vagrant/first_boot/$(hostname)
 
 
 ETC_HOSTS = """
+# hosts file created by zendev cluster
 127.0.0.1   localhost
 %s  %s 
 
@@ -118,6 +120,7 @@ ETC_HOSTS = """
 
 BASH_SERVICED = """
 #! /bin/bash
+# .bash_serviced file created by zendev cluster
 
 # serviced
 eval export SERVICED_MASTER_ID=\$${HOSTNAME}_MASTER
@@ -125,10 +128,8 @@ eval export SERVICED_MASTER_ID=\$${HOSTNAME}_MASTER
 export SERVICED_REGISTRY=1
 export SERVICED_AGENT=1
 export SERVICED_MASTER=$( test "$SERVICED_MASTER_ID" != "$HOSTNAME" ; echo $? )
-if [ "$SERVICED_MASTER" == "1" ] ; then
-    # master only
-    export SERVICED_OUTBOUND_IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
-else
+export SERVICED_OUTBOUND_IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
+if [ "$SERVICED_MASTER" != "1" ] ; then
     # agent only
     export SERVICED_ZK=$SERVICED_MASTER_ID:2181
     export SERVICED_ENDPOINT=$SERVICED_MASTER_ID:4979
@@ -138,6 +139,7 @@ else
     export SERVICED_LOGSTASH_ES=$SERVICED_MASTER_ID:9100
 fi
 """
+
 
 class VagrantClusterManager(VagrantManager):
     """
@@ -180,6 +182,33 @@ class VagrantClusterManager(VagrantManager):
             # Each box in the cluster has its own entry under .vagrant/machines.
             for d in self._root.join(name, '.vagrant', 'machines').listdir():
                 print d.basename
+
+    def ssh(self, cluster, box):
+        # We may have a box name (e.g., foo01) or a cluster name in which there is
+        #  only a single box.  Check for these possibilities and disambiguate.
+        if not box:
+            if (len(cluster) > 2 and
+                    cluster[-1] in string.digits and
+                    cluster[-2] in string.digits and
+                    not self._root.join(cluster).exists()):
+                # Cluster not specified - infer from box
+                box = cluster
+                cluster = cluster[:-2]
+            else:
+                clusterdir = self._root.join(cluster, '.vagrant', 'machines')
+                if clusterdir.exists():
+                    clusterdir_contents = clusterdir.listdir()
+                    if len(clusterdir_contents) == 1:
+                        # Box not specified - infer from cluster
+                        box = clusterdir_contents[0].basename
+                    else:
+                        error('Cluster "%s" has multiple boxes (%s)' %
+                              (cluster, ', '.join((i.basename) for i in clusterdir_contents)))
+                        sys.exit(1)
+                else:
+                    error('Cluster "%s" does not exist' % cluster)
+                    sys.exit(1)
+        super(VagrantClusterManager, self).ssh(cluster, box)
 
 
 def cluster_create(args, check_env):
@@ -243,7 +272,7 @@ def add_commands(subparsers):
 
     cluster_ssh_parser = cluster_subparsers.add_parser('ssh')
     cluster_ssh_parser.add_argument('name', metavar="CLUSTER_NAME")
-    cluster_ssh_parser.add_argument('box', metavar="BOX")
+    cluster_ssh_parser.add_argument('box', nargs ='?', metavar="BOX")
     cluster_ssh_parser.set_defaults(functor=cluster_ssh)
 
     cluster_ls_parser = cluster_subparsers.add_parser('ls')
