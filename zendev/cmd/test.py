@@ -16,6 +16,13 @@ def check_devimg():
         sys.exit(1)
 
 
+def check_zendev_test():
+    has_img = subprocess.call(["test", "-n",
+                                  '"$(docker images -q zendev_test)"'],
+                                 shell=True)
+    return bool(has_img)
+
+
 def build_image(args, env, resmgr=False):
     pass
 
@@ -24,13 +31,14 @@ def zen_image_tests(args, env, product=''):
     env = env()
     envvars = os.environ.copy()
     envvars.update(env.envvars())
-    mounts = {envvars["SRCROOT"]: "/mnt/src"}
+    mounts = {envvars["SRCROOT"]: "/mnt/src", env.buildroot: "/mnt/build"}
+    image = "zendev_test"
     if product == 'devimg':
         check_devimg()
         image = "zendev/devimg"
         mounts[os.path.join(envvars["HOME"], ".m2")] = "/home/zenoss/.m2"
         mounts[os.path.join(envvars["ZENHOME"])] = "/opt/zenoss"
-    else:
+    if not args.use_existing or (args.use_existing and not check_zendev_test()):
         # Run a build
         envvars['DEVIMG_SYMLINK'] = ''
         envvars['devimg_MOUNTS'] = ''
@@ -45,8 +53,14 @@ def zen_image_tests(args, env, product=''):
     cmd = ["docker", "run", "-t", "-i", "--rm"]
     for mount in mounts.iteritems():
         cmd.extend(["-v", "%s:%s" % mount])
-    cmd.extend([image, "/usr/bin/run_tests.sh"])
-    cmd.extend(args.arguments[1:])
+    cmd.append(image)
+    if args.interactive:
+        cmd.append('bash')
+    else:
+        cmd.append("/usr/bin/run_tests.sh")
+        if args.zp:
+            cmd.append("zenpack")
+        cmd.extend(args.arguments[1:])
     return subprocess.call(cmd)
 
 
@@ -62,7 +76,9 @@ def serviced_tests(args, env, smoke=False):
 
 
 def test(args, env):
+    
     rcs = []
+    rc = None
 
     if args.devimg:
         rc = zen_image_tests(args, env, product='devimg')
@@ -70,7 +86,7 @@ def test(args, env):
         rc = zen_image_tests(args, env, product='resmgr')
     elif args.ucspm:
         rc = zen_image_tests(args, env, product='ucspm')
-    elif args.core:
+    elif args.core or args.zp:
         rc = zen_image_tests(args, env)
     rcs.append(rc)
 
@@ -104,12 +120,21 @@ def add_commands(subparsers):
     test_parser.add_argument('-c', '--zenoss-core', action="store_true",
             help="Build a core image and run Zenoss unit tests",
             dest="core", default=False)
+    test_parser.add_argument('-zp', '--zenoss-zenpack-restore', action="store_true",
+            help="Build a core image and run zenpack restore tests",
+            dest="zp", default=False)
     test_parser.add_argument('-u', '--serviced', action="store_true",
             help="Run serviced unit tests",
             dest="serviced_unit", default=False)
     test_parser.add_argument('-s', '--serviced-smoke', action="store_true",
             help="Run serviced smoke tests",
             dest="serviced_smoke", default=False)
+    test_parser.add_argument('--use-existing', action="store_true",
+            help="Use the existing tagged zendev_test image, if it exists",
+            dest="use_existing", default=False)
+    test_parser.add_argument('--interactive', action="store_true",
+            help="Start an interactive shell instead of running th test",
+            default=False)
     #test_parser.add_argument('--with-consumer', action="store_true",
     #        help="Run metric-consumer unit tests",
     #        dest="with_consumer", default=False)
