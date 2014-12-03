@@ -38,7 +38,7 @@ def zen_image_tests(args, env, product=''):
         image = "zendev/devimg"
         mounts[os.path.join(envvars["HOME"], ".m2")] = "/home/zenoss/.m2"
         mounts[os.path.join(envvars["ZENHOME"])] = "/opt/zenoss"
-    if not args.use_existing or (args.use_existing and not check_zendev_test()):
+    elif not args.use_existing or (args.use_existing and not check_zendev_test()):
         # Run a build
         envvars['DEVIMG_SYMLINK'] = ''
         envvars['devimg_MOUNTS'] = ''
