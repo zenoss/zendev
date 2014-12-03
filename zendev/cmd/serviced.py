@@ -84,7 +84,11 @@ class Serviced(object):
                 pass
 
     def add_host(self, host="172.17.42.1:4979", pool="default"):
-        subprocess.call([self.serviced, "host","add", host, pool])
+        err = None
+        while err != "":
+            time.sleep(1)
+            process = subprocess.Popen([self.serviced, "host","add", host, pool], stderr=subprocess.PIPE)
+            _, err = process.communicate()
 
     def deploy(self, template, pool="default", svcname="HBase",
             noAutoAssignIpFlag=""):
