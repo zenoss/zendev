@@ -48,6 +48,13 @@ def drop(args, env):
     get_config().remove(args.name, not args.purge)
 
 
+def env(args, env):
+    """
+    Print the current environment
+    """
+    print get_config().current
+
+
 def add_commands(subparsers):
     init_parser = subparsers.add_parser('init')
     init_parser.add_argument('path', metavar="PATH")
@@ -73,3 +80,8 @@ def add_commands(subparsers):
     clone_parser.add_argument('output', metavar='SRCROOT',
                               help="Target directory into which to clone")
     clone_parser.set_defaults(functor=clone)
+
+
+    which_parser = subparsers.add_parser('env')
+    which_parser.set_defaults(functor=env)
+
