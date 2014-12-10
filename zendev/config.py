@@ -11,7 +11,13 @@ class ZendevConfig(object):
         self._path = py.path.local(path)
         if self._path.check():
             with self._path.open() as f:
-                self._data = json.load(f)
+                try:
+                    self._data = json.load(f)
+                except ValueError as e:
+                    print "File %s has invalid JSON data: %s" % (f,e)
+                    self._data = {
+                       'environments':{}
+                    }
         else:
             self._data = {
                 'environments':{}
