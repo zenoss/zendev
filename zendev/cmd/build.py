@@ -131,7 +131,7 @@ def add_commands(subparsers):
     build_parser.add_argument('--ga_image', help="When building an RPS image, "
                                                  "specify the GA image tag to use")
     build_parser.add_argument('-p', '--with-pack', dest="packs", action="append",
-            default=(),
+            default=[],
             help="In a devimg build, ZenPacks to install into the image")
     build_parser.add_argument('--resmgr', action="store_true", required=False,
             help="Install resmgr ZenPacks")
