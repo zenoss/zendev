@@ -53,6 +53,7 @@ class Serviced(object):
             "--mount", "zendev/devimg,%s,/home/zenoss/.m2" % py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True),
             "--mount", "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath,
             "--mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
+            "--mount", "zendev/devimg,%s,/var/zenoss" % self.env.var_zenoss.strpath,
             "--mount", "/zenoss/impact-unstable:latest,%s,/mnt/src" % self.env.root.join("src").strpath,
             "--uiport", ":%d" % uiport,
         ])

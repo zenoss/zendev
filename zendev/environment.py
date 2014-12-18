@@ -82,7 +82,7 @@ class ZenDevEnvironment(object):
     _buildrepo_name = 'build'
 
     def __init__(self, name=None, path=None, manifest=None, srcroot=None,
-            buildroot=None, zenhome=None):
+            buildroot=None, zenhome=None, var_zenoss=None):
         if path:
             path = py.path.local(path)
         elif name:
@@ -100,6 +100,8 @@ class ZenDevEnvironment(object):
         self._croot = self._vroot.join('clusters')
         self._zenhome = (py.path.local(zenhome).ensure(dir=True) if zenhome 
                 else self._root.ensure('zenhome', dir=True))
+        self._var_zenoss = (py.path.local(var_zenoss).ensure(dir=True) if var_zenoss
+                else self._root.ensure('var_zenoss', dir=True))
         self._buildroot = (py.path.local(buildroot) if buildroot
                 else self._root.join(ZenDevEnvironment._buildrepo_name))
         self._manifestroot = self._root.join('.manifest')
@@ -150,6 +152,10 @@ class ZenDevEnvironment(object):
     @property
     def root(self):
         return self._root
+
+    @property
+    def var_zenoss(self):
+        return self._var_zenoss
 
     @property
     def zendev(self):
