@@ -51,6 +51,7 @@ def build_zenoss(args, env):
         packs = get_packs(env, product)
 
         if "devimg" in target:
+            os.environ['VAR_ZENOSS']=env.var_zenoss.strpath
             # Figure out which zenpacks to install.
             for pack in args.packs:
                 if not pack.startswith("ZenPacks"):
