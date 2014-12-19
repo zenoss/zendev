@@ -56,21 +56,21 @@ def env(args, env):
 
 
 def add_commands(subparsers):
-    init_parser = subparsers.add_parser('init')
+    init_parser = subparsers.add_parser('init', help='Create a new environment')
     init_parser.add_argument('path', metavar="PATH")
     init_parser.add_argument('-t', '--tag', metavar="TAG", required=False)
     init_parser.set_defaults(functor=init)
 
-    use_parser = subparsers.add_parser('use')
+    use_parser = subparsers.add_parser('use', help='Switch to an environemtn')
     use_parser.add_argument('name', metavar='ENVIRONMENT')
     use_parser.set_defaults(functor=use)
 
-    drop_parser = subparsers.add_parser('drop')
+    drop_parser = subparsers.add_parser('drop', help='Delete an environment')
     drop_parser.add_argument('name', metavar='ENVIRONMENT')
     drop_parser.add_argument('--purge', action="store_true")
     drop_parser.set_defaults(functor=drop)
 
-    clone_parser = subparsers.add_parser('clone')
+    clone_parser = subparsers.add_parser('clone', help='Clone an environment from a manifest')
     clone_parser.add_argument('-t', '--tag', metavar='TAG',
                               help="Manifest tag to restore")
     clone_parser.add_argument('-m', '--manifest', nargs='+',
@@ -81,7 +81,6 @@ def add_commands(subparsers):
                               help="Target directory into which to clone")
     clone_parser.set_defaults(functor=clone)
 
-
-    which_parser = subparsers.add_parser('env')
+    which_parser = subparsers.add_parser('env', help='Print the current environment name')
     which_parser.set_defaults(functor=env)
 

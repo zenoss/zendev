@@ -91,10 +91,10 @@ def box_ls(args, check_env):
 
 
 def add_commands(subparsers):
-    box_parser = subparsers.add_parser('box')
+    box_parser = subparsers.add_parser('box', help='Manage Vagrant boxes')
     box_subparsers = box_parser.add_subparsers()
 
-    box_create_parser = box_subparsers.add_parser('create')
+    box_create_parser = box_subparsers.add_parser('create', help="Create development vagrant box")
     box_create_parser.add_argument('name', metavar="NAME")
     box_create_parser.add_argument('--type', choices=VagrantManager.BOXES,
                                    default="ubuntu")
@@ -105,23 +105,23 @@ def add_commands(subparsers):
                                    help="memory in mb")
     box_create_parser.set_defaults(functor=box_create)
 
-    box_up_parser = box_subparsers.add_parser('up')
+    box_up_parser = box_subparsers.add_parser('up', help='Start existing vagrant box')
     box_up_parser.add_argument('name', metavar="NAME")
     box_up_parser.set_defaults(functor=box_up)
 
-    box_halt_parser = box_subparsers.add_parser('halt')
+    box_halt_parser = box_subparsers.add_parser('halt', help='Stop a vagrant box')
     box_halt_parser.add_argument('name', metavar="NAME")
     box_halt_parser.set_defaults(functor=box_halt)
 
-    box_remove_parser = box_subparsers.add_parser('destroy')
+    box_remove_parser = box_subparsers.add_parser('destroy', help='Destroy a vagrant box')
     box_remove_parser.add_argument('name', metavar="NAME")
     box_remove_parser.set_defaults(functor=box_remove)
 
-    box_ssh_parser = box_subparsers.add_parser('ssh')
+    box_ssh_parser = box_subparsers.add_parser('ssh', help='SSH to a vagrant box')
     box_ssh_parser.add_argument('name', metavar="NAME")
     box_ssh_parser.set_defaults(functor=box_ssh)
 
-    box_ls_parser = box_subparsers.add_parser('ls')
+    box_ls_parser = box_subparsers.add_parser('ls', help='List vagrant boxes')
     box_ls_parser.set_defaults(functor=box_ls)
 
     ssh_parser = subparsers.add_parser('ssh')

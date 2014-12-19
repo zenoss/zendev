@@ -244,7 +244,7 @@ def devshell(args, env):
     subprocess.call(cmd, shell=True)
 
 def add_commands(subparsers):
-    serviced_parser = subparsers.add_parser('serviced')
+    serviced_parser = subparsers.add_parser('serviced', help='Run serviced')
     serviced_parser.add_argument('-r', '--root', action='store_true',
                                  help="Run serviced as root (DEPRECATED. Currently ignored; see --no-root)")
     serviced_parser.add_argument('-d', '--deploy', action='store_true',
@@ -266,12 +266,12 @@ def add_commands(subparsers):
     serviced_parser.add_argument('arguments', nargs=argparse.REMAINDER)
     serviced_parser.set_defaults(functor=run_serviced)
 
-    attach_parser = subparsers.add_parser('attach')
+    attach_parser = subparsers.add_parser('attach', help='Attach to serviced container')
     attach_parser.add_argument('specifier', metavar="SERVICEID|SERVICENAME|DOCKERID",
                                help="Attach to a container matching SERVICEID|SERVICENAME|DOCKERID in service instances")
     attach_parser.set_defaults(functor=attach)
 
-    devshell_parser = subparsers.add_parser('devshell')
+    devshell_parser = subparsers.add_parser('devshell', help='Start a development shell')
     devshell_parser.add_argument('-d', '--docker', action='store_true',
                                  help="docker run instead of serviced shell")
     devshell_parser.add_argument('-s', '--service', default='zope', help="run serviced shell for service")

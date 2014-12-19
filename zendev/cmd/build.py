@@ -117,7 +117,7 @@ def get_packs(env, product):
     return packs
 
 def add_commands(subparsers):
-    build_parser = subparsers.add_parser('build')
+    build_parser = subparsers.add_parser('build', help='Build zenoss')
     build_parser.add_argument('-t', '--tag', metavar='TAG', required=False)
     build_parser.add_argument('-m', '--manifest', nargs="+",
                               metavar='MANIFEST', required=False)

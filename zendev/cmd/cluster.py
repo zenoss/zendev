@@ -238,10 +238,10 @@ def cluster_ls(args, env):
 
 
 def add_commands(subparsers):
-    cluster_parser = subparsers.add_parser('cluster')
+    cluster_parser = subparsers.add_parser('cluster', help='Manage Vagrant cluster')
     cluster_subparsers = cluster_parser.add_subparsers()
 
-    cluster_create_parser = cluster_subparsers.add_parser('create')
+    cluster_create_parser = cluster_subparsers.add_parser('create', help='Create a development vagrant cluster')
     cluster_create_parser.add_argument('name', metavar="CLUSTER_NAME")
     cluster_create_parser.add_argument('--type', choices=VagrantManager.BOXES,
                                        default="ubuntu")
@@ -256,25 +256,25 @@ def add_commands(subparsers):
                                        help="Size of file system (GB)")
     cluster_create_parser.set_defaults(functor=cluster_create)
 
-    cluster_up_parser = cluster_subparsers.add_parser('up')
+    cluster_up_parser = cluster_subparsers.add_parser('up', help='Start a vagrant cluster or node')
     cluster_up_parser.add_argument('name', metavar="CLUSTER_NAME")
     cluster_up_parser.add_argument('box', nargs='?', metavar="BOX")
     cluster_up_parser.set_defaults(functor=cluster_up)
 
-    cluster_halt_parser = cluster_subparsers.add_parser('halt')
+    cluster_halt_parser = cluster_subparsers.add_parser('halt', help='Stop a vagrant cluster or node')
     cluster_halt_parser.add_argument('name', metavar="CLUSTER_NAME")
     cluster_halt_parser.add_argument('box', nargs ='?', metavar="BOX")
     cluster_halt_parser.set_defaults(functor=cluster_halt)
 
-    cluster_remove_parser = cluster_subparsers.add_parser('destroy')
+    cluster_remove_parser = cluster_subparsers.add_parser('destroy', help='Destroy a vagrant cluster')
     cluster_remove_parser.add_argument('name', metavar="CLUSTER_NAME")
     cluster_remove_parser.set_defaults(functor=cluster_remove)
 
-    cluster_ssh_parser = cluster_subparsers.add_parser('ssh')
+    cluster_ssh_parser = cluster_subparsers.add_parser('ssh', help='SSH to a node in a vagrant cluster')
     cluster_ssh_parser.add_argument('name', metavar="CLUSTER_NAME")
     cluster_ssh_parser.add_argument('box', nargs ='?', metavar="BOX")
     cluster_ssh_parser.set_defaults(functor=cluster_ssh)
 
-    cluster_ls_parser = cluster_subparsers.add_parser('ls')
+    cluster_ls_parser = cluster_subparsers.add_parser('ls', help='List existing development vagrant clusters')
     cluster_ls_parser.add_argument('name', nargs='?', metavar="CLUSTER_NAME")
     cluster_ls_parser.set_defaults(functor=cluster_ls)
