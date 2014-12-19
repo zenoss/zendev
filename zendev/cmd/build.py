@@ -41,6 +41,7 @@ def build_zenoss(args, env):
             cmd = "docker run --privileged --rm -v %s/src:/mnt/src -i -t zenoss/rpmbuild:centos7 bash -c '%s'" % (
                     env.root.strpath, bashcommand)
             subprocess.call(cmd, shell=True)
+            env.var_zenoss.remove('ZenPacks')
 
         product = ''
         if args.resmgr:
@@ -51,6 +52,8 @@ def build_zenoss(args, env):
         packs = get_packs(env, product)
 
         if "devimg" in target:
+            env.var_zenoss.ensure('ZenPacks', dir=True)
+            env.var_zenoss.ensure('ZenPackSource', dir=True)
             os.environ['VAR_ZENOSS']=env.var_zenoss.strpath
             # Figure out which zenpacks to install.
             for pack in args.packs:
