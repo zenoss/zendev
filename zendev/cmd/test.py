@@ -29,9 +29,11 @@ def build_image(args, env, resmgr=False):
 
 def zen_image_tests(args, env, product=''):
     env = env()
+    os.environ['VAR_ZENOSS']=env.var_zenoss.strpath
     envvars = os.environ.copy()
     envvars.update(env.envvars())
     mounts = {envvars["SRCROOT"]: "/mnt/src", env.buildroot: "/mnt/build"}
+    mounts[env.var_zenoss.strpath] = "/var/zenoss"
     image = "zendev_test"
     if product == 'devimg':
         check_devimg()
@@ -76,7 +78,7 @@ def serviced_tests(args, env, smoke=False):
 
 
 def test(args, env):
-    
+
     rcs = []
     rc = None
 
