@@ -81,8 +81,7 @@ def status(args, env):
         filter_ = args.repofilter
     elif args.all:
         filter_ = None
-    else:
-        filter_ = lambda r: not r.path.check() or any(r.changes)
+    else:filter_ = lambda r: not r.path.check() or any(r.changes)
     env().status(filter_)
 
 
@@ -127,42 +126,42 @@ def cd(args, env):
 
 def add_commands(subparsers):
 
-    add_parser = subparsers.add_parser('add')
+    add_parser = subparsers.add_parser('add', help='Add repos in a manifest to environment')
     add_parser.add_argument('manifest', nargs='+', metavar="MANIFEST")
     add_parser.set_defaults(functor=add)
 
-    addrepo_parser = subparsers.add_parser('addrepo')
+    addrepo_parser = subparsers.add_parser('addrepo', help='Add repos to environment')
     addrepo_parser.add_argument('path', help="Path to Source")
     addrepo_parser.add_argument('repository', help="Repository in github")
     addrepo_parser.add_argument('ref', nargs="?",
                                 default='develop', help="git ref or branch name")
     addrepo_parser.set_defaults(functor=addrepo)
 
-    rm_parser = subparsers.add_parser('rm')
+    rm_parser = subparsers.add_parser('rm', help='Remove repo from environment')
     add_repo_narg(rm_parser)
     rm_parser.set_defaults(functor=remove)
 
-    ls_parser = subparsers.add_parser('ls')
+    ls_parser = subparsers.add_parser('ls', help='List environments')
     ls_parser.set_defaults(functor=ls)
 
-    freeze_parser = subparsers.add_parser('freeze')
+    freeze_parser = subparsers.add_parser('freeze', help='Generate manifest from current repository state')
     freeze_parser.set_defaults(functor=freeze)
 
-    sync_parser = subparsers.add_parser('sync')
+    sync_parser = subparsers.add_parser('sync', help='Clone or update repositories; push commits')
     add_repo_narg(sync_parser)
     sync_parser.set_defaults(functor=sync)
 
-    status_parser = subparsers.add_parser('status')
+    status_parser = subparsers.add_parser('status', help='Show status of repos')
     status_parser.add_argument('-a', '--all', action='store_true',
                help="Display all repos, whether or not they have changes.")
     add_repo_narg(status_parser)
     status_parser.set_defaults(functor=status)
 
-    each_parser = subparsers.add_parser('each')
+    each_parser = subparsers.add_parser('each', help='Execute a command in each repo\'s directory.')
     each_parser.add_argument('-r', '--repo', dest="repos", nargs='*')
     each_parser.add_argument('command', nargs="*")
     each_parser.set_defaults(functor=each)
 
-    cd_parser = subparsers.add_parser('cd')
+    cd_parser = subparsers.add_parser('cd', help='Change working directory to a repo')
     cd_parser.add_argument('repo', nargs='?', metavar="REPO")
     cd_parser.set_defaults(functor=cd)

@@ -39,7 +39,7 @@ def feature_finish(args, env):
 
 
 def add_commands(subparsers):
-    feature_parser = subparsers.add_parser('feature')
+    feature_parser = subparsers.add_parser('feature', help='Manage feature branches')
     feature_subparser = feature_parser.add_subparsers()
 
     feature_start_parser = feature_subparser.add_parser('start', help='Start feature branch on specified '

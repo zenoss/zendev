@@ -65,12 +65,12 @@ def tag(args, env):
 
 
 def add_commands(subparsers, completer):
-    restore_parser = subparsers.add_parser('restore')
+    restore_parser = subparsers.add_parser('restore', help='Restore repository state to a tag')
     a = restore_parser.add_argument('name', metavar="NAME")
     a.completer = completer
     restore_parser.set_defaults(functor=restore)
 
-    tag_parser = subparsers.add_parser('tag')
+    tag_parser = subparsers.add_parser('tag', help='Save the state of an environment to a tag')
     tag_parser.add_argument('--strict', action="store_true")
     tag_parser.add_argument('-l', '--list', action="store_true")
     tag_parser.add_argument('-f', '--force', action="store_true")
@@ -80,7 +80,7 @@ def add_commands(subparsers, completer):
     a.completer = completer
     tag_parser.set_defaults(functor=tag)
 
-    changelog_parser = subparsers.add_parser('changelog')
+    changelog_parser = subparsers.add_parser('changelog', help='Show difference between two tags')
     changelog_parser.add_argument('tag1', metavar="TAG").completer = completer
     changelog_parser.add_argument('tag2', metavar="TAG", nargs="?").completer = completer
     changelog_parser.set_defaults(functor=changelog)

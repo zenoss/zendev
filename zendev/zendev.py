@@ -6,6 +6,7 @@ import os
 import sys
 import argparse
 import subprocess
+import textwrap
 from contextlib import contextmanager
 
 import argcomplete
@@ -82,7 +83,16 @@ def selfupdate(args, env):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    epilog = textwrap.dedent('''
+    Management commands: {bootstrap, root, selfupdate}
+    Environment commands: {init, use, drop, clone, env}
+    Repo commands: {add, addrepo, rm, ls, freeze, sync, status, sync, cd}
+    Tag commands: {restore, tag, changelog}
+    Serviced commands: {serviced, atttach, devshel}
+    Vagrant commands {box, cluster, ssh}
+    ''')
+
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, epilog=epilog)
 
     parser.add_argument('--script', action='store_true',
                         help=argparse.SUPPRESS)
@@ -92,13 +102,13 @@ def parse_args():
 
     subparsers = parser.add_subparsers(dest='subparser')
 
-    bootstrap_parser = subparsers.add_parser('bootstrap')
+    bootstrap_parser = subparsers.add_parser('bootstrap', help='Bootstrap zendev to modify the shell environment')
     bootstrap_parser.set_defaults(functor=bootstrap)
 
-    root_parser = subparsers.add_parser('root')
+    root_parser = subparsers.add_parser('root', help='Print root directory of the current environment')
     root_parser.set_defaults(functor=root)
 
-    update_parser = subparsers.add_parser('selfupdate')
+    update_parser = subparsers.add_parser('selfupdate', help='Update zendev')
     update_parser.set_defaults(functor=selfupdate)
 
     environment.add_commands(subparsers)
