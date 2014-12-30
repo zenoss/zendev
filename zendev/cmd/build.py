@@ -101,17 +101,6 @@ def build_analytics(args, env):
     if args.manifest and not args.noenv:
         srcroot = py.path.local.mkdtemp()
     env = env(manifest=args.manifest, srcroot=srcroot)
-    if args.tag:
-        env.restore(args.tag, shallow=True)
-    if args.manifest:
-        env.clone(shallow=True)
-    if args.createtag:
-        env.tag(args.createtag, strict=True)
-    if args.rps:
-        os.environ['GA_IMAGE_TAG'] = args.ga_image
-        _manifestHash = env.ensure_manifestrepo().hash[:7]
-        os.environ['TAG_HASH'] = _manifestHash
-    os.environ.update(env.envvars())
     ana_build_root=env.srcroot.join('/analytics/pkg')
     with ana_build_root.as_cwd():
         target = ['srcbuild' if t == 'src' else t for t in args.target]
