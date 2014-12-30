@@ -193,6 +193,10 @@ class ZenDevEnvironment(object):
     def bash(self, command):
         print >>self._bash, command
 
+    @property
+    def zenhome(self):
+        return self._zenhome
+
     def _repos(self):
         for path, info in self.manifest.repos().iteritems():
             fullpath = self._srcroot.join(path)

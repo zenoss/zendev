@@ -14,6 +14,8 @@ packlists = {
 def build(args, env):
     if "impact-devimg" in args.target:
         build_impact(args, env)
+    elif "analytics-devimg" in args.target:
+        build_analytics(args, env)
     else:
         build_zenoss(args, env)
 
@@ -94,6 +96,31 @@ def build_impact(args, env):
     subprocess.call('docker commit %s %s' % (container_id, impact_image), shell=True)
     subprocess.call('docker rm %s' % container_id, shell=True)
 
+def build_analytics(args, env):
+    srcroot = None
+    if args.manifest and not args.noenv:
+        srcroot = py.path.local.mkdtemp()
+    env = env(manifest=args.manifest, srcroot=srcroot)
+    if args.tag:
+        env.restore(args.tag, shallow=True)
+    if args.manifest:
+        env.clone(shallow=True)
+    if args.createtag:
+        env.tag(args.createtag, strict=True)
+    if args.rps:
+        os.environ['GA_IMAGE_TAG'] = args.ga_image
+        _manifestHash = env.ensure_manifestrepo().hash[:7]
+        os.environ['TAG_HASH'] = _manifestHash
+    os.environ.update(env.envvars())
+    ana_build_root=env.srcroot.join('/analytics/pkg')
+    with ana_build_root.as_cwd():
+        target = ['srcbuild' if t == 'src' else t for t in args.target]
+        if args.clean:
+            subprocess.call(["make", "clean"])
+        rc = subprocess.call(["make", "OUTPUT=%s" % args.output
+                              ]+ target)
+        sys.exit(rc)
+
 zpline = re.compile(r'^[ \t]*zenoss_(?P<product>\w+).zp_to_(?P<action>[\w_]*)[ \t]*\+?=[ \t]*(?P<pack>[\w\.]*)[ \t]*$')
 
 def get_packs_from_mk(env, product):
@@ -148,6 +175,6 @@ def add_commands(subparsers):
                                        'svcpkg-core', 'svcpkg-resmgr', 'svcpkg-ucspm', 'svcpkg',
                                        'serviced', 'devimg', 'img-core',
                                        'img-resmgr', 'img-ucspm', 'rps-img-core',
-                                       'rps-img-resmgr', 'rps-img-ucspm', 'impact-devimg'])
+                                       'rps-img-resmgr', 'rps-img-ucspm', 'impact-devimg', 'analytics-devimg'])
     build_parser.set_defaults(functor=build)
 
