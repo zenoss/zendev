@@ -55,7 +55,7 @@ class Serviced(object):
             "--mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
             "--mount", "zendev/devimg,%s,/var/zenoss" % self.env.var_zenoss.strpath,
             "--mount", "/zenoss/impact-unstable:latest,%s,/mnt/src" % self.env.root.join("src").strpath,
-            "--mount", "zendev/analytics-unstable:latest,%s,/opt/zenoss_analytics" % self.env.root.join("zenhome").strpath,
+            "--mount", "zendev/analytics-unstable:latest,%s,/opt/zenoss_analytics" % self.env.root.join("zen_ana_home").strpath,
             "--mount", "zendev/analytics-unstable:latest,%s,/mnt/src" % self.env.root.join("src/analytics").strpath,
             "--uiport", ":%d" % uiport,
         ])
@@ -190,16 +190,24 @@ def run_serviced(args, env):
             print "Not ready yet (countdown:%d). Checking again in 1 second." % timeout
             time.sleep(1)
             timeout -= 1
-        print "serviced is ready!"
-        if args.deploy or args.deploy_ana:
-            _serviced.add_host()
-            if args.deploy_ana:
-                args.template=env().srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
+        def _deploy(args,svcname='HBase'):
             tplid = _serviced.add_template(args.template)
             if args.no_auto_assign_ips:
-                _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips")
+                _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips", svcname=svcname)
             else:
-                _serviced.deploy(tplid)
+                _serviced.deploy(tplid, svcname=svcname)
+        print "serviced is ready!"
+        if args.deploy or args.deploy_ana or args.deploy_zenoss_ana:
+            _serviced.add_host()
+            if not args.deploy:
+                args.template=env().srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
+                _deploy(args,'ana')
+            if args.deploy_zenoss_ana:
+                args.template=None
+                _deploy(args)
+            elif args.deploy:
+                _deploy(args)
+                
         if args.startall:
             _serviced.startall()
             # Join the subprocess
@@ -253,8 +261,10 @@ def add_commands(subparsers):
     serviced_parser = subparsers.add_parser('serviced', help='Run serviced')
     serviced_parser.add_argument('-r', '--root', action='store_true',
                                  help="Run serviced as root (DEPRECATED. Currently ignored; see --no-root)")
+    serviced_parser.add_argument('--deploy_zenoss_ana', action='store_true',
+                                 help="Add Zenoss service definitions, analytics service definitions and deploy an instance")
     serviced_parser.add_argument('--deploy_ana', action='store_true',
-                                 help="Add Zenoss service definitions and deploy an instance")
+                                 help="Add only analytics service definitions and deploy an instance")
     serviced_parser.add_argument('-d', '--deploy', action='store_true',
                                  help="Add Zenoss service definitions and deploy an instance")
     serviced_parser.add_argument('-a', '--startall', action='store_true',
