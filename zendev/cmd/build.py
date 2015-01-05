@@ -51,7 +51,7 @@ def build_zenoss(args, env):
 
         packs = get_packs(env, product)
 
-        if "devimg" in target:
+        if any(("devimg" in t for t in target)):
             env.var_zenoss.ensure('ZenPacks', dir=True)
             env.var_zenoss.ensure('ZenPackSource', dir=True)
             os.environ['VAR_ZENOSS']=env.var_zenoss.strpath
@@ -63,6 +63,7 @@ def build_zenoss(args, env):
         # CatalogService is not currently compatible with zendev
         if "ZenPacks.zenoss.CatalogService" in packs:
             packs.remove("ZenPacks.zenoss.CatalogService")
+
         rc = subprocess.call(["make", "OUTPUT=%s" % args.output,
                               'ZENPACKS=%s' % ' '.join(packs)] + target)
         sys.exit(rc)
@@ -146,7 +147,7 @@ def add_commands(subparsers):
                                        'svcdef-core', 'svcdef-resmgr', 'svcdef-ucspm',
                                        'svcdefpkg-core', 'svcdefpkg-resmgr', 'svcdefpkg-ucspm',
                                        'svcpkg-core', 'svcpkg-resmgr', 'svcpkg-ucspm', 'svcpkg',
-                                       'serviced', 'devimg', 'img-core',
+                                       'serviced', 'devimg', 'img-core', 'devimg-interactive',
                                        'img-resmgr', 'img-ucspm', 'rps-img-core',
                                        'rps-img-resmgr', 'rps-img-ucspm', 'impact-devimg'])
     build_parser.set_defaults(functor=build)
