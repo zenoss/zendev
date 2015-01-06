@@ -199,15 +199,12 @@ def run_serviced(args, env):
         print "serviced is ready!"
         if args.deploy or args.deploy_ana or args.deploy_zenoss_ana:
             _serviced.add_host()
-            if not args.deploy:
-                args.template=env().srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
-                _deploy(args,'ana')
-            if args.deploy_zenoss_ana:
-                args.template=None
-                _deploy(args)
-            elif args.deploy:
-                _deploy(args)
-                
+        if args.deploy or args.deploy_zenoss_ana:
+            _deploy(args)
+        if args.deploy_ana or args.deploy_zenoss_ana:
+            args.template=env().srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
+            _deploy(args,'ana')
+
         if args.startall:
             _serviced.startall()
             # Join the subprocess
