@@ -197,11 +197,11 @@ def run_serviced(args, env):
             else:
                 _serviced.deploy(tplid, svcname=svcname)
         print "serviced is ready!"
-        if args.deploy or args.deploy_ana or args.deploy_zenoss_ana:
+        if args.deploy or args.deploy_ana:
             _serviced.add_host()
-        if args.deploy or args.deploy_zenoss_ana:
+        if args.deploy:
             _deploy(args)
-        if args.deploy_ana or args.deploy_zenoss_ana:
+        if args.deploy_ana:
             args.template=env().srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
             _deploy(args,'ana')
 
@@ -258,8 +258,6 @@ def add_commands(subparsers):
     serviced_parser = subparsers.add_parser('serviced', help='Run serviced')
     serviced_parser.add_argument('-r', '--root', action='store_true',
                                  help="Run serviced as root (DEPRECATED. Currently ignored; see --no-root)")
-    serviced_parser.add_argument('--deploy_zenoss_ana', action='store_true',
-                                 help="Add Zenoss service definitions, analytics service definitions and deploy an instance")
     serviced_parser.add_argument('--deploy_ana', action='store_true',
                                  help="Add only analytics service definitions and deploy an instance")
     serviced_parser.add_argument('-d', '--deploy', action='store_true',
