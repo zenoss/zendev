@@ -128,10 +128,7 @@ eval export SERVICED_MASTER_ID=\$${HOSTNAME}_MASTER
 export SERVICED_REGISTRY=1
 export SERVICED_AGENT=1
 export SERVICED_MASTER=$( test "$SERVICED_MASTER_ID" != "$HOSTNAME" ; echo $? )
-
-[ -z "$SERVICED_OUTBOUND_IP" ] && SERVICED_OUTBOUND_IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
-export SERVICED_OUTBOUND_IP
-
+export SERVICED_OUTBOUND_IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
 if [ "$SERVICED_MASTER" != "1" ] ; then
     # agent only
     export SERVICED_ZK=$SERVICED_MASTER_ID:2181
