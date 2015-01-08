@@ -198,7 +198,12 @@ def run_serviced(args, env):
                 _serviced.deploy(tplid, svcname=svcname)
         print "serviced is ready!"
         if args.deploy or args.deploy_ana:
-            _serviced.add_host()
+
+            if 'SERVICED_HOST_IP' in os.environ:
+                _serviced.add_host(host=os.environ.get('SERVICED_HOST_IP'))
+            else: 
+                _serviced.add_host()
+             
         if args.deploy:
             _deploy(args)
         if args.deploy_ana:
