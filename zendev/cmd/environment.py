@@ -55,6 +55,10 @@ def env(args, env):
     print get_config().current
 
 
+def EnvironmentCompleter(prefix, **kwargs):
+    return (v for v in get_config().environments.keys() if v.startswith(prefix))
+
+
 def add_commands(subparsers):
     init_parser = subparsers.add_parser('init', help='Create a new environment')
     init_parser.add_argument('path', metavar="PATH")
@@ -62,11 +66,11 @@ def add_commands(subparsers):
     init_parser.set_defaults(functor=init)
 
     use_parser = subparsers.add_parser('use', help='Switch to an environemtn')
-    use_parser.add_argument('name', metavar='ENVIRONMENT')
+    use_parser.add_argument('name', metavar='ENVIRONMENT').completer = EnvironmentCompleter
     use_parser.set_defaults(functor=use)
 
     drop_parser = subparsers.add_parser('drop', help='Delete an environment')
-    drop_parser.add_argument('name', metavar='ENVIRONMENT')
+    drop_parser.add_argument('name', metavar='ENVIRONMENT').completer = EnvironmentCompleter
     drop_parser.add_argument('--purge', action="store_true")
     drop_parser.set_defaults(functor=drop)
 
