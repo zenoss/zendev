@@ -56,7 +56,7 @@ def env(args, env):
 
 
 def EnvironmentCompleter(prefix, **kwargs):
-    return (v for v in get_config().environments.keys())
+    return (v for v in get_config().environments.keys() if v.startswith(prefix))
 
 
 def add_commands(subparsers):
