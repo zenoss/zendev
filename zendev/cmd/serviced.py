@@ -33,7 +33,7 @@ class Serviced(object):
         if running:
             subprocess.call(["docker", "kill"] + running.splitlines())
         print "Cleaning state"
-        subprocess.call("sudo rm -rf %s" % self.varpath.strpath, shell=True)
+        subprocess.call("sudo rm -rf %s/*" % self.varpath.strpath, shell=True)
 
     def start(self, root=False, uiport=443, arguments=None, registry=False):
         print "Starting serviced..."
