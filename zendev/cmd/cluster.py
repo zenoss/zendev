@@ -122,6 +122,7 @@ BASH_SERVICED = """
 #! /bin/bash
 # .bash_serviced file created by zendev cluster
 
+
 # serviced
 eval export SERVICED_MASTER_ID=\$${HOSTNAME}_MASTER
 
@@ -167,7 +168,7 @@ class VagrantClusterManager(VagrantManager):
             fses=btrfs,
             fstype="btrfs",
             env_name=self.env.name,
-            hostname=HOSTNAME
+            hostname=VagrantManager.VIRTUALBOX_HOST_IP
         ))
         subprocess.call("ssh-keygen -f %s/id_rsa -t rsa -N ''" % vagrant_dir, shell=True,
                         stdout=subprocess.PIPE)
