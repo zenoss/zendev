@@ -40,8 +40,8 @@ Vagrant.configure("2") do |config|
         end
         {% endif %}
       end
-      {% for root, target in shared_folders %}
-      config.vm.synced_folder "{{ root }}", "{{ target }}"
+      {% for options in shared_folders %}
+      config.vm.synced_folder {{ options|join(', ') }}
       {% endfor %}
       config.vm.provision "shell", inline: "[ ! -f /vagrant/first_boot/#{vm_name} ] && source /vagrant/first_boot.sh "
     end
