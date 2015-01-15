@@ -2,6 +2,7 @@ from jinja2 import Template
 import os
 import string
 import sys
+import tempfile
 from vagrantManager import VagrantManager
 import subprocess
 from ..log import error
@@ -150,6 +151,7 @@ class VagrantClusterManager(VagrantManager):
         super(VagrantClusterManager, self).__init__(environment, environment.clusterroot)
 
     def _create(self, name, purpose, count, btrfs, memory, cpus, fssize):
+        self._update_hosts_allow()
         vagrant_dir = self._root.ensure_dir(name)
         vagrant_dir.ensure("etc_hosts").write(ETC_HOSTS)
         vagrant_dir.ensure("bash_serviced").write(BASH_SERVICED)
@@ -170,8 +172,41 @@ class VagrantClusterManager(VagrantManager):
             env_name=self.env.name,
             hostname=VagrantManager.VIRTUALBOX_HOST_IP
         ))
-        subprocess.call("ssh-keygen -f %s/id_rsa -t rsa -N ''" % vagrant_dir, shell=True,
-                        stdout=subprocess.PIPE)
+        subprocess.call("ssh-keygen -f %s/id_rsa -t rsa -N ''" % vagrant_dir,
+                        shell=True, stdout=subprocess.PIPE)
+
+
+    def _update_hosts_allow(self):
+        # Update /etc/hosts.allow to enable nfs access from vbox internal network
+        hosts_allow = '/etc/hosts.allow'
+        lines = [i for i in open(hosts_allow)]
+
+        # Already updated?
+        if any(line.startswith('# zendev vbox') for line in lines):
+            return
+
+        # Insert block before serviced stanza, if any.
+        # serviced also edits this file, replacing all lines following
+        # '# serviced, do not remove past this line'
+        block = ('# zendev vbox internal network\n',
+                 'rpcbind mountd nfsd statd lockd rquotad : 10.20.1.0/255.255.255.0\n',
+                 '\n')
+        for idx, line in enumerate(lines):
+            if line.startswith('# serviced, '):
+                lines[idx:idx] = block
+                break
+        else:
+            lines.extend(block)
+
+        print 'Updating', hosts_allow
+        try:
+            args = ['sudo', 'bash', '-c',
+                    'cat >%s <<ZENDEV_EOF\n%s\nZENDEV_EOF' %
+                    (hosts_allow, ''.join(lines))]
+            subprocess.call(args)
+        except Exception as err:
+            print 'Failed to update %s:' % hosts_allow, err
+
 
     def ls(self, name):
         if not name:
