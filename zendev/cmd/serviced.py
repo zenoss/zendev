@@ -183,22 +183,23 @@ def run_serviced(args, env):
         print >> sys.stderr, "--root is deprecated, as it is now the default. See --no-root."
     _serviced.start(not args.no_root, args.uiport, args.arguments, registry=args.with_docker_registry)
     try:
-        while not _serviced.is_ready():
+        wait_for_ready = not args.skip_ready_wait
+        while wait_for_ready and not _serviced.is_ready():
             if not timeout:
                 print "Timed out waiting for serviced!"
                 sys.exit(1)
             print "Not ready yet (countdown:%d). Checking again in 1 second." % timeout
             time.sleep(1)
             timeout -= 1
+        if wait_for_ready:
+            print "serviced is ready!"
         def _deploy(args,svcname='HBase'):
             tplid = _serviced.add_template(args.template)
             if args.no_auto_assign_ips:
                 _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips", svcname=svcname)
             else:
                 _serviced.deploy(tplid, svcname=svcname)
-        print "serviced is ready!"
         if args.deploy or args.deploy_ana:
-
             if 'SERVICED_HOST_IP' in os.environ:
                 _serviced.add_host(host=os.environ.get('SERVICED_HOST_IP'))
             else: 
@@ -279,6 +280,8 @@ def add_commands(subparsers):
                                  help="Do NOT auto-assign IP addresses to services requiring an IP address")
     serviced_parser.add_argument('--with-docker-registry', action='store_true', default=False,
                                  help="Use the internal docker registry (necessary for multihost)")
+    serviced_parser.add_argument('--skip-ready-wait', action='store_true', default=False,
+                                 help="don't wait for serviced to be ready")
     serviced_parser.add_argument('-u', '--uiport', type=int, default=443,
                                  help="UI port")
     serviced_parser.add_argument('arguments', nargs=argparse.REMAINDER)
