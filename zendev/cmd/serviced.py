@@ -8,7 +8,7 @@ import time
 
 import py.path
 import requests
-
+from vagrantManager import VagrantManager
 
 class Serviced(object):
 
@@ -35,7 +35,7 @@ class Serviced(object):
         print "Cleaning state"
         subprocess.call("sudo rm -rf %s/*" % self.varpath.strpath, shell=True)
 
-    def start(self, root=False, uiport=443, arguments=None, registry=False):
+    def start(self, root=False, uiport=443, arguments=None, registry=False, cluster_master=False):
         print "Starting serviced..."
         self.uiport = uiport
         args = []
@@ -44,8 +44,10 @@ class Serviced(object):
         envvars['TZ'] = 'UTC'
         envvars['SERVICED_MASTER'] = os.getenv('SERVICED_MASTER', '1')
         envvars['SERVICED_AGENT'] = os.getenv('SERVICED_AGENT', '1')
-        if registry:
+        if registry or cluster_master:
             envvars['SERVICED_REGISTRY'] = 'true'
+        if cluster_master:
+            envvars['SERVICED_OUTBOUND_IP'] = VagrantManager.VIRTUALBOX_HOST_IP
         if root:
             args.extend(["sudo", "-E"])
             args.extend("%s=%s" % x for x in envvars.iteritems())
@@ -181,7 +183,7 @@ def run_serviced(args, env):
         args.arguments = args.arguments[1:]
     if args.root:
         print >> sys.stderr, "--root is deprecated, as it is now the default. See --no-root."
-    _serviced.start(not args.no_root, args.uiport, args.arguments, registry=args.with_docker_registry)
+    _serviced.start(not args.no_root, args.uiport, args.arguments, args.with_docker_registry, args.cluster_master)
     try:
         wait_for_ready = not args.skip_ready_wait
         while wait_for_ready and not _serviced.is_ready():
@@ -282,6 +284,8 @@ def add_commands(subparsers):
                                  help="Use the internal docker registry (necessary for multihost)")
     serviced_parser.add_argument('--skip-ready-wait', action='store_true', default=False,
                                  help="don't wait for serviced to be ready")
+    serviced_parser.add_argument('--cluster-master', action='store_true', default=False,
+                                 help="run as master for multihost cluster")
     serviced_parser.add_argument('-u', '--uiport', type=int, default=443,
                                  help="UI port")
     serviced_parser.add_argument('arguments', nargs=argparse.REMAINDER)
