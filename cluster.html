@@ -78,12 +78,11 @@
 <li><a class="reference internal" href="#">Vagrant Clusters</a><ul>
 <li><a class="reference internal" href="#creating-a-vagrant-cluster">Creating a Vagrant Cluster</a></li>
 <li><a class="reference internal" href="#listing-clusters">Listing Clusters</a></li>
-<li><a class="reference internal" href="#starting-up-a-cluster">Starting up a cluster</a></li>
-<li><a class="reference internal" href="#starting-a-single-box-in-a-cluster">Starting a single box in a cluster</a></li>
-<li><a class="reference internal" href="#halting-all-the-boxes-in-a-cluster">Halting all the boxes in a cluster</a></li>
-<li><a class="reference internal" href="#shutdown-a-specific-box-in-a-cluster">Shutdown a specific box in a cluster</a></li>
+<li><a class="reference internal" href="#start-a-cluster">Start a cluster</a></li>
+<li><a class="reference internal" href="#halt-a-cluster">Halt a cluster</a></li>
 <li><a class="reference internal" href="#login-to-a-box-in-a-cluster">Login to a box in a cluster</a></li>
 <li><a class="reference internal" href="#destroy-a-cluster">Destroy a cluster</a></li>
+<li><a class="reference internal" href="#example-creating-and-running-a-multi-host-network">Example: Creating and running a multi-host network</a></li>
 </ul>
 </li>
 </ul>
@@ -121,21 +120,29 @@
 <h1>Vagrant Clusters<a class="headerlink" href="#vagrant-clusters" title="Permalink to this headline">¶</a></h1>
 <p>The zendev cluster command allows you to provision clusters of Vagrant boxes
 with your source tree mounted, zendev installed, and the zendev environment set
-up on each of them.</p>
+up on each of them.  The cluster is configured to make multihost serviced
+development easy.</p>
 <div class="section" id="creating-a-vagrant-cluster">
 <h2>Creating a Vagrant Cluster<a class="headerlink" href="#creating-a-vagrant-cluster" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">create</span></tt> will create a Vagrant cluster of the specified number
-of boxes of a given type all with unique names on the same private network.</p>
-<p>Acceptable box types are: <tt class="docutils literal"><span class="pre">ubuntu</span></tt>, <tt class="docutils literal"><span class="pre">fedora</span></tt>, <tt class="docutils literal"><span class="pre">controlplane</span></tt>, and <tt class="docutils literal"><span class="pre">sourcebuild</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">create</span></tt> will create a Vagrant cluster on a private network for
+multi-host testing.  The nodes will be set up to run as agents, with the master running
+on the host development machine.</p>
 <p>The cluster must be given a name that will be used to manage the whole cluster.
 The individual box names are derived from the cluster name by appending a two
 digit number to the cluster name. The number of boxes
 in a cluster is specified by the <tt class="docutils literal"><span class="pre">count</span></tt> option. The amount of memory allocated
-to each box is specified by the <tt class="docutils literal"><span class="pre">memory</span></tt> option.</p>
+to each box is specified by the <tt class="docutils literal"><span class="pre">memory</span></tt> option.  The number of cpus allocated to
+each box is specified by the <tt class="docutils literal"><span class="pre">cpus</span></tt> option.</p>
+<p>Acceptable box types are: <tt class="docutils literal"><span class="pre">ubuntu</span></tt>, <tt class="docutils literal"><span class="pre">fedora</span></tt>, <tt class="docutils literal"><span class="pre">controlplane</span></tt>, and <tt class="docutils literal"><span class="pre">sourcebuild</span></tt>.
+The default is <tt class="docutils literal"><span class="pre">ubuntu</span></tt>.</p>
+<p>It is also possible to create one or more btrfs volumes on each vm.  The number of
+btrfs volumes is specified with the by the <tt class="docutils literal"><span class="pre">btrfs</span></tt> option.  The size of the btrfs
+volumes is controlled by the <tt class="docutils literal"><span class="pre">fssize</span></tt> option.  The first two volumes are mounted
+at /var/lib/docker and /opt/serviced/var respectively.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a new cluster named demo containing 5 ubuntu boxes</span>
 zendev cluster create --type ubuntu --count <span class="m">5</span> demo
 
-<span class="c"># Create a new cluster of 3 ubuntu boxes named 4p with 2MB of RAM each in the fourpoints.io domain</span>
+<span class="c"># Create a new cluster of 3 ubuntu boxes named 4p with 2MB of RAM each</span>
 zendev cluster create --type ubuntu --count <span class="m">3</span> --memory <span class="m">2048</span> 4p
 </pre></div>
 </div>
@@ -153,33 +160,27 @@ zendev cluster ls CLUSTER
 </pre></div>
 </div>
 </div>
-<div class="section" id="starting-up-a-cluster">
-<h2>Starting up a cluster<a class="headerlink" href="#starting-up-a-cluster" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="start-a-cluster">
+<h2>Start a cluster<a class="headerlink" href="#start-a-cluster" title="Permalink to this headline">¶</a></h2>
 <p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">up</span></tt> will start all the boxes in a given cluster.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Start all the boxes in the cluster named CLUSTER</span>
 zendev cluster up CLUSTER
 </pre></div>
 </div>
-</div>
-<div class="section" id="starting-a-single-box-in-a-cluster">
-<h2>Starting a single box in a cluster<a class="headerlink" href="#starting-a-single-box-in-a-cluster" title="Permalink to this headline">¶</a></h2>
 <p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">up</span></tt> can be used to start a single box in a given cluster.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Start the box named BOX in the cluster CLUSTER</span>
 zendev cluster up CLUSTER BOX
 </pre></div>
 </div>
 </div>
-<div class="section" id="halting-all-the-boxes-in-a-cluster">
-<h2>Halting all the boxes in a cluster<a class="headerlink" href="#halting-all-the-boxes-in-a-cluster" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="halt-a-cluster">
+<h2>Halt a cluster<a class="headerlink" href="#halt-a-cluster" title="Permalink to this headline">¶</a></h2>
 <p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">halt</span></tt> will stop all the boxes in a given cluster.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Stop all the boxes in the cluster named CLUSTER</span>
 zendev cluster halt CLUSTER
 </pre></div>
 </div>
-</div>
-<div class="section" id="shutdown-a-specific-box-in-a-cluster">
-<h2>Shutdown a specific box in a cluster<a class="headerlink" href="#shutdown-a-specific-box-in-a-cluster" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">halt</span></tt> stops a specified box in a given cluster.</p>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">halt</span></tt> can also be used to halt a specified box in a given cluster.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Stop the box named BOX in cluster CLUSTER</span>
 zendev cluster halt CLUSTER BOX
 </pre></div>
@@ -200,6 +201,31 @@ zendev cluster ssh CLUSTER BOX
 zendev cluster destroy CLUSTER
 </pre></div>
 </div>
+</div>
+<div class="section" id="example-creating-and-running-a-multi-host-network">
+<h2>Example: Creating and running a multi-host network<a class="headerlink" href="#example-creating-and-running-a-multi-host-network" title="Permalink to this headline">¶</a></h2>
+<p>All nodes in the network are set up to run as agents of a master running on the host.
+All nodes share the <tt class="docutils literal"><span class="pre">devimg</span></tt> mounts, so that they all run the same code.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a cluster with one node</span>
+zendev cluster create foo
+
+<span class="c"># Start CC master on the host</span>
+<span class="c"># &quot;--cluster-master&quot; instructs zendev to run with SERVICED_REGISTRY and</span>
+<span class="c">#   SERVICED_OUTBOUND_IP set appropriately</span>
+zendev serviced -dx --cluster-master
+
+<span class="c"># Start CC agent on the VM</span>
+<span class="c"># &#39;--skip-ready-wait&#39; tells zendev not to poll CC for ready status</span>
+zendev cluster ssh foo
+zendev serviced --skip_ready_wait
+</pre></div>
+</div>
+<p><em>Note</em>:
+Currently serviced does not allow non-serviced controlled nfs exports.  Unfortunately,
+zendev needs to nfs mount the zenhome directory into the VM. (vboxsf mounts do not work as they
+do not support chown.)  serviced overwrites the /etc/hosts.allow file when it starts up; virtualbox
+amends that file when it boots the VM.  Therefore, it is necessary to boot/reboot the VMs each time
+you restart serviced.</p>
 </div>
 </div>
 

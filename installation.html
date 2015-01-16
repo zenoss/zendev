@@ -309,6 +309,9 @@ zendev init europa --tag develop
 <span class="c"># Start using the environment</span>
 zendev use europa
 
+<span class="c"># This may be needed if the above zendev init failed to clone some repos</span>
+zendev sync
+
 <span class="c"># Optional: add enterprise zenpacks for building resmgr devimg</span>
 zendev add ~/src/europa/build/manifests/zenpacks.commercial.json
 </pre></div>

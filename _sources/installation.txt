@@ -207,6 +207,9 @@ When your box comes back up, authenticate to hub.docker.com:
     # Start using the environment
     zendev use europa
 
+    # This may be needed if the above zendev init failed to clone some repos
+    zendev sync
+
     # Optional: add enterprise zenpacks for building resmgr devimg
     zendev add ~/src/europa/build/manifests/zenpacks.commercial.json
 

@@ -84,14 +84,6 @@ zendev.cmd.vagrantManager module
     :undoc-members:
     :show-inheritance:
 
-zendev.cmd.zup module
----------------------
-
-.. automodule:: zendev.cmd.zup
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------

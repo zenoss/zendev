@@ -133,7 +133,6 @@
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.tags">zendev.cmd.tags module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.test">zendev.cmd.test module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.vagrantManager">zendev.cmd.vagrantManager module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.zup">zendev.cmd.zup module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd">Module contents</a></li>
 </ul>
 </li>
@@ -200,7 +199,7 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">git.util.RemoteProgress</span></tt></p>
 <dl class="attribute">
 <dt id="zendev.environment.MultiprocessingProgress.QUEUE">
-<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x2b8e902e7410&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x2b9a7c5122d0&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -218,7 +217,7 @@
 
 <dl class="class">
 <dt id="zendev.environment.ZenDevEnvironment">
-<em class="property">class </em><tt class="descclassname">zendev.environment.</tt><tt class="descname">ZenDevEnvironment</tt><big>(</big><em>name=None</em>, <em>path=None</em>, <em>manifest=None</em>, <em>srcroot=None</em>, <em>buildroot=None</em>, <em>zenhome=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">zendev.environment.</tt><tt class="descname">ZenDevEnvironment</tt><big>(</big><em>name=None</em>, <em>path=None</em>, <em>manifest=None</em>, <em>srcroot=None</em>, <em>buildroot=None</em>, <em>zenhome=None</em>, <em>var_zenoss=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.bash">
@@ -404,8 +403,18 @@ there are no repos passed in, fail.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="zendev.environment.ZenDevEnvironment.var_zenoss">
+<tt class="descname">var_zenoss</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.var_zenoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.var_zenoss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.zendev">
 <tt class="descname">zendev</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.zendev"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.zendev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zendev.environment.ZenDevEnvironment.zenhome">
+<tt class="descname">zenhome</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.zenhome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.zenhome" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -739,7 +748,7 @@ Matches zero or more characters at the beginning of the string</p>
 
 <dl class="function">
 <dt id="zendev.utils.repofilter">
-<tt class="descclassname">zendev.utils.</tt><tt class="descname">repofilter</tt><big>(</big><em>repos=()</em>, <em>field_fn=&lt;function &lt;lambda&gt; at 0x2b8e901b2410&gt;</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#repofilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.repofilter" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">zendev.utils.</tt><tt class="descname">repofilter</tt><big>(</big><em>repos=()</em>, <em>field_fn=&lt;function &lt;lambda&gt; at 0x2b9a7c3ce398&gt;</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#repofilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.repofilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a function that will return only those repos specified, or all if
 nothing was specified.</p>
 </dd></dl>
