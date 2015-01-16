@@ -58,6 +58,7 @@ class VagrantManager(object):
             (env.zendev.strpath, "/home/zenoss/zendev"),
             (env.srcroot.strpath, "/home/zenoss/%s/src" % env.name),
             (env.buildroot.strpath, "/home/zenoss/%s/build" % env.name),
+            (env.zenhome.strpath, "/home/zenoss/%s/zenhome" % env.name),
             (env.configroot.strpath, "/home/zenoss/%s/%s" %
                                      (env.name, env.configroot.basename)) )
 
