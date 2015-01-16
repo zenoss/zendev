@@ -158,6 +158,10 @@ class ZenDevEnvironment(object):
         return self._var_zenoss
 
     @property
+    def zenhome(self):
+        return self._zenhome
+
+    @property
     def zendev(self):
         return here("..")
 

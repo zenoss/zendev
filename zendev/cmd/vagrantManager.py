@@ -55,10 +55,13 @@ class VagrantManager(object):
     def get_shared_directories(self):
         env=self.env
         return (
-            (env.zendev.strpath, "/home/zenoss/zendev"),
-            (env.srcroot.strpath, "/home/zenoss/%s/src" % env.name),
-            (env.buildroot.strpath, "/home/zenoss/%s/build" % env.name),
-            (env.configroot.strpath, "/home/zenoss/%s/%s" %
+            ('"%s"' % env.zendev.strpath, '"/home/zenoss/zendev"'),
+            ('"%s"' % env.srcroot.strpath, '"/home/zenoss/%s/src"' % env.name),
+            ('"%s"' % env.buildroot.strpath, '"/home/zenoss/%s/build"' % env.name),
+            ('"%s"' % env.zenhome.strpath, '"/home/zenoss/%s/zenhome"' % env.name,
+                "type: 'nfs'",
+                ":linux__nfs_options => ['rw,no_root_squash,no_subtree_check']"),
+            ('"%s"' % env.configroot.strpath, '"/home/zenoss/%s/%s"' %
                                      (env.name, env.configroot.basename)) )
 
     def _get_box(self, name):
