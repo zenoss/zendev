@@ -58,6 +58,7 @@ class VagrantManager(object):
             ('"%s"' % env.zendev.strpath, '"/home/zenoss/zendev"'),
             ('"%s"' % env.srcroot.strpath, '"/home/zenoss/%s/src"' % env.name),
             ('"%s"' % env.buildroot.strpath, '"/home/zenoss/%s/build"' % env.name),
+            ('"%s"' % env.var_zenoss.strpath, '"/home/zenoss/%s/var_zenoss"' % env.name),
             ('"%s"' % env.zenhome.strpath, '"/home/zenoss/%s/zenhome"' % env.name,
                 "type: 'nfs'",
                 ":linux__nfs_options => ['rw,no_root_squash,no_subtree_check']"),
