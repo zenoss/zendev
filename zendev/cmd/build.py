@@ -66,6 +66,13 @@ def build_zenoss(args, env):
         if "ZenPacks.zenoss.CatalogService" in packs:
             packs.remove("ZenPacks.zenoss.CatalogService")
 
+        # If any targets are svcdef-specific, then let's try and execute
+        # all of them in the context of svcdefs.  Ignore the 'ZENPACKS'
+        # variable that gets passed into the make target.
+        if any((t.startswith("docker_svcdefpkg-") for t in target)):
+            print "At least one specified target is service\ndefinition specific - executing all targets in the context\nof the service definition directory\n"
+            env.srcroot.join('service').chdir()
+
         rc = subprocess.call(["make", "OUTPUT=%s" % args.output,
                               'ZENPACKS=%s' % ' '.join(packs)] + target)
         sys.exit(rc)
@@ -76,7 +83,7 @@ def build_impact(args, env):
     container_id='impact_devimg_'+uuid.uuid1().hex
     # TODO: embedding the version number in the link means that we have do rebuild the image
     #  if the version changes.  Better if the pom.xml set up a non-versioned symlink to the
-    # versioned file; then this could link to the non-versioned symlink.
+    #  versioned file; then this could link to the non-versioned symlink.
     startup="""
         SRC=/mnt/src/impact/impact-server
         DST=/opt/zenoss_impact
@@ -165,6 +172,7 @@ def add_commands(subparsers):
                                        'svcpkg-core', 'svcpkg-resmgr', 'svcpkg-ucspm', 'svcpkg',
                                        'serviced', 'devimg', 'img-core', 'devimg-interactive',
                                        'img-resmgr', 'img-ucspm', 'rps-img-core',
-                                       'rps-img-resmgr', 'rps-img-ucspm', 'impact-devimg', 'analytics-devimg'])
+                                       'rps-img-resmgr', 'rps-img-ucspm', 'impact-devimg', 'analytics-devimg',
+                                       'docker_svcdefpkg-core', 'docker_svcdefpkg-resmgr', 'docker_svcdefpkg-ucspm'])
     build_parser.set_defaults(functor=build)
 
