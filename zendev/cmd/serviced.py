@@ -84,7 +84,7 @@ class Serviced(object):
             try:
                 self.proc.terminate()
             except OSError:
-                # We can't kill it. Likely ran as root. 
+                # We can't kill it. Likely ran as root.
                 # Let's assume it'll die on its own.
                 pass
 
@@ -148,8 +148,17 @@ class Serviced(object):
                 tplpath = tentative.strpath
             else:
                 tplpath = self.env.srcroot.join("service/services/" + template).strpath
+        serviceMakefile = self.env.srcroot.join("service/makefile")
+        hbaseVersion = subprocess.check_output("awk -F= '/^hbase_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
+        opentsdbVersion = subprocess.check_output("awk -F= '/^opentsdb_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
+        print "Detected hbase version in makefile is %s" % hbaseVersion
+        print "Detected opentsdb version in makefile is %s" % opentsdbVersion
+        if hbaseVersion == "" or opentsdbVersion == "":
+            raise Exception("Unable to get opentsdb/hbase tags from services makefile")
         proc = subprocess.Popen([self.serviced, "template", "compile",
-            "--map=zenoss/zenoss5x,zendev/devimg", tplpath],
+            "--map=zenoss/zenoss5x,zendev/devimg",
+            "--map=zenoss/hbase:xx,zenoss/hbase:%s" % hbaseVersion,
+            "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion, tplpath],
             stdout=subprocess.PIPE)
         stdout, _ = proc.communicate()
         print "Compiled new template"
@@ -204,9 +213,9 @@ def run_serviced(args, env):
         if args.deploy or args.deploy_ana:
             if 'SERVICED_HOST_IP' in os.environ:
                 _serviced.add_host(host=os.environ.get('SERVICED_HOST_IP'))
-            else: 
+            else:
                 _serviced.add_host()
-             
+
         if args.deploy:
             _deploy(args)
         if args.deploy_ana:
