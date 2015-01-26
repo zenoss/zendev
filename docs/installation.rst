@@ -34,7 +34,7 @@ Ubuntu
     # ------------------------------------------------------------------
     # Install Docker for Europa-Release <= 1.0.0
     # ------------------------------------------------------------------
-    apt-get install apt-transport-https
+    sudo apt-get install apt-transport-https
     sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
          --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
     sudo sh -c "echo deb https://get.docker.com/ubuntu docker main \
@@ -49,7 +49,7 @@ Ubuntu
 
 
 If you are operating under AWS, check if docker is using the devicemapper driver.
-    Run the "docker info" command and look at the storage driver section. If it
+    Run the "sudo docker info" command and look at the storage driver section. If it
     says "devicemapper", stop docker, install linux-image-extra, and reinstall
     docker to use AUFS as a storage driver.
 
@@ -61,7 +61,7 @@ If you are operating under AWS, check if docker is using the devicemapper driver
     sudo rm -rf /var/lib/docker
     sudo apt-get update
     sudo apt-get install linux-image-extra-`uname -r`
-    sudo apt-get install lxc-docker
+    sudo apt-get install lxc-docker-1.3.3
 
 3. Add your user to the ``docker`` group:
 
