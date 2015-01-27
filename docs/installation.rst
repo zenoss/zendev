@@ -256,6 +256,8 @@ When your box comes back up, authenticate to hub.docker.com:
     zendev serviced --reset --deploy                                # to deploy core
     zendev serviced --reset --deploy --template Zenoss.resmgr.lite  # to deploy resmgr lite
 
+    # Proceed after seeing the Zenoss template in 'Deployed templates'
+
 OS X
 ----
 OS X doesn't support Docker natively (although Docker 0.8 ostensibly `adds OS

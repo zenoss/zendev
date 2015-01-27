@@ -106,6 +106,8 @@ class Serviced(object):
         deploy_command.append(svcname)
         time.sleep(1)
         subprocess.call(deploy_command)
+        print "Deployed templates:"
+        subprocess.call([self.serviced, "template", "list"])
 
     def remove_catalogservice(self, services, svc):
         if svc['Name'] and svc['Name'] == 'zencatalogservice':
