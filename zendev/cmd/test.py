@@ -32,7 +32,7 @@ def zen_image_tests(args, env, product=''):
     os.environ['VAR_ZENOSS']=env.var_zenoss.strpath
     envvars = os.environ.copy()
     envvars.update(env.envvars())
-    mounts = {envvars["SRCROOT"]: "/mnt/src", env.buildroot: "/mnt/build"}
+    mounts = {envvars["SRCROOT"]: "/mnt/src", env.buildroot: "/mnt/build", envvars["HOME"]: "/home/zenoss/.m2"}
     mounts[env.var_zenoss.strpath] = "/var/zenoss"
     image = "zendev_test"
     if product == 'devimg':
