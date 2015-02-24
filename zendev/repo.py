@@ -134,8 +134,9 @@ class Repository(object):
     def shallow_clone(self):
         return self.clone(shallow=True)
 
-    def start_feature(self, name):
-        self.repo.create('feature', name, None, None)
+    def start_feature(self, name, base=None):
+        # Note: the called routine is monkey-patched
+        self.repo.create('feature', name, base, None)
 
     def publish_feature(self, name):
         self.repo.publish('feature', name)
@@ -196,12 +197,13 @@ class Repository(object):
             # We're detached
             return
         local_name = active_branch.name
+        remote = self.repo.origin()
         output = self.repo.git.rev_list(local_name, '--not', '--remotes')
         if output:
             self.message(("%s local commits in %s:%s need to be pushed."
                          "Pushing...") % (output.count('\n')+1, self.name,
                                           local_name))
-            self.repo.git.push(output_stream=sys.stderr)
+            self.repo.git.push(remote, local_name, output_stream=sys.stderr)
 
     def create_feature(self, name):
         fname = "feature/%s" % name
@@ -224,7 +226,7 @@ class Repository(object):
     def changelog(self, fromref, toref):
         return self.repo.git.log("%s..%s" % (fromref, toref), "--pretty=format:%h - %an, %ar : %s")
 
-    def create_pull_request(self, feature_name, body=''):
+    def create_pull_request(self, feature_name, body='', base='develop'):
         staged, unstaged, untracked = self.changes
 
         if unstaged:
@@ -241,20 +243,20 @@ class Repository(object):
 
         self.push()
         time.sleep(1)
-        response = github.perform(
+        header, response = github.perform(
             "POST",
             "/repos/{0}/{1}/pulls".format(owner, repo),
             data=json.dumps({
                 "title": "Please review branch %s" % branch,
                 "body": body,
                 "head": branch,
-                "base": "develop"
+                "base": base
             }))
         if 'html_url' in response:
             info ("Pull Request: %s" % response['html_url'])
         elif response['message'] == 'Validation Failed':
             for e in response['errors']:
-                if e ['message'].startswith("No commits between"):
+                if e.get('message', "").startswith("No commits between"):
                     error("You have to commit some code first!")
                     return
                 else:
