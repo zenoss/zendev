@@ -11,6 +11,27 @@ class GithubException (Exception):
     pass
 
 
+
+def save_port_base(repo, base, ticket):
+    data = {'base':base, 'message':[]}
+    filename = repo.path.ensure('.git', 'zendev', 'port', 'feature', ticket)
+    json.dump(data, open(filename.strpath, 'w'), indent=4)
+
+
+def load_port_info(repo):
+    filename = repo.path.join('.git', 'zendev', 'port', repo.branch)
+    try:
+        return json.load(open(filename.strpath, 'r'))
+    except:
+        return {}
+
+def save_port_pick(repo, comment):
+    data = load_port_info(repo)
+    data.setdefault('message', []).append(comment)
+    filename = repo.path.join('.git', 'zendev', 'port', repo.branch)
+    json.dump(data, open(filename.strpath, 'w'), indent=4)
+
+
 def pullrequest_commit(repo, pr):
     url = '/repos/%s/issues/%s/events' % (repo.reponame, pr)
     headers, response = github.perform('GET', url)
@@ -72,38 +93,43 @@ def cherry_pick(repo, commit):
         exit(1)
 
 
-def create_pull_request(repo, head, base, commit):
+def create_pull_request(repo, head, base, comments):
     zendev.log.info('Creating pull request for branch "%s" into "%s"' %
                     (head, base))
-    repo.create_pull_request(head, base=base, 
-                             body='zendev cherry-pick %s' % commit)
+    body = '\n\n'.join(filter(None, (comments, 'Pull request created by zendev cherry-pick')))
+    repo.create_pull_request(head, base=base, body=body)
 
 
 def port_start(args, env):
     repo = get_current_repo(env)
-    create_branch(repo, repo.branch, args.ticket)
+    base = repo.branch
+    create_branch(repo, base, args.ticket)
+    save_port_base(repo, base, args.ticket)
 
 def port_pick(args, env):
     repo = get_current_repo(env)
     cherry_pick(repo, args.commit)
+    save_port_pick(repo, "Cherry-picked %s" % args.commit)
 
 def port_pull_request(args, env):
     repo = get_current_repo(env)
-    # TODO: pull base and actions from a config file in .git directory
-    base = 'master'
-    actions = '#3'
-
+    data = load_port_info(repo)
+    base = data.get('base') or args.branch
+    if not base:
+        zendev.log.error('Specify merge target with "--branch"')
+        exit(1)
+    comments = '\n'.join(filter(None, [args.message]+data.get('message', [])))
     # TODO: is this the best way to determine the feature name?
-    branch = repo.branch.split('/')[1]
-    create_pull_request(repo, branch, base, actions)
+    ticket = repo.branch.split('/')[1]
+    create_pull_request(repo, ticket, base, comments)
     
-
 def port_try(args, env):
     repo = get_current_repo(env)
     base_branch = repo.branch
     feature_branch = create_branch(repo, base_branch, args.ticket)
+    save_port_base(repo, base)
     cherry_pick(repo, args.commit)
-    create_pull_request(repo, feature_branch, base_branch, args.commit)
+    create_pull_request(repo, feature_branch, base_branch, "Cherry-picked %s" % args.commit)
 
 
 def add_commands(subparsers):
@@ -128,6 +154,10 @@ def add_commands(subparsers):
 
     pull_parser = port_subparser.add_parser('pull-request',
         help='Create pull request for current branch')
+    pull_parser.add_argument('-b', '--branch',
+                             help="branch to merge into")
+    pull_parser.add_argument('-m', '--message', default='',
+                             help="message for pull-request")
     pull_parser.set_defaults(functor=port_pull_request)
 
     try_parser = port_subparser.add_parser('try',
