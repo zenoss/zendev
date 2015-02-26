@@ -1,8 +1,10 @@
 import json
+import os
 import py
 import zendev.github as github
 import zendev.log
 
+from contextlib import contextmanager
 from git.exc import GitCommandError
 from gitflow.exceptions import GitflowError, BranchExistsError
 
@@ -10,6 +12,15 @@ from gitflow.exceptions import GitflowError, BranchExistsError
 class GithubException (Exception):
     pass
 
+@contextmanager
+def env_var(key, value):
+    tmp = os.environ.get(key)
+    os.environ[key] = value
+    yield
+    if tmp != None:
+        os.environ[key]=tmp
+    else:
+        del os.environ[key]
 
 
 def save_port_base(repo, base, ticket):
@@ -85,15 +96,20 @@ def cherry_pick(repo, commit):
         try:
             commit_sha, parent = pullrequest_commit(repo, commit[1:])
             cherry_pick_args = [commit_sha, '-m%d' % parent]
+            commit_msg = "cherry-pick pull-request %s" % commit
         except GithubException as e:
             zendev.log.error(e)
             exit(1)
     else:
         cherry_pick_args = [commit]
+        commit_msg = "cherry-pick commit %s" % commit
+    commit_msg = 'Fixes %s\n\n%s\n(commited by "zendev port cherry-pick")' %\
+                 (repo.branch.split('/')[-1], commit_msg)
 
     zendev.log.info("Cherry picking commits into %s" % repo.branch)
     try:
-        repo.repo.git.cherry_pick('-x', *cherry_pick_args)
+        with env_var('GIT_EDITOR', "echo '%s' >" % commit_msg):
+            repo.repo.git.cherry_pick('-e', *cherry_pick_args)
     except GitCommandError as e:
         zendev.log.error(e)
         exit(1)
