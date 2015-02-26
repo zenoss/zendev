@@ -28,8 +28,9 @@ def get_oauth_token():
 
 def perform(method, url, data=None, params=None):
     token = get_oauth_token()
-    return requests.request(
+    response = requests.request(
         method, "https://api.github.com" + url, data=data, params=params,
         headers={"Authorization": "token %s" % token}
-    ).json()
+    )
+    return response.headers, response.json()
 
