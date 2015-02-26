@@ -25,6 +25,7 @@ def load_port_info(repo):
     except:
         return {}
 
+
 def save_port_pick(repo, comment):
     data = load_port_info(repo)
     data.setdefault('message', []).append(comment)
@@ -33,16 +34,21 @@ def save_port_pick(repo, comment):
 
 
 def pullrequest_commit(repo, pr):
+    """
+    Given a pull request, get the merge commit and the index of the base parent
+    """
     url = '/repos/%s/issues/%s/events' % (repo.reponame, pr)
     headers, response = github.perform('GET', url)
-
     if headers['status'] !=  "200 OK":
         raise GithubException("Error looking up pull request #%s on %s: %s" %
                               (pr, repo.reponame, headers['status']))
-
-    # TODO: this needs some error checking...
     commit_shas = [event['commit_id'] for event in response if event['event'] == 'merged']
-
+    if len(commit_shas) == 0:
+        zendev.log.error('Pull-request "%s" not merged', pr)
+        exit(1)
+    elif len(commit_shas) > 1 :
+        zendev.log.error('Multiple merges for pull-request "%s"', pr)
+        exit(1)
     # TODO: Need to make sure that '1' is the correct parent.
     # TODO: Look in the list of commits in the PR to see which is parent is the base.
     return commit_shas[0], 1
@@ -106,10 +112,12 @@ def port_start(args, env):
     create_branch(repo, base, args.ticket)
     save_port_base(repo, base, args.ticket)
 
+
 def port_pick(args, env):
     repo = get_current_repo(env)
     cherry_pick(repo, args.commit)
     save_port_pick(repo, "Cherry-picked %s" % args.commit)
+
 
 def port_pull_request(args, env):
     repo = get_current_repo(env)
@@ -120,9 +128,10 @@ def port_pull_request(args, env):
         exit(1)
     comments = '\n'.join(filter(None, [args.message]+data.get('message', [])))
     # TODO: is this the best way to determine the feature name?
-    ticket = repo.branch.split('/')[1]
+    ticket = repo.branch.split('/')[-1]
     create_pull_request(repo, ticket, base, comments)
-    
+
+
 def port_try(args, env):
     repo = get_current_repo(env)
     base_branch = repo.branch
