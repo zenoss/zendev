@@ -23,24 +23,28 @@ def env_var(key, value):
         del os.environ[key]
 
 
-def save_port_base(repo, base, ticket):
+def get_portinfo_filename(repo, branch):
+    return repo.path.join('.git', 'zendev', 'port', branch)
+
+
+def save_portinfo_base(repo, base, branch):
     data = {'base':base, 'message':[]}
-    filename = repo.path.ensure('.git', 'zendev', 'port', 'feature', ticket)
+    filename = get_portinfo_filename(repo, branch).ensure()
     json.dump(data, open(filename.strpath, 'w'), indent=4)
 
 
-def load_port_info(repo):
-    filename = repo.path.join('.git', 'zendev', 'port', repo.branch)
+def load_portinfo(repo, branch):
+    filename = get_portinfo_filename(repo, branch)
     try:
         return json.load(open(filename.strpath, 'r'))
     except:
         return {}
 
 
-def save_port_pick(repo, comment):
-    data = load_port_info(repo)
+def save_portinfo_message(repo, branch, comment):
+    data = load_portinfo(repo, branch)
     data.setdefault('message', []).append(comment)
-    filename = repo.path.join('.git', 'zendev', 'port', repo.branch)
+    filename = get_portinfo_filename(repo, branch)
     json.dump(data, open(filename.strpath, 'w'), indent=4)
 
 
@@ -91,7 +95,7 @@ def create_branch(repo, base, name):
         exit(1)
 
     
-def cherry_pick(repo, commit):
+def cherry_pick(repo, branch, commit):
     for prefix in ('#', 'pull/'):
         if commit.startswith(prefix):
             pr = commit[len(prefix):]
@@ -117,9 +121,9 @@ def cherry_pick(repo, commit):
         commit_msg = "cherry-pick commit %s" % commit
 
     commit_msg = 'Fixes %s\n\n%s\n(commited by "zendev port cherry-pick")' %\
-                 (repo.branch.split('/')[-1], commit_msg)
+                 (branch.split('/')[-1], commit_msg)
 
-    zendev.log.info("Cherry picking commits into %s" % repo.branch)
+    zendev.log.info("Cherry picking commits into %s" % branch)
     try:
         with env_var('GIT_EDITOR', "echo '%s' >" % commit_msg):
             repo.repo.git.cherry_pick('-e', *cherry_pick_args)
@@ -128,29 +132,29 @@ def cherry_pick(repo, commit):
         exit(1)
 
 
-def create_pull_request(repo, head, base, comments):
-    zendev.log.info('Creating pull request for branch "%s" into "%s"' %
-                    (head, base))
-    body = '\n\n'.join(filter(None, (comments, 'Pull request created by zendev cherry-pick')))
-    repo.create_pull_request(head, base=base, body=body)
+def create_pull_request(repo, feature_name, base, comments):
+    zendev.log.info('Creating pull request for branch "feature/%s" into "%s"' %
+                    (feature_name, base))
+    body = '\n\n'.join(filter(None, (comments, 'Pull request created by zendev port')))
+    repo.create_pull_request(feature_name, base=base, body=body)
 
 
 def port_start(args, env):
     repo = get_current_repo(env)
     base = repo.branch
-    create_branch(repo, base, args.ticket)
-    save_port_base(repo, base, args.ticket)
+    feature_branch = create_branch(repo, base, args.ticket)
+    save_portinfo_base(repo, base, feature_branch)
 
 
 def port_pick(args, env):
     repo = get_current_repo(env)
-    cherry_pick(repo, args.commit)
-    save_port_pick(repo, "Cherry-picked %s" % args.commit)
+    cherry_pick(repo, repo.branch, args.commit)
+    save_portinfo_message(repo, repo.branch, "Cherry-picked %s" % args.commit)
 
 
 def port_pull_request(args, env):
     repo = get_current_repo(env)
-    data = load_port_info(repo)
+    data = load_portinfo(repo, repo.branch)
     base = data.get('base') or args.branch
     if not base:
         zendev.log.error('Specify merge target with "--branch"')
@@ -165,9 +169,9 @@ def port_try(args, env):
     repo = get_current_repo(env)
     base_branch = repo.branch
     feature_branch = create_branch(repo, base_branch, args.ticket)
-    save_port_base(repo, base)
-    cherry_pick(repo, args.commit)
-    create_pull_request(repo, feature_branch, base_branch, "Cherry-picked %s" % args.commit)
+    save_portinfo_base(repo, base_branch, feature_branch)
+    cherry_pick(repo, feature_branch, args.commit)
+    create_pull_request(repo, args.ticket, base_branch, "Cherry-picked %s" % args.commit)
 
 
 def add_commands(subparsers):
@@ -203,7 +207,6 @@ def add_commands(subparsers):
     try_parser.add_argument('ticket', help='Ticket this fix applies to')
     try_parser.add_argument('commit',
                             help='Pull request (e.g. #123, pull/123) or commit hash')
-    try_parser.set_defaults(functor=port_pull_request)
     try_parser.set_defaults(functor=port_try)
 
 
