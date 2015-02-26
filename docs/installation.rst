@@ -115,9 +115,9 @@ When your box comes back up, authenticate to hub.docker.com:
     # Install "go get" dependencies.
     sudo apt-get install -y mercurial bzr git
 
-    # Download Go 1.3 and unpack it into /usr/local
+    # Download Go 1.4 and unpack it into /usr/local
     sudo apt-get install -y wget curl
-    curl -s https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz | sudo tar -xzC /usr/local
+    curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
 
     # Set GOROOT and PATH appropriately
     cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
@@ -144,7 +144,7 @@ When your box comes back up, authenticate to hub.docker.com:
     go get -u github.com/nsf/gocode
     sudo ln -s ${GOPATH}/bin/gocode /usr/local/bin/gocode
 
-    go get code.google.com/p/go.tools/cmd/goimports
+    go get golang.org/x/tools/cmd/goimports
     sudo ln -s ${GOPATH}/bin/goimports /usr/local/bin/goimports
 
 5. Install other dependencies:
