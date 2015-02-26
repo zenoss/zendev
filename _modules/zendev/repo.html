@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packer.html">Building the Development Base Box</a></li>
@@ -235,6 +236,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Repository.start_feature"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.start_feature">[docs]</a>    <span class="k">def</span> <span class="nf">start_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c"># Note: the called routine is monkey-patched</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s">&#39;feature&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Repository.publish_feature"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.publish_feature">[docs]</a>    <span class="k">def</span> <span class="nf">publish_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -250,6 +252,10 @@
         <span class="c"># XXX repo (GitFlow) doesn&#39;t push remote repo delete currently :(</span>
         <span class="k">if</span> <span class="n">origin_feature_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">remote_branches</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">origin</span><span class="p">()</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="n">feature_name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Repository.start_port"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.start_port">[docs]</a>    <span class="k">def</span> <span class="nf">start_port</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+        <span class="c"># Note: the called routine is monkey-patched</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s">&#39;feature&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Repository.stash"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.stash">[docs]</a>    <span class="k">def</span> <span class="nf">stash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">stash</span><span class="p">(</span> <span class="p">)</span>
@@ -296,12 +302,13 @@
             <span class="c"># We&#39;re detached</span>
             <span class="k">return</span>
         <span class="n">local_name</span> <span class="o">=</span> <span class="n">active_branch</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">remote</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">origin</span><span class="p">()</span>
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">rev_list</span><span class="p">(</span><span class="n">local_name</span><span class="p">,</span> <span class="s">&#39;--not&#39;</span><span class="p">,</span> <span class="s">&#39;--remotes&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">((</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> local commits in </span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s"> need to be pushed.&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">((</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> local commits in </span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s"> need to be pushed.  &quot;</span>
                          <span class="s">&quot;Pushing...&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                                           <span class="n">local_name</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">output_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">remote</span><span class="p">,</span> <span class="n">local_name</span><span class="p">,</span> <span class="n">output_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Repository.create_feature"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.create_feature">[docs]</a>    <span class="k">def</span> <span class="nf">create_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="s">&quot;feature/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">name</span>
@@ -324,7 +331,7 @@
 <div class="viewcode-block" id="Repository.changelog"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.changelog">[docs]</a>    <span class="k">def</span> <span class="nf">changelog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fromref</span><span class="p">,</span> <span class="n">toref</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">..</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fromref</span><span class="p">,</span> <span class="n">toref</span><span class="p">),</span> <span class="s">&quot;--pretty=format:%h - %an, %ar : </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Repository.create_pull_request"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.create_pull_request">[docs]</a>    <span class="k">def</span> <span class="nf">create_pull_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_name</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Repository.create_pull_request"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.create_pull_request">[docs]</a>    <span class="k">def</span> <span class="nf">create_pull_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_name</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="s">&#39;develop&#39;</span><span class="p">):</span>
         <span class="n">staged</span><span class="p">,</span> <span class="n">unstaged</span><span class="p">,</span> <span class="n">untracked</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">changes</span>
 
         <span class="k">if</span> <span class="n">unstaged</span><span class="p">:</span>
@@ -341,25 +348,21 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">github</span><span class="o">.</span><span class="n">perform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="s">&quot;Posting pull request&quot;</span><span class="p">)</span>
+        <span class="n">header</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">github</span><span class="o">.</span><span class="n">perform</span><span class="p">(</span>
             <span class="s">&quot;POST&quot;</span><span class="p">,</span>
             <span class="s">&quot;/repos/{0}/{1}/pulls&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">repo</span><span class="p">),</span>
             <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
                 <span class="s">&quot;title&quot;</span><span class="p">:</span> <span class="s">&quot;Please review branch </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">branch</span><span class="p">,</span>
                 <span class="s">&quot;body&quot;</span><span class="p">:</span> <span class="n">body</span><span class="p">,</span>
                 <span class="s">&quot;head&quot;</span><span class="p">:</span> <span class="n">branch</span><span class="p">,</span>
-                <span class="s">&quot;base&quot;</span><span class="p">:</span> <span class="s">&quot;develop&quot;</span>
+                <span class="s">&quot;base&quot;</span><span class="p">:</span> <span class="n">base</span>
             <span class="p">}))</span>
         <span class="k">if</span> <span class="s">&#39;html_url&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
             <span class="n">info</span> <span class="p">(</span><span class="s">&quot;Pull Request: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">response</span><span class="p">[</span><span class="s">&#39;html_url&#39;</span><span class="p">])</span>
         <span class="k">elif</span> <span class="n">response</span><span class="p">[</span><span class="s">&#39;message&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;Validation Failed&#39;</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s">&#39;errors&#39;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="n">e</span> <span class="p">[</span><span class="s">&#39;message&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;No commits between&quot;</span><span class="p">):</span>
-                    <span class="n">error</span><span class="p">(</span><span class="s">&quot;You have to commit some code first!&quot;</span><span class="p">)</span>
-                    <span class="k">return</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">error</span><span class="p">(</span><span class="s">&quot;You have to commit some code first!&quot;</span><span class="p">)</span>
-                    <span class="n">error</span><span class="p">(</span> <span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;message&#39;</span><span class="p">))</span>
+                <span class="n">error</span><span class="p">(</span><span class="s">&quot;Error: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;message&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)))</span>
 </div>
 <div class="viewcode-block" id="Repository.initialize"><a class="viewcode-back" href="../../zendev.html#zendev.repo.Repository.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repo</span> <span class="ow">and</span> <span class="n">is_git_repo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>

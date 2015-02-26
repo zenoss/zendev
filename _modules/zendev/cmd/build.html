@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../packer.html">Building the Development Base Box</a></li>
@@ -166,6 +167,13 @@
         <span class="k">if</span> <span class="s">&quot;ZenPacks.zenoss.CatalogService&quot;</span> <span class="ow">in</span> <span class="n">packs</span><span class="p">:</span>
             <span class="n">packs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&quot;ZenPacks.zenoss.CatalogService&quot;</span><span class="p">)</span>
 
+        <span class="c"># If any targets are svcdef-specific, then let&#39;s try and execute</span>
+        <span class="c"># all of them in the context of svcdefs.  Ignore the &#39;ZENPACKS&#39;</span>
+        <span class="c"># variable that gets passed into the make target.</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">((</span><span class="n">t</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;docker_svcdefpkg-&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">target</span><span class="p">)):</span>
+            <span class="k">print</span> <span class="s">&quot;At least one specified target is service</span><span class="se">\n</span><span class="s">definition specific - executing all targets in the context</span><span class="se">\n</span><span class="s">of the service definition directory</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;service&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">chdir</span><span class="p">()</span>
+
         <span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;make&quot;</span><span class="p">,</span> <span class="s">&quot;OUTPUT=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">,</span>
                               <span class="s">&#39;ZENPACKS=</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">packs</span><span class="p">)]</span> <span class="o">+</span> <span class="n">target</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
@@ -176,7 +184,7 @@
     <span class="n">container_id</span><span class="o">=</span><span class="s">&#39;impact_devimg_&#39;</span><span class="o">+</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
     <span class="c"># TODO: embedding the version number in the link means that we have do rebuild the image</span>
     <span class="c">#  if the version changes.  Better if the pom.xml set up a non-versioned symlink to the</span>
-    <span class="c"># versioned file; then this could link to the non-versioned symlink.</span>
+    <span class="c">#  versioned file; then this could link to the non-versioned symlink.</span>
     <span class="n">startup</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span>
 <span class="s">        SRC=/mnt/src/impact/impact-server</span>
 <span class="s">        DST=/opt/zenoss_impact</span>
@@ -265,7 +273,8 @@
                                        <span class="s">&#39;svcpkg-core&#39;</span><span class="p">,</span> <span class="s">&#39;svcpkg-resmgr&#39;</span><span class="p">,</span> <span class="s">&#39;svcpkg-ucspm&#39;</span><span class="p">,</span> <span class="s">&#39;svcpkg&#39;</span><span class="p">,</span>
                                        <span class="s">&#39;serviced&#39;</span><span class="p">,</span> <span class="s">&#39;devimg&#39;</span><span class="p">,</span> <span class="s">&#39;img-core&#39;</span><span class="p">,</span> <span class="s">&#39;devimg-interactive&#39;</span><span class="p">,</span>
                                        <span class="s">&#39;img-resmgr&#39;</span><span class="p">,</span> <span class="s">&#39;img-ucspm&#39;</span><span class="p">,</span> <span class="s">&#39;rps-img-core&#39;</span><span class="p">,</span>
-                                       <span class="s">&#39;rps-img-resmgr&#39;</span><span class="p">,</span> <span class="s">&#39;rps-img-ucspm&#39;</span><span class="p">,</span> <span class="s">&#39;impact-devimg&#39;</span><span class="p">,</span> <span class="s">&#39;analytics-devimg&#39;</span><span class="p">])</span>
+                                       <span class="s">&#39;rps-img-resmgr&#39;</span><span class="p">,</span> <span class="s">&#39;rps-img-ucspm&#39;</span><span class="p">,</span> <span class="s">&#39;impact-devimg&#39;</span><span class="p">,</span> <span class="s">&#39;analytics-devimg&#39;</span><span class="p">,</span>
+                                       <span class="s">&#39;docker_svcdefpkg-core&#39;</span><span class="p">,</span> <span class="s">&#39;docker_svcdefpkg-resmgr&#39;</span><span class="p">,</span> <span class="s">&#39;docker_svcdefpkg-ucspm&#39;</span><span class="p">])</span>
     <span class="n">build_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">build</span><span class="p">)</span>
 </pre></div></div>
 

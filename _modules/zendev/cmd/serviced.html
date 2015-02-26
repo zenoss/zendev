@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../packer.html">Building the Development Base Box</a></li>
@@ -184,7 +185,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-                <span class="c"># We can&#39;t kill it. Likely ran as root. </span>
+                <span class="c"># We can&#39;t kill it. Likely ran as root.</span>
                 <span class="c"># Let&#39;s assume it&#39;ll die on its own.</span>
                 <span class="k">pass</span>
 </div>
@@ -206,6 +207,8 @@
         <span class="n">deploy_command</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">svcname</span><span class="p">)</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">deploy_command</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;Deployed templates:&quot;</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">serviced</span><span class="p">,</span> <span class="s">&quot;template&quot;</span><span class="p">,</span> <span class="s">&quot;list&quot;</span><span class="p">])</span>
 </div>
 <div class="viewcode-block" id="Serviced.remove_catalogservice"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.serviced.Serviced.remove_catalogservice">[docs]</a>    <span class="k">def</span> <span class="nf">remove_catalogservice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">services</span><span class="p">,</span> <span class="n">svc</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;Name&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">svc</span><span class="p">[</span><span class="s">&#39;Name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;zencatalogservice&#39;</span><span class="p">:</span>
@@ -248,8 +251,17 @@
                 <span class="n">tplpath</span> <span class="o">=</span> <span class="n">tentative</span><span class="o">.</span><span class="n">strpath</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">tplpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;service/services/&quot;</span> <span class="o">+</span> <span class="n">template</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span>
+        <span class="n">serviceMakefile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;service/makefile&quot;</span><span class="p">)</span>
+        <span class="n">hbaseVersion</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="s">&quot;awk -F= &#39;/^hbase_VERSION/ { print $NF }&#39; </span><span class="si">%s</span><span class="s"> | sed &#39;s/^\s*//g;s/\s*$//g&#39;&quot;</span> <span class="o">%</span> <span class="n">serviceMakefile</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">opentsdbVersion</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="s">&quot;awk -F= &#39;/^opentsdb_VERSION/ { print $NF }&#39; </span><span class="si">%s</span><span class="s"> | sed &#39;s/^\s*//g;s/\s*$//g&#39;&quot;</span> <span class="o">%</span> <span class="n">serviceMakefile</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&quot;Detected hbase version in makefile is </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">hbaseVersion</span>
+        <span class="k">print</span> <span class="s">&quot;Detected opentsdb version in makefile is </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">opentsdbVersion</span>
+        <span class="k">if</span> <span class="n">hbaseVersion</span> <span class="o">==</span> <span class="s">&quot;&quot;</span> <span class="ow">or</span> <span class="n">opentsdbVersion</span> <span class="o">==</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Unable to get opentsdb/hbase tags from services makefile&quot;</span><span class="p">)</span>
         <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">serviced</span><span class="p">,</span> <span class="s">&quot;template&quot;</span><span class="p">,</span> <span class="s">&quot;compile&quot;</span><span class="p">,</span>
-            <span class="s">&quot;--map=zenoss/zenoss5x,zendev/devimg&quot;</span><span class="p">,</span> <span class="n">tplpath</span><span class="p">],</span>
+            <span class="s">&quot;--map=zenoss/zenoss5x,zendev/devimg&quot;</span><span class="p">,</span>
+            <span class="s">&quot;--map=zenoss/hbase:xx,zenoss/hbase:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">hbaseVersion</span><span class="p">,</span>
+            <span class="s">&quot;--map=zenoss/opentsdb:xx,zenoss/opentsdb:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">opentsdbVersion</span><span class="p">,</span> <span class="n">tplpath</span><span class="p">],</span>
             <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
         <span class="n">stdout</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="k">print</span> <span class="s">&quot;Compiled new template&quot;</span>
@@ -304,9 +316,9 @@
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">deploy</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">deploy_ana</span><span class="p">:</span>
             <span class="k">if</span> <span class="s">&#39;SERVICED_HOST_IP&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
                 <span class="n">_serviced</span><span class="o">.</span><span class="n">add_host</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SERVICED_HOST_IP&#39;</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span> 
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">_serviced</span><span class="o">.</span><span class="n">add_host</span><span class="p">()</span>
-             
+
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">deploy</span><span class="p">:</span>
             <span class="n">_deploy</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">deploy_ana</span><span class="p">:</span>

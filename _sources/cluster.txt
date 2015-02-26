@@ -121,11 +121,11 @@ All nodes share the ``devimg`` mounts, so that they all run the same code.
     # Start CC agent on the VM
     # '--skip-ready-wait' tells zendev not to poll CC for ready status
     zendev cluster ssh foo
-    zendev serviced --skip_ready_wait
+    zendev serviced --skip-ready-wait
 
 *Note*:
 Currently serviced does not allow non-serviced controlled nfs exports.  Unfortunately,
-zendev needs to nfs mount the zenhome directory into the VM. (vboxsf mounts do not work as they
-do not support chown.)  serviced overwrites the /etc/hosts.allow file when it starts up; virtualbox
-amends that file when it boots the VM.  Therefore, it is necessary to boot/reboot the VMs each time
-you restart serviced.
+zendev needs to nfs mount the zenhome directory into the VM (vboxsf mounts do not work
+as they do not support chown.)  serviced overwrites the /etc/hosts.allow file when it
+starts up; virtualbox amends that file when it boots the VM.  Therefore, it is necessary
+to reboot the VMs each time serviced on the host is restarted.

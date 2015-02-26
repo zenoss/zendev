@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Credits &mdash; zendev 0.1.0 documentation</title>
+    <title>zendev.monkey_patch package &mdash; zendev 0.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -74,9 +74,10 @@
             <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
   <ul class="dropdown-menu localtoc"><ul>
-<li><a class="reference internal" href="#">Credits</a><ul>
-<li><a class="reference internal" href="#development-lead">Development Lead</a></li>
-<li><a class="reference internal" href="#contributors">Contributors</a></li>
+<li><a class="reference internal" href="#">zendev.monkey_patch package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-zendev.monkey_patch.gitflow_create">zendev.monkey_patch.gitflow_create module</a></li>
+<li><a class="reference internal" href="#module-zendev.monkey_patch">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -88,7 +89,7 @@
           
           
             <li>
-  <a href="_sources/authors.txt"
+  <a href="_sources/zendev.monkey_patch.txt"
      rel="nofollow">Source</a></li>
           
         </ul>
@@ -106,17 +107,44 @@
   </div>
 
   
-  <div class="section" id="credits">
-<h1>Credits<a class="headerlink" href="#credits" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="development-lead">
-<h2>Development Lead<a class="headerlink" href="#development-lead" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>Ian McCracken &lt;<a class="reference external" href="mailto:ian&#37;&#52;&#48;zenoss&#46;com">ian<span>&#64;</span>zenoss<span>&#46;</span>com</a>&gt;</li>
-</ul>
+  <div class="section" id="zendev-monkey-patch-package">
+<h1>zendev.monkey_patch package<a class="headerlink" href="#zendev-monkey-patch-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="contributors">
-<h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this headline">¶</a></h2>
-<p>None yet. Why not be the first?</p>
+<div class="section" id="module-zendev.monkey_patch.gitflow_create">
+<span id="zendev-monkey-patch-gitflow-create-module"></span><h2>zendev.monkey_patch.gitflow_create module<a class="headerlink" href="#module-zendev.monkey_patch.gitflow_create" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="zendev.monkey_patch.gitflow_create.create">
+<tt class="descclassname">zendev.monkey_patch.gitflow_create.</tt><tt class="descname">create</tt><big>(</big><em>self</em>, <em>name</em>, <em>base=None</em>, <em>fetch=False</em>, <em>must_be_on_default_base=False</em><big>)</big><a class="reference internal" href="_modules/zendev/monkey_patch/gitflow_create.html#create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.monkey_patch.gitflow_create.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a branch of the type that this manager manages and checks it
+out.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; The (short) name of the branch to create.</li>
+<li><strong>base</strong> &#8211; The base commit or ref to base the branch off from.  If a base is
+not provided explicitly, the default base for this type of branch is
+used.  See also <tt class="xref py py-meth docutils literal"><span class="pre">default_base()</span></tt>.</li>
+<li><strong>fetch</strong> &#8211; If set, update the local repo with remote changes prior to
+creating the new branch.</li>
+<li><strong>must_be_on_default_base</strong> &#8211; If set, the <cite>base</cite> must be a valid commit on the branch
+manager <cite>default_base</cite>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The newly created <tt class="xref py py-class docutils literal"><span class="pre">git.refs.Head</span></tt> reference.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-zendev.monkey_patch">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-zendev.monkey_patch" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 

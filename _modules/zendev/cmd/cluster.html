@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../packer.html">Building the Development Base Box</a></li>
@@ -225,20 +226,20 @@
 
 
 <span class="s"># serviced</span>
-<span class="s">eval export SERVICED_MASTER_IP=\$${HOSTNAME}_MASTER</span>
+<span class="s">eval export SERVICED_MASTER_ID=\$${HOSTNAME}_MASTER</span>
 
 <span class="s">export SERVICED_REGISTRY=1</span>
 <span class="s">export SERVICED_AGENT=1</span>
-<span class="s">export SERVICED_MASTER=$( test &quot;$SERVICED_MASTER_IP&quot; != &quot;$HOSTNAME&quot; ; echo $? )</span>
+<span class="s">export SERVICED_MASTER=$( test &quot;$SERVICED_MASTER_ID&quot; != &quot;$HOSTNAME&quot; ; echo $? )</span>
 <span class="s">export SERVICED_OUTBOUND_IP=$(ifconfig eth1 | sed -n &#39;s/^.*inet addr:\([^ ]*\).*/</span><span class="se">\\</span><span class="s">1/p&#39;)</span>
 <span class="s">if [ &quot;$SERVICED_MASTER&quot; != &quot;1&quot; ] ; then</span>
 <span class="s">    # agent only</span>
-<span class="s">    export SERVICED_ZK=$SERVICED_MASTER_IP:2181</span>
-<span class="s">    export SERVICED_ENDPOINT=$SERVICED_MASTER_IP:4979</span>
-<span class="s">    export SERVICED_DOCKER_REGISTRY=$SERVICED_MASTER_IP:5000</span>
-<span class="s">    export SERVICED_LOG_ADDRESS=$SERVICED_MASTER_IP:5042</span>
-<span class="s">    export SERVICED_STATS_PORT=$SERVICED_MASTER_IP:8443</span>
-<span class="s">    export SERVICED_LOGSTASH_ES=$SERVICED_MASTER_IP:9100</span>
+<span class="s">    export SERVICED_ZK=$SERVICED_MASTER_ID:2181</span>
+<span class="s">    export SERVICED_ENDPOINT=$SERVICED_MASTER_ID:4979</span>
+<span class="s">    export SERVICED_DOCKER_REGISTRY=$SERVICED_MASTER_ID:5000</span>
+<span class="s">    export SERVICED_LOG_ADDRESS=$SERVICED_MASTER_ID:5042</span>
+<span class="s">    export SERVICED_STATS_PORT=$SERVICED_MASTER_ID:8443</span>
+<span class="s">    export SERVICED_LOGSTASH_ES=$SERVICED_MASTER_ID:9100</span>
 <span class="s">fi</span>
 <span class="s">&quot;&quot;&quot;</span>
 
@@ -277,25 +278,35 @@
 
 
     <span class="k">def</span> <span class="nf">_update_hosts_allow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># update /etc/hosts.allow to enable nfs access from vbox internal network</span>
+        <span class="c"># Update /etc/hosts.allow to enable nfs access from vbox internal network</span>
         <span class="n">hosts_allow</span> <span class="o">=</span> <span class="s">&#39;/etc/hosts.allow&#39;</span>
-        <span class="n">block</span> <span class="o">=</span> <span class="p">(</span><span class="s">r&#39;# zendev vbox internal network\n&#39;</span>
-                 <span class="s">r&#39;rpcbind mountd nfsd statd lockd rquotad : 10.20.1.0/255.255.255.0\n&#39;</span><span class="p">)</span>
-        <span class="n">awk_prog</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;/^# zendev vbox/   { present=1 }&#39;</span>
-                    <span class="s">&#39;/^# serviced/      { if (!present) print &quot;</span><span class="si">%s</span><span class="s">&quot;; present=1 }&#39;</span>
-                    <span class="s">&#39;                   { print }&#39;</span>
-                    <span class="s">&#39;END                { if (!present) print &quot;</span><span class="si">%s</span><span class="s">&quot; }&#39;</span>
-                   <span class="p">)</span> <span class="o">%</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
-        <span class="k">print</span> <span class="s">&#39;Updating /etc/hosts.allow&#39;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">hosts_allow</span><span class="p">)]</span>
+
+        <span class="c"># Already updated?</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;# zendev vbox&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="c"># Insert block before serviced stanza, if any.</span>
+        <span class="c"># serviced also edits this file, replacing all lines following</span>
+        <span class="c"># &#39;# serviced, do not remove past this line&#39;</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;# zendev vbox internal network</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span>
+                 <span class="s">&#39;rpcbind mountd nfsd statd lockd rquotad : 10.20.1.0/255.255.255.0</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span>
+                 <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;# serviced, &#39;</span><span class="p">):</span>
+                <span class="n">lines</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+
+        <span class="k">print</span> <span class="s">&#39;Updating&#39;</span><span class="p">,</span> <span class="n">hosts_allow</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">contents</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s">&#39;awk&#39;</span><span class="p">,</span> <span class="n">awk_prog</span><span class="p">,</span> <span class="n">hosts_allow</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">contents</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">:</span>
-                <span class="n">contents</span> <span class="o">=</span> <span class="n">contents</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;sudo&#39;</span><span class="p">,</span> <span class="s">&#39;bash&#39;</span><span class="p">,</span> <span class="s">&#39;-c&#39;</span><span class="p">,</span>
-                    <span class="s">&#39;cat &gt;</span><span class="si">%s</span><span class="s"> &lt;&lt;ZEN_EOF</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s">ZEN_EOF&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hosts_allow</span><span class="p">,</span> <span class="n">contents</span><span class="p">)]</span>
+                    <span class="s">&#39;cat &gt;</span><span class="si">%s</span><span class="s"> &lt;&lt;ZENDEV_EOF</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s">ZENDEV_EOF&#39;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="n">hosts_allow</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))]</span>
             <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&#39;Failed to update /etc/hosts.allow:&#39;</span><span class="p">,</span> <span class="n">err</span>
+            <span class="k">print</span> <span class="s">&#39;Failed to update </span><span class="si">%s</span><span class="s">:&#39;</span> <span class="o">%</span> <span class="n">hosts_allow</span><span class="p">,</span> <span class="n">err</span>
 
 
 <div class="viewcode-block" id="VagrantClusterManager.ls"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.ls">[docs]</a>    <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>

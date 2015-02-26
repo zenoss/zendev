@@ -65,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
@@ -217,15 +218,15 @@ zendev serviced -dx --cluster-master
 <span class="c"># Start CC agent on the VM</span>
 <span class="c"># &#39;--skip-ready-wait&#39; tells zendev not to poll CC for ready status</span>
 zendev cluster ssh foo
-zendev serviced --skip_ready_wait
+zendev serviced --skip-ready-wait
 </pre></div>
 </div>
 <p><em>Note</em>:
 Currently serviced does not allow non-serviced controlled nfs exports.  Unfortunately,
-zendev needs to nfs mount the zenhome directory into the VM. (vboxsf mounts do not work as they
-do not support chown.)  serviced overwrites the /etc/hosts.allow file when it starts up; virtualbox
-amends that file when it boots the VM.  Therefore, it is necessary to boot/reboot the VMs each time
-you restart serviced.</p>
+zendev needs to nfs mount the zenhome directory into the VM (vboxsf mounts do not work
+as they do not support chown.)  serviced overwrites the /etc/hosts.allow file when it
+starts up; virtualbox amends that file when it boots the VM.  Therefore, it is necessary
+to reboot the VMs each time serviced on the host is restarted.</p>
 </div>
 </div>
 

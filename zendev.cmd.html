@@ -63,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
@@ -80,6 +81,7 @@
 <li><a class="reference internal" href="#module-zendev.cmd.cluster">zendev.cmd.cluster module</a></li>
 <li><a class="reference internal" href="#module-zendev.cmd.environment">zendev.cmd.environment module</a></li>
 <li><a class="reference internal" href="#module-zendev.cmd.feature">zendev.cmd.feature module</a></li>
+<li><a class="reference internal" href="#module-zendev.cmd.port">zendev.cmd.port module</a></li>
 <li><a class="reference internal" href="#module-zendev.cmd.repos">zendev.cmd.repos module</a></li>
 <li><a class="reference internal" href="#module-zendev.cmd.serviced">zendev.cmd.serviced module</a></li>
 <li><a class="reference internal" href="#module-zendev.cmd.tags">zendev.cmd.tags module</a></li>
@@ -329,6 +331,91 @@
 <tt class="descclassname">zendev.cmd.feature.</tt><tt class="descname">feature_start</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/feature.html#feature_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.feature.feature_start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start git flow feature for all requested repositories.</p>
 </dd></dl>
+
+</div>
+<div class="section" id="module-zendev.cmd.port">
+<span id="zendev-cmd-port-module"></span><h2>zendev.cmd.port module<a class="headerlink" href="#module-zendev.cmd.port" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="zendev.cmd.port.GithubException">
+<em class="property">exception </em><tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">GithubException</tt><a class="reference internal" href="_modules/zendev/cmd/port.html#GithubException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.GithubException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.add_commands">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">add_commands</tt><big>(</big><em>subparsers</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#add_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.add_commands" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.cherry_pick">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">cherry_pick</tt><big>(</big><em>repo</em>, <em>branch</em>, <em>commit</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#cherry_pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.cherry_pick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.create_branch">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">create_branch</tt><big>(</big><em>repo</em>, <em>base</em>, <em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#create_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.create_branch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.create_pull_request">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">create_pull_request</tt><big>(</big><em>repo</em>, <em>feature_name</em>, <em>base</em>, <em>comments</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#create_pull_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.create_pull_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.env_var">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">env_var</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#env_var"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.env_var" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.get_current_repo">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">get_current_repo</tt><big>(</big><em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#get_current_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.get_current_repo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.get_portinfo_filename">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">get_portinfo_filename</tt><big>(</big><em>repo</em>, <em>branch</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#get_portinfo_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.get_portinfo_filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.load_portinfo">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">load_portinfo</tt><big>(</big><em>repo</em>, <em>branch</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#load_portinfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.load_portinfo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.port_do">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">port_do</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#port_do"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.port_do" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.port_pick">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">port_pick</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#port_pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.port_pick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.port_pull_request">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">port_pull_request</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#port_pull_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.port_pull_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.port_start">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">port_start</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#port_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.port_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.pullrequest_commit">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">pullrequest_commit</tt><big>(</big><em>repo</em>, <em>pr</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#pullrequest_commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.pullrequest_commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a pull request, get the merge commit and the index of the base parent</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.save_portinfo_base">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">save_portinfo_base</tt><big>(</big><em>repo</em>, <em>base</em>, <em>branch</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#save_portinfo_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.save_portinfo_base" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zendev.cmd.port.save_portinfo_message">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">save_portinfo_message</tt><big>(</big><em>repo</em>, <em>branch</em>, <em>comment</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#save_portinfo_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.save_portinfo_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="module-zendev.cmd.repos">
