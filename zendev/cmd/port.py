@@ -165,7 +165,7 @@ def port_pull_request(args, env):
     create_pull_request(repo, ticket, base, comments)
 
 
-def port_try(args, env):
+def port_do(args, env):
     repo = get_current_repo(env)
     base_branch = repo.branch
     feature_branch = create_branch(repo, base_branch, args.ticket)
@@ -202,12 +202,12 @@ def add_commands(subparsers):
                              help="message for pull-request")
     pull_parser.set_defaults(functor=port_pull_request)
 
-    try_parser = port_subparser.add_parser('try',
+    do_parser = port_subparser.add_parser('do',
         help='Do all: start, pick, pull-request')
-    try_parser.add_argument('ticket', help='Ticket this fix applies to')
-    try_parser.add_argument('commit',
+    do_parser.add_argument('ticket', help='Ticket this fix applies to')
+    do_parser.add_argument('commit',
                             help='Pull request (e.g. #123, pull/123) or commit hash')
-    try_parser.set_defaults(functor=port_try)
+    do_parser.set_defaults(functor=port_do)
 
 
 
