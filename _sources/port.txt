@@ -83,10 +83,10 @@ Examples
 .. code-block:: bash
 
     jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject$ zendev port try ZEN-123 \#8
-    ==> Creating branch feature/ZEN-123 from support
+    ==> Creating branch feature/ZEN-123 from support/5.0.x
     ==> Checkout feature/ZEN-123
     ==> Cherry picking commits into feature/ZEN-123
-    ==> Creating pull request for branch "feature/ZEN-123" into "support"
+    ==> Creating pull request for branch "feature/ZEN-123" into "support/5.0.x"
     ==> 1 local commits in test/TestProject:feature/ZEN-123 need to be pushed.  Pushing...
     ==> Posting pull request
     ==> Pull Request: https://github.com/jafcrocker/TestProject/pull/14
