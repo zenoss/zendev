@@ -92,17 +92,30 @@ def create_branch(repo, base, name):
 
     
 def cherry_pick(repo, commit):
-    if commit.startswith('#'):
+    for prefix in ('#', 'pull/'):
+        if commit.startswith(prefix):
+            pr = commit[len(prefix):]
+            try:
+                int(pr)
+            except ValueError:
+                zendev.log.error('Pull-request must be an integer: %s' % commit)
+                exit(1)
+            break
+    else:
+        pr = None
+
+    if pr != None:
         try:
-            commit_sha, parent = pullrequest_commit(repo, commit[1:])
+            commit_sha, parent = pullrequest_commit(repo, pr)
             cherry_pick_args = [commit_sha, '-m%d' % parent]
-            commit_msg = "cherry-pick pull-request %s" % commit
+            commit_msg = "cherry-pick pull-request #%s" % pr
         except GithubException as e:
             zendev.log.error(e)
             exit(1)
     else:
         cherry_pick_args = [commit]
         commit_msg = "cherry-pick commit %s" % commit
+
     commit_msg = 'Fixes %s\n\n%s\n(commited by "zendev port cherry-pick")' %\
                  (repo.branch.split('/')[-1], commit_msg)
 
@@ -174,7 +187,7 @@ def add_commands(subparsers):
     pick_parser = port_subparser.add_parser('cherry-pick',
         help='Cherry-pick commit or PR into current branch')
     pick_parser.add_argument('commit',
-                             help='Pull request (e.g. #123) or commit hash')
+                             help='Pull request (e.g. #123, pull/123) or commit hash')
     pick_parser.set_defaults(functor=port_pick)
 
     pull_parser = port_subparser.add_parser('pull-request',
@@ -189,7 +202,7 @@ def add_commands(subparsers):
         help='Do all: start, pick, pull-request')
     try_parser.add_argument('ticket', help='Ticket this fix applies to')
     try_parser.add_argument('commit',
-                            help='Pull request (e.g. #123) or commit hash')
+                            help='Pull request (e.g. #123, pull/123) or commit hash')
     try_parser.set_defaults(functor=port_pull_request)
     try_parser.set_defaults(functor=port_try)
 
