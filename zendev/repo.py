@@ -200,7 +200,7 @@ class Repository(object):
         remote = self.repo.origin()
         output = self.repo.git.rev_list(local_name, '--not', '--remotes')
         if output:
-            self.message(("%s local commits in %s:%s need to be pushed."
+            self.message(("%s local commits in %s:%s need to be pushed.  "
                          "Pushing...") % (output.count('\n')+1, self.name,
                                           local_name))
             self.repo.git.push(remote, local_name, output_stream=sys.stderr)
@@ -243,6 +243,7 @@ class Repository(object):
 
         self.push()
         time.sleep(1)
+        self.message("Posting pull request")
         header, response = github.perform(
             "POST",
             "/repos/{0}/{1}/pulls".format(owner, repo),
@@ -256,12 +257,7 @@ class Repository(object):
             info ("Pull Request: %s" % response['html_url'])
         elif response['message'] == 'Validation Failed':
             for e in response['errors']:
-                if e.get('message', "").startswith("No commits between"):
-                    error("You have to commit some code first!")
-                    return
-                else:
-                    error("You have to commit some code first!")
-                    error( e.get('message'))
+                error("Error: %s" % e.get('message', json.dumps(e, indent=2)))
 
     def initialize(self):
         if not self._repo and is_git_repo(self.path):
