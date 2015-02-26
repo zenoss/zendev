@@ -161,7 +161,7 @@ zendev port pull-request
 </div>
 <div class="section" id="porting-in-a-single-command">
 <h2>Porting in a single command<a class="headerlink" href="#porting-in-a-single-command" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">port</span> <span class="pre">do</span></tt> will create the feature branch, cherry-pick the indicate fix, and
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">port</span> <span class="pre">do</span></tt> will create the feature branch, cherry-pick the indicated fix, and
 submit the pull request in a single command</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Port PR 12 to the current branch as part of ticket ZEN-1234</span>
 zendev port <span class="k">do</span> ZEN-1234 <span class="se">\#</span>12
@@ -171,14 +171,14 @@ zendev port <span class="k">do</span> ZEN-1234 <span class="se">\#</span>12
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash"><div class="highlight"><pre>jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject<span class="nv">$ </span>zendev port start ZEN-1234
-<span class="o">==</span>&gt; Creating branch feature/ZEN-1234 from <span class="nv">master</span>
+<span class="o">==</span>&gt; Creating branch feature/ZEN-1234 from support/5.0.x
 <span class="o">==</span>&gt; Checkout feature/ZEN-1234
 
 jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject<span class="nv">$ </span>zendev port cherry-pick <span class="se">\#</span><span class="nv">8</span>
 <span class="o">==</span>&gt; Cherry picking commits into feature/ZEN-1234
 
 jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject<span class="nv">$ </span>zendev port pull-request
-<span class="o">==</span>&gt; Creating pull request <span class="k">for</span> branch <span class="s2">&quot;ZEN-1234&quot;</span> into <span class="s2">&quot;master&quot;</span>
+<span class="o">==</span>&gt; Creating pull request <span class="k">for</span> branch <span class="s2">&quot;ZEN-1234&quot;</span> into <span class="s2">&quot;support/5.0.x&quot;</span>
 <span class="o">==</span>&gt; <span class="m">1</span> <span class="nb">local </span>commits in <span class="nb">test</span>/TestProject:feature/ZEN-1234 need to be pushed.Pushing...
 <span class="o">==</span>&gt; Posting pull <span class="nv">request</span>
 <span class="o">==</span>&gt; Pull Request: https://github.com/jafcrocker/TestProject/pull/11

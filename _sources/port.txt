@@ -53,7 +53,7 @@ cherry-picks that were performed
 
 Porting in a single command
 ---------------------------
-``zendev port do`` will create the feature branch, cherry-pick the indicate fix, and
+``zendev port do`` will create the feature branch, cherry-pick the indicated fix, and
 submit the pull request in a single command
 
 .. code-block:: bash
@@ -67,14 +67,14 @@ Examples
 .. code-block:: bash
 
     jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject$ zendev port start ZEN-1234
-    ==> Creating branch feature/ZEN-1234 from master
+    ==> Creating branch feature/ZEN-1234 from support/5.0.x
     ==> Checkout feature/ZEN-1234
 
     jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject$ zendev port cherry-pick \#8
     ==> Cherry picking commits into feature/ZEN-1234
 
     jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject$ zendev port pull-request
-    ==> Creating pull request for branch "ZEN-1234" into "master"
+    ==> Creating pull request for branch "ZEN-1234" into "support/5.0.x"
     ==> 1 local commits in test/TestProject:feature/ZEN-1234 need to be pushed.Pushing...
     ==> Posting pull request
     ==> Pull Request: https://github.com/jafcrocker/TestProject/pull/11
