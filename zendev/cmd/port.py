@@ -120,7 +120,7 @@ def cherry_pick(repo, branch, commit):
         cherry_pick_args = [commit]
         commit_msg = "cherry-pick commit %s" % commit
 
-    commit_msg = 'Fixes %s\n\n%s\n(commited by "zendev port cherry-pick")' %\
+    commit_msg = 'Fixes %s\n\n%s\n(committed by "zendev port cherry-pick")' %\
                  (branch.split('/')[-1], commit_msg)
 
     zendev.log.info("Cherry picking commits into %s" % branch)
