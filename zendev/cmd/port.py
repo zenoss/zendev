@@ -69,6 +69,20 @@ def pullrequest_commit(repo, pr):
     return commit_shas[0], 1
 
 
+def parse_pull_request(commit_arg):
+    for prefix in ('#', 'pull/'):
+        if commit_arg.startswith(prefix):
+            pr = commit_arg[len(prefix):].strip()
+            try:
+                int(pr)
+            except ValueError:
+                zendev.log.error('Pull-request must be an integer: %s' % commit)
+                exit(1)
+            return pr
+    else:
+        return None
+
+
 def get_current_repo(env):
     # Get repo for cwd
     cwd = py.path.local().strpath
@@ -96,18 +110,7 @@ def create_branch(repo, base, name):
 
     
 def cherry_pick(repo, branch, commit):
-    for prefix in ('#', 'pull/'):
-        if commit.startswith(prefix):
-            pr = commit[len(prefix):]
-            try:
-                int(pr)
-            except ValueError:
-                zendev.log.error('Pull-request must be an integer: %s' % commit)
-                exit(1)
-            break
-    else:
-        pr = None
-
+    pr = parse_pull_request(commit)
     if pr != None:
         try:
             commit_sha, parent = pullrequest_commit(repo, pr)
@@ -171,7 +174,9 @@ def port_do(args, env):
     feature_branch = create_branch(repo, base_branch, args.ticket)
     save_portinfo_base(repo, base_branch, feature_branch)
     cherry_pick(repo, feature_branch, args.commit)
-    create_pull_request(repo, args.ticket, base_branch, "Cherry-picked %s" % args.commit)
+    id = parse_pull_request(args.commit)
+    id = args.commit if id == None else '#' + id
+    create_pull_request(repo, args.ticket, base_branch, "Cherry-picked %s" % id)
 
 
 def add_commands(subparsers):
@@ -210,7 +215,3 @@ def add_commands(subparsers):
     do_parser.add_argument('-b', '--branch',
                              help="branch to merge into")
     do_parser.set_defaults(functor=port_do)
-
-
-
-
