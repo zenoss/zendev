@@ -155,7 +155,7 @@ def port_pick(args, env):
 def port_pull_request(args, env):
     repo = get_current_repo(env)
     data = load_portinfo(repo, repo.branch)
-    base = data.get('base') or args.branch
+    base = args.branch or data.get('base')
     if not base:
         zendev.log.error('Specify merge target with "--branch"')
         exit(1)
@@ -167,7 +167,7 @@ def port_pull_request(args, env):
 
 def port_do(args, env):
     repo = get_current_repo(env)
-    base_branch = repo.branch
+    base_branch = args.branch or repo.branch
     feature_branch = create_branch(repo, base_branch, args.ticket)
     save_portinfo_base(repo, base_branch, feature_branch)
     cherry_pick(repo, feature_branch, args.commit)
@@ -207,6 +207,8 @@ def add_commands(subparsers):
     do_parser.add_argument('ticket', help='Ticket this fix applies to')
     do_parser.add_argument('commit',
                             help='Pull request (e.g. #123, pull/123) or commit hash')
+    do_parser.add_argument('-b', '--branch',
+                             help="branch to merge into")
     do_parser.set_defaults(functor=port_do)
 
 
