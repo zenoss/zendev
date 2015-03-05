@@ -65,8 +65,6 @@ fi" >> /home/zenoss/.bashrc
 echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
 echo "zendev use {{env_name}}" >> /home/zenoss/.bashrc
 
-printf %x $(date +%s) > /etc/hostid
-
 # We want to share etc/hosts between hosts.  Therefore we link it to a file on a mounted
 # directory (/vagrant).  However, when we reboot the VM, we will need a copy of /etc/hosts
 # before the /vagrant directory is mounted.  So, unmount /vagrant, copy /etc/hosts into
