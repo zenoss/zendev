@@ -122,7 +122,9 @@ ETC_HOSTS = """
 BASH_SERVICED = """
 #! /bin/bash
 # .bash_serviced file created by zendev cluster
-
+# The following list maps hosts to serviced masters.
+#  To make a host a master, simply set that host's master to
+#  its own IP.  (Note: %s is the IP of the vbox host.)
 # serviced
 eval export SERVICED_MASTER_ID=\$${HOSTNAME}_MASTER
 
@@ -139,7 +141,7 @@ if [ "$SERVICED_MASTER" != "1" ] ; then
     export SERVICED_STATS_PORT=$SERVICED_MASTER_ID:8443
     export SERVICED_LOGSTASH_ES=$SERVICED_MASTER_ID:9100
 fi
-"""
+""" % VagrantManager.VIRTUALBOX_HOST_IP
 
 
 class VagrantClusterManager(VagrantManager):
