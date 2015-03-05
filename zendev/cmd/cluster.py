@@ -65,8 +65,6 @@ fi" >> /home/zenoss/.bashrc
 echo "source $(zendev bootstrap)" >> /home/zenoss/.bashrc
 echo "zendev use {{env_name}}" >> /home/zenoss/.bashrc
 
-printf %x $(date +%s) > /etc/hostid
-
 # We want to share etc/hosts between hosts.  Therefore we link it to a file on a mounted
 # directory (/vagrant).  However, when we reboot the VM, we will need a copy of /etc/hosts
 # before the /vagrant directory is mounted.  So, unmount /vagrant, copy /etc/hosts into
@@ -122,15 +120,16 @@ ETC_HOSTS = """
 BASH_SERVICED = """
 #! /bin/bash
 # .bash_serviced file created by zendev cluster
-
-
+# The following list maps hosts to serviced masters.
+#  To make a host a master, simply set that host's master to
+#  its own IP.  (Note: %s is the IP of the vbox host.)
 # serviced
 eval export SERVICED_MASTER_ID=\$${HOSTNAME}_MASTER
 
 export SERVICED_REGISTRY=1
 export SERVICED_AGENT=1
-export SERVICED_MASTER=$( test "$SERVICED_MASTER_ID" != "$HOSTNAME" ; echo $? )
 export SERVICED_OUTBOUND_IP=$(ifconfig eth1 | sed -n 's/^.*inet addr:\([^ ]*\).*/\\1/p')
+export SERVICED_MASTER=$( test "$SERVICED_MASTER_ID" != "$SERVICED_OUTBOUND_IP" ; echo $? )
 if [ "$SERVICED_MASTER" != "1" ] ; then
     # agent only
     export SERVICED_ZK=$SERVICED_MASTER_ID:2181
@@ -140,7 +139,7 @@ if [ "$SERVICED_MASTER" != "1" ] ; then
     export SERVICED_STATS_PORT=$SERVICED_MASTER_ID:8443
     export SERVICED_LOGSTASH_ES=$SERVICED_MASTER_ID:9100
 fi
-"""
+""" % VagrantManager.VIRTUALBOX_HOST_IP
 
 
 class VagrantClusterManager(VagrantManager):
