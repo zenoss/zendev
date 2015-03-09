@@ -90,6 +90,7 @@
       "scripts": [
         "scripts/update.sh",
         "scripts/dependencies.sh",
+        "scripts/golang.sh",
         "scripts/goenv.sh",
         "scripts/patches.sh",
         "scripts/sshd.sh",

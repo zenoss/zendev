@@ -16,7 +16,6 @@ apt-get -y install    \
     nfs-common        \
     nfs-kernel-server \
     net-tools         \
-    libncurses5-dev   \
-    golang
+    libncurses5-dev
 
 pip install --upgrade pip
