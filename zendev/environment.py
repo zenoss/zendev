@@ -297,7 +297,10 @@ class ZenDevEnvironment(object):
 
     def list_tags(self):
         repo = self.ensure_manifestrepo()
-        return repo.tag_names
+        # get local branch for each remote tracking branch
+        #   e.g., support/5.0.x for origin/support/5.0.x
+        local_branches = [i.split('/', 1)[1] for i in repo.remote_branches]
+        return repo.tag_names + local_branches
 
     def tag(self, name, strict=False, force=False, from_ref=None):
         self.refresh_manifests()
