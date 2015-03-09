@@ -99,6 +99,9 @@ class VagrantManager(object):
             subprocess.call([vagrant.VAGRANT_EXE, 'ssh'] + ([box] if box else []))
 
     def ls(self):
-        for d in self._root.listdir(lambda p:p.join('Vagrantfile').check()):
+        for d in self.get_boxes():
             print "%s/%s" % (d.dirname, colored(d.basename, 'white'))
 
+    def get_boxes(self):
+        for d in self._root.listdir(lambda p:p.join('Vagrantfile').check()):
+            yield d

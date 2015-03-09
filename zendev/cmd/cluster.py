@@ -2,10 +2,11 @@ from jinja2 import Template
 import os
 import string
 import sys
-import tempfile
 from vagrantManager import VagrantManager
 import subprocess
 from ..log import error
+from argcomplete.completers import EnvironCompleter
+from argcomplete import warn
 
 HOSTNAME=os.uname()[1]
 
@@ -209,14 +210,14 @@ class VagrantClusterManager(VagrantManager):
 
     def ls(self, name):
         if not name:
-            super(VagrantClusterManager, self).ls()
-	else:
+            boxes = super(VagrantClusterManager, self).get_boxes()
+        else:
             if not self._root.join(name).exists():
                 error('No cluster matching "%s" found' % name)
                 sys.exit(1)
-            # Each box in the cluster has its own entry under .vagrant/machines.
-            for d in self._root.join(name, '.vagrant', 'machines').listdir():
-                print d.basename
+            boxes = self.get_boxes(name)
+        for i in boxes:
+            print i.basename
 
     def ssh(self, cluster, box):
         # We may have a box name (e.g., foo01) or a cluster name in which there is
@@ -246,6 +247,16 @@ class VagrantClusterManager(VagrantManager):
         super(VagrantClusterManager, self).ssh(cluster, box)
 
 
+    def get_clusters(self):
+        return super(VagrantClusterManager, self).get_boxes()
+
+    def get_boxes(self, cluster):
+        # Each box in the cluster has its own entry under .vagrant/machines.
+        for d in self._root.join(cluster, '.vagrant', 'machines').listdir():
+            yield d
+
+
+
 def cluster_create(args, check_env):
     env = check_env()
     env.cluster.create(args.name, args.type, args.count, args.btrfs, args.memory, args.cpus, args.fssize)
@@ -272,7 +283,7 @@ def cluster_ls(args, env):
     env().cluster.ls(args.name)
 
 
-def add_commands(subparsers):
+def add_commands(subparsers, cluster_completer):
     cluster_parser = subparsers.add_parser('cluster', help='Manage Vagrant cluster')
     cluster_subparsers = cluster_parser.add_subparsers()
 
@@ -292,24 +303,24 @@ def add_commands(subparsers):
     cluster_create_parser.set_defaults(functor=cluster_create)
 
     cluster_up_parser = cluster_subparsers.add_parser('up', help='Start a vagrant cluster or node')
-    cluster_up_parser.add_argument('name', metavar="CLUSTER_NAME")
+    cluster_up_parser.add_argument('name', metavar="CLUSTER_NAME").completer=cluster_completer
     cluster_up_parser.add_argument('box', nargs='?', metavar="BOX")
     cluster_up_parser.set_defaults(functor=cluster_up)
 
     cluster_halt_parser = cluster_subparsers.add_parser('halt', help='Stop a vagrant cluster or node')
-    cluster_halt_parser.add_argument('name', metavar="CLUSTER_NAME")
+    cluster_halt_parser.add_argument('name', metavar="CLUSTER_NAME").completer=cluster_completer
     cluster_halt_parser.add_argument('box', nargs ='?', metavar="BOX")
     cluster_halt_parser.set_defaults(functor=cluster_halt)
 
     cluster_remove_parser = cluster_subparsers.add_parser('destroy', help='Destroy a vagrant cluster')
-    cluster_remove_parser.add_argument('name', metavar="CLUSTER_NAME")
+    cluster_remove_parser.add_argument('name', metavar="CLUSTER_NAME").completer=cluster_completer
     cluster_remove_parser.set_defaults(functor=cluster_remove)
 
     cluster_ssh_parser = cluster_subparsers.add_parser('ssh', help='SSH to a node in a vagrant cluster')
-    cluster_ssh_parser.add_argument('name', metavar="CLUSTER_NAME")
+    cluster_ssh_parser.add_argument('name', metavar="CLUSTER_NAME").completer=cluster_completer
     cluster_ssh_parser.add_argument('box', nargs ='?', metavar="BOX")
     cluster_ssh_parser.set_defaults(functor=cluster_ssh)
 
     cluster_ls_parser = cluster_subparsers.add_parser('ls', help='List existing development vagrant clusters')
-    cluster_ls_parser.add_argument('name', nargs='?', metavar="CLUSTER_NAME")
+    cluster_ls_parser.add_argument('name', nargs='?', metavar="CLUSTER_NAME").completer=cluster_completer
     cluster_ls_parser.set_defaults(functor=cluster_ls)

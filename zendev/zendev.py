@@ -69,6 +69,10 @@ def restoreCompleter(prefix, **kwargs):
     return (x for x in check_env().list_tags() if x.startswith(prefix))
 
 
+def clusterCompleter(prefix, action, parsed_args):
+    return [i.basename for i in check_env().cluster.get_clusters()]
+
+
 def bootstrap(args, env):
     print here("bootstrap.sh").strpath
 
@@ -80,7 +84,6 @@ def root(args, env):
 def selfupdate(args, env):
     with here().as_cwd():
         subprocess.call(["git", "pull"])
-
 
 
 def parse_args():
@@ -116,7 +119,7 @@ def parse_args():
     repos.add_commands(subparsers)
     build.add_commands(subparsers)
     box.add_commands(subparsers)
-    cluster.add_commands(subparsers)
+    cluster.add_commands(subparsers, clusterCompleter)
     tags.add_commands(subparsers, restoreCompleter)
     feature.add_commands(subparsers)
     serviced.add_commands(subparsers)
