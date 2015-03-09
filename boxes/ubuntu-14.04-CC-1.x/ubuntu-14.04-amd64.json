@@ -69,7 +69,7 @@
         ]
       ],
       "virtualbox_version_file": ".vbox_version",
-      "vm_name": "ubuntu-14.04-europa-v4"
+      "vm_name": "ubuntu-14.04-CC-1.x"
     }
   ],
   "post-processors": [
@@ -90,6 +90,7 @@
       "scripts": [
         "scripts/update.sh",
         "scripts/dependencies.sh",
+        "scripts/golang.sh",
         "scripts/goenv.sh",
         "scripts/patches.sh",
         "scripts/sshd.sh",
@@ -106,6 +107,6 @@
   ],
   "variables": {
     "mirror": "http://releases.ubuntu.com",
-    "boxname": "ubuntu-14.04-europa-v4"
+    "boxname": "ubuntu-14.04-CC-1.x"
   }
 }
