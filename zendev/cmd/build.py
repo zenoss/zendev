@@ -79,7 +79,7 @@ def build_zenoss(args, env):
 
 
 def build_impact(args, env):
-    impact_image = 'zenoss/impact-unstable:latest'
+    impact_image = 'zenoss/impact_5.0:latest'
     container_id='impact_devimg_'+uuid.uuid1().hex
     # TODO: embedding the version number in the link means that we have do rebuild the image
     #  if the version changes.  Better if the pom.xml set up a non-versioned symlink to the
