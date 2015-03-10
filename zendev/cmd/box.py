@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
                     disc_file ]
     end{% endif %}
   end
-  {% for root, target in shared_folders %}
+  {% for options in shared_folders %}
   config.vm.synced_folder {{ options|join(', ') }}{% endfor %}
   config.vm.provision "shell", inline: $script
 end
