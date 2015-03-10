@@ -279,7 +279,7 @@ def add_commands(subparsers):
     cluster_create_parser = cluster_subparsers.add_parser('create', help='Create a development vagrant cluster')
     cluster_create_parser.add_argument('name', metavar="CLUSTER_NAME")
     cluster_create_parser.add_argument('--type', choices=VagrantManager.BOXES,
-                                       default="ubuntu")
+                                       default=VagrantManager.DEFAULT_BOX)
     cluster_create_parser.add_argument('--count', type=int, default=1)
     cluster_create_parser.add_argument('--memory', type=int, default=4096)
     cluster_create_parser.add_argument('--domain', default='zenoss.loc')

@@ -97,7 +97,7 @@ def add_commands(subparsers):
     box_create_parser = box_subparsers.add_parser('create', help="Create development vagrant box")
     box_create_parser.add_argument('name', metavar="NAME")
     box_create_parser.add_argument('--type', choices=VagrantManager.BOXES,
-                                   default="ubuntu")
+                                   default=VagrantManager.DEFAULT_BOX)
     box_create_parser.add_argument('--btrfs', type=int, default=0,
                                    help="Number of btrfs volumes")
     box_create_parser.add_argument('--vfs', type=int, default=0)

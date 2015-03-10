@@ -6,15 +6,17 @@ class VagrantManager(object):
     """
     Manages Vagrant boxes.
     """
-    CONTROLPLANE = "controlplane"
-    SOURCEBUILD = "sourcebuild"
-
+    DEFAULT_BOX = "CC-1.x"
     BOXES = {
-        CONTROLPLANE: "ubuntu-14.04-CC-1.x",
-        SOURCEBUILD: "f19-docker-zendeps",
-        "ubuntu": "ubuntu-14.04-CC-1.x",
-        "fedora": "f19-docker-zendeps"
+        DEFAULT_BOX: "ubuntu-14.04-CC-1.x",
+        "CC-1.0": "ubuntu-14.04-CC-1.0",
+        "fedora": "f19-docker-zendeps",
     }
+    PROVISION_TYPE = {
+        DEFAULT_BOX: "ubuntu",
+        "CC-1.0": "ubuntu",
+        "fedora": "fedora",
+        }
 
     # The IP of the virtualbox host, as set by vagrant-auto_network plugin.
     VIRTUALBOX_HOST_IP = "10.20.1.1"
@@ -84,8 +86,7 @@ class VagrantManager(object):
 
     def provision(self, name, type_):
         import vagrant
-        BOXES=VagrantManager.BOXES
-        type_ = "ubuntu" if BOXES.get(type_)==BOXES["ubuntu"] else "fedora"
+        type_ = VagrantManager.PROVISION_TYPE[type_]
         provision_script = subprocess.check_output(["bash",
             here("provision-%s.sh" % type_).strpath])
         with self._root.join(name).as_cwd():
