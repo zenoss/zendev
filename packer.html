@@ -121,7 +121,7 @@ containing a bunch of binaries. Unzip it somewhere in your <tt class="docutils l
 <li>Build the box:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Switch to your zendev checkout (may not be under ~/src)</span>
-<span class="nb">cd</span> ~/src/zendev/boxes/ubuntu-14.04
+<span class="nb">cd</span> ~/src/zendev/boxes/ubuntu-14.04-CC-1.x
 
 <span class="c"># Build the box</span>
 packer build ubuntu-14.04-amd64.json
@@ -133,19 +133,19 @@ packer build ubuntu-14.04-amd64.json
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># First, remove the existing box. If you don&#39;t want to remove the existing</span>
 <span class="c"># box, don&#39;t do this. Either way, any existing instances will be</span>
 <span class="c"># unaffected.</span>
-vagrant box remove ubuntu-14.04-europa-v2
+vagrant box remove ubuntu-14.04-CC-1.x.box
 
-<span class="c"># Now add the box you just generated as the new ubuntu-14.04-europa base</span>
+<span class="c"># Now add the box you just generated as the new ubuntu-14.04-CC-1.x base</span>
 <span class="c"># box. If you didn&#39;t remove the one above, pick a new name. You can</span>
 <span class="c"># generate Vagrant boxes using &quot;vagrant init BOXNAME&quot;.</span>
-vagrant box add ubuntu-14.04-europa-v2 <span class="se">\</span>
-    ~/src/zendev/boxes/ubuntu-14.04-europa*.box
+vagrant box add ubuntu-14.04-CC-1.x <span class="se">\</span>
+    ~/src/zendev/boxes/ubuntu-14.04-CC-1.x.box
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
 <li>Use zendev to create a new instance and see how it turned out:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre>zendev box create --type ubuntu mynewbox
+<div class="highlight-bash"><div class="highlight"><pre>zendev box create --type CC-1.x mynewbox
 </pre></div>
 </div>
 </div>

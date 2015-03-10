@@ -107,15 +107,17 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages Vagrant boxes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">CONTROLPLANE</span> <span class="o">=</span> <span class="s">&quot;controlplane&quot;</span>
-    <span class="n">SOURCEBUILD</span> <span class="o">=</span> <span class="s">&quot;sourcebuild&quot;</span>
-
+    <span class="n">DEFAULT_BOX</span> <span class="o">=</span> <span class="s">&quot;CC-1.x&quot;</span>
     <span class="n">BOXES</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">CONTROLPLANE</span><span class="p">:</span> <span class="s">&quot;ubuntu-14.04-europa-v4&quot;</span><span class="p">,</span>
-        <span class="n">SOURCEBUILD</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span><span class="p">,</span>
-        <span class="s">&quot;ubuntu&quot;</span><span class="p">:</span> <span class="s">&quot;ubuntu-14.04-europa-v4&quot;</span><span class="p">,</span>
-        <span class="s">&quot;fedora&quot;</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span>
+        <span class="n">DEFAULT_BOX</span><span class="p">:</span> <span class="s">&quot;ubuntu-14.04-CC-1.x&quot;</span><span class="p">,</span>
+        <span class="s">&quot;CC-1.0&quot;</span><span class="p">:</span> <span class="s">&quot;ubuntu-14.04-CC-1.0&quot;</span><span class="p">,</span>
+        <span class="s">&quot;fedora&quot;</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span><span class="p">,</span>
     <span class="p">}</span>
+    <span class="n">PROVISION_TYPE</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">DEFAULT_BOX</span><span class="p">:</span> <span class="s">&quot;ubuntu&quot;</span><span class="p">,</span>
+        <span class="s">&quot;CC-1.0&quot;</span><span class="p">:</span> <span class="s">&quot;ubuntu&quot;</span><span class="p">,</span>
+        <span class="s">&quot;fedora&quot;</span><span class="p">:</span> <span class="s">&quot;fedora&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
 
     <span class="c"># The IP of the virtualbox host, as set by vagrant-auto_network plugin.</span>
     <span class="n">VIRTUALBOX_HOST_IP</span> <span class="o">=</span> <span class="s">&quot;10.20.1.1&quot;</span>
@@ -185,8 +187,7 @@
 </div>
 <div class="viewcode-block" id="VagrantManager.provision"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.provision">[docs]</a>    <span class="k">def</span> <span class="nf">provision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">vagrant</span>
-        <span class="n">BOXES</span><span class="o">=</span><span class="n">VagrantManager</span><span class="o">.</span><span class="n">BOXES</span>
-        <span class="n">type_</span> <span class="o">=</span> <span class="s">&quot;ubuntu&quot;</span> <span class="k">if</span> <span class="n">BOXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span><span class="o">==</span><span class="n">BOXES</span><span class="p">[</span><span class="s">&quot;ubuntu&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&quot;fedora&quot;</span>
+        <span class="n">type_</span> <span class="o">=</span> <span class="n">VagrantManager</span><span class="o">.</span><span class="n">PROVISION_TYPE</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
         <span class="n">provision_script</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s">&quot;bash&quot;</span><span class="p">,</span>
             <span class="n">here</span><span class="p">(</span><span class="s">&quot;provision-</span><span class="si">%s</span><span class="s">.sh&quot;</span> <span class="o">%</span> <span class="n">type_</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">])</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>

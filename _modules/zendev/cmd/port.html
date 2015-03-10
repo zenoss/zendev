@@ -170,6 +170,20 @@
     <span class="k">return</span> <span class="n">commit_shas</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span>
 
 </div>
+<div class="viewcode-block" id="parse_pull_request"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.port.parse_pull_request">[docs]</a><span class="k">def</span> <span class="nf">parse_pull_request</span><span class="p">(</span><span class="n">commit_arg</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;#&#39;</span><span class="p">,</span> <span class="s">&#39;pull/&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">commit_arg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+            <span class="n">pr</span> <span class="o">=</span> <span class="n">commit_arg</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">pr</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">zendev</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Pull-request must be an integer: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">commit</span><span class="p">)</span>
+                <span class="nb">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pr</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+</div>
 <div class="viewcode-block" id="get_current_repo"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.port.get_current_repo">[docs]</a><span class="k">def</span> <span class="nf">get_current_repo</span><span class="p">(</span><span class="n">env</span><span class="p">):</span>
     <span class="c"># Get repo for cwd</span>
     <span class="n">cwd</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">()</span><span class="o">.</span><span class="n">strpath</span>
@@ -197,18 +211,7 @@
 
     </div>
 <div class="viewcode-block" id="cherry_pick"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.port.cherry_pick">[docs]</a><span class="k">def</span> <span class="nf">cherry_pick</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">commit</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;#&#39;</span><span class="p">,</span> <span class="s">&#39;pull/&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">commit</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
-            <span class="n">pr</span> <span class="o">=</span> <span class="n">commit</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="nb">int</span><span class="p">(</span><span class="n">pr</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="n">zendev</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Pull-request must be an integer: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">commit</span><span class="p">)</span>
-                <span class="nb">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="k">break</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">pr</span> <span class="o">=</span> <span class="bp">None</span>
-
+    <span class="n">pr</span> <span class="o">=</span> <span class="n">parse_pull_request</span><span class="p">(</span><span class="n">commit</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">pr</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">commit_sha</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="n">pullrequest_commit</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">pr</span><span class="p">)</span>
@@ -256,7 +259,7 @@
 <div class="viewcode-block" id="port_pull_request"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.port.port_pull_request">[docs]</a><span class="k">def</span> <span class="nf">port_pull_request</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
     <span class="n">repo</span> <span class="o">=</span> <span class="n">get_current_repo</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">load_portinfo</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">repo</span><span class="o">.</span><span class="n">branch</span><span class="p">)</span>
-    <span class="n">base</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;base&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">branch</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">branch</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;base&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">base</span><span class="p">:</span>
         <span class="n">zendev</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Specify merge target with &quot;--branch&quot;&#39;</span><span class="p">)</span>
         <span class="nb">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -268,11 +271,13 @@
 </div>
 <div class="viewcode-block" id="port_do"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.port.port_do">[docs]</a><span class="k">def</span> <span class="nf">port_do</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
     <span class="n">repo</span> <span class="o">=</span> <span class="n">get_current_repo</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-    <span class="n">base_branch</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">branch</span>
+    <span class="n">base_branch</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">branch</span> <span class="ow">or</span> <span class="n">repo</span><span class="o">.</span><span class="n">branch</span>
     <span class="n">feature_branch</span> <span class="o">=</span> <span class="n">create_branch</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">base_branch</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ticket</span><span class="p">)</span>
     <span class="n">save_portinfo_base</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">base_branch</span><span class="p">,</span> <span class="n">feature_branch</span><span class="p">)</span>
     <span class="n">cherry_pick</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">feature_branch</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">commit</span><span class="p">)</span>
-    <span class="n">create_pull_request</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ticket</span><span class="p">,</span> <span class="n">base_branch</span><span class="p">,</span> <span class="s">&quot;Cherry-picked </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">commit</span><span class="p">)</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">parse_pull_request</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">commit</span><span class="p">)</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">commit</span> <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&#39;#&#39;</span> <span class="o">+</span> <span class="nb">id</span>
+    <span class="n">create_pull_request</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ticket</span><span class="p">,</span> <span class="n">base_branch</span><span class="p">,</span> <span class="s">&quot;Cherry-picked </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">id</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.port.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
@@ -308,8 +313,10 @@
     <span class="n">do_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;ticket&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Ticket this fix applies to&#39;</span><span class="p">)</span>
     <span class="n">do_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;commit&#39;</span><span class="p">,</span>
                             <span class="n">help</span><span class="o">=</span><span class="s">&#39;Pull request (e.g. #123, pull/123) or commit hash&#39;</span><span class="p">)</span>
-    <span class="n">do_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">port_do</span><span class="p">)</span>
-</pre></div></div>
+    <span class="n">do_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-b&#39;</span><span class="p">,</span> <span class="s">&#39;--branch&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s">&quot;branch to merge into&quot;</span><span class="p">)</span>
+    <span class="n">do_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">port_do</span><span class="p">)</span></div>
+</pre></div>
 
 </div>
 <footer class="footer">

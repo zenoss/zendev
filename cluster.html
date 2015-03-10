@@ -134,17 +134,18 @@ digit number to the cluster name. The number of boxes
 in a cluster is specified by the <tt class="docutils literal"><span class="pre">count</span></tt> option. The amount of memory allocated
 to each box is specified by the <tt class="docutils literal"><span class="pre">memory</span></tt> option.  The number of cpus allocated to
 each box is specified by the <tt class="docutils literal"><span class="pre">cpus</span></tt> option.</p>
-<p>Acceptable box types are: <tt class="docutils literal"><span class="pre">ubuntu</span></tt>, <tt class="docutils literal"><span class="pre">fedora</span></tt>, <tt class="docutils literal"><span class="pre">controlplane</span></tt>, and <tt class="docutils literal"><span class="pre">sourcebuild</span></tt>.
-The default is <tt class="docutils literal"><span class="pre">ubuntu</span></tt>.</p>
+<p>Acceptable box types are: <tt class="docutils literal"><span class="pre">CC-1.x</span></tt>, <tt class="docutils literal"><span class="pre">CC-1.0</span></tt>, and <tt class="docutils literal"><span class="pre">fedora</span></tt>.
+The default is <tt class="docutils literal"><span class="pre">CC-1.x</span></tt> and is appropriate for serviced 1.x development.  <tt class="docutils literal"><span class="pre">CC-1.0</span></tt>
+has the correct versions of go and docker installed for 1.0.x development.</p>
 <p>It is also possible to create one or more btrfs volumes on each vm.  The number of
 btrfs volumes is specified with the by the <tt class="docutils literal"><span class="pre">btrfs</span></tt> option.  The size of the btrfs
 volumes is controlled by the <tt class="docutils literal"><span class="pre">fssize</span></tt> option.  The first two volumes are mounted
 at /var/lib/docker and /opt/serviced/var respectively.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a new cluster named demo containing 5 ubuntu boxes</span>
-zendev cluster create --type ubuntu --count <span class="m">5</span> demo
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a new cluster named demo containing 5 CC-1.0 boxes</span>
+zendev cluster create --type CC-1.0 --count <span class="m">5</span> demo
 
-<span class="c"># Create a new cluster of 3 ubuntu boxes named 4p with 2MB of RAM each</span>
-zendev cluster create --type ubuntu --count <span class="m">3</span> --memory <span class="m">2048</span> 4p
+<span class="c"># Create a new cluster of 3 CC-1.x boxes named 4p with 2MB of RAM each</span>
+zendev cluster create --count <span class="m">3</span> --memory <span class="m">2048</span> 4p
 </pre></div>
 </div>
 </div>
@@ -221,8 +222,9 @@ zendev cluster ssh foo
 zendev serviced --skip-ready-wait
 </pre></div>
 </div>
-<p><em>Note</em>:
-Currently serviced does not allow non-serviced controlled nfs exports.  Unfortunately,
+<p><em>Note: zendev cluster is not compatible with serviced 1.0.0.</em>
+Serviced 1.0.x and 1.x are compatible with zendev cluster.
+Serviced 1.0.0 does not allow non-serviced controlled nfs exports.  Unfortunately,
 zendev needs to nfs mount the zenhome directory into the VM (vboxsf mounts do not work
 as they do not support chown.)  serviced overwrites the /etc/hosts.allow file when it
 starts up; virtualbox amends that file when it boots the VM.  Therefore, it is necessary

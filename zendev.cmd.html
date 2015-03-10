@@ -382,6 +382,11 @@
 <dd></dd></dl>
 
 <dl class="function">
+<dt id="zendev.cmd.port.parse_pull_request">
+<tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">parse_pull_request</tt><big>(</big><em>commit_arg</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#parse_pull_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.parse_pull_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="zendev.cmd.port.port_do">
 <tt class="descclassname">zendev.cmd.port.</tt><tt class="descname">port_do</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/cmd/port.html#port_do"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.cmd.port.port_do" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -656,17 +661,17 @@ not.</p>
 <p>Manages Vagrant boxes.</p>
 <dl class="attribute">
 <dt id="zendev.cmd.vagrantManager.VagrantManager.BOXES">
-<tt class="descname">BOXES</tt><em class="property"> = {'sourcebuild': 'f19-docker-zendeps', 'controlplane': 'ubuntu-14.04-europa-v4', 'fedora': 'f19-docker-zendeps', 'ubuntu': 'ubuntu-14.04-europa-v4'}</em><a class="headerlink" href="#zendev.cmd.vagrantManager.VagrantManager.BOXES" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">BOXES</tt><em class="property"> = {'CC-1.0': 'ubuntu-14.04-CC-1.0', 'CC-1.x': 'ubuntu-14.04-CC-1.x', 'fedora': 'f19-docker-zendeps'}</em><a class="headerlink" href="#zendev.cmd.vagrantManager.VagrantManager.BOXES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="zendev.cmd.vagrantManager.VagrantManager.CONTROLPLANE">
-<tt class="descname">CONTROLPLANE</tt><em class="property"> = 'controlplane'</em><a class="headerlink" href="#zendev.cmd.vagrantManager.VagrantManager.CONTROLPLANE" title="Permalink to this definition">¶</a></dt>
+<dt id="zendev.cmd.vagrantManager.VagrantManager.DEFAULT_BOX">
+<tt class="descname">DEFAULT_BOX</tt><em class="property"> = 'CC-1.x'</em><a class="headerlink" href="#zendev.cmd.vagrantManager.VagrantManager.DEFAULT_BOX" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="zendev.cmd.vagrantManager.VagrantManager.SOURCEBUILD">
-<tt class="descname">SOURCEBUILD</tt><em class="property"> = 'sourcebuild'</em><a class="headerlink" href="#zendev.cmd.vagrantManager.VagrantManager.SOURCEBUILD" title="Permalink to this definition">¶</a></dt>
+<dt id="zendev.cmd.vagrantManager.VagrantManager.PROVISION_TYPE">
+<tt class="descname">PROVISION_TYPE</tt><em class="property"> = {'CC-1.0': 'ubuntu', 'CC-1.x': 'ubuntu', 'fedora': 'fedora'}</em><a class="headerlink" href="#zendev.cmd.vagrantManager.VagrantManager.PROVISION_TYPE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
