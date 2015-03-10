@@ -32,7 +32,7 @@ Ubuntu
     sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
     # ------------------------------------------------------------------
-    # Install Docker for Europa-Release <= 1.0.0
+    # Install Docker for Europa-Release <= 1.0.x
     # ------------------------------------------------------------------
     sudo apt-get install apt-transport-https
     sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
@@ -40,7 +40,7 @@ Ubuntu
     sudo sh -c "echo deb https://get.docker.com/ubuntu docker main \
          > /etc/apt/sources.list.d/docker.list"
     sudo apt-get update
-    sudo apt-get install lxc-docker-1.3.3
+    sudo apt-get install lxc-docker-1.5.0
 
     # ------------------------------------------------------------------
     # Install Docker for all other cases
@@ -61,7 +61,7 @@ If you are operating under AWS, check if docker is using the devicemapper driver
     sudo rm -rf /var/lib/docker
     sudo apt-get update
     sudo apt-get install linux-image-extra-`uname -r`
-    sudo apt-get install lxc-docker-1.3.3
+    sudo apt-get install lxc-docker-1.5.0
 
 3. Add your user to the ``docker`` group:
 
@@ -115,7 +115,15 @@ When your box comes back up, authenticate to hub.docker.com:
     # Install "go get" dependencies.
     sudo apt-get install -y mercurial bzr git
 
-    # Download Go 1.4 and unpack it into /usr/local
+    # ------------------------------------------------------------------
+    # Install Go for Europa-Release <= 1.0.x
+    # ------------------------------------------------------------------
+    sudo apt-get install -y wget curl
+    curl -s https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz | sudo tar -xzC /usr/local
+
+    # ------------------------------------------------------------------
+    # Install Go for all other cases
+    # ------------------------------------------------------------------
     sudo apt-get install -y wget curl
     curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
 
