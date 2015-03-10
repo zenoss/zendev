@@ -19,8 +19,9 @@ in a cluster is specified by the ``count`` option. The amount of memory allocate
 to each box is specified by the ``memory`` option.  The number of cpus allocated to
 each box is specified by the ``cpus`` option.
 
-Acceptable box types are: ``ubuntu``, ``fedora``, ``controlplane``, and ``sourcebuild``.
-The default is ``ubuntu``.
+Acceptable box types are: ``CC-1.x``, ``CC-1.0``, and ``fedora``.
+The default is ``CC-1.x`` and is appropriate for serviced 1.x development.  ``CC-1.0``
+has the correct versions of go and docker installed for 1.0.x development.
 
 It is also possible to create one or more btrfs volumes on each vm.  The number of
 btrfs volumes is specified with the by the ``btrfs`` option.  The size of the btrfs
@@ -29,11 +30,11 @@ at /var/lib/docker and /opt/serviced/var respectively.
 
 .. code-block:: bash
 
-    # Create a new cluster named demo containing 5 ubuntu boxes
-    zendev cluster create --type ubuntu --count 5 demo
+    # Create a new cluster named demo containing 5 CC-1.0 boxes
+    zendev cluster create --type CC-1.0 --count 5 demo
 
-    # Create a new cluster of 3 ubuntu boxes named 4p with 2MB of RAM each
-    zendev cluster create --type ubuntu --count 3 --memory 2048 4p
+    # Create a new cluster of 3 CC-1.x boxes named 4p with 2MB of RAM each
+    zendev cluster create --count 3 --memory 2048 4p
 
 
 Listing Clusters
@@ -123,8 +124,9 @@ All nodes share the ``devimg`` mounts, so that they all run the same code.
     zendev cluster ssh foo
     zendev serviced --skip-ready-wait
 
-*Note*:
-Currently serviced does not allow non-serviced controlled nfs exports.  Unfortunately,
+*Note: zendev cluster is not compatible with serviced 1.0.0.*
+Serviced 1.0.x and 1.x are compatible with zendev cluster.
+Serviced 1.0.0 does not allow non-serviced controlled nfs exports.  Unfortunately,
 zendev needs to nfs mount the zenhome directory into the VM (vboxsf mounts do not work
 as they do not support chown.)  serviced overwrites the /etc/hosts.allow file when it
 starts up; virtualbox amends that file when it boots the VM.  Therefore, it is necessary
