@@ -69,7 +69,7 @@
         ]
       ],
       "virtualbox_version_file": ".vbox_version",
-      "vm_name": "ubuntu-14.04-CC-1.x"
+      "vm_name": "ubuntu-14.04-CC-1.0"
     }
   ],
   "post-processors": [
@@ -90,14 +90,14 @@
       "scripts": [
         "scripts/update.sh",
         "scripts/dependencies.sh",
-        "scripts/golang.sh",
+        "scripts/golang-1.3.3.sh",
         "scripts/goenv.sh",
         "scripts/patches.sh",
         "scripts/sshd.sh",
         "scripts/networking.sh",
         "scripts/sudoers.sh",
         "scripts/vagrant.sh",
-        "scripts/docker.sh",
+        "scripts/docker-1.5.0.sh",
         "scripts/vmtools.sh",
         "scripts/cleanup.sh",
         "scripts/minimize.sh"
@@ -107,6 +107,6 @@
   ],
   "variables": {
     "mirror": "http://releases.ubuntu.com",
-    "boxname": "ubuntu-14.04-CC-1.x"
+    "boxname": "ubuntu-14.04-CC-1.0"
   }
 }
