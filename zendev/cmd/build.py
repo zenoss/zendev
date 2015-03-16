@@ -87,7 +87,7 @@ def build_impact(args, env):
     startup="""
         SRC=/mnt/src/impact/impact-server
         DST=/opt/zenoss_impact
-        VSN=4.2.6.70.0-SNAPSHOT
+        VSN=5.0.70.0.0
         ln -fs $SRC/zenoss-dsa/target/zenoss-dsa-$VSN.war $DST/webapps/impact-server.war
         ln -fs $SRC/model-adapters-common/target/model-adapters-common-$VSN.jar $DST/lib/ext/adapters
         ln -fs $SRC/model-adapters-zenoss/target/model-adapters-zenoss-$VSN.jar $DST/lib/ext/adapters/zenoss
