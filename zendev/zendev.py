@@ -87,7 +87,7 @@ def parse_args():
     epilog = textwrap.dedent('''
     Management commands: {bootstrap, root, selfupdate}
     Environment commands: {init, use, drop, clone, env}
-    Repo commands: {add, addrepo, rm, ls, freeze, sync, status, sync, cd}
+    Repo commands: {add, addrepo, rm, ls, freeze, sync, status, sync, cd, showrefs}
     Tag commands: {restore, tag, changelog}
     Serviced commands: {serviced, atttach, devshel}
     Vagrant commands {box, cluster, ssh}

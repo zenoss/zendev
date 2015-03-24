@@ -98,6 +98,14 @@ def each(args, env):
             error('%s is missing. Try "zendev sync" first.' % repo.name)
 
 
+def showrefs(args, env):
+    """
+    Show each repo's info
+    """
+    for repo in env().repos(args.repofilter):
+        print "%s %s" % (repo.name, repo.ref)
+
+
 def cd(args, env):
     """
     Print the directory of the repository if specified or the environment if
@@ -165,3 +173,8 @@ def add_commands(subparsers):
     cd_parser = subparsers.add_parser('cd', help='Change working directory to a repo')
     cd_parser.add_argument('repo', nargs='?', metavar="REPO")
     cd_parser.set_defaults(functor=cd)
+
+    showrefs_parser = subparsers.add_parser('showrefs', help='Show info of repos')
+    showrefs_parser.add_argument('-r', '--repo', dest="repos", nargs='*')
+    showrefs_parser.set_defaults(functor=showrefs)
+
