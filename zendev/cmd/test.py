@@ -77,6 +77,47 @@ def serviced_tests(args, env, smoke=False):
         return subprocess.call(cmd, env=envvars)
 
 
+def zep_tests(args, env):
+    env = env()
+    envvars = os.environ.copy()
+    envvars.update(env.envvars())
+    mounts = {envvars["SRCROOT"]: "/mnt/src", env.buildroot: "/mnt/build"}
+    image = "zendev_test"
+    if product == 'devimg':
+        check_devimg()
+        image = "zendev/devimg"
+        mounts[os.path.join(envvars["HOME"], ".m2")] = "/home/zenoss/.m2"
+        mounts[os.path.join(envvars["ZENHOME"])] = "/opt/zenoss"
+    elif not args.use_existing or (args.use_existing and not check_zendev_test()):
+        # Run a build
+        envvars['DEVIMG_SYMLINK'] = ''
+        envvars['devimg_MOUNTS'] = ''
+        envvars['devimg_TAGNAME'] = 'zendev_test'
+        envvars['devimg_CONTAINER'] = 'zendev_test'
+        envvars['ZENPACKS'] = ' '.join(get_packs(env, product))
+        with env.buildroot.as_cwd():
+            rc = subprocess.call(["make", "devimg"], env=envvars)
+            if rc > 0:
+                return rc
+        image = "zendev_test"
+    cmd = ["docker", "run", "-t", "-i", "--rm"]
+    for mount in mounts.iteritems():
+        cmd.extend(["-v", "%s:%s" % mount])
+    cmd.append(image)
+    if args.interactive:
+        cmd.append('bash')
+    else:
+        cmd.append("/usr/bin/run_tests.sh")
+        cmd.append("zep")
+        if args.zep_integration:
+            cmd.append("integration")
+        if args.zep_unit
+            cmd.append("unit")
+        cmd.extend(args.arguments[1:])
+    return subprocess.call(cmd)
+
+
+
 def test(args, env):
 
     rcs = []
@@ -91,6 +132,10 @@ def test(args, env):
     elif args.core or args.zp:
         rc = zen_image_tests(args, env)
     rcs.append(rc)
+
+    if args.zep_unit or args.zep_integration:
+        rc = zep_tests(args, env)
+        rcs.append(rc)
 
     if args.serviced_unit:
         rc = serviced_tests(args, env, smoke=False)
@@ -125,6 +170,12 @@ def add_commands(subparsers):
     test_parser.add_argument('-zp', '--zenoss-zenpack-restore', action="store_true",
             help="Build a core image and run zenpack restore tests",
             dest="zp", default=False)
+    test_parser.add_argument('-e', '--zenoss-zep', action="store_true",
+            help="Run ZEP unit tests",
+            dest="zep_unit", default=False)
+    test_parser.add_argument('-i', '--zenoss-zep-integration', action="store_true",
+            help="Run ZEP integration tests",
+            dest="zep_integration", default=False)
     test_parser.add_argument('-u', '--serviced', action="store_true",
             help="Run serviced unit tests",
             dest="serviced_unit", default=False)
