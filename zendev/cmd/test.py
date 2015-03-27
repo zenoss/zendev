@@ -83,23 +83,11 @@ def zep_tests(args, env):
     envvars.update(env.envvars())
     mounts = {envvars["SRCROOT"]: "/mnt/src", env.buildroot: "/mnt/build"}
     image = "zendev_test"
-    if product == 'devimg':
-        check_devimg()
-        image = "zendev/devimg"
-        mounts[os.path.join(envvars["HOME"], ".m2")] = "/home/zenoss/.m2"
-        mounts[os.path.join(envvars["ZENHOME"])] = "/opt/zenoss"
-    elif not args.use_existing or (args.use_existing and not check_zendev_test()):
-        # Run a build
-        envvars['DEVIMG_SYMLINK'] = ''
-        envvars['devimg_MOUNTS'] = ''
-        envvars['devimg_TAGNAME'] = 'zendev_test'
-        envvars['devimg_CONTAINER'] = 'zendev_test'
-        envvars['ZENPACKS'] = ' '.join(get_packs(env, product))
-        with env.buildroot.as_cwd():
-            rc = subprocess.call(["make", "devimg"], env=envvars)
-            if rc > 0:
-                return rc
-        image = "zendev_test"
+    check_devimg()
+    image = "zendev/devimg"
+    mounts[os.path.join(envvars["HOME"], ".m2")] = "/home/zenoss/.m2"
+    mounts[os.path.join(envvars["ZENHOME"])] = "/opt/zenoss"
+
     cmd = ["docker", "run", "-t", "-i", "--rm"]
     for mount in mounts.iteritems():
         cmd.extend(["-v", "%s:%s" % mount])
@@ -111,7 +99,7 @@ def zep_tests(args, env):
         cmd.append("zep")
         if args.zep_integration:
             cmd.append("integration")
-        if args.zep_unit
+        if args.zep_unit:
             cmd.append("unit")
         cmd.extend(args.arguments[1:])
     return subprocess.call(cmd)
