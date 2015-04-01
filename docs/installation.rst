@@ -10,6 +10,12 @@ Here's how to set up a full Zenoss development environment on Ubuntu (in case
 you were wondering, these instructions go far beyond the requirements for
 zendev itself, which are basically git and Python).
 
+**Note**: In the rare case that you are installing on a box that previously had 
+a non-zendev instance of Resource Manager, reinstall docker.
+Specifically, you need to delete /etc/default/docker or revert the DOCKER_OPTS
+setting to the initial --dns option. Just apt-get remove lxc-docker-1.5.0 and
+reinstall it.
+
 Ubuntu
 ------
 .. important:: Ubuntu 14.04 is required
