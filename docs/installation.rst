@@ -313,7 +313,7 @@ development.
 
 .. code-block:: bash
 
-    vagrant init ubuntu-13.04-docker-v3
+    vagrant init ubuntu-14.04-CC-1.0
 
 As the pretty words will tell you, a Vagrantfile will have been created in that
 directory. Edit it, uncomment the line specifying the box URL, and set it to
@@ -321,7 +321,7 @@ the one we have hosted:
 
 .. code-block:: ruby
 
-    config.vm.box_url = "http://vagrant.zendev.org/boxes/ubuntu-13.04-docker-v3.box"
+    config.vm.box_url = "http://vagrant.zendev.org/boxes/ubuntu-14.04-CC-1.0.box"
 
 You should also probably uncomment either the private or public networking line
 so you can actually interact with the things running thereon:
