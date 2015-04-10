@@ -57,8 +57,6 @@ class Serviced(object):
             "--mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
             "--mount", "zendev/devimg,%s,/var/zenoss" % self.env.var_zenoss.strpath,
             "--mount", "/zenoss/impact_5.0:latest,%s,/mnt/src" % self.env.root.join("src").strpath,
-            "--mount", "zendev/analytics-unstable:latest,%s,/opt/zenoss_analytics" % self.env.root.join("zen_ana_home").strpath,
-            "--mount", "zendev/analytics-unstable:latest,%s,/mnt/src" % self.env.root.join("src/analytics").strpath,
             "--uiport", ":%d" % uiport,
         ])
 
