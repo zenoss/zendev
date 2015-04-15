@@ -3,6 +3,11 @@ import json
 import os
 from getpass import getpass
 
+
+class GithubAuthException(Exception):
+    pass
+
+
 def get_oauth_token():
     """
     Get or create an OAuth token for making pull requests.
@@ -20,6 +25,15 @@ def get_oauth_token():
                 "note": "Europa Development Environment"
             }),
             auth=(username, password))
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as ex:
+            print "HTTPError: %s" % ex
+            message = "%s authenticating against GitHub. Response text: %s" % (
+                ex, response.text
+            )
+            print message
+            raise GithubAuthException(message)
         result = response.json().get('token')
         with open(cache, 'w') as f:
             f.write(result)
@@ -33,4 +47,3 @@ def perform(method, url, data=None, params=None):
         headers={"Authorization": "token %s" % token}
     )
     return response.headers, response.json()
-
