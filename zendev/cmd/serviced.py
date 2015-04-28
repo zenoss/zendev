@@ -87,11 +87,18 @@ class Serviced(object):
                 pass
 
     def add_host(self, host="172.17.42.1:4979", pool="default"):
-        err = None
-        while err != "":
+        hostid = None
+        while not hostid:
             time.sleep(1)
-            process = subprocess.Popen([self.serviced, "host","add", host, pool], stderr=subprocess.PIPE)
-            _, err = process.communicate()
+            process = subprocess.Popen([self.serviced, "host","add", host, pool], stdout=subprocess.PIPE)
+            out, _ = process.communicate()
+            if out:
+                ahostid = out.rstrip()
+                process = subprocess.Popen([self.serviced, "host", "list", ahostid], stdout=subprocess.PIPE)
+                out, _ = process.communicate()
+                if ahostid in out:
+                    hostid = ahostid
+                    print "Added hostid %s for host %s  pool %s" % (hostid, host, pool)
 
     def deploy(self, template, pool="default", svcname="HBase",
             noAutoAssignIpFlag=""):
