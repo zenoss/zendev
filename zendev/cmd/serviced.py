@@ -9,6 +9,7 @@ import time
 import py.path
 import requests
 from vagrantManager import VagrantManager
+from ..log import info
 
 class Serviced(object):
 
@@ -145,16 +146,22 @@ class Serviced(object):
             visitor(services, svc)
             self.walk_services(svc['Services'], visitor)
 
+    def get_template_path(self, template=None):
+      tplpath = None
+      if template is None:
+        tplpath = self.env.srcroot.join("service/services/Zenoss.core")
+      else:
+        tentative = py.path.local(template)
+        if tentative.exists():
+          tplpath = tentative
+        else:
+          tplpath = self.env.srcroot.join("service/services/" + template)
+      return tplpath
+      
+    
     def add_template(self, template=None):
         print "Adding template"
-        if template is None:
-            tplpath = self.env.srcroot.join("service/services/Zenoss.core").strpath
-        else:
-            tentative = py.path.local(template)
-            if tentative.exists():
-                tplpath = tentative.strpath
-            else:
-                tplpath = self.env.srcroot.join("service/services/" + template).strpath
+        tplpath = self.get_template_path(template).strpath
         serviceMakefile = self.env.srcroot.join("service/makefile")
         hbaseVersion = subprocess.check_output("awk -F= '/^hbase_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
         opentsdbVersion = subprocess.check_output("awk -F= '/^opentsdb_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
@@ -183,11 +190,55 @@ class Serviced(object):
         print "Added template", tplid
         return tplid
 
+
     def startall(self):
         p = subprocess.Popen("%s service list | awk '/Zenoss/ {print $2; exit}'" % self.serviced,
                 shell=True, stdout=subprocess.PIPE)
         svcid, stderr = p.communicate()
         subprocess.call([self.serviced, "service", "start", svcid.strip()])
+
+    MERGED_TEMPLATE_SUFFIX="_with_modules"
+
+    def add_template_module(self, baseTemplate, modules, moduleDir):
+      baseTemplatePath = self.get_template_path(baseTemplate)
+      if baseTemplatePath.check(dir=True):
+        info("Using base template: {0} ".format(baseTemplatePath))
+      else:
+        raise Exception("Cannot locate base template {} ".format(baseTemplatePath))
+      info("With additional services: {}".format(modules))
+      
+      modHash = hash(tuple(modules))
+      tplName = baseTemplate + self.MERGED_TEMPLATE_SUFFIX
+      tplHash = tplName + "_{}_".format(str(modHash))
+      temppath = self.env.zenhome.join('.zentemplate').ensure(dir=True)
+
+      # Create a temporary dir to hold the merged template. 3 older dir versions are kept, 
+      # with the oldest ones removed as necessary. The module hash helps identify the merged
+      # template as being applicable to the specific combination of additional services.
+      tplroot = temppath.make_numbered_dir(prefix=tplHash, rootdir=temppath, keep=3)
+      tpldir = tplroot.join(tplName).ensure(dir=True)
+      info("Creating merged template: {}".format(tpldir))
+           
+      
+      tplReadme = tplroot.join("Contents")
+
+      with tplReadme.open(mode='w') as f: 
+        f.write("Adding base template: {0}\n".format(baseTemplatePath))
+        baseTemplatePath.copy(tpldir)
+        for mod in modules:
+          mdir = py.path.local(moduleDir).join(mod)
+          if mdir.check(dir=True):
+            modMsg = "Adding service: {0} \n".format(mdir)
+            f.write(modMsg)
+            info(modMsg)
+            targetdir = tpldir.join(mod).ensure(dir=True)
+            mdir.copy(targetdir)
+          else:
+            raise Exception("Cannot locate module: {0} ".format(mdir))
+            
+      return self.add_template(tpldir.strpath)
+      
+      #end add_template_module()
 
 
 def run_serviced(args, env):
@@ -211,12 +262,17 @@ def run_serviced(args, env):
             timeout -= 1
         if wait_for_ready:
             print "serviced is ready!"
+            
         def _deploy(args,svcname='HBase'):
+          if args.module:
+            tplid = _serviced.add_template_module(args.template, args.module, args.module_dir)
+          else:
             tplid = _serviced.add_template(args.template)
-            if args.no_auto_assign_ips:
-                _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips", svcname=svcname)
-            else:
-                _serviced.deploy(tplid, svcname=svcname)
+          if args.no_auto_assign_ips:
+            _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips", svcname=svcname)
+          else:
+            _serviced.deploy(tplid, svcname=svcname)
+            
         if args.deploy or args.deploy_ana:
             if 'SERVICED_HOST_IP' in os.environ:
                 _serviced.add_host(host=os.environ.get('SERVICED_HOST_IP'))
@@ -292,6 +348,10 @@ def add_commands(subparsers):
                                  help="Clean service state and kill running containers first")
     serviced_parser.add_argument('--template', help="Zenoss service template"
             " directory to compile and add", default=None)
+    serviced_parser.add_argument('--module', help="Additional service modules"
+                                  " for the Zenoss service template", 
+                                 nargs='+', default=None)
+    serviced_parser.add_argument('--module_dir', help="Directory for additional service modules", default=None)
     serviced_parser.add_argument('--no-root', dest="no_root",
                                  action='store_true', help="Don't run serviced as root")
     serviced_parser.add_argument('--no-auto-assign-ips', action='store_true',
