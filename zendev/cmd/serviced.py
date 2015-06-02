@@ -57,7 +57,7 @@ class Serviced(object):
             "--mount", "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath,
             "--mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
             "--mount", "zendev/devimg,%s,/var/zenoss" % self.env.var_zenoss.strpath,
-            "--mount", "/zenoss/impact_5.0:latest,%s,/mnt/src" % self.env.root.join("src").strpath,
+            "--mount", "zendev/impact-devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
             "--uiport", ":%d" % uiport,
         ])
 
