@@ -59,11 +59,13 @@ class Serviced(object):
             "--mount", "zendev/devimg,%s,/var/zenoss" % self.env.var_zenoss.strpath,
             "--mount", "zendev/impact-devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
             "--uiport", ":%d" % uiport,
-            "server"
         ])
-
         if arguments:
-          args.extend( arguments)
+          args.extend(arguments)
+        # In serviced 1.1 and later, use subcommand 'server' to specifically request serviced be started
+        servicedVersion = subprocess.check_output("%s version | awk -F: '/^Version/ { print $NF }'" % self.serviced, shell=True).strip()
+        if not servicedVersion.startswith("1.0."):
+            args.extend(["server"])
 
         print "Running command:", args
         self.proc = subprocess.Popen(args)
