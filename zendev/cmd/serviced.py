@@ -263,29 +263,29 @@ def run_serviced(args, env):
             timeout -= 1
         if wait_for_ready:
             print "serviced is ready!"
-            
-        def _deploy(args,svcname='HBase'):
-          if args.module:
-            tplid = _serviced.add_template_module(args.template, args.module, args.module_dir)
-          else:
-            template = _serviced.compile_template(args.template)
-            tplid = _serviced.add_template(template)
-          if args.no_auto_assign_ips:
-            _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips", svcname=svcname)
-          else:
-            _serviced.deploy(tplid, svcname=svcname)
-            
+
         if args.deploy or args.deploy_ana:
             if 'SERVICED_HOST_IP' in os.environ:
                 _serviced.add_host(host=os.environ.get('SERVICED_HOST_IP'))
             else:
                 _serviced.add_host()
 
-        if args.deploy:
-            _deploy(args)
-        if args.deploy_ana:
-            args.template=env().srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
-            _deploy(args,'ana')
+            if args.deploy_ana:
+                args.template=env().srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
+
+            deploymentId = 'zendev-zenoss' if not args.deploy_ana else 'ana'
+
+            if args.module:
+                tplid = _serviced.add_template_module(args.template, args.module, args.module_dir)
+            else:
+                template = _serviced.compile_template(args.template)
+                tplid = _serviced.add_template(template)
+
+            kwargs = dict(template=tplid, svcname=deploymentId )
+            if args.no_auto_assign_ips:
+                kwargs['noAutoAssignIpFlag'] = '--manual-assign-ips'
+
+            _serviced.deploy(**kwargs)
 
         if args.startall:
             _serviced.startall()
