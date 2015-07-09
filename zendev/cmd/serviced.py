@@ -278,7 +278,10 @@ def run_serviced(args, env):
             if args.module:
                 tplid = _serviced.add_template_module(args.template, args.module, args.module_dir)
             else:
-                template = _serviced.compile_template(args.template)
+                if py.path.local(args.template).isfile():
+                    template = open(py.path.local(args.template).strpath).read()
+                else:
+                    template = _serviced.compile_template(args.template)
                 tplid = _serviced.add_template(template)
 
             kwargs = dict(template=tplid, svcname=deploymentId )
@@ -349,7 +352,7 @@ def add_commands(subparsers):
     serviced_parser.add_argument('-x', '--reset', action='store_true',
                                  help="Clean service state and kill running containers first")
     serviced_parser.add_argument('--template', help="Zenoss service template"
-            " directory to compile and add", default=None)
+            " file to add or directory to compile and add", default=None)
     serviced_parser.add_argument('--module', help="Additional service modules"
                                   " for the Zenoss service template", 
                                  nargs='+', default=None)
