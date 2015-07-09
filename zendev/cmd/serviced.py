@@ -160,11 +160,10 @@ class Serviced(object):
         else:
           tplpath = self.env.srcroot.join("service/services/" + template)
       return tplpath
-      
-    
-    def add_template(self, template=None):
-        print "Adding template"
+
+    def compile_template(self, template):
         tplpath = self.get_template_path(template).strpath
+        print "Compiling template", tplpath
         serviceMakefile = self.env.srcroot.join("service/makefile")
         hbaseVersion = subprocess.check_output("awk -F= '/^hbase_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
         opentsdbVersion = subprocess.check_output("awk -F= '/^opentsdb_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
@@ -185,14 +184,16 @@ class Serviced(object):
         if template and ('ucspm' in template or 'resmgr' in template):
             self.walk_services(compiled['Services'], self.remove_catalogservice)
         stdout = json.dumps(compiled, sort_keys=True, indent=4, separators=(',', ': '))
+        return stdout
 
+    def add_template(self, template=None):
+        print "Adding template"
         addtpl = subprocess.Popen([self.serviced, "template", "add"],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        tplid, _ = addtpl.communicate(stdout)
+        tplid, _ = addtpl.communicate(template)
         tplid = tplid.strip()
         print "Added template", tplid
         return tplid
-
 
     def startall(self):
         p = subprocess.Popen("%s service list | awk '/Zenoss/ {print $2; exit}'" % self.serviced,
@@ -221,7 +222,6 @@ class Serviced(object):
       tplroot = temppath.make_numbered_dir(prefix=tplHash, rootdir=temppath, keep=3)
       tpldir = tplroot.join(tplName).ensure(dir=True)
       info("Creating merged template: {}".format(tpldir))
-           
       
       tplReadme = tplroot.join("Contents")
 
@@ -239,10 +239,8 @@ class Serviced(object):
           else:
             raise Exception("Cannot locate module: {0} ".format(mdir))
             
-      return self.add_template(tpldir.strpath)
+      return self.add_template(self.compile_template(tpldir.strpath))
       
-      #end add_template_module()
-
 
 def run_serviced(args, env):
     timeout = 600
@@ -270,7 +268,8 @@ def run_serviced(args, env):
           if args.module:
             tplid = _serviced.add_template_module(args.template, args.module, args.module_dir)
           else:
-            tplid = _serviced.add_template(args.template)
+            template = _serviced.compile_template(args.template)
+            tplid = _serviced.add_template(template)
           if args.no_auto_assign_ips:
             _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips", svcname=svcname)
           else:
