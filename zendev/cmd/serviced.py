@@ -161,7 +161,7 @@ class Serviced(object):
           tplpath = self.env.srcroot.join("service/services/" + template)
       return tplpath
 
-    def compile_template(self, template):
+    def compile_template(self, template, image):
         tplpath = self.get_template_path(template).strpath
         print "Compiling template", tplpath
         serviceMakefile = self.env.srcroot.join("service/makefile")
@@ -172,7 +172,7 @@ class Serviced(object):
         if hbaseVersion == "" or opentsdbVersion == "":
             raise Exception("Unable to get opentsdb/hbase tags from services makefile")
         proc = subprocess.Popen([self.serviced, "template", "compile",
-            "--map=zenoss/zenoss5x,zendev/devimg",
+            "--map=zenoss/zenoss5x,%s" % image,
             "--map=zenoss/hbase:xx,zenoss/hbase:%s" % hbaseVersion,
             "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion, tplpath],
             stdout=subprocess.PIPE)
@@ -203,7 +203,7 @@ class Serviced(object):
 
     MERGED_TEMPLATE_SUFFIX="_with_modules"
 
-    def add_template_module(self, baseTemplate, modules, moduleDir):
+    def add_template_module(self, baseTemplate, modules, moduleDir, image):
       baseTemplatePath = self.get_template_path(baseTemplate)
       if baseTemplatePath.check(dir=True):
         info("Using base template: {0} ".format(baseTemplatePath))
@@ -239,7 +239,7 @@ class Serviced(object):
           else:
             raise Exception("Cannot locate module: {0} ".format(mdir))
             
-      return self.add_template(self.compile_template(tpldir.strpath))
+      return self.add_template(self.compile_template(tpldir.strpath, image))
       
 
 def run_serviced(args, env):
@@ -276,12 +276,14 @@ def run_serviced(args, env):
             deploymentId = 'zendev-zenoss' if not args.deploy_ana else 'ana'
 
             if args.module:
-                tplid = _serviced.add_template_module(args.template, args.module, args.module_dir)
+                tplid = _serviced.add_template_module(args.template, 
+                    args.module, args.module_dir, args.image)
             else:
+                # Assume that a file is compiled json; directory needs to be compiled
                 if py.path.local(args.template).isfile():
                     template = open(py.path.local(args.template).strpath).read()
                 else:
-                    template = _serviced.compile_template(args.template)
+                    template = _serviced.compile_template(args.template, args.image)
                 tplid = _serviced.add_template(template)
 
             kwargs = dict(template=tplid, svcname=deploymentId )
@@ -353,6 +355,8 @@ def add_commands(subparsers):
                                  help="Clean service state and kill running containers first")
     serviced_parser.add_argument('--template', help="Zenoss service template"
             " file to add or directory to compile and add", default=None)
+    serviced_parser.add_argument('--image', help="Zenoss image to use when compiling template", 
+                                 default='zendev/devimg')
     serviced_parser.add_argument('--module', help="Additional service modules"
                                   " for the Zenoss service template", 
                                  nargs='+', default=None)
