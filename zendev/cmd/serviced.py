@@ -150,16 +150,16 @@ class Serviced(object):
             self.walk_services(svc['Services'], visitor)
 
     def get_template_path(self, template=None):
-      tplpath = None
-      if template is None:
-        tplpath = self.env.srcroot.join("service/services/Zenoss.core")
-      else:
-        tentative = py.path.local(template)
-        if tentative.exists():
-          tplpath = tentative
-        else:
-          tplpath = self.env.srcroot.join("service/services/" + template)
-      return tplpath
+        tplpath = None
+        if template is None:
+            tplpath = self.env.srcroot.join("service/services/Zenoss.core")
+        else: 
+            tentative = py.path.local(template)
+            if tentative.exists():
+                tplpath = tentative
+            else:
+                tplpath = self.env.srcroot.join("service/services/" + template)
+        return tplpath
 
     def compile_template(self, template, image):
         tplpath = self.get_template_path(template).strpath
@@ -204,42 +204,42 @@ class Serviced(object):
     MERGED_TEMPLATE_SUFFIX="_with_modules"
 
     def add_template_module(self, baseTemplate, modules, moduleDir, image):
-      baseTemplatePath = self.get_template_path(baseTemplate)
-      if baseTemplatePath.check(dir=True):
-        info("Using base template: {0} ".format(baseTemplatePath))
-      else:
-        raise Exception("Cannot locate base template {} ".format(baseTemplatePath))
-      info("With additional services: {}".format(modules))
+        baseTemplatePath = self.get_template_path(baseTemplate)
+        if baseTemplatePath.check(dir=True):
+            info("Using base template: {0} ".format(baseTemplatePath))
+        else:
+            raise Exception("Cannot locate base template {} ".format(baseTemplatePath))
+        info("With additional services: {}".format(modules))
       
-      modHash = hash(tuple(modules))
-      tplName = baseTemplate + self.MERGED_TEMPLATE_SUFFIX
-      tplHash = tplName + "_{}_".format(str(modHash))
-      temppath = self.env.zenhome.join('.zentemplate').ensure(dir=True)
+        modHash = hash(tuple(modules))
+        tplName = baseTemplate + self.MERGED_TEMPLATE_SUFFIX
+        tplHash = tplName + "_{}_".format(str(modHash))
+        temppath = self.env.zenhome.join('.zentemplate').ensure(dir=True)
 
-      # Create a temporary dir to hold the merged template. 3 older dir versions are kept, 
-      # with the oldest ones removed as necessary. The module hash helps identify the merged
-      # template as being applicable to the specific combination of additional services.
-      tplroot = temppath.make_numbered_dir(prefix=tplHash, rootdir=temppath, keep=3)
-      tpldir = tplroot.join(tplName).ensure(dir=True)
-      info("Creating merged template: {}".format(tpldir))
+        # Create a temporary dir to hold the merged template. 3 older dir versions are kept, 
+        # with the oldest ones removed as necessary. The module hash helps identify the merged
+        # template as being applicable to the specific combination of additional services.
+        tplroot = temppath.make_numbered_dir(prefix=tplHash, rootdir=temppath, keep=3)
+        tpldir = tplroot.join(tplName).ensure(dir=True)
+        info("Creating merged template: {}".format(tpldir))
       
-      tplReadme = tplroot.join("Contents")
+        tplReadme = tplroot.join("Contents")
 
-      with tplReadme.open(mode='w') as f: 
-        f.write("Adding base template: {0}\n".format(baseTemplatePath))
-        baseTemplatePath.copy(tpldir)
-        for mod in modules:
-          mdir = py.path.local(moduleDir).join(mod)
-          if mdir.check(dir=True):
-            modMsg = "Adding service: {0} \n".format(mdir)
-            f.write(modMsg)
-            info(modMsg)
-            targetdir = tpldir.join(mod).ensure(dir=True)
-            mdir.copy(targetdir)
-          else:
-            raise Exception("Cannot locate module: {0} ".format(mdir))
+        with tplReadme.open(mode='w') as f: 
+            f.write("Adding base template: {0}\n".format(baseTemplatePath))
+            baseTemplatePath.copy(tpldir)
+            for mod in modules:
+                mdir = py.path.local(moduleDir).join(mod)
+                if mdir.check(dir=True):
+                    modMsg = "Adding service: {0} \n".format(mdir)
+                    f.write(modMsg)
+                    info(modMsg)
+                    targetdir = tpldir.join(mod).ensure(dir=True)
+                    mdir.copy(targetdir)
+                else:
+                    raise Exception("Cannot locate module: {0} ".format(mdir))
             
-      return self.add_template(self.compile_template(tpldir.strpath, image))
+        return self.add_template(self.compile_template(tpldir.strpath, image))
       
 
 def run_serviced(args, env):
