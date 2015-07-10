@@ -150,21 +150,20 @@ class Serviced(object):
             self.walk_services(svc['Services'], visitor)
 
     def get_template_path(self, template=None):
-      tplpath = None
-      if template is None:
-        tplpath = self.env.srcroot.join("service/services/Zenoss.core")
-      else:
-        tentative = py.path.local(template)
-        if tentative.exists():
-          tplpath = tentative
-        else:
-          tplpath = self.env.srcroot.join("service/services/" + template)
-      return tplpath
-      
-    
-    def add_template(self, template=None):
-        print "Adding template"
+        tplpath = None
+        if template is None:
+            tplpath = self.env.srcroot.join("service/services/Zenoss.core")
+        else: 
+            tentative = py.path.local(template)
+            if tentative.exists():
+                tplpath = tentative
+            else:
+                tplpath = self.env.srcroot.join("service/services/" + template)
+        return tplpath
+
+    def compile_template(self, template, image):
         tplpath = self.get_template_path(template).strpath
+        print "Compiling template", tplpath
         serviceMakefile = self.env.srcroot.join("service/makefile")
         hbaseVersion = subprocess.check_output("awk -F= '/^hbase_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
         opentsdbVersion = subprocess.check_output("awk -F= '/^opentsdb_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
@@ -173,7 +172,7 @@ class Serviced(object):
         if hbaseVersion == "" or opentsdbVersion == "":
             raise Exception("Unable to get opentsdb/hbase tags from services makefile")
         proc = subprocess.Popen([self.serviced, "template", "compile",
-            "--map=zenoss/zenoss5x,zendev/devimg",
+            "--map=zenoss/zenoss5x,%s" % image,
             "--map=zenoss/hbase:xx,zenoss/hbase:%s" % hbaseVersion,
             "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion, tplpath],
             stdout=subprocess.PIPE)
@@ -185,14 +184,16 @@ class Serviced(object):
         if template and ('ucspm' in template or 'resmgr' in template):
             self.walk_services(compiled['Services'], self.remove_catalogservice)
         stdout = json.dumps(compiled, sort_keys=True, indent=4, separators=(',', ': '))
+        return stdout
 
+    def add_template(self, template=None):
+        print "Adding template"
         addtpl = subprocess.Popen([self.serviced, "template", "add"],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        tplid, _ = addtpl.communicate(stdout)
+        tplid, _ = addtpl.communicate(template)
         tplid = tplid.strip()
         print "Added template", tplid
         return tplid
-
 
     def startall(self):
         p = subprocess.Popen("%s service list | awk '/Zenoss/ {print $2; exit}'" % self.serviced,
@@ -202,47 +203,44 @@ class Serviced(object):
 
     MERGED_TEMPLATE_SUFFIX="_with_modules"
 
-    def add_template_module(self, baseTemplate, modules, moduleDir):
-      baseTemplatePath = self.get_template_path(baseTemplate)
-      if baseTemplatePath.check(dir=True):
-        info("Using base template: {0} ".format(baseTemplatePath))
-      else:
-        raise Exception("Cannot locate base template {} ".format(baseTemplatePath))
-      info("With additional services: {}".format(modules))
+    def add_template_module(self, baseTemplate, modules, moduleDir, image):
+        baseTemplatePath = self.get_template_path(baseTemplate)
+        if baseTemplatePath.check(dir=True):
+            info("Using base template: {0} ".format(baseTemplatePath))
+        else:
+            raise Exception("Cannot locate base template {} ".format(baseTemplatePath))
+        info("With additional services: {}".format(modules))
       
-      modHash = hash(tuple(modules))
-      tplName = baseTemplate + self.MERGED_TEMPLATE_SUFFIX
-      tplHash = tplName + "_{}_".format(str(modHash))
-      temppath = self.env.zenhome.join('.zentemplate').ensure(dir=True)
+        modHash = hash(tuple(modules))
+        tplName = baseTemplate + self.MERGED_TEMPLATE_SUFFIX
+        tplHash = tplName + "_{}_".format(str(modHash))
+        temppath = self.env.zenhome.join('.zentemplate').ensure(dir=True)
 
-      # Create a temporary dir to hold the merged template. 3 older dir versions are kept, 
-      # with the oldest ones removed as necessary. The module hash helps identify the merged
-      # template as being applicable to the specific combination of additional services.
-      tplroot = temppath.make_numbered_dir(prefix=tplHash, rootdir=temppath, keep=3)
-      tpldir = tplroot.join(tplName).ensure(dir=True)
-      info("Creating merged template: {}".format(tpldir))
-           
+        # Create a temporary dir to hold the merged template. 3 older dir versions are kept, 
+        # with the oldest ones removed as necessary. The module hash helps identify the merged
+        # template as being applicable to the specific combination of additional services.
+        tplroot = temppath.make_numbered_dir(prefix=tplHash, rootdir=temppath, keep=3)
+        tpldir = tplroot.join(tplName).ensure(dir=True)
+        info("Creating merged template: {}".format(tpldir))
       
-      tplReadme = tplroot.join("Contents")
+        tplReadme = tplroot.join("Contents")
 
-      with tplReadme.open(mode='w') as f: 
-        f.write("Adding base template: {0}\n".format(baseTemplatePath))
-        baseTemplatePath.copy(tpldir)
-        for mod in modules:
-          mdir = py.path.local(moduleDir).join(mod)
-          if mdir.check(dir=True):
-            modMsg = "Adding service: {0} \n".format(mdir)
-            f.write(modMsg)
-            info(modMsg)
-            targetdir = tpldir.join(mod).ensure(dir=True)
-            mdir.copy(targetdir)
-          else:
-            raise Exception("Cannot locate module: {0} ".format(mdir))
+        with tplReadme.open(mode='w') as f: 
+            f.write("Adding base template: {0}\n".format(baseTemplatePath))
+            baseTemplatePath.copy(tpldir)
+            for mod in modules:
+                mdir = py.path.local(moduleDir).join(mod)
+                if mdir.check(dir=True):
+                    modMsg = "Adding service: {0} \n".format(mdir)
+                    f.write(modMsg)
+                    info(modMsg)
+                    targetdir = tpldir.join(mod).ensure(dir=True)
+                    mdir.copy(targetdir)
+                else:
+                    raise Exception("Cannot locate module: {0} ".format(mdir))
             
-      return self.add_template(tpldir.strpath)
+        return self.add_template(self.compile_template(tpldir.strpath, image))
       
-      #end add_template_module()
-
 
 def run_serviced(args, env):
     timeout = 600
@@ -265,28 +263,34 @@ def run_serviced(args, env):
             timeout -= 1
         if wait_for_ready:
             print "serviced is ready!"
-            
-        def _deploy(args,svcname='HBase'):
-          if args.module:
-            tplid = _serviced.add_template_module(args.template, args.module, args.module_dir)
-          else:
-            tplid = _serviced.add_template(args.template)
-          if args.no_auto_assign_ips:
-            _serviced.deploy(template=tplid, noAutoAssignIpFlag="--manual-assign-ips", svcname=svcname)
-          else:
-            _serviced.deploy(tplid, svcname=svcname)
-            
+
         if args.deploy or args.deploy_ana:
             if 'SERVICED_HOST_IP' in os.environ:
                 _serviced.add_host(host=os.environ.get('SERVICED_HOST_IP'))
             else:
                 _serviced.add_host()
 
-        if args.deploy:
-            _deploy(args)
-        if args.deploy_ana:
-            args.template=env().srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
-            _deploy(args,'ana')
+            if args.deploy_ana:
+                args.template=env().srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
+
+            deploymentId = 'zendev-zenoss' if not args.deploy_ana else 'ana'
+
+            if args.module:
+                tplid = _serviced.add_template_module(args.template, 
+                    args.module, args.module_dir, args.image)
+            else:
+                # Assume that a file is compiled json; directory needs to be compiled
+                if py.path.local(args.template).isfile():
+                    template = open(py.path.local(args.template).strpath).read()
+                else:
+                    template = _serviced.compile_template(args.template, args.image)
+                tplid = _serviced.add_template(template)
+
+            kwargs = dict(template=tplid, svcname=deploymentId )
+            if args.no_auto_assign_ips:
+                kwargs['noAutoAssignIpFlag'] = '--manual-assign-ips'
+
+            _serviced.deploy(**kwargs)
 
         if args.startall:
             _serviced.startall()
@@ -350,7 +354,9 @@ def add_commands(subparsers):
     serviced_parser.add_argument('-x', '--reset', action='store_true',
                                  help="Clean service state and kill running containers first")
     serviced_parser.add_argument('--template', help="Zenoss service template"
-            " directory to compile and add", default=None)
+            " file to add or directory to compile and add", default=None)
+    serviced_parser.add_argument('--image', help="Zenoss image to use when compiling template", 
+                                 default='zendev/devimg')
     serviced_parser.add_argument('--module', help="Additional service modules"
                                   " for the Zenoss service template", 
                                  nargs='+', default=None)
