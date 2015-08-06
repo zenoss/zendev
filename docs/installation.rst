@@ -42,6 +42,7 @@ Ubuntu
 
     # ------------------------------------------------------------------
     # Install Docker for old Europa (version 1.0.x)
+    # (Uses Docker 1.5)
     # ------------------------------------------------------------------
     sudo apt-get install apt-transport-https
     sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
@@ -53,7 +54,8 @@ Ubuntu
 
     # ------------------------------------------------------------------
     # -OR-
-    # Install Docker for current Europa work (version 1.1 or later)
+    # Install Docker for all other cases, including current Europa work
+    # (Uses the latest version of Docker)
     # ------------------------------------------------------------------
     sudo apt-get install apt-transport-https
     sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 \
@@ -64,12 +66,6 @@ Ubuntu
     apt-get update
     apt-get purge lxc-docker*
     apt-get install docker-engine
-
-    # ------------------------------------------------------------------
-    # -OR-
-    # Install Docker for all other cases
-    # ------------------------------------------------------------------
-    curl -sSL https://get.docker.io/ubuntu/ | sudo sh
 
 
 If you are operating under AWS, check if docker is using the devicemapper driver.
@@ -138,19 +134,10 @@ When your box comes back up, authenticate to hub.docker.com:
 
 .. code-block:: bash
 
-    # Install "go get" dependencies.
+    # Install "go get" dependencies
     sudo apt-get install -y mercurial bzr git
 
-    # ------------------------------------------------------------------
-    # Install Go for old Europa (version 1.0.x)
-    # ------------------------------------------------------------------
-    sudo apt-get install -y wget curl
-    curl -s https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz | sudo tar -xzC /usr/local
-
-    # ------------------------------------------------------------------
-    # -OR-
-    # Install Go for all other cases, including current Europa work
-    # ------------------------------------------------------------------
+    # Install the Go version we are using
     sudo apt-get install -y wget curl
     curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
 
@@ -190,7 +177,7 @@ When your box comes back up, authenticate to hub.docker.com:
     sudo apt-get install -y python-dev python-pip
     sudo pip install --upgrade pip
     
-    # Python setup tools (package installed is actually 'python-setuptools')
+    # Python setup tools (package is named 'python-setuptools' in 'dpkg' output)
     # (We are running Python version 2.7.6)
     sudo pip install setuptools --no-use-wheel --upgrade
 
