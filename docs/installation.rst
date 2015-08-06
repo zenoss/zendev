@@ -18,14 +18,17 @@ reinstall it.
 
 Ubuntu
 ------
-.. important:: Ubuntu 14.04 is required
+.. important:: Ubuntu 14.04 or higher is required.  Make sure you know the release name
+	       for your version of Ubuntu (the Adjective from `this table
+	       <https://wiki.ubuntu.com/DevelopmentCodeNames#Release_Naming_Scheme>`_).
+	       Use it (with all small letters) in place of URELEASE in the instructions below.
 
 1. Make sure the universe and multiverse repos are enabled and updated:
 
 .. code-block:: bash
 
     # Add the repository
-    sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu trusty main universe restricted multiverse"
+    sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu URELEASE main universe restricted multiverse"
 
     # Update the repos
     sudo apt-get update
@@ -38,7 +41,8 @@ Ubuntu
     sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
     # ------------------------------------------------------------------
-    # Install Docker for Europa-Release <= 1.0.x
+    # Install Docker for old Europa (version 1.0.x)
+    # (Uses Docker 1.5)
     # ------------------------------------------------------------------
     sudo apt-get install apt-transport-https
     sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
@@ -49,9 +53,19 @@ Ubuntu
     sudo apt-get install lxc-docker-1.5.0
 
     # ------------------------------------------------------------------
-    # Install Docker for all other cases
+    # -OR-
+    # Install Docker for all other cases, including current Europa work
+    # (Uses the latest version of Docker)
     # ------------------------------------------------------------------
-    curl -sSL https://get.docker.io/ubuntu/ | sudo sh
+    sudo apt-get install apt-transport-https
+    sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 \
+	 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+    sudo vim /etc/apt/sources.list.d/docker.list
+        # remove the contents and replace with the following:
+        deb https://apt.dockerproject.org/repo ubuntu-URELEASE main
+    apt-get update
+    apt-get purge lxc-docker*
+    apt-get install docker-engine
 
 
 If you are operating under AWS, check if docker is using the devicemapper driver.
@@ -69,7 +83,9 @@ If you are operating under AWS, check if docker is using the devicemapper driver
     sudo apt-get install linux-image-extra-`uname -r`
     sudo apt-get install lxc-docker-1.5.0
 
-3. Add your user to the ``docker`` group:
+3. Time for Docker-related configuration.
+
+Add your user to the ``docker`` group:
 
 .. code-block:: bash
 
@@ -106,7 +122,7 @@ Next, modify ``/etc/security/limits.conf`` to up the file limits:
 
 Then reboot, to make sure the new limits take effect.
 
-Setup your hub.docker.com credentials.  Go to here: https://hub.docker.com/account/signup/.  Send Ian an email with your Docker Hub username and real name.  Your credentials will be added to groups so you get access to our private repositories (Resource Manager, Impact, etc.).
+Set up your hub.docker.com credentials.  Go to here: https://hub.docker.com/account/signup/.  Send Ian an email with your Docker Hub username and real name.  Your credentials will be added to groups so you get access to our private repositories (Resource Manager, Impact, etc.).
 
 When your box comes back up, authenticate to hub.docker.com:
 
@@ -118,18 +134,10 @@ When your box comes back up, authenticate to hub.docker.com:
 
 .. code-block:: bash
 
-    # Install "go get" dependencies.
+    # Install "go get" dependencies
     sudo apt-get install -y mercurial bzr git
 
-    # ------------------------------------------------------------------
-    # Install Go for Europa-Release <= 1.0.x
-    # ------------------------------------------------------------------
-    sudo apt-get install -y wget curl
-    curl -s https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz | sudo tar -xzC /usr/local
-
-    # ------------------------------------------------------------------
-    # Install Go for all other cases
-    # ------------------------------------------------------------------
+    # Install the Go version we are using
     sudo apt-get install -y wget curl
     curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
 
@@ -169,7 +177,8 @@ When your box comes back up, authenticate to hub.docker.com:
     sudo apt-get install -y python-dev python-pip
     sudo pip install --upgrade pip
     
-    # for Ubuntu 12.04.*
+    # Python setup tools (package is named 'python-setuptools' in 'dpkg' output)
+    # (We are running Python version 2.7.6)
     sudo pip install setuptools --no-use-wheel --upgrade
 
     # libpam (necessary for control plane)
@@ -180,6 +189,17 @@ When your box comes back up, authenticate to hub.docker.com:
 
     # tmux or screen will make your life better
     sudo apt-get install -y tmux screen
+
+And, if you're working on Europa:
+
+.. code-block:: bash
+    
+    # Additional packages needed to build
+    sudo apt-get install -y xfsprogs xfsdump
+    sudo apt-get install -y libdevmapper-dev
+
+    # Need Java to run some of the services (and the build tests)
+    sudo apt-get install -y default-jdk
 
 6. At this point, you need to `set up GitHub for SSH access
    <https://help.github.com/articles/generating-ssh-keys>`_. 
@@ -262,12 +282,14 @@ When your box comes back up, authenticate to hub.docker.com:
 
     # Build the Zenoss Docker repo image (also may take a while)
     zendev build devimg             # to build core
+    # -OR-
     zendev build --resmgr devimg    # to build resmgr
 
     # Run a totally clean instance of serviced, automatically adding localhost
     # as a host, adding the Zenoss template, and deploying an instance of
     # Zenoss (warning: blows away state!) 
     zendev serviced --reset --deploy                                # to deploy core
+    # -OR-
     zendev serviced --reset --deploy --template Zenoss.resmgr.lite  # to deploy resmgr lite
 
     # Proceed after seeing the Zenoss template in 'Deployed templates'
@@ -285,7 +307,7 @@ box`_ to save yourself some effort. Otherwise:
 
 1. Fire up Disk Utility. Create a partition (mine's 50G) formatted with
    a case-sensitive filesystem. Name it, e.g., "Source".
-2. Perform steps 6-10, above, with ``/Volumes/Source`` (if you named your
+2. Perform steps 6-9, above, with ``/Volumes/Source`` (if you named your
    partition "Source") as the value of ``SRCDIR``.
 3. Create an Ubuntu development box and go to town:
 
@@ -302,10 +324,12 @@ Forget it, man. This will only end in tears. Use the `Vagrant box`_.
 .. _Vagrant box:
 Self-managed Vagrant box
 ------------------------
-Essentially, this is a Vagrant box that has already had steps 1-6 applied.
+Essentially, this is a Vagrant box that has already had steps 1-4 and part of 5 applied.
 zendev has the capability to create and manage instances of this box within an
 environment, but it's also perfectly good just to start up a VM for
-development. 
+development.
+
+**Note:** Currently this box has Docker 1.5.0 installed.
 
 1. Install Vagrant_ and VirtualBox_ (don't use old versions, please).
 2. Make a directory, somewhere, anywhere. ``cd`` into it.
@@ -313,35 +337,39 @@ development.
 
 .. code-block:: bash
 
-    vagrant init ubuntu-14.04-CC-1.0
+    vagrant init ubuntu-14.04-CC-1.x
 
 As the pretty words will tell you, a Vagrantfile will have been created in that
-directory. Edit it, uncomment the line specifying the box URL, and set it to
-the one we have hosted:
+directory. Edit it and uncomment or add the following line, setting the URL as shown.
 
 .. code-block:: ruby
 
-    config.vm.box_url = "http://vagrant.zendev.org/boxes/ubuntu-14.04-CC-1.0.box"
+    config.vm.box_url = "http://vagrant.zendev.org/boxes/ubuntu-14.04-CC-1.x.box"
 
 You should also probably uncomment either the private or public networking line
 so you can actually interact with the things running thereon:
 
 .. code-block:: ruby
 
-    config.vm.network :public_network
+    config.vm.network "public_network"
 
-4. Start the box:
+4. Optionally, install any plugins.  For example, the scp plugin, which will
+   allow you to copy files to the box:
+
+.. code-block:: bash
+
+   vagrant plugin install vagrant-scp
+
+5. Start the box and log in to it:
 
 .. code-block:: bash
 
     vagrant up
-
-5. SSH in and execute steps 6-10, above:
-
-.. code-block:: bash
-
     vagrant ssh
-    # etc.
+
+6. Execute steps 3 and 5-9 from the Ubuntu section above.
+
+   Notice in step 5, some of the software is already installed.  ``dpkg -l`` is your friend here.
 
 Update zendev
 -------------
