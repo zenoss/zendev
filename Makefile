@@ -63,6 +63,8 @@ publish-docs:
 	rm -rf /tmp/zendev-docs
 	mv docs/_build/html /tmp/zendev-docs
 	git checkout gh-pages
+	git fetch origin/gh-pages
+	git merge --strategy-option theirs origin/gh-pages
 	rm -rf *
 	mv /tmp/zendev-docs/* .
 	touch .nojekyll && git add .nojekyll
