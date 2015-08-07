@@ -41,7 +41,8 @@ Ubuntu
     sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
     # ------------------------------------------------------------------
-    # Install Docker for Europa-Release <= 1.0.x
+    # Install Docker for old Europa (version 1.0.x)
+    # (Uses Docker 1.5)
     # ------------------------------------------------------------------
     sudo apt-get install apt-transport-https
     sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
@@ -52,9 +53,19 @@ Ubuntu
     sudo apt-get install lxc-docker-1.5.0
 
     # ------------------------------------------------------------------
-    # Install Docker for all other cases
+    # -OR-
+    # Install Docker for all other cases, including current Europa work
+    # (Uses the latest version of Docker)
     # ------------------------------------------------------------------
-    curl -sSL https://get.docker.io/ubuntu/ | sudo sh
+    sudo apt-get install apt-transport-https
+    sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 \
+	 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+    sudo vim /etc/apt/sources.list.d/docker.list
+        # remove the contents and replace with the following:
+        deb https://apt.dockerproject.org/repo ubuntu-URELEASE main
+    apt-get update
+    apt-get purge lxc-docker*
+    apt-get install docker-engine
 
 
 If you are operating under AWS, check if docker is using the devicemapper driver.
@@ -126,15 +137,7 @@ When your box comes back up, authenticate to hub.docker.com:
     # Install "go get" dependencies
     sudo apt-get install -y mercurial bzr git
 
-    # ------------------------------------------------------------------
-    # Install Go for Europa-Release <= 1.0.x
-    # ------------------------------------------------------------------
-    sudo apt-get install -y wget curl
-    curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
-
-    # ------------------------------------------------------------------
-    # Install Go for all other cases
-    # ------------------------------------------------------------------
+    # Install the Go version we are using
     sudo apt-get install -y wget curl
     curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
 

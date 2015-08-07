@@ -153,7 +153,8 @@ sudo apt-get update
 sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
 <span class="c"># ------------------------------------------------------------------</span>
-<span class="c"># Install Docker for Europa-Release &lt;= 1.0.x</span>
+<span class="c"># Install Docker for old Europa (version 1.0.x)</span>
+<span class="c"># (Uses Docker 1.5)</span>
 <span class="c"># ------------------------------------------------------------------</span>
 sudo apt-get install apt-transport-https
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 <span class="se">\</span>
@@ -164,9 +165,19 @@ sudo apt-get update
 sudo apt-get install lxc-docker-1.5.0
 
 <span class="c"># ------------------------------------------------------------------</span>
-<span class="c"># Install Docker for all other cases</span>
+<span class="c"># -OR-</span>
+<span class="c"># Install Docker for all other cases, including current Europa work</span>
+<span class="c"># (Uses the latest version of Docker)</span>
 <span class="c"># ------------------------------------------------------------------</span>
-curl -sSL https://get.docker.io/ubuntu/ <span class="p">|</span> sudo sh
+sudo apt-get install apt-transport-https
+sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 <span class="se">\</span>
+     --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+sudo vim /etc/apt/sources.list.d/docker.list
+    <span class="c"># remove the contents and replace with the following:</span>
+    deb https://apt.dockerproject.org/repo ubuntu-URELEASE main
+apt-get update
+apt-get purge lxc-docker*
+apt-get install docker-engine
 </pre></div>
 </div>
 <dl class="docutils">
@@ -189,12 +200,12 @@ sudo apt-get install lxc-docker-1.5.0
 </ol>
 <p>Add your user to the <tt class="docutils literal"><span class="pre">docker</span></tt> group:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the current user to the docker group</span>
-sudo usermod -a -G docker <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>
-sudo usermod -a -G sudo <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>    <span class="c"># if ubuntu</span>
-sudo usermod -a -G wheel <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>   <span class="c"># if RHEL/Centos</span>
+sudo usermod -a -G docker <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
+sudo usermod -a -G sudo <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>    <span class="c"># if ubuntu</span>
+sudo usermod -a -G wheel <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>   <span class="c"># if RHEL/Centos</span>
 
 <span class="c"># Login again to get docker group (requires password reentry)</span>
-<span class="nb">exec </span>su -l <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>
+<span class="nb">exec </span>su -l <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
 
 <span class="c"># Restart Docker</span>
 sudo service docker restart
@@ -227,17 +238,9 @@ good.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install &quot;go get&quot; dependencies</span>
 sudo apt-get install -y mercurial bzr git
 
-<span class="c"># ------------------------------------------------------------------</span>
-<span class="c"># Install Go for Europa-Release &lt;= 1.0.x</span>
-<span class="c"># ------------------------------------------------------------------</span>
+<span class="c"># Install the Go version we are using</span>
 sudo apt-get install -y wget curl
-curl -s https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz <span class="p">|</span> sudo tar -xzC /usr/local
-
-<span class="c"># ------------------------------------------------------------------</span>
-<span class="c"># Install Go for all other cases</span>
-<span class="c"># ------------------------------------------------------------------</span>
-sudo apt-get install -y wget curl
-curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz <span class="p">|</span> sudo tar -xzC /usr/local
+curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
 
 <span class="c"># Set GOROOT and PATH appropriately</span>
 cat <span class="s">&lt;&lt;\EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/golang.sh&quot;</span>
@@ -251,21 +254,21 @@ cat <span class="s">&lt;&lt;\EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/go
 <span class="c"># Add important/useful golang things</span>
 <span class="nb">export </span><span class="nv">GOPATH</span><span class="o">=</span>/opt/go
 
-sudo mkdir -p <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/<span class="o">{</span>bin,pkg,src<span class="o">}</span>
-sudo chown -R <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>:<span class="si">${</span><span class="nv">USER</span><span class="si">}</span> <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>
+sudo mkdir -p <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/<span class="o">{</span>bin,pkg,src<span class="o">}</span>
+sudo chown -R <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>:<span class="k">${</span><span class="nv">USER</span><span class="k">}</span> <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>
 
 go get github.com/golang/lint/golint
-sudo ln -s <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/bin/golint /usr/local/bin/golint
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/golint /usr/local/bin/golint
 
 go get -v code.google.com/p/rog-go/exp/cmd/godef
 go install -v code.google.com/p/rog-go/exp/cmd/godef
-sudo ln -s <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/bin/godef /usr/local/bin/godef
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/godef /usr/local/bin/godef
 
 go get -u github.com/nsf/gocode
-sudo ln -s <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/bin/gocode /usr/local/bin/gocode
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/gocode /usr/local/bin/gocode
 
 go get golang.org/x/tools/cmd/goimports
-sudo ln -s <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/bin/goimports /usr/local/bin/goimports
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/goimports /usr/local/bin/goimports
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
@@ -310,24 +313,24 @@ make sure you&#8217;ve been added to the appropriate Zenoss teams.</p>
 <span class="nv">SRCDIR</span><span class="o">=</span>~/src
 
 <span class="c"># If SRCDIR does not exist, create it</span>
-mkdir -p <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>
+mkdir -p <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>
 
 <span class="c"># Switch to your source directory</span>
-<span class="nb">cd</span> <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>
+<span class="nb">cd</span> <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>
 
 <span class="c"># Clone zendev</span>
 git clone git@github.com:zenoss/zendev
 
 <span class="c"># Enter the zendev directory</span>
-<span class="nb">cd</span> <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>/zendev
+<span class="nb">cd</span> <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>/zendev
 
 <span class="c"># Generate egg_info as current user to prevent permission problems</span>
 <span class="c"># down the road</span>
-python <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>/zendev/setup.py egg_info
+python <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>/zendev/setup.py egg_info
 
 <span class="c"># Install zendev in place. This means that changes to zendev source will</span>
 <span class="c"># take effect without reinstalling the package.</span>
-sudo pip install -e <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>/zendev
+sudo pip install -e <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>/zendev
 
 <span class="c"># Bootstrap zendev so it can modify the shell environment (i.e., change</span>
 <span class="c"># directories, set environment variables)</span>
@@ -341,7 +344,7 @@ sudo pip install -e <span class="si">${</span><span class="nv">SRCDIR</span><spa
 <li>Create your Europa zendev environment:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Get back to source directory</span>
-<span class="nb">cd</span> <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>
+<span class="nb">cd</span> <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>
 
 <span class="c"># Create the environment for building core devimg</span>
 zendev init europa --tag develop
@@ -484,7 +487,7 @@ to update it, you can run:</p>
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>

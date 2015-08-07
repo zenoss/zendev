@@ -180,7 +180,8 @@
 
 </div>
 <div class="viewcode-block" id="build_impact"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.build.build_impact">[docs]</a><span class="k">def</span> <span class="nf">build_impact</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
-    <span class="n">impact_image</span> <span class="o">=</span> <span class="s">&#39;zenoss/impact_5.0:latest&#39;</span>
+    <span class="n">impact_src_image</span> <span class="o">=</span> <span class="s">&#39;zenoss/impact_5.0:latest&#39;</span>
+    <span class="n">impact_dst_image</span> <span class="o">=</span> <span class="s">&#39;zendev/impact-devimg&#39;</span>
     <span class="n">container_id</span><span class="o">=</span><span class="s">&#39;impact_devimg_&#39;</span><span class="o">+</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
     <span class="c"># TODO: embedding the version number in the link means that we have do rebuild the image</span>
     <span class="c">#  if the version changes.  Better if the pom.xml set up a non-versioned symlink to the</span>
@@ -287,7 +288,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>
