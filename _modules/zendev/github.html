@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packer.html">Building the Development Base Box</a></li>
@@ -103,6 +104,11 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">getpass</span> <span class="kn">import</span> <span class="n">getpass</span>
 
+
+<div class="viewcode-block" id="GithubAuthException"><a class="viewcode-back" href="../../zendev.html#zendev.github.GithubAuthException">[docs]</a><span class="k">class</span> <span class="nc">GithubAuthException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+</div>
 <div class="viewcode-block" id="get_oauth_token"><a class="viewcode-back" href="../../zendev.html#zendev.github.get_oauth_token">[docs]</a><span class="k">def</span> <span class="nf">get_oauth_token</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get or create an OAuth token for making pull requests.</span>
@@ -120,6 +126,15 @@
                 <span class="s">&quot;note&quot;</span><span class="p">:</span> <span class="s">&quot;Europa Development Environment&quot;</span>
             <span class="p">}),</span>
             <span class="n">auth</span><span class="o">=</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;HTTPError: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">ex</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> authenticating against GitHub. Response text: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">ex</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+            <span class="p">)</span>
+            <span class="k">print</span> <span class="n">message</span>
+            <span class="k">raise</span> <span class="n">GithubAuthException</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;token&#39;</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
@@ -128,11 +143,12 @@
 </div>
 <div class="viewcode-block" id="perform"><a class="viewcode-back" href="../../zendev.html#zendev.github.perform">[docs]</a><span class="k">def</span> <span class="nf">perform</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="n">token</span> <span class="o">=</span> <span class="n">get_oauth_token</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
         <span class="n">method</span><span class="p">,</span> <span class="s">&quot;https://api.github.com&quot;</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
         <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;Authorization&quot;</span><span class="p">:</span> <span class="s">&quot;token </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">token</span><span class="p">}</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-</pre></div></div>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+</pre></div>
 
 </div>
 <footer class="footer">

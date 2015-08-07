@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Porting Changes &mdash; zendev 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/bootstrap-2.2.1.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
+    <link rel="next" title="Working With Vagrant Boxes" href="vagrant.html" />
+    <link rel="prev" title="Running Tests" href="test.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="index.html">zendev</a>
+      <span class="navbar-text pull-left"><b>0.1.0</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="index.html" class="dropdown-toggle" data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Working With Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
+<li class="toctree-l1"><a class="reference internal" href="devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Running Tests</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Porting Changes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
+<li class="toctree-l1"><a class="reference internal" href="improve.html">Improving zendev</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">Porting Changes</a><ul>
+<li><a class="reference internal" href="#starting-a-port">Starting a port</a></li>
+<li><a class="reference internal" href="#cherry-picking-a-change">Cherry-picking a change</a></li>
+<li><a class="reference internal" href="#creating-a-pull-request">Creating a pull-request</a></li>
+<li><a class="reference internal" href="#porting-in-a-single-command">Porting in a single command</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+          
+          
+            
+  <li><a href="test.html"
+         title="previous chapter">&laquo; Running Tests</a></li>
+  <li><a href="vagrant.html"
+         title="next chapter">Working With Vagrant Boxes &raquo;</a></li>
+          
+          
+            <li>
+  <a href="_sources/port.txt"
+     rel="nofollow">Source</a></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section" id="porting-changes">
+<h1>Porting Changes<a class="headerlink" href="#porting-changes" title="Permalink to this headline">¶</a></h1>
+<p>zendev can help with porting changes between branches.  It can create a feature branch,
+cherry-pick existing pull-requests or commits, and automatically create a pull-request
+for the port.</p>
+<div class="section" id="starting-a-port">
+<h2>Starting a port<a class="headerlink" href="#starting-a-port" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">port</span> <span class="pre">start</span></tt> creates a feature branch from the current branch and checks out
+the new branch.</p>
+<p>The command will fail if the working tree has changes or if the current branch is
+not up to date with its upstream tracking branch.  Best practice is to perform a
+<tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">restore</span></tt> before beginning work on a port.</p>
+<p>The command&#8217;s only argument is a name which is used to name the branch and is also
+referred to in the pull-request comment.  Best practice is to name the port after the
+ticket being worked; e.g., ZEN-1234</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a branch for ticket ZEN-1234 from the support/5.0.x branch in the core repo</span>
+cdz core
+zendev restore support/5.0.x
+zendev port start ZEN-1234
+</pre></div>
+</div>
+</div>
+<div class="section" id="cherry-picking-a-change">
+<h2>Cherry-picking a change<a class="headerlink" href="#cherry-picking-a-change" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">port</span> <span class="pre">cherry-pick</span></tt> will use <tt class="docutils literal"><span class="pre">git</span> <span class="pre">cherry-pick</span></tt> to move a fix to the current
+branch.  It can cherry-pick individual commits or pull requests.  Pull requests are
+specified by preceding the pull-request number with either &#8220;#&#8221; or &#8220;pull/&#8221;; e.g., <em>#12</em>
+or <em>pull/12</em>.  (Note that the &#8216;#&#8217; character will need to be escaped to prevent the shell
+from interpreting it as a comment.)</p>
+<p>If the cherry-pick fails to merge, you will need to perform a manual merge and
+<tt class="docutils literal"><span class="pre">git</span> <span class="pre">cherry-pick</span> <span class="pre">--continue</span></tt> as described in the
+<a class="reference external" href="http://git-scm.com/docs/git-cherry-pick">git cherry-pick documentation</a>.</p>
+<p>The commit message will include the pull-request or commit hash that was cherry-picked;
+if the default is not satisfactory then the message may be modified by using
+<tt class="docutils literal"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">--amend</span></tt>.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Cherry-pick a pull request.  (Note that the # is escaped)</span>
+zendev port cherry-pick <span class="se">\#</span>12
+
+<span class="c"># Cherry-pick a pull request - alternate form</span>
+zendev port cherry-pick pull/12
+
+<span class="c"># Or cherry-pick an individual commit</span>
+zendev port cherry-pick 3a592c68109d32280467a3b7b5f6a34800cb600c
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-a-pull-request">
+<h2>Creating a pull-request<a class="headerlink" href="#creating-a-pull-request" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">port</span> <span class="pre">pull-request</span></tt> will push the changes in the current branch to github
+and create a pull request for the port.  The pull-request message will include
+a list of all cherry-picks that were performed.  The pull-request message can be edited
+on the pull-request&#8217;s github page.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a pull request from the current branch</span>
+zendev port pull-request
+</pre></div>
+</div>
+</div>
+<div class="section" id="porting-in-a-single-command">
+<h2>Porting in a single command<a class="headerlink" href="#porting-in-a-single-command" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">port</span> <span class="pre">do</span></tt> will create the feature branch, cherry-pick the indicated fix, and
+submit the pull request in a single command</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Port PR 12 to the current branch as part of ticket ZEN-1234</span>
+zendev port <span class="k">do </span>ZEN-1234 pull/12
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Cherry picking pull-request using separate commands</p>
+<div class="highlight-bash"><div class="highlight"><pre>jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject<span class="nv">$ </span>zendev port start ZEN-1234
+<span class="o">==</span>&gt; Creating branch feature/ZEN-1234 from support/5.0.x
+<span class="o">==</span>&gt; Checkout feature/ZEN-1234
+
+jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject<span class="nv">$ </span>zendev port cherry-pick <span class="se">\#</span><span class="nv">8</span>
+<span class="o">==</span>&gt; Cherry picking commits into feature/ZEN-1234
+
+jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject<span class="nv">$ </span>zendev port pull-request
+<span class="o">==</span>&gt; Creating pull request <span class="k">for </span>branch <span class="s2">&quot;ZEN-1234&quot;</span> into <span class="s2">&quot;support/5.0.x&quot;</span>
+<span class="o">==</span>&gt; 1 <span class="nb">local </span>commits in <span class="nb">test</span>/TestProject:feature/ZEN-1234 need to be pushed.Pushing...
+<span class="o">==</span>&gt; Posting pull <span class="nv">request</span>
+<span class="o">==</span>&gt; Pull Request: https://github.com/jafcrocker/TestProject/pull/11
+</pre></div>
+</div>
+<p>Cherry picking pull-request using a single command</p>
+<div class="highlight-bash"><div class="highlight"><pre>jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject<span class="nv">$ </span>zendev port try ZEN-123 <span class="se">\#</span><span class="nv">8</span>
+<span class="o">==</span>&gt; Creating branch feature/ZEN-123 from support/5.0.x
+<span class="o">==</span>&gt; Checkout feature/ZEN-123
+<span class="o">==</span>&gt; Cherry picking commits into feature/ZEN-123
+<span class="o">==</span>&gt; Creating pull request <span class="k">for </span>branch <span class="s2">&quot;feature/ZEN-123&quot;</span> into <span class="s2">&quot;support/5.0.x&quot;</span>
+<span class="o">==</span>&gt; 1 <span class="nb">local </span>commits in <span class="nb">test</span>/TestProject:feature/ZEN-123 need to be pushed.  Pushing...
+<span class="o">==</span>&gt; Posting pull <span class="nv">request</span>
+<span class="o">==</span>&gt; Pull Request: https://github.com/jafcrocker/TestProject/pull/14
+</pre></div>
+</div>
+</div>
+</div>
+
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014 Zenoss.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

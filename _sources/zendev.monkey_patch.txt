@@ -1,0 +1,22 @@
+zendev.monkey_patch package
+===========================
+
+Submodules
+----------
+
+zendev.monkey_patch.gitflow_create module
+-----------------------------------------
+
+.. automodule:: zendev.monkey_patch.gitflow_create
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: zendev.monkey_patch
+    :members:
+    :undoc-members:
+    :show-inheritance:

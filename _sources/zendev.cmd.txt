@@ -44,6 +44,14 @@ zendev.cmd.feature module
     :undoc-members:
     :show-inheritance:
 
+zendev.cmd.port module
+----------------------
+
+.. automodule:: zendev.cmd.port
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 zendev.cmd.repos module
 -----------------------
 
@@ -80,14 +88,6 @@ zendev.cmd.vagrantManager module
 --------------------------------
 
 .. automodule:: zendev.cmd.vagrantManager
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-zendev.cmd.zup module
----------------------
-
-.. automodule:: zendev.cmd.zup
     :members:
     :undoc-members:
     :show-inheritance:

@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packer.html">Building the Development Base Box</a></li>
@@ -111,7 +112,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="o">.</span><span class="n">check</span><span class="p">():</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&quot;File </span><span class="si">%s</span><span class="s"> has invalid JSON data: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">e</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{</span>
+                       <span class="s">&#39;environments&#39;</span><span class="p">:{}</span>
+                    <span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s">&#39;environments&#39;</span><span class="p">:{}</span>

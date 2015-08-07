@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../packer.html">Building the Development Base Box</a></li>
@@ -106,15 +107,17 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages Vagrant boxes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">CONTROLPLANE</span> <span class="o">=</span> <span class="s">&quot;controlplane&quot;</span>
-    <span class="n">SOURCEBUILD</span> <span class="o">=</span> <span class="s">&quot;sourcebuild&quot;</span>
-
+    <span class="n">DEFAULT_BOX</span> <span class="o">=</span> <span class="s">&quot;CC-1.x&quot;</span>
     <span class="n">BOXES</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">CONTROLPLANE</span><span class="p">:</span> <span class="s">&quot;ubuntu-14.04-europa-v3&quot;</span><span class="p">,</span>
-        <span class="n">SOURCEBUILD</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span><span class="p">,</span>
-        <span class="s">&quot;ubuntu&quot;</span><span class="p">:</span> <span class="s">&quot;ubuntu-14.04-europa-v3&quot;</span><span class="p">,</span>
-        <span class="s">&quot;fedora&quot;</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span>
+        <span class="n">DEFAULT_BOX</span><span class="p">:</span> <span class="s">&quot;ubuntu-14.04-CC-1.x&quot;</span><span class="p">,</span>
+        <span class="s">&quot;CC-1.0&quot;</span><span class="p">:</span> <span class="s">&quot;ubuntu-14.04-CC-1.0&quot;</span><span class="p">,</span>
+        <span class="s">&quot;fedora&quot;</span><span class="p">:</span> <span class="s">&quot;f19-docker-zendeps&quot;</span><span class="p">,</span>
     <span class="p">}</span>
+    <span class="n">PROVISION_TYPE</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">DEFAULT_BOX</span><span class="p">:</span> <span class="s">&quot;ubuntu&quot;</span><span class="p">,</span>
+        <span class="s">&quot;CC-1.0&quot;</span><span class="p">:</span> <span class="s">&quot;ubuntu&quot;</span><span class="p">,</span>
+        <span class="s">&quot;fedora&quot;</span><span class="p">:</span> <span class="s">&quot;fedora&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
 
     <span class="c"># The IP of the virtualbox host, as set by vagrant-auto_network plugin.</span>
     <span class="n">VIRTUALBOX_HOST_IP</span> <span class="o">=</span> <span class="s">&quot;10.20.1.1&quot;</span>
@@ -155,10 +158,14 @@
 <div class="viewcode-block" id="VagrantManager.get_shared_directories"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.get_shared_directories">[docs]</a>    <span class="k">def</span> <span class="nf">get_shared_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">zendev</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/zendev&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/src&quot;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-            <span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/build&quot;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-            <span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">configroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+            <span class="p">(</span><span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">zendev</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&#39;&quot;/home/zenoss/zendev&quot;&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">srcroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&#39;&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/src&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&#39;&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/build&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">var_zenoss</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&#39;&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/var_zenoss&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">zenhome</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&#39;&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/zenhome&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s">&quot;type: &#39;nfs&#39;&quot;</span><span class="p">,</span>
+                <span class="s">&quot;:linux__nfs_options =&gt; [&#39;rw,no_root_squash,no_subtree_check&#39;]&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">env</span><span class="o">.</span><span class="n">configroot</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&#39;&quot;/home/zenoss/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span>
                                      <span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">configroot</span><span class="o">.</span><span class="n">basename</span><span class="p">))</span> <span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">_get_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -180,8 +187,7 @@
 </div>
 <div class="viewcode-block" id="VagrantManager.provision"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.provision">[docs]</a>    <span class="k">def</span> <span class="nf">provision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">vagrant</span>
-        <span class="n">BOXES</span><span class="o">=</span><span class="n">VagrantManager</span><span class="o">.</span><span class="n">BOXES</span>
-        <span class="n">type_</span> <span class="o">=</span> <span class="s">&quot;ubuntu&quot;</span> <span class="k">if</span> <span class="n">BOXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span><span class="o">==</span><span class="n">BOXES</span><span class="p">[</span><span class="s">&quot;ubuntu&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&quot;fedora&quot;</span>
+        <span class="n">type_</span> <span class="o">=</span> <span class="n">VagrantManager</span><span class="o">.</span><span class="n">PROVISION_TYPE</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
         <span class="n">provision_script</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s">&quot;bash&quot;</span><span class="p">,</span>
             <span class="n">here</span><span class="p">(</span><span class="s">&quot;provision-</span><span class="si">%s</span><span class="s">.sh&quot;</span> <span class="o">%</span> <span class="n">type_</span><span class="p">)</span><span class="o">.</span><span class="n">strpath</span><span class="p">])</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>

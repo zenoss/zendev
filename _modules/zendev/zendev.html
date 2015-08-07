@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packer.html">Building the Development Base Box</a></li>
@@ -106,6 +107,7 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">textwrap</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
 
 <span class="kn">import</span> <span class="nn">argcomplete</span>
@@ -118,7 +120,8 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">environment</span> <span class="k">as</span> <span class="n">zenv</span>
 <span class="kn">from</span> <span class="nn">.environment</span> <span class="kn">import</span> <span class="n">ZenDevEnvironment</span>
 <span class="kn">from</span> <span class="nn">.environment</span> <span class="kn">import</span> <span class="n">NotInitialized</span>
-<span class="kn">from</span> <span class="nn">.cmd</span> <span class="kn">import</span> <span class="n">box</span><span class="p">,</span> <span class="n">cluster</span><span class="p">,</span> <span class="n">serviced</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">repos</span><span class="p">,</span> <span class="n">tags</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">build</span><span class="p">,</span> <span class="n">zup</span><span class="p">,</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">.cmd</span> <span class="kn">import</span> <span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">cluster</span><span class="p">,</span> <span class="n">serviced</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">repos</span><span class="p">,</span> <span class="n">tags</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span>
+                  <span class="n">build</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
 
 <div class="viewcode-block" id="fargs"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.fargs">[docs]</a><span class="k">class</span> <span class="nc">fargs</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">pass</span>
@@ -182,7 +185,16 @@
 
 </div>
 <div class="viewcode-block" id="parse_args"><a class="viewcode-back" href="../../zendev.html#zendev.zendev.parse_args">[docs]</a><span class="k">def</span> <span class="nf">parse_args</span><span class="p">():</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">epilog</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    Management commands: {bootstrap, root, selfupdate}</span>
+<span class="s">    Environment commands: {init, use, drop, clone, env}</span>
+<span class="s">    Repo commands: {add, addrepo, rm, ls, freeze, sync, status, sync, cd}</span>
+<span class="s">    Tag commands: {restore, tag, changelog}</span>
+<span class="s">    Serviced commands: {serviced, atttach, devshel}</span>
+<span class="s">    Vagrant commands {box, cluster, ssh}</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span> <span class="n">epilog</span><span class="o">=</span><span class="n">epilog</span><span class="p">)</span>
 
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--script&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
                         <span class="n">help</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span><span class="p">)</span>
@@ -192,13 +204,13 @@
 
     <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s">&#39;subparser&#39;</span><span class="p">)</span>
 
-    <span class="n">bootstrap_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;bootstrap&#39;</span><span class="p">)</span>
+    <span class="n">bootstrap_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;bootstrap&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Bootstrap zendev to modify the shell environment&#39;</span><span class="p">)</span>
     <span class="n">bootstrap_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">bootstrap</span><span class="p">)</span>
 
-    <span class="n">root_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;root&#39;</span><span class="p">)</span>
+    <span class="n">root_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;root&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Print root directory of the current environment&#39;</span><span class="p">)</span>
     <span class="n">root_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
 
-    <span class="n">update_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;selfupdate&#39;</span><span class="p">)</span>
+    <span class="n">update_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;selfupdate&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Update zendev&#39;</span><span class="p">)</span>
     <span class="n">update_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">selfupdate</span><span class="p">)</span>
 
     <span class="n">environment</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
@@ -209,8 +221,8 @@
     <span class="n">tags</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">,</span> <span class="n">restoreCompleter</span><span class="p">)</span>
     <span class="n">feature</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
     <span class="n">serviced</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
-    <span class="n">zup</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
     <span class="n">test</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
+    <span class="n">port</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">)</span>
 
     <span class="n">argcomplete</span><span class="o">.</span><span class="n">autocomplete</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
 

@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../packer.html">Building the Development Base Box</a></li>
@@ -139,7 +140,7 @@
 
 </div>
 <div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.feature.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
-    <span class="n">feature_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;feature&#39;</span><span class="p">)</span>
+    <span class="n">feature_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;feature&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Manage feature branches&#39;</span><span class="p">)</span>
     <span class="n">feature_subparser</span> <span class="o">=</span> <span class="n">feature_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">()</span>
 
     <span class="n">feature_start_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;start&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Start feature branch on specified &#39;</span>

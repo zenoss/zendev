@@ -65,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
@@ -122,17 +123,24 @@ Ubuntu Vagrant box already set up with the proper dependencies.</p>
 <p>Here&#8217;s how to set up a full Zenoss development environment on Ubuntu (in case
 you were wondering, these instructions go far beyond the requirements for
 zendev itself, which are basically git and Python).</p>
+<p><strong>Note</strong>: In the rare case that you are installing on a box that previously had
+a non-zendev instance of Resource Manager, reinstall docker.
+Specifically, you need to delete /etc/default/docker or revert the DOCKER_OPTS
+setting to the initial &#8211;dns option. Just apt-get remove lxc-docker-1.5.0 and
+reinstall it.</p>
 <div class="section" id="ubuntu">
 <h2>Ubuntu<a class="headerlink" href="#ubuntu" title="Permalink to this headline">¶</a></h2>
 <div class="admonition important">
 <p class="first admonition-title">Important</p>
-<p class="last">Ubuntu 14.04 is required</p>
+<p class="last">Ubuntu 14.04 or higher is required.  Make sure you know the release name
+for your version of Ubuntu (the Adjective from <a class="reference external" href="https://wiki.ubuntu.com/DevelopmentCodeNames#Release_Naming_Scheme">this table</a>).
+Use it (with all small letters) in place of URELEASE in the instructions below.</p>
 </div>
 <ol class="arabic simple">
 <li>Make sure the universe and multiverse repos are enabled and updated:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the repository</span>
-sudo add-apt-repository <span class="s2">&quot;deb http://archive.ubuntu.com/ubuntu trusty main universe restricted multiverse&quot;</span>
+sudo add-apt-repository <span class="s2">&quot;deb http://archive.ubuntu.com/ubuntu URELEASE main universe restricted multiverse&quot;</span>
 
 <span class="c"># Update the repos</span>
 sudo apt-get update
@@ -144,13 +152,37 @@ sudo apt-get update
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install dependencies</span>
 sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
-<span class="c"># Install Docker</span>
-curl -sSL https://get.docker.io/ubuntu/ | sudo sh
+<span class="c"># ------------------------------------------------------------------</span>
+<span class="c"># Install Docker for old Europa (version 1.0.x)</span>
+<span class="c"># (Uses Docker 1.5)</span>
+<span class="c"># ------------------------------------------------------------------</span>
+sudo apt-get install apt-transport-https
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 <span class="se">\</span>
+     --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
+sudo sh -c <span class="s2">&quot;echo deb https://get.docker.com/ubuntu docker main \</span>
+<span class="s2">     &gt; /etc/apt/sources.list.d/docker.list&quot;</span>
+sudo apt-get update
+sudo apt-get install lxc-docker-1.5.0
+
+<span class="c"># ------------------------------------------------------------------</span>
+<span class="c"># -OR-</span>
+<span class="c"># Install Docker for all other cases, including current Europa work</span>
+<span class="c"># (Uses the latest version of Docker)</span>
+<span class="c"># ------------------------------------------------------------------</span>
+sudo apt-get install apt-transport-https
+sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 <span class="se">\</span>
+     --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+sudo vim /etc/apt/sources.list.d/docker.list
+    <span class="c"># remove the contents and replace with the following:</span>
+    deb https://apt.dockerproject.org/repo ubuntu-URELEASE main
+apt-get update
+apt-get purge lxc-docker*
+apt-get install docker-engine
 </pre></div>
 </div>
 <dl class="docutils">
 <dt>If you are operating under AWS, check if docker is using the devicemapper driver.</dt>
-<dd>Run the &#8220;docker info&#8221; command and look at the storage driver section. If it
+<dd>Run the &#8220;sudo docker info&#8221; command and look at the storage driver section. If it
 says &#8220;devicemapper&#8221;, stop docker, install linux-image-extra, and reinstall
 docker to use AUFS as a storage driver.</dd>
 </dl>
@@ -160,12 +192,13 @@ sudo apt-get autoremove
 sudo rm -rf /var/lib/docker
 sudo apt-get update
 sudo apt-get install linux-image-extra-<span class="sb">`</span>uname -r<span class="sb">`</span>
-sudo apt-get install lxc-docker
+sudo apt-get install lxc-docker-1.5.0
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li>Add your user to the <tt class="docutils literal"><span class="pre">docker</span></tt> group:</li>
+<li>Time for Docker-related configuration.</li>
 </ol>
+<p>Add your user to the <tt class="docutils literal"><span class="pre">docker</span></tt> group:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the current user to the docker group</span>
 sudo usermod -a -G docker <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
 sudo usermod -a -G sudo <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>    <span class="c"># if ubuntu</span>
@@ -194,7 +227,7 @@ good.</p>
 </pre></div>
 </div>
 <p>Then reboot, to make sure the new limits take effect.</p>
-<p>Setup your hub.docker.com credentials.  Go to here: <a class="reference external" href="https://hub.docker.com/account/signup/">https://hub.docker.com/account/signup/</a>.  Send Ian an email with your Docker Hub username and real name.  Your credentials will be added to groups so you get access to our private repositories (Resource Manager, Impact, etc.).</p>
+<p>Set up your hub.docker.com credentials.  Go to here: <a class="reference external" href="https://hub.docker.com/account/signup/">https://hub.docker.com/account/signup/</a>.  Send Ian an email with your Docker Hub username and real name.  Your credentials will be added to groups so you get access to our private repositories (Resource Manager, Impact, etc.).</p>
 <p>When your box comes back up, authenticate to hub.docker.com:</p>
 <div class="highlight-bash"><div class="highlight"><pre>docker login -u YOUR_DOCKERHUB_USERNAME -e <span class="s2">&quot;you@zenoss.com&quot;</span>
 </pre></div>
@@ -202,12 +235,12 @@ good.</p>
 <ol class="arabic simple" start="4">
 <li>Install <a class="reference external" href="http://golang.org/">Go</a>:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install &quot;go get&quot; dependencies.</span>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install &quot;go get&quot; dependencies</span>
 sudo apt-get install -y mercurial bzr git
 
-<span class="c"># Download Go 1.3 and unpack it into /usr/local</span>
+<span class="c"># Install the Go version we are using</span>
 sudo apt-get install -y wget curl
-curl -s https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz | sudo tar -xzC /usr/local
+curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
 
 <span class="c"># Set GOROOT and PATH appropriately</span>
 cat <span class="s">&lt;&lt;\EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/golang.sh&quot;</span>
@@ -234,7 +267,7 @@ sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k
 go get -u github.com/nsf/gocode
 sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/gocode /usr/local/bin/gocode
 
-go get code.google.com/p/go.tools/cmd/goimports
+go get golang.org/x/tools/cmd/goimports
 sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/goimports /usr/local/bin/goimports
 </pre></div>
 </div>
@@ -245,7 +278,8 @@ sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k
 sudo apt-get install -y python-dev python-pip
 sudo pip install --upgrade pip
 
-<span class="c"># for Ubuntu 12.04.*</span>
+<span class="c"># Python setup tools (package is named &#39;python-setuptools&#39; in &#39;dpkg&#39; output)</span>
+<span class="c"># (We are running Python version 2.7.6)</span>
 sudo pip install setuptools --no-use-wheel --upgrade
 
 <span class="c"># libpam (necessary for control plane)</span>
@@ -256,6 +290,15 @@ sudo mkdir /sys/fs/cgroup/<span class="o">{</span>blkio,cpuacct,memory<span clas
 
 <span class="c"># tmux or screen will make your life better</span>
 sudo apt-get install -y tmux screen
+</pre></div>
+</div>
+<p>And, if you&#8217;re working on Europa:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Additional packages needed to build</span>
+sudo apt-get install -y xfsprogs xfsdump
+sudo apt-get install -y libdevmapper-dev
+
+<span class="c"># Need Java to run some of the services (and the build tests)</span>
+sudo apt-get install -y default-jdk
 </pre></div>
 </div>
 <ol class="arabic" start="6">
@@ -309,6 +352,9 @@ zendev init europa --tag develop
 <span class="c"># Start using the environment</span>
 zendev use europa
 
+<span class="c"># This may be needed if the above zendev init failed to clone some repos</span>
+zendev sync
+
 <span class="c"># Optional: add enterprise zenpacks for building resmgr devimg</span>
 zendev add ~/src/europa/build/manifests/zenpacks.commercial.json
 </pre></div>
@@ -338,13 +384,17 @@ make
 
 <span class="c"># Build the Zenoss Docker repo image (also may take a while)</span>
 zendev build devimg             <span class="c"># to build core</span>
+<span class="c"># -OR-</span>
 zendev build --resmgr devimg    <span class="c"># to build resmgr</span>
 
 <span class="c"># Run a totally clean instance of serviced, automatically adding localhost</span>
 <span class="c"># as a host, adding the Zenoss template, and deploying an instance of</span>
 <span class="c"># Zenoss (warning: blows away state!)</span>
 zendev serviced --reset --deploy                                <span class="c"># to deploy core</span>
+<span class="c"># -OR-</span>
 zendev serviced --reset --deploy --template Zenoss.resmgr.lite  <span class="c"># to deploy resmgr lite</span>
+
+<span class="c"># Proceed after seeing the Zenoss template in &#39;Deployed templates&#39;</span>
 </pre></div>
 </div>
 </div>
@@ -360,7 +410,7 @@ box</a> to save yourself some effort. Otherwise:</p>
 <ol class="arabic simple">
 <li>Fire up Disk Utility. Create a partition (mine&#8217;s 50G) formatted with
 a case-sensitive filesystem. Name it, e.g., &#8220;Source&#8221;.</li>
-<li>Perform steps 6-10, above, with <tt class="docutils literal"><span class="pre">/Volumes/Source</span></tt> (if you named your
+<li>Perform steps 6-9, above, with <tt class="docutils literal"><span class="pre">/Volumes/Source</span></tt> (if you named your
 partition &#8220;Source&#8221;) as the value of <tt class="docutils literal"><span class="pre">SRCDIR</span></tt>.</li>
 <li>Create an Ubuntu development box and go to town:</li>
 </ol>
@@ -374,42 +424,48 @@ partition &#8220;Source&#8221;) as the value of <tt class="docutils literal"><sp
 </div>
 <div class="section" id="self-managed-vagrant-box">
 <h2>Self-managed Vagrant box<a class="headerlink" href="#self-managed-vagrant-box" title="Permalink to this headline">¶</a></h2>
-<p>Essentially, this is a Vagrant box that has already had steps 1-6 applied.
+<p>Essentially, this is a Vagrant box that has already had steps 1-4 and part of 5 applied.
 zendev has the capability to create and manage instances of this box within an
 environment, but it&#8217;s also perfectly good just to start up a VM for
 development.</p>
+<p><strong>Note:</strong> Currently this box has Docker 1.5.0 installed.</p>
 <ol class="arabic simple">
 <li>Install <a class="reference external" href="http://www.vagrantup.com/downloads.html">Vagrant</a> and <a class="reference external" href="https://www.virtualbox.org/wiki/Downloads">VirtualBox</a> (don&#8217;t use old versions, please).</li>
 <li>Make a directory, somewhere, anywhere. <tt class="docutils literal"><span class="pre">cd</span></tt> into it.</li>
 <li>Create the box:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre>vagrant init ubuntu-13.04-docker-v3
+<div class="highlight-bash"><div class="highlight"><pre>vagrant init ubuntu-14.04-CC-1.x
 </pre></div>
 </div>
 <p>As the pretty words will tell you, a Vagrantfile will have been created in that
-directory. Edit it, uncomment the line specifying the box URL, and set it to
-the one we have hosted:</p>
-<div class="highlight-ruby"><div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box_url</span> <span class="o">=</span> <span class="s2">&quot;http://vagrant.zendev.org/boxes/ubuntu-13.04-docker-v3.box&quot;</span>
+directory. Edit it and uncomment or add the following line, setting the URL as shown.</p>
+<div class="highlight-ruby"><div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box_url</span> <span class="o">=</span> <span class="s2">&quot;http://vagrant.zendev.org/boxes/ubuntu-14.04-CC-1.x.box&quot;</span>
 </pre></div>
 </div>
 <p>You should also probably uncomment either the private or public networking line
 so you can actually interact with the things running thereon:</p>
-<div class="highlight-ruby"><div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">network</span> <span class="ss">:public_network</span>
+<div class="highlight-ruby"><div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">network</span> <span class="s2">&quot;public_network&quot;</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li>Start the box:</li>
+<li>Optionally, install any plugins.  For example, the scp plugin, which will
+allow you to copy files to the box:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre>vagrant up
+<div class="highlight-bash"><div class="highlight"><pre>vagrant plugin install vagrant-scp
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
-<li>SSH in and execute steps 6-10, above:</li>
+<li>Start the box and log in to it:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre>vagrant ssh
-<span class="c"># etc.</span>
+<div class="highlight-bash"><div class="highlight"><pre>vagrant up
+vagrant ssh
 </pre></div>
 </div>
+<ol class="arabic" start="6">
+<li><p class="first">Execute steps 3 and 5-9 from the Ubuntu section above.</p>
+<p>Notice in step 5, some of the software is already installed.  <tt class="docutils literal"><span class="pre">dpkg</span> <span class="pre">-l</span></tt> is your friend here.</p>
+</li>
+</ol>
 </div>
 <div class="section" id="update-zendev">
 <h2>Update zendev<a class="headerlink" href="#update-zendev" title="Permalink to this headline">¶</a></h2>

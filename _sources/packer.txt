@@ -16,7 +16,7 @@ template is stored in the ``boxes`` directory of your zendev source.
 .. code-block:: bash
 
     # Switch to your zendev checkout (may not be under ~/src)
-    cd ~/src/zendev/boxes/ubuntu-14.04
+    cd ~/src/zendev/boxes/ubuntu-14.04-CC-1.x
 
     # Build the box
     packer build ubuntu-14.04-amd64.json
@@ -28,19 +28,19 @@ template is stored in the ``boxes`` directory of your zendev source.
     # First, remove the existing box. If you don't want to remove the existing
     # box, don't do this. Either way, any existing instances will be
     # unaffected.
-    vagrant box remove ubuntu-14.04-europa-v2
+    vagrant box remove ubuntu-14.04-CC-1.x.box
 
-    # Now add the box you just generated as the new ubuntu-14.04-europa base
+    # Now add the box you just generated as the new ubuntu-14.04-CC-1.x base
     # box. If you didn't remove the one above, pick a new name. You can
     # generate Vagrant boxes using "vagrant init BOXNAME".
-    vagrant box add ubuntu-14.04-europa-v2 \
-        ~/src/zendev/boxes/ubuntu-14.04-europa*.box
+    vagrant box add ubuntu-14.04-CC-1.x \
+        ~/src/zendev/boxes/ubuntu-14.04-CC-1.x.box
 
 5. Use zendev to create a new instance and see how it turned out:
 
 .. code-block:: bash
     
-    zendev box create --type ubuntu mynewbox
+    zendev box create --type CC-1.x mynewbox
 
 
 .. _Packer: http://www.packer.io/

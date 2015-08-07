@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devimg.html">Developing Zenoss in the Control Plane</a></li>
 <li class="toctree-l1"><a class="reference internal" href="test.html">Running Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cluster.html">Vagrant Clusters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packer.html">Building the Development Base Box</a></li>
@@ -166,6 +167,10 @@
   </dt>
 
         
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.add_commands">(in module zendev.cmd.port)</a>
+  </dt>
+
+        
   <dt><a href="zendev.cmd.html#zendev.cmd.repos.add_commands">(in module zendev.cmd.repos)</a>
   </dt>
 
@@ -179,10 +184,6 @@
 
         
   <dt><a href="zendev.cmd.html#zendev.cmd.test.add_commands">(in module zendev.cmd.test)</a>
-  </dt>
-
-        
-  <dt><a href="zendev.cmd.html#zendev.cmd.zup.add_commands">(in module zendev.cmd.zup)</a>
   </dt>
 
       </dl></dd>
@@ -200,6 +201,10 @@
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.add_template_module">add_template_module() (zendev.cmd.serviced.Serviced method)</a>
+  </dt>
+
       
   <dt><a href="zendev.cmd.html#zendev.cmd.repos.addrepo">addrepo() (in module zendev.cmd.repos)</a>
   </dt>
@@ -269,6 +274,10 @@
   </dt>
 
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.build.build_analytics">build_analytics() (in module zendev.cmd.build)</a>
+  </dt>
+
+      
   <dt><a href="zendev.cmd.html#zendev.cmd.test.build_image">build_image() (in module zendev.cmd.test)</a>
   </dt>
 
@@ -317,7 +326,15 @@
   </dt>
 
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.test.check_zendev_test">check_zendev_test() (in module zendev.cmd.test)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.repo.Repository.checkout">checkout() (zendev.repo.Repository method)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.cherry_pick">cherry_pick() (in module zendev.cmd.port)</a>
   </dt>
 
       
@@ -377,15 +394,25 @@
   </dt>
 
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.compile_template">compile_template() (zendev.cmd.serviced.Serviced method)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.configroot">configroot (zendev.environment.ZenDevEnvironment attribute)</a>
   </dt>
 
       
-  <dt><a href="zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.CONTROLPLANE">CONTROLPLANE (zendev.cmd.vagrantManager.VagrantManager attribute)</a>
+  <dt><a href="zendev.monkey_patch.html#zendev.monkey_patch.gitflow_create.create">create() (in module zendev.monkey_patch.gitflow_create)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.create">(zendev.cmd.vagrantManager.VagrantManager method)</a>
+  </dt>
+
+      </dl></dd>
       
-  <dt><a href="zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.create">create() (zendev.cmd.vagrantManager.VagrantManager method)</a>
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.create_branch">create_branch() (in module zendev.cmd.port)</a>
   </dt>
 
       
@@ -397,9 +424,15 @@
   </dt>
 
       
-  <dt><a href="zendev.html#zendev.repo.Repository.create_pull_request">create_pull_request() (zendev.repo.Repository method)</a>
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.create_pull_request">create_pull_request() (in module zendev.cmd.port)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="zendev.html#zendev.repo.Repository.create_pull_request">(zendev.repo.Repository method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="zendev.html#zendev.config.ZendevConfig.current">current (zendev.config.ZendevConfig attribute)</a>
   </dt>
@@ -411,6 +444,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.DEFAULT_BOX">DEFAULT_BOX (zendev.cmd.vagrantManager.VagrantManager attribute)</a>
+  </dt>
+
+      
   <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.deploy">deploy() (zendev.cmd.serviced.Serviced method)</a>
   </dt>
 
@@ -418,12 +455,12 @@
   <dt><a href="zendev.cmd.html#zendev.cmd.serviced.devshell">devshell() (in module zendev.cmd.serviced)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.environment.doit">doit() (in module zendev.environment)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.progress.GitProgressBar.done">done() (zendev.progress.GitProgressBar method)</a>
   </dt>
@@ -454,8 +491,20 @@
   <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.env">env (zendev.cmd.serviced.Serviced attribute)</a>
   </dt>
 
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.environment.env">env() (in module zendev.cmd.environment)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.env_var">env_var() (in module zendev.cmd.port)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.environment.EnvironmentCompleter">EnvironmentCompleter() (in module zendev.cmd.environment)</a>
+  </dt>
+
       
   <dt><a href="zendev.html#zendev.config.ZendevConfig.environments">environments (zendev.config.ZendevConfig attribute)</a>
   </dt>
@@ -561,6 +610,10 @@
   </dt>
 
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.get_current_repo">get_current_repo() (in module zendev.cmd.port)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.config.get_envname">get_envname() (in module zendev.config)</a>
   </dt>
 
@@ -572,18 +625,34 @@
   <dt><a href="zendev.html#zendev.github.get_oauth_token">get_oauth_token() (in module zendev.github)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.cmd.html#zendev.cmd.build.get_packs">get_packs() (in module zendev.cmd.build)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.cmd.html#zendev.cmd.build.get_packs_from_mk">get_packs_from_mk() (in module zendev.cmd.build)</a>
   </dt>
 
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.get_portinfo_filename">get_portinfo_filename() (in module zendev.cmd.port)</a>
+  </dt>
+
+      
   <dt><a href="zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.get_shared_directories">get_shared_directories() (zendev.cmd.vagrantManager.VagrantManager method)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.get_template_path">get_template_path() (zendev.cmd.serviced.Serviced method)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.html#zendev.github.GithubAuthException">GithubAuthException</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.GithubException">GithubException</a>
   </dt>
 
       
@@ -670,6 +739,10 @@
   <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.list_tags">list_tags() (zendev.environment.ZenDevEnvironment method)</a>
   </dt>
 
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.load_portinfo">load_portinfo() (in module zendev.cmd.port)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
@@ -723,6 +796,10 @@
   </dt>
 
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.MERGED_TEMPLATE_SUFFIX">MERGED_TEMPLATE_SUFFIX (zendev.cmd.serviced.Serviced attribute)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.repo.Repository.message">message() (zendev.repo.Repository method)</a>
   </dt>
 
@@ -755,21 +832,45 @@
   </dt>
 
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.parse_pull_request">parse_pull_request() (in module zendev.cmd.port)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.github.perform">perform() (in module zendev.github)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.port_do">port_do() (in module zendev.cmd.port)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.port_pick">port_pick() (in module zendev.cmd.port)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.port_pull_request">port_pull_request() (in module zendev.cmd.port)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.port_start">port_start() (in module zendev.cmd.port)</a>
   </dt>
 
       
   <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.proc">proc (zendev.cmd.serviced.Serviced attribute)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.progress.progress">progress() (in module zendev.progress)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.provision">provision() (zendev.cmd.vagrantManager.VagrantManager method)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.PROVISION_TYPE">PROVISION_TYPE (zendev.cmd.vagrantManager.VagrantManager attribute)</a>
   </dt>
 
       
@@ -778,6 +879,10 @@
 
       
   <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.pull_feature">pull_feature() (zendev.environment.ZenDevEnvironment method)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.pullrequest_commit">pullrequest_commit() (in module zendev.cmd.port)</a>
   </dt>
 
       
@@ -917,6 +1022,14 @@
 
       </dl></dd>
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.save_portinfo_base">save_portinfo_base() (in module zendev.cmd.port)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.port.save_portinfo_message">save_portinfo_message() (in module zendev.cmd.port)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.zendev.selfupdate">selfupdate() (in module zendev.zendev)</a>
   </dt>
 
@@ -937,19 +1050,21 @@
   </dt>
 
       
-  <dt><a href="zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.SOURCEBUILD">SOURCEBUILD (zendev.cmd.vagrantManager.VagrantManager attribute)</a>
-  </dt>
-
-      
   <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.srcroot">srcroot (zendev.environment.ZenDevEnvironment attribute)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.ssh">ssh() (zendev.cmd.vagrantManager.VagrantManager method)</a>
+  <dt><a href="zendev.cmd.html#zendev.cmd.cluster.VagrantClusterManager.ssh">ssh() (zendev.cmd.cluster.VagrantClusterManager method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="zendev.cmd.html#zendev.cmd.vagrantManager.VagrantManager.ssh">(zendev.cmd.vagrantManager.VagrantManager method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.start">start() (zendev.cmd.serviced.Serviced method)</a>
   </dt>
@@ -1095,6 +1210,10 @@
   </dt>
 
       
+  <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.var_zenoss">var_zenoss (zendev.environment.ZenDevEnvironment attribute)</a>
+  </dt>
+
+      
   <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.varpath">varpath (zendev.cmd.serviced.Serviced attribute)</a>
   </dt>
 
@@ -1163,6 +1282,10 @@
   </dt>
 
       
+  <dt><a href="zendev.cmd.html#module-zendev.cmd.port">zendev.cmd.port (module)</a>
+  </dt>
+
+      
   <dt><a href="zendev.cmd.html#module-zendev.cmd.repos">zendev.cmd.repos (module)</a>
   </dt>
 
@@ -1183,15 +1306,11 @@
   </dt>
 
       
-  <dt><a href="zendev.cmd.html#module-zendev.cmd.zup">zendev.cmd.zup (module)</a>
+  <dt><a href="zendev.html#module-zendev.config">zendev.config (module)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="zendev.html#module-zendev.config">zendev.config (module)</a>
-  </dt>
-
       
   <dt><a href="zendev.html#module-zendev.environment">zendev.environment (module)</a>
   </dt>
@@ -1206,6 +1325,14 @@
 
       
   <dt><a href="zendev.html#module-zendev.manifest">zendev.manifest (module)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.monkey_patch.html#module-zendev.monkey_patch">zendev.monkey_patch (module)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.monkey_patch.html#module-zendev.monkey_patch.gitflow_create">zendev.monkey_patch.gitflow_create (module)</a>
   </dt>
 
       
@@ -1233,11 +1360,15 @@
   </dt>
 
       
-  <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.zope_debug">zope_debug() (zendev.cmd.serviced.Serviced method)</a>
+  <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.zenhome">zenhome (zendev.environment.ZenDevEnvironment attribute)</a>
   </dt>
 
       
-  <dt><a href="zendev.cmd.html#zendev.cmd.zup.zup">zup() (in module zendev.cmd.zup)</a>
+  <dt><a href="zendev.cmd.html#zendev.cmd.test.zep_tests">zep_tests() (in module zendev.cmd.test)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.zope_debug">zope_debug() (zendev.cmd.serviced.Serviced method)</a>
   </dt>
 
   </dl></td>
