@@ -5,6 +5,7 @@ import sys
 import subprocess
 import tempfile
 import time
+import re
 
 import py.path
 import requests
@@ -94,8 +95,8 @@ class Serviced(object):
         hostid = None
         while not hostid:
             time.sleep(1)
-            process = subprocess.Popen([self.serviced, "host","add", host, pool], stdout=subprocess.PIPE)
-            out, _ = process.communicate()
+            process = subprocess.Popen([self.serviced, "host","add", host, pool], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = process.communicate()
             if out:
                 ahostid = out.rstrip()
                 process = subprocess.Popen([self.serviced, "host", "list", ahostid], stdout=subprocess.PIPE)
@@ -103,6 +104,10 @@ class Serviced(object):
                 if ahostid in out:
                     hostid = ahostid
                     print "Added hostid %s for host %s  pool %s" % (hostid, host, pool)
+            elif err:
+                match = re.match("host already exists: (\\w+)", err)
+                if match:
+                    hostid = match.group(1)
 
     def deploy(self, template, pool="default", svcname="HBase",
             noAutoAssignIpFlag=""):
