@@ -373,6 +373,7 @@ class ZenDevEnvironment(object):
         for repo in self.repos(filter_):
             if force_branch:
                 info("Syncing %s" % repo.name)
+                repo.fetch()
                 repo.checkout(repo.ref)
             repo.merge_from_remote()
         info("Remote changes have been merged")
