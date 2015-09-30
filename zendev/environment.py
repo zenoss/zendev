@@ -376,9 +376,6 @@ class ZenDevEnvironment(object):
                 repo.checkout(repo.ref)
             repo.merge_from_remote()
         info("Remote changes have been merged")
-        for repo in self.repos(filter_):
-            info("Pushing %s" % repo.name)
-            repo.push()
         info("Up to date!")
 
     def use(self):
