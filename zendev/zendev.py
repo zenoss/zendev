@@ -27,7 +27,7 @@ class fargs(object):
 
 
 @contextmanager
-def temp_env():
+def temp_env(noenv_init_tag=None):
     """
     Creates a temporary environment and patches everything to use it for the
     lifespan of the context manager.
@@ -40,7 +40,7 @@ def temp_env():
     args = fargs()
     args.path = path.strpath
     args.default_repos = False
-    args.tag = None
+    args.tag = noenv_init_tag
     env = environment.init(args, check_env)
     os.environ.update(env.envvars())
     yield
@@ -101,6 +101,9 @@ def parse_args():
     parser.add_argument('-n', '--noenv', action='store_true',
                         help="Run in a temporary environment")
 
+    parser.add_argument('--noenv-init-tag',
+                        help="Specify what manifest tag to immediately checkout - only has an effect with the '--noenv' flag")
+
     subparsers = parser.add_subparsers(dest='subparser')
 
     bootstrap_parser = subparsers.add_parser('bootstrap', help='Bootstrap zendev to modify the shell environment')
@@ -147,7 +150,7 @@ def parse_args():
 def main():
     args = parse_args()
     if args.noenv:
-        with temp_env():
+        with temp_env(args.noenv_init_tag):
             args.functor(args, check_env)
     else:
         args.functor(args, check_env)
