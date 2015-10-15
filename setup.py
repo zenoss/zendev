@@ -37,7 +37,7 @@ setup(
         "py",
         "argcomplete",
         "tabulate",
-        "progressbar2",
+        "progressbar2==2.6.0",
         "python-vagrant==0.4.0",
         "jinja2",
         "requests"
