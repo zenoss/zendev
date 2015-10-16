@@ -474,12 +474,10 @@
         <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="n">filter_</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">force_branch</span><span class="p">:</span>
                 <span class="n">info</span><span class="p">(</span><span class="s">&quot;Syncing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">repo</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
                 <span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
             <span class="n">repo</span><span class="o">.</span><span class="n">merge_from_remote</span><span class="p">()</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;Remote changes have been merged&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="n">filter_</span><span class="p">):</span>
-            <span class="n">info</span><span class="p">(</span><span class="s">&quot;Pushing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">repo</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;Up to date!&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ZenDevEnvironment.use"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.use">[docs]</a>    <span class="k">def</span> <span class="nf">use</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
