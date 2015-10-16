@@ -70,8 +70,8 @@ on the pull-request's github page.
 
 Porting in a single command
 ---------------------------
-``zendev port do`` will create the feature branch, cherry-pick the indicated fix, and
-submit the pull request in a single command
+``zendev port do`` will create a feature branch from the current branch, cherry-pick the 
+indicated fix, and submit the pull request in a single command
 
 .. code-block:: bash
 
@@ -85,6 +85,7 @@ Cherry picking pull-request using separate commands
 
 .. code-block:: bash
 
+    jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject$ git checkout support/5.0.x
     jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject$ zendev port start ZEN-1234
     ==> Creating branch feature/ZEN-1234 from support/5.0.x
     ==> Checkout feature/ZEN-1234
@@ -103,7 +104,8 @@ Cherry picking pull-request using a single command
 
 .. code-block:: bash
 
-    jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject$ zendev port try ZEN-123 \#8
+    jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject$ git checkout support/5.0.x
+    jcrocker@jcrocker-dev:~/src/dev/src/test/TestProject$ zendev port do ZEN-123 \#8
     ==> Creating branch feature/ZEN-123 from support/5.0.x
     ==> Checkout feature/ZEN-123
     ==> Cherry picking commits into feature/ZEN-123
