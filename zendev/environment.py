@@ -47,6 +47,12 @@ def call_repo_member(repo, fname):
         error(e.message)
 
 
+def merge_repo(repo, force_branch):
+    if force_branch:
+        repo.fetch()
+        repo.checkout(repo.ref)
+    repo.merge_from_remote()
+
 
 def init_config_dir():
     """
@@ -370,12 +376,8 @@ class ZenDevEnvironment(object):
     def sync(self, filter_=None, force_branch=False, shallow=False):
         self.clone(shallow=shallow)
         self.fetch()
-        for repo in self.repos(filter_):
-            if force_branch:
-                info("Syncing %s" % repo.name)
-                repo.fetch()
-                repo.checkout(repo.ref)
-            repo.merge_from_remote()
+        info("Merging remote changes")
+        self.foreach(functools.partial(merge_repo, force_branch=force_branch), filter_, silent=True)
         info("Remote changes have been merged")
         info("Up to date!")
 
@@ -512,7 +514,7 @@ class ZenDevEnvironment(object):
             name = repo.name
             path = repo.path
             repo.progress = MultiprocessingProgress(repo.path)
-            result = _pool.apply_async(func, (repo, ))
+            result = _pool.apply_async(func, [repo])
             results[path] = result
             bars[path] = GitProgressBar(name, justification)
             barlist.append(bars[path])
