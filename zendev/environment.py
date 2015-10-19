@@ -1,3 +1,4 @@
+import functools
 import sys
 import time
 import os
@@ -39,8 +40,7 @@ class MultiprocessingProgress(RemoteProgress):
         self.QUEUE.put((args, kwargs, self.path))
 
 
-def doit(repo, fname):
-    repo.progress = MultiprocessingProgress(repo.path)
+def call_repo_member(repo, fname):
     try:
         getattr(repo, fname)()
     except Exception as e:
@@ -358,14 +358,14 @@ class ZenDevEnvironment(object):
         self.ensure_build()
 
     def clone(self, shallow=False):
-        cmd = 'shallow_clone' if shallow else 'clone'
         info("Cloning repositories")
+        cmd = functools.partial(call_repo_member, fname='shallow_clone' if shallow else 'clone')
         self.foreach(cmd, lambda r: not r.repo, silent=not sys.stdout.isatty())
         info("All repositories are cloned!")
 
     def fetch(self):
         info("Checking for remote changes")
-        self.foreach('fetch', silent=True)
+        self.foreach(functools.partial(call_repo_member, fname='fetch'), silent=True)
 
     def sync(self, filter_=None, force_branch=False, shallow=False):
         self.clone(shallow=shallow)
@@ -491,7 +491,7 @@ class ZenDevEnvironment(object):
             info(" finish feature for repository: %s" % r.name)
             r.finish_feature( name)
 
-    def foreach(self, fname, filter_=None, silent=False):
+    def foreach(self, func, filter_=None, silent=False):
         """
         Execute a method on all repositories in subprocesses.
         """
@@ -511,7 +511,8 @@ class ZenDevEnvironment(object):
         for repo in repos:
             name = repo.name
             path = repo.path
-            result = _pool.apply_async(doit, (repo, fname))
+            repo.progress = MultiprocessingProgress(repo.path)
+            result = _pool.apply_async(func, (repo, ))
             results[path] = result
             bars[path] = GitProgressBar(name, justification)
             barlist.append(bars[path])
