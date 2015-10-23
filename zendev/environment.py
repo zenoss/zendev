@@ -9,6 +9,7 @@ from Queue import Empty
 import py
 from tabulate import tabulate
 from git.remote import RemoteProgress
+from git.exc import GitCommandError
 
 from .log import ask, info, error
 from .config import get_config
@@ -41,17 +42,23 @@ class MultiprocessingProgress(RemoteProgress):
 
 
 def call_repo_member(repo, fname):
-    try:
-        getattr(repo, fname)()
-    except Exception as e:
-        error(e.message)
-
+    getattr(repo, fname)()
 
 def merge_repo(repo, force_branch):
     if force_branch:
         repo.fetch()
         repo.checkout(repo.ref)
     repo.merge_from_remote()
+
+def handle_GitCommandError (fn, repo):
+    try:
+        fn(repo)
+    except GitCommandError as e:
+        # Convert GitCommandError so that multiprocessing.apply_async
+        #  can handle it normally
+        msg = "Error executing '{}' on {}\n{}".format(
+                ' '.join(e.command), repo.path, e.stderr) 
+        raise RuntimeError(msg)
 
 
 def init_config_dir():
@@ -514,7 +521,7 @@ class ZenDevEnvironment(object):
             name = repo.name
             path = repo.path
             repo.progress = MultiprocessingProgress(repo.path)
-            result = _pool.apply_async(func, [repo])
+            result = _pool.apply_async(handle_GitCommandError, [func, repo])
             results[path] = result
             bars[path] = GitProgressBar(name, justification)
             barlist.append(bars[path])
@@ -523,12 +530,16 @@ class ZenDevEnvironment(object):
 
         barlist.sort(key=lambda bar:bar.name.count('/'))
 
+        errors = []
+
         def ready():
             done = []
             for path, result in results.iteritems():
                 if result.ready():
                     bars[path].done()
                     done.append(path)
+                    if not result.successful():
+                        errors.append(result._value)
             for d in done:
                 del results[d]
             return not results
@@ -568,3 +579,8 @@ class ZenDevEnvironment(object):
 
         if updated:
             printscreen()
+
+        if errors:
+            for e in errors:
+                error(e)
+            raise RuntimeError(*errors)
