@@ -2,6 +2,7 @@ import requests
 import json
 import os
 from getpass import getpass
+from uuid import getnode as get_mac
 
 
 class GithubAuthException(Exception):
@@ -18,11 +19,14 @@ def get_oauth_token():
     except IOError:
         username = raw_input("GitHub username: ")
         password = getpass("GitHub password: ")
+        mac = get_mac()
+        fingerprint = ':'.join(("%012X" % mac)[i:i+2] for i in range(0, 12, 2))
         response = requests.post(
             "https://api.github.com/authorizations",
             data=json.dumps({
                 "scopes": ["repo"],
-                "note": "Europa Development Environment"
+                "note": "Europa Development Environment",
+                "fingerprint": fingerprint
             }),
             auth=(username, password))
         try:
