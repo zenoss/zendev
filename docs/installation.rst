@@ -18,17 +18,14 @@ reinstall it.
 
 Ubuntu
 ------
-.. important:: Ubuntu 14.04 or higher is required.  Make sure you know the release name
-	       for your version of Ubuntu (the Adjective from `this table
-	       <https://wiki.ubuntu.com/DevelopmentCodeNames#Release_Naming_Scheme>`_).
-	       Use it (with all small letters) in place of URELEASE in the instructions below.
+.. important:: Ubuntu 14.04 or higher is required.
 
 1. Make sure the universe and multiverse repos are enabled and updated:
 
 .. code-block:: bash
 
     # Add the repository
-    sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu URELEASE main universe restricted multiverse"
+    sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse"
 
     # Update the repos
     sudo apt-get update
@@ -59,10 +56,9 @@ Ubuntu
     # ------------------------------------------------------------------
     sudo apt-get install apt-transport-https
     sudo apt-key adv --keyserver hkp://pgp.mit.edu:80 \
-	 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-    sudo vim /etc/apt/sources.list.d/docker.list
-        # remove the contents and replace with the following:
-        deb https://apt.dockerproject.org/repo ubuntu-URELEASE main
+         --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+    sudo sh -c "echo deb https://apt.dockerproject.org/repo ubuntu-$(lsb_release -sc) main \
+       > /etc/apt/sources.list.d/docker.list"
     apt-get update
     apt-get purge lxc-docker*
     apt-get install docker-engine
