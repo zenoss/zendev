@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -99,6 +99,7 @@
 
   
   <h1>Source code for zendev.environment</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -109,6 +110,7 @@
 <span class="kn">import</span> <span class="nn">py</span>
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
 <span class="kn">from</span> <span class="nn">git.remote</span> <span class="kn">import</span> <span class="n">RemoteProgress</span>
+<span class="kn">from</span> <span class="nn">git.exc</span> <span class="kn">import</span> <span class="n">GitCommandError</span>
 
 <span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">ask</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">error</span>
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">get_config</span>
@@ -140,13 +142,24 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">QUEUE</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
 
 </div></div>
-<div class="viewcode-block" id="doit"><a class="viewcode-back" href="../../zendev.html#zendev.environment.doit">[docs]</a><span class="k">def</span> <span class="nf">doit</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
-    <span class="n">repo</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">MultiprocessingProgress</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+<div class="viewcode-block" id="call_repo_member"><a class="viewcode-back" href="../../zendev.html#zendev.environment.call_repo_member">[docs]</a><span class="k">def</span> <span class="nf">call_repo_member</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+    <span class="nb">getattr</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">fname</span><span class="p">)()</span>
+</div>
+<div class="viewcode-block" id="merge_repo"><a class="viewcode-back" href="../../zendev.html#zendev.environment.merge_repo">[docs]</a><span class="k">def</span> <span class="nf">merge_repo</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">force_branch</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">force_branch</span><span class="p">:</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
+    <span class="n">repo</span><span class="o">.</span><span class="n">merge_from_remote</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="handle_GitCommandError"><a class="viewcode-back" href="../../zendev.html#zendev.environment.handle_GitCommandError">[docs]</a><span class="k">def</span> <span class="nf">handle_GitCommandError</span> <span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">repo</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="nb">getattr</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">fname</span><span class="p">)()</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
-
+        <span class="n">fn</span><span class="p">(</span><span class="n">repo</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">GitCommandError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c"># Convert GitCommandError so that multiprocessing.apply_async</span>
+        <span class="c">#  can handle it normally</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Error executing &#39;{}&#39; on {}</span><span class="se">\n</span><span class="s">{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">command</span><span class="p">),</span> <span class="n">repo</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span> 
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="init_config_dir"><a class="viewcode-back" href="../../zendev.html#zendev.environment.init_config_dir">[docs]</a><span class="k">def</span> <span class="nf">init_config_dir</span><span class="p">():</span>
@@ -235,66 +248,66 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">bash</span><span class="p">(</span><span class="s">&#39;export </span><span class="si">%s</span><span class="s">=&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
 
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.srcroot"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.srcroot">[docs]</a>    <span class="k">def</span> <span class="nf">srcroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">srcroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_srcroot</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.gopath"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.gopath">[docs]</a>    <span class="k">def</span> <span class="nf">gopath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">gopath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gopath</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.configroot"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.configroot">[docs]</a>    <span class="k">def</span> <span class="nf">configroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">configroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.buildroot"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.buildroot">[docs]</a>    <span class="k">def</span> <span class="nf">buildroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">buildroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buildroot</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.root"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.root">[docs]</a>    <span class="k">def</span> <span class="nf">root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.var_zenoss"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.var_zenoss">[docs]</a>    <span class="k">def</span> <span class="nf">var_zenoss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">var_zenoss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_var_zenoss</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.zenhome"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.zenhome">[docs]</a>    <span class="k">def</span> <span class="nf">zenhome</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">zenhome</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zenhome</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.zendev"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.zendev">[docs]</a>    <span class="k">def</span> <span class="nf">zendev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">zendev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">here</span><span class="p">(</span><span class="s">&quot;..&quot;</span><span class="p">)</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.vagrantroot"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.vagrantroot">[docs]</a>    <span class="k">def</span> <span class="nf">vagrantroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">vagrantroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vroot</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.clusterroot"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.clusterroot">[docs]</a>    <span class="k">def</span> <span class="nf">clusterroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">clusterroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_croot</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.manifest"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.manifest">[docs]</a>    <span class="k">def</span> <span class="nf">manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the manifest associated with this environment.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manifest</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.vagrant"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.vagrant">[docs]</a>    <span class="k">def</span> <span class="nf">vagrant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">vagrant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the Vagrant manager.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vagrant</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZenDevEnvironment.cluster"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the Vagrant cluster manager.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span>
-</div>
+
 <div class="viewcode-block" id="ZenDevEnvironment.bash"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.bash">[docs]</a>    <span class="k">def</span> <span class="nf">bash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
         <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="bp">self</span><span class="o">.</span><span class="n">_bash</span><span class="p">,</span> <span class="n">command</span>
 </div>
@@ -459,24 +472,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ensure_build</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="ZenDevEnvironment.clone"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="s">&#39;shallow_clone&#39;</span> <span class="k">if</span> <span class="n">shallow</span> <span class="k">else</span> <span class="s">&#39;clone&#39;</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;Cloning repositories&quot;</span><span class="p">)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">call_repo_member</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s">&#39;shallow_clone&#39;</span> <span class="k">if</span> <span class="n">shallow</span> <span class="k">else</span> <span class="s">&#39;clone&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">foreach</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">isatty</span><span class="p">())</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;All repositories are cloned!&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ZenDevEnvironment.fetch"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.fetch">[docs]</a>    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;Checking for remote changes&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">foreach</span><span class="p">(</span><span class="s">&#39;fetch&#39;</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">foreach</span><span class="p">(</span><span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">call_repo_member</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s">&#39;fetch&#39;</span><span class="p">),</span> <span class="n">silent</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ZenDevEnvironment.sync"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.sync">[docs]</a>    <span class="k">def</span> <span class="nf">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">force_branch</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">shallow</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="n">shallow</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="n">filter_</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">force_branch</span><span class="p">:</span>
-                <span class="n">info</span><span class="p">(</span><span class="s">&quot;Syncing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="n">repo</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
-                <span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">ref</span><span class="p">)</span>
-            <span class="n">repo</span><span class="o">.</span><span class="n">merge_from_remote</span><span class="p">()</span>
+        <span class="n">info</span><span class="p">(</span><span class="s">&quot;Merging remote changes&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">foreach</span><span class="p">(</span><span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">merge_repo</span><span class="p">,</span> <span class="n">force_branch</span><span class="o">=</span><span class="n">force_branch</span><span class="p">),</span> <span class="n">filter_</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;Remote changes have been merged&quot;</span><span class="p">)</span>
         <span class="n">info</span><span class="p">(</span><span class="s">&quot;Up to date!&quot;</span><span class="p">)</span>
 </div>
@@ -592,7 +601,7 @@
             <span class="n">info</span><span class="p">(</span><span class="s">&quot; finish feature for repository: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">r</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="n">r</span><span class="o">.</span><span class="n">finish_feature</span><span class="p">(</span> <span class="n">name</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ZenDevEnvironment.foreach"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.foreach">[docs]</a>    <span class="k">def</span> <span class="nf">foreach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">filter_</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.foreach"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.foreach">[docs]</a>    <span class="k">def</span> <span class="nf">foreach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">filter_</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Execute a method on all repositories in subprocesses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -612,7 +621,8 @@
         <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">repos</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">path</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">_pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">doit</span><span class="p">,</span> <span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
+            <span class="n">repo</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">MultiprocessingProgress</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">_pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">handle_GitCommandError</span><span class="p">,</span> <span class="p">[</span><span class="n">func</span><span class="p">,</span> <span class="n">repo</span><span class="p">])</span>
             <span class="n">results</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
             <span class="n">bars</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">GitProgressBar</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">justification</span><span class="p">)</span>
             <span class="n">barlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bars</span><span class="p">[</span><span class="n">path</span><span class="p">])</span>
@@ -621,12 +631,16 @@
 
         <span class="n">barlist</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">bar</span><span class="p">:</span><span class="n">bar</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">))</span>
 
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+
         <span class="k">def</span> <span class="nf">ready</span><span class="p">():</span>
             <span class="n">done</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">ready</span><span class="p">():</span>
                     <span class="n">bars</span><span class="p">[</span><span class="n">path</span><span class="p">]</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
                     <span class="n">done</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">successful</span><span class="p">():</span>
+                        <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">done</span><span class="p">:</span>
                 <span class="k">del</span> <span class="n">results</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
             <span class="k">return</span> <span class="ow">not</span> <span class="n">results</span>
@@ -665,7 +679,12 @@
                 <span class="n">start</span> <span class="o">=</span> <span class="n">now</span>
 
         <span class="k">if</span> <span class="n">updated</span><span class="p">:</span>
-            <span class="n">printscreen</span><span class="p">()</span></div></div>
+            <span class="n">printscreen</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
+                <span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="o">*</span><span class="n">errors</span><span class="p">)</span></div></div>
 </pre></div>
 
 </div>
@@ -677,7 +696,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.1.<br/>
     </p>
   </div>
 </footer>

@@ -36,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -132,15 +132,13 @@ reinstall it.</p>
 <h2>Ubuntu<a class="headerlink" href="#ubuntu" title="Permalink to this headline">¶</a></h2>
 <div class="admonition important">
 <p class="first admonition-title">Important</p>
-<p class="last">Ubuntu 14.04 or higher is required.  Make sure you know the release name
-for your version of Ubuntu (the Adjective from <a class="reference external" href="https://wiki.ubuntu.com/DevelopmentCodeNames#Release_Naming_Scheme">this table</a>).
-Use it (with all small letters) in place of URELEASE in the instructions below.</p>
+<p class="last">Ubuntu 14.04 or higher is required.</p>
 </div>
 <ol class="arabic simple">
 <li>Make sure the universe and multiverse repos are enabled and updated:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the repository</span>
-sudo add-apt-repository <span class="s2">&quot;deb http://archive.ubuntu.com/ubuntu URELEASE main universe restricted multiverse&quot;</span>
+sudo add-apt-repository <span class="s2">&quot;deb http://archive.ubuntu.com/ubuntu </span><span class="k">$(</span>lsb_release -sc<span class="k">)</span><span class="s2"> main universe restricted multiverse&quot;</span>
 
 <span class="c"># Update the repos</span>
 sudo apt-get update
@@ -170,11 +168,10 @@ sudo apt-get install lxc-docker-1.5.0
 <span class="c"># (Uses the latest version of Docker)</span>
 <span class="c"># ------------------------------------------------------------------</span>
 sudo apt-get install apt-transport-https
-sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 <span class="se">\</span>
+sudo apt-key adv --keyserver hkp://pgp.mit.edu:80 <span class="se">\</span>
      --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-sudo vim /etc/apt/sources.list.d/docker.list
-    <span class="c"># remove the contents and replace with the following:</span>
-    deb https://apt.dockerproject.org/repo ubuntu-URELEASE main
+sudo sh -c <span class="s2">&quot;echo deb https://apt.dockerproject.org/repo ubuntu-</span><span class="k">$(</span>lsb_release -sc<span class="k">)</span><span class="s2"> main \</span>
+<span class="s2">   &gt; /etc/apt/sources.list.d/docker.list&quot;</span>
 apt-get update
 apt-get purge lxc-docker*
 apt-get install docker-engine
@@ -198,7 +195,7 @@ sudo apt-get install lxc-docker-1.5.0
 <ol class="arabic simple" start="3">
 <li>Time for Docker-related configuration.</li>
 </ol>
-<p>Add your user to the <tt class="docutils literal"><span class="pre">docker</span></tt> group:</p>
+<p>Add your user to the <code class="docutils literal"><span class="pre">docker</span></code> group:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the current user to the docker group</span>
 sudo usermod -a -G docker <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>
 sudo usermod -a -G sudo <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>    <span class="c"># if ubuntu</span>
@@ -217,7 +214,7 @@ sudo service docker restart
 </div>
 <p>If you see an empty list of containers (i.e., a row of column names), you&#8217;re
 good.</p>
-<p>Next, modify <tt class="docutils literal"><span class="pre">/etc/security/limits.conf</span></tt> to up the file limits:</p>
+<p>Next, modify <code class="docutils literal"><span class="pre">/etc/security/limits.conf</span></code> to up the file limits:</p>
 <div class="highlight-bash"><div class="highlight"><pre>cat <span class="s">&lt;&lt;\EOF | sudo /bin/bash -c &quot;cat &gt;&gt; /etc/security/limits.conf&quot;</span>
 <span class="s">*      hard   nofile   1048576</span>
 <span class="s">*      soft   nofile   1048576</span>
@@ -410,8 +407,8 @@ box</a> to save yourself some effort. Otherwise:</p>
 <ol class="arabic simple">
 <li>Fire up Disk Utility. Create a partition (mine&#8217;s 50G) formatted with
 a case-sensitive filesystem. Name it, e.g., &#8220;Source&#8221;.</li>
-<li>Perform steps 6-9, above, with <tt class="docutils literal"><span class="pre">/Volumes/Source</span></tt> (if you named your
-partition &#8220;Source&#8221;) as the value of <tt class="docutils literal"><span class="pre">SRCDIR</span></tt>.</li>
+<li>Perform steps 6-9, above, with <code class="docutils literal"><span class="pre">/Volumes/Source</span></code> (if you named your
+partition &#8220;Source&#8221;) as the value of <code class="docutils literal"><span class="pre">SRCDIR</span></code>.</li>
 <li>Create an Ubuntu development box and go to town:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre>zendev box create --type ubuntu europa
@@ -431,7 +428,7 @@ development.</p>
 <p><strong>Note:</strong> Currently this box has Docker 1.5.0 installed.</p>
 <ol class="arabic simple">
 <li>Install <a class="reference external" href="http://www.vagrantup.com/downloads.html">Vagrant</a> and <a class="reference external" href="https://www.virtualbox.org/wiki/Downloads">VirtualBox</a> (don&#8217;t use old versions, please).</li>
-<li>Make a directory, somewhere, anywhere. <tt class="docutils literal"><span class="pre">cd</span></tt> into it.</li>
+<li>Make a directory, somewhere, anywhere. <code class="docutils literal"><span class="pre">cd</span></code> into it.</li>
 <li>Create the box:</li>
 </ol>
 <div class="highlight-bash"><div class="highlight"><pre>vagrant init ubuntu-14.04-CC-1.x
@@ -463,7 +460,7 @@ vagrant ssh
 </div>
 <ol class="arabic" start="6">
 <li><p class="first">Execute steps 3 and 5-9 from the Ubuntu section above.</p>
-<p>Notice in step 5, some of the software is already installed.  <tt class="docutils literal"><span class="pre">dpkg</span> <span class="pre">-l</span></tt> is your friend here.</p>
+<p>Notice in step 5, some of the software is already installed.  <code class="docutils literal"><span class="pre">dpkg</span> <span class="pre">-l</span></code> is your friend here.</p>
 </li>
 </ol>
 </div>
@@ -487,7 +484,7 @@ to update it, you can run:</p>
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.1.<br/>
     </p>
   </div>
 </footer>

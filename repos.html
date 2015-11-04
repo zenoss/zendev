@@ -36,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -148,13 +148,13 @@ and name, respectively. BRANCH is the branch that should be checked out.</p>
 effectively makes portable the source tree necessary to build or develop
 a project.</p>
 <p>The manifests representing the Zenoss and Control Plane projects live in the
-GitHub repository <tt class="docutils literal"><span class="pre">zenoss/platform-build</span></tt>, <a class="reference external" href="https://github.com/zenoss/platform-build/tree/develop/manifests">in the manifests directory</a>. This
+GitHub repository <code class="docutils literal"><span class="pre">zenoss/platform-build</span></code>, <a class="reference external" href="https://github.com/zenoss/platform-build/tree/develop/manifests">in the manifests directory</a>. This
 repository is checked out as a part of every zendev environment, and can be
-found in <tt class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/build</span></tt>.</p>
+found in <code class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/build</span></code>.</p>
 </div>
 <div class="section" id="adding-manifests">
 <h2>Adding Manifests<a class="headerlink" href="#adding-manifests" title="Permalink to this headline">¶</a></h2>
-<p>You can add a manifest to a zendev environment with the <tt class="docutils literal"><span class="pre">add</span></tt> command:</p>
+<p>You can add a manifest to a zendev environment with the <code class="docutils literal"><span class="pre">add</span></code> command:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add a local manifest</span>
 zendev add /path/to/manifest.json
 
@@ -165,9 +165,9 @@ zendev add http://host/manifest2.json
 </div>
 <div class="section" id="navigating-source">
 <h2>Navigating Source<a class="headerlink" href="#navigating-source" title="Permalink to this headline">¶</a></h2>
-<p>zendev provides a utility allowing you to <tt class="docutils literal"><span class="pre">cd</span></tt> directly to any repository
+<p>zendev provides a utility allowing you to <code class="docutils literal"><span class="pre">cd</span></code> directly to any repository
 described in the added manifests using regex matching. This is
-(appropriately) provided by the <tt class="docutils literal"><span class="pre">cd</span></tt> command. For example:</p>
+(appropriately) provided by the <code class="docutils literal"><span class="pre">cd</span></code> command. For example:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># cd to $(zendev root)/src/golang/src/github.com/zenoss/serviced</span>
 zendev <span class="nb">cd </span>serviced
 
@@ -178,15 +178,15 @@ zendev <span class="nb">cd </span>shipper
 zendev <span class="nb">cd </span>ldap
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">cdz</span></tt> is an alias for <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cd</span></tt> installed by the zendev bootstrap.</p>
+<p><code class="docutils literal"><span class="pre">cdz</span></code> is an alias for <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">cd</span></code> installed by the zendev bootstrap.</p>
 </div>
 <div class="section" id="adding-repositories">
 <h2>Adding Repositories<a class="headerlink" href="#adding-repositories" title="Permalink to this headline">¶</a></h2>
-<p>Repositories can be added from the environment using the <tt class="docutils literal"><span class="pre">addrepo</span></tt> command.</p>
+<p>Repositories can be added from the environment using the <code class="docutils literal"><span class="pre">addrepo</span></code> command.</p>
 </div>
 <div class="section" id="removing-repositories">
 <h2>Removing Repositories<a class="headerlink" href="#removing-repositories" title="Permalink to this headline">¶</a></h2>
-<p>Repositories can be removed from the environment using the <tt class="docutils literal"><span class="pre">rm</span></tt> command,
+<p>Repositories can be removed from the environment using the <code class="docutils literal"><span class="pre">rm</span></code> command,
 again using regex matching:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Removes, e.g., src/zenpacks/ZenPacks.zenoss.LDAPMonitor</span>
 zendev rm ldap
@@ -196,7 +196,7 @@ zendev rm ldap
 <div class="section" id="generating-manifests">
 <h2>Generating Manifests<a class="headerlink" href="#generating-manifests" title="Permalink to this headline">¶</a></h2>
 <p>Although simple to create by hand, manifests can be generated using the
-<tt class="docutils literal"><span class="pre">freeze</span></tt> command, which will output your environment&#8217;s current repository
+<code class="docutils literal"><span class="pre">freeze</span></code> command, which will output your environment&#8217;s current repository
 state as a manifest, including current branches. Simply issue the command:</p>
 <div class="highlight-bash"><div class="highlight"><pre>zendev freeze &gt; mynewmanifest.json
 </pre></div>
@@ -207,7 +207,7 @@ repositories.</p>
 </div>
 <div class="section" id="pulling-pushing-changes">
 <h2>Pulling/Pushing Changes<a class="headerlink" href="#pulling-pushing-changes" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">sync</span></tt> will clone any repositories that haven&#8217;t been cloned yet, and
+<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">sync</span></code> will clone any repositories that haven&#8217;t been cloned yet, and
 pull any changes from and push any locally committed changes to GitHub.
 Repositories can be specified like most other commands, using string matching.
 Default is to sync all repositories.</p>
@@ -215,7 +215,7 @@ Default is to sync all repositories.</p>
 <div class="section" id="status">
 <h2>Status<a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h2>
 <p>zendev prints a table describing current branch and change status for
-specified (or all) repositories as a result of the <tt class="docutils literal"><span class="pre">status</span></tt> command:</p>
+specified (or all) repositories as a result of the <code class="docutils literal"><span class="pre">status</span></code> command:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Default: print status for repositories with uncommitted changes</span>
 zendev status
 
@@ -230,7 +230,7 @@ zendev status -a
 <div class="section" id="tagging-manifests">
 <h2>Tagging Manifests<a class="headerlink" href="#tagging-manifests" title="Permalink to this headline">¶</a></h2>
 <p>Repository states can be tagged and then restored later. To save the state of
-your environment (committed code only), use <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">tag</span></tt>:</p>
+your environment (committed code only), use <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">tag</span></code>:</p>
 <div class="highlight-bash"><div class="highlight"><pre>zendev tag myniftyfeature
 </pre></div>
 </div>
@@ -239,7 +239,7 @@ your environment (committed code only), use <tt class="docutils literal"><span c
 </pre></div>
 </div>
 <p>If you want your tagged environment to be frozen to a particular commit
-(instead of a branch), you can pass <tt class="docutils literal"><span class="pre">--strict</span></tt>:</p>
+(instead of a branch), you can pass <code class="docutils literal"><span class="pre">--strict</span></code>:</p>
 <div class="highlight-bash"><div class="highlight"><pre>zendev tag --strict nightly-build-123
 </pre></div>
 </div>
@@ -252,8 +252,8 @@ good citizen):</p>
 <div class="highlight-bash"><div class="highlight"><pre>zendev tag --force myniftyfeature
 </pre></div>
 </div>
-<p>You can see the changes between two tags across all repos with <tt class="docutils literal"><span class="pre">zendev</span>
-<span class="pre">changelog</span></tt>:</p>
+<p>You can see the changes between two tags across all repos with <code class="docutils literal"><span class="pre">zendev</span>
+<span class="pre">changelog</span></code>:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Show difference between a tag and current state</span>
 zendev changelog from-tag
 
@@ -261,12 +261,12 @@ zendev changelog from-tag
 zendev changelog from-tag to-tag
 </pre></div>
 </div>
-<p>Finally, you can list all tags with <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">tag</span> <span class="pre">--list</span></tt>.</p>
+<p>Finally, you can list all tags with <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">tag</span> <span class="pre">--list</span></code>.</p>
 </div>
 <div class="section" id="cloning-directly-from-a-manifest">
 <h2>Cloning Directly From a Manifest<a class="headerlink" href="#cloning-directly-from-a-manifest" title="Permalink to this headline">¶</a></h2>
 <p>You don&#8217;t have to have an environment set up to turn a manifest into a source
-tree. You can use <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">clone</span></tt>.</p>
+tree. You can use <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">clone</span></code>.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Clone from a local manifest to ./src</span>
 zendev clone ./src -m /path/to/manifest.json ./src
 
@@ -293,7 +293,7 @@ zendev clone --shallow ./src -t develop
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.1.<br/>
     </p>
   </div>
 </footer>
