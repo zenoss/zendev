@@ -4,7 +4,7 @@ import os
 import py
 import git
 import json
-
+import socket
 import requests
 from termcolor import colored as colored_orig
 
@@ -113,3 +113,13 @@ def repofilter(repos=(), field_fn=lambda x:x.name):
 
     return filter_
 
+
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(('1.2.3.4', 9))
+        return s.getsockname()[0]
+    except socket.error:
+        return None
+    finally:
+        del s

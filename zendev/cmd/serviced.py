@@ -11,6 +11,7 @@ import py.path
 import requests
 from vagrantManager import VagrantManager
 from ..log import info
+from ..utils import get_ip_address
 
 class Serviced(object):
 
@@ -273,7 +274,8 @@ def run_serviced(args, env):
             if 'SERVICED_HOST_IP' in os.environ:
                 _serviced.add_host(host=os.environ.get('SERVICED_HOST_IP'))
             else:
-                _serviced.add_host()
+                ipAddr = get_ip_address() or "172.17.42.1" 
+                _serviced.add_host(ipAddr + ":4979")
 
             if args.deploy_ana:
                 args.template=env().srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
