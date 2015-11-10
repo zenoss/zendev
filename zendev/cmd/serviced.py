@@ -74,7 +74,7 @@ class Serviced(object):
 
     def is_ready(self):
         try:
-            response = requests.get("http://localhost:%d" % self.uiport)
+            response = requests.get("https://localhost:%d" % self.uiport, verify=False)
         except Exception:
             return False
         return response.status_code == 200
