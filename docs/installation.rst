@@ -37,44 +37,44 @@ Ubuntu
 
     Mount the drive for Docker storage:
 
-        .. code-block:: bash
+    .. code-block:: bash
 
-            # Create a mount point
-            sudo mkdir /var/lib/docker
+        # Create a mount point
+        sudo mkdir /var/lib/docker
 
-            # Identify the partition you need to mount
-            sudo lsblk -o NAME,FSTYPE,SIZE,MOUNTPOINT,UUID
+        # Identify the partition you need to mount
+        sudo lsblk -o NAME,FSTYPE,SIZE,MOUNTPOINT,UUID
 
-        You'll be looking for an ext4 partition that hasn't been mounted.
+    You'll be looking for an ext4 partition that hasn't been mounted.
 
-        Example output:
+    Example output:
 
-        .. code-block:: bash
-           :emphasize-lines: 3
+    .. code-block:: bash
+       :emphasize-lines: 3
 
-            NAME                     FSTYPE        SIZE MOUNTPOINT      UUID
-            sda                                  931.5G                 
-            └─sda1                   ext4        931.5G                 84ae6065-25fd-4f0a-9fba-40da962ada20
-            sdb                                  238.5G                 
-            ├─sdb1                   ext2          243M /boot           5a2e2cd4-9a5a-4874-90ba-4195d9400a37
-            ├─sdb2                                   1K                 
-            └─sdb5                   LVM2_member 238.2G                 yiLydV-Bh6u-X6vH-sLgS-Gjc0-94th-vv76KJ
-              ├─it--vg-root (dm-0)   ext4        110.3G /               fcb63cf5-ce47-4cf3-a207-2caa2fad7f4f
-              └─it--vg-swap_1 (dm-1) swap        127.9G [SWAP]          b30cf82e-46b4-461f-9f76-d475a8bf3859
-            sr0                                   1024M                 
+        NAME                     FSTYPE        SIZE MOUNTPOINT      UUID
+        sda                                  931.5G                 
+        └─sda1                   ext4        931.5G                 84ae6065-25fd-4f0a-9fba-40da962ada20
+        sdb                                  238.5G                 
+        ├─sdb1                   ext2          243M /boot           5a2e2cd4-9a5a-4874-90ba-4195d9400a37
+        ├─sdb2                                   1K                 
+        └─sdb5                   LVM2_member 238.2G                 yiLydV-Bh6u-X6vH-sLgS-Gjc0-94th-vv76KJ
+          ├─it--vg-root (dm-0)   ext4        110.3G /               fcb63cf5-ce47-4cf3-a207-2caa2fad7f4f
+          └─it--vg-swap_1 (dm-1) swap        127.9G [SWAP]          b30cf82e-46b4-461f-9f76-d475a8bf3859
+        sr0                                   1024M                 
 
-        Take note of the UUID for the partition you want to mount, add the
-        partition information to your /etc/fstab so it gets automatically
-        mounted at reboot, then mount the partition.
+    Take note of the UUID for the partition you want to mount, add the
+    partition information to your /etc/fstab so it gets automatically
+    mounted at reboot, then mount the partition.
 
-        .. code-block:: bash
+    .. code-block:: bash
 
-            # Create the mount entry into /etc/fstab.  **Replace <UUID> below with the**
-            # **UUID from the lsblk output above**.
-            sudo echo "/dev/disk/by-uuid/**<UUID>** /var/lib/docker auto rw,nosuid,nodev 0 0" >> /etc/fstab
+        # Create the mount entry into /etc/fstab.  **Replace <UUID> below with the**
+        # **UUID from the lsblk output above**.
+        sudo echo "/dev/disk/by-uuid/**<UUID>** /var/lib/docker auto rw,nosuid,nodev 0 0" >> /etc/fstab
 
-            # Mount the device
-            sudo mount /var/lib/docker
+        # Mount the device
+        sudo mount /var/lib/docker
 
 #. Install Docker_:
 
