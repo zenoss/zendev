@@ -32,24 +32,10 @@ Ubuntu
 
 #. Create storage for Docker:
 
-    Docker requires high-performance local or remote storage to function properly.
     The development machine you were provided should have a second hard drive
     installed for extra storage.
 
-    There are two ways to mount the storage needed:
-
-    1. Device mapper thin pool
-
-        To use the device mapper thin pool, refer to the Zenoss Resource Manager
-        Installation Guide (https://sites.google.com/a/zenoss.com/engineering/home/documents ->
-        Platform Docs -> Zenoss -> Installation Guide ->
-        Zenoss_Resource_Manager_Installation_Guide_xxx.pdf)
-
-        See the section labeled "Creating a device mapper thin pool for Docker"
-
-    #. Volume mounted to a folder
-
-        To mount the drive for Docker storage:
+    Mount the drive for Docker storage:
 
         .. code-block:: bash
 
@@ -138,46 +124,6 @@ Ubuntu
         sudo apt-get update
         sudo apt-get install linux-image-extra-`uname -r`
         sudo apt-get install lxc-docker-1.5.0
-
-#. Configure Docker to use device mapper thin pool **(optional based on storage configuration)**
-
-    If you created a device mapper thin pool for docker, configure Docker to use it.
-    
-    **If you mounted the partition to your /var/lib/docker folder, skip to the next step.**
-
-    .. code-block:: bash
-
-        # Display the major and minor kernel numbers of the thin pool.
-        sudo lvs -o lv_name,kernel_major,kernel_minor docker
-
-    Example output:
-
-    .. code-block:: bash
-
-        LV         KMaj KMin
-        dockerpool  253    5
-
-    Display the name device mapper uses for the thin pool.  Replace the **KernelMajor** and **KernelMinor**
-    with the values displayed in the previous substep:
-
-    .. code-block:: bash
-
-        cat /sys/dev/block/KernelMajor:KernelMinor/dm/name
-
-    Example result:
-
-    .. code-block:: bash
-
-        docker-dockerpool
-
-    Add the storage flag to the Docker startup options.
-
-    If the name of your device mapper thin pool is not docker-dockerpool, replace it in the following command.
-
-    .. code-block:: bash
-
-        myOPT='--storage-opt dm.thinpooldev=/dev/mapper/docker-dockerpool'
-        sudo echo 'DOCKER_OPTS="${DOCKER_OPTS} '${myOPT}'"' >> /etc/sysconfig/docker
 
 #. Time for Docker-related configuration.
 
