@@ -231,10 +231,6 @@ Ubuntu
         # tmux or screen will make your life better
         sudo apt-get install -y tmux screen
 
-    And, if you're working on Europa:
-    
-    .. code-block:: bash
-        
         # Additional packages needed to build
         sudo apt-get install -y xfsprogs xfsdump
         sudo apt-get install -y libdevmapper-dev
