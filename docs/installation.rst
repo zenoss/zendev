@@ -176,7 +176,7 @@ Ubuntu
 
     .. code-block:: bash
 
-        myOPT='--storage-opt dm.thinpooldev=/dev/mapper/docker-dockerpool-tpool'
+        myOPT='--storage-opt dm.thinpooldev=/dev/mapper/docker-dockerpool'
         sudo echo 'DOCKER_OPTS="${DOCKER_OPTS} '${myOPT}'"' >> /etc/sysconfig/docker
 
 #. Time for Docker-related configuration.
