@@ -105,7 +105,7 @@ Destroy a cluster
 
 
 Example: Creating and running a multi-host network
------------------------------------------
+--------------------------------------------------
 All nodes in the network are set up to run as agents of a master running on the host.
 All nodes share the ``devimg`` mounts, so that they all run the same code.
 
