@@ -73,7 +73,7 @@ Adding Repositories
 -------------------
 Repositories can be added from the environment using the ``addrepo`` command.
 
-.. code-bloc:: bash
+.. code-block:: bash
 
     # adds the github repo ZenPacks.zenoss.LDAPMonitor
     # the first arg is the destination path
