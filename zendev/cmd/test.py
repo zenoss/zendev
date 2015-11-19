@@ -38,7 +38,6 @@ def zen_image_tests(args, env, product=''):
     if product == 'devimg':
         check_devimg()
         image = "zendev/devimg"
-        mounts[os.path.join(envvars["HOME"], ".m2")] = "/home/zenoss/.m2"
         mounts[os.path.join(envvars["ZENHOME"])] = "/opt/zenoss"
     elif not args.use_existing or (args.use_existing and not check_zendev_test()):
         # Run a build
