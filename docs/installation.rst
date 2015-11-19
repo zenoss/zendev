@@ -282,7 +282,7 @@ Ubuntu
         # Source it in the current shell
         source $(zendev bootstrap)
 
-#. Create your Europa zendev environment:
+#. Create your zendev environment:
 
     .. code-block:: bash
     
@@ -367,13 +367,16 @@ Ubuntu
     **sudo** edit the file with your choice of editors, and append the host names to the
     localhost entry.
 
+    Find the public IP of your dev box and replace **<public ip>** below, adding the hosts in
+    the URL list from CC.
+
     Sample of the first two lines in the /etc/hosts file:
 
     .. code-block:: bash
        :emphasize-lines: 2
 
         127.0.0.1       localhost
-        127.0.1.1       zenoss-1273 zenoss5.zenoss-1273 hbase.zenoss-1273 opentsdb.zenoss-1273 rabbitmq.zenoss-1273
+        <public ip>     zenoss-1273 zenoss5.zenoss-1273 hbase.zenoss-1273 opentsdb.zenoss-1273 rabbitmq.zenoss-1273
 
 OS X
 ----
