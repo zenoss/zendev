@@ -187,7 +187,7 @@ class Serviced(object):
 
         compiled=json.loads(stdout);
         self.walk_services(compiled['Services'], self.zope_debug)
-        if template and ('ucspm' in template or 'resmgr' in template):
+        if 'devimg' in image:
             self.walk_services(compiled['Services'], self.remove_catalogservice)
         stdout = json.dumps(compiled, sort_keys=True, indent=4, separators=(',', ': '))
         return stdout
