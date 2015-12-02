@@ -333,6 +333,13 @@ Ubuntu
         zendev serviced --reset --deploy                                # to deploy core
         # -OR-
         zendev serviced --reset --deploy --template Zenoss.resmgr.lite  # to deploy resmgr lite
+
+    If you encounter an error related to permissions while building serviced, you can
+    resolve the issue by changing the owner of the directory.
+
+    .. code-block:: bash
+    
+        sudo chown ${User} /usr/local/go/pkg/tool/linux_amd64/vet
     
     Proceed after seeing the Zenoss template in 'Deployed templates'.
 
