@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -248,66 +248,66 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">bash</span><span class="p">(</span><span class="s">&#39;export </span><span class="si">%s</span><span class="s">=&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">srcroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.srcroot"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.srcroot">[docs]</a>    <span class="k">def</span> <span class="nf">srcroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_srcroot</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">gopath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.gopath"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.gopath">[docs]</a>    <span class="k">def</span> <span class="nf">gopath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gopath</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">configroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.configroot"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.configroot">[docs]</a>    <span class="k">def</span> <span class="nf">configroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">buildroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.buildroot"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.buildroot">[docs]</a>    <span class="k">def</span> <span class="nf">buildroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buildroot</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.root"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.root">[docs]</a>    <span class="k">def</span> <span class="nf">root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">var_zenoss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.var_zenoss"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.var_zenoss">[docs]</a>    <span class="k">def</span> <span class="nf">var_zenoss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_var_zenoss</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">zenhome</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.zenhome"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.zenhome">[docs]</a>    <span class="k">def</span> <span class="nf">zenhome</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zenhome</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">zendev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.zendev"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.zendev">[docs]</a>    <span class="k">def</span> <span class="nf">zendev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">here</span><span class="p">(</span><span class="s">&quot;..&quot;</span><span class="p">)</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">vagrantroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.vagrantroot"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.vagrantroot">[docs]</a>    <span class="k">def</span> <span class="nf">vagrantroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vroot</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">clusterroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.clusterroot"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.clusterroot">[docs]</a>    <span class="k">def</span> <span class="nf">clusterroot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_croot</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.manifest"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.manifest">[docs]</a>    <span class="k">def</span> <span class="nf">manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the manifest associated with this environment.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manifest</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">vagrant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.vagrant"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.vagrant">[docs]</a>    <span class="k">def</span> <span class="nf">vagrant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the Vagrant manager.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vagrant</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ZenDevEnvironment.cluster"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the Vagrant cluster manager.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span>
-
+</div>
 <div class="viewcode-block" id="ZenDevEnvironment.bash"><a class="viewcode-back" href="../../zendev.html#zendev.environment.ZenDevEnvironment.bash">[docs]</a>    <span class="k">def</span> <span class="nf">bash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
         <span class="k">print</span> <span class="o">&gt;&gt;</span><span class="bp">self</span><span class="o">.</span><span class="n">_bash</span><span class="p">,</span> <span class="n">command</span>
 </div>
@@ -696,7 +696,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.1.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>

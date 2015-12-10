@@ -28,7 +28,7 @@ ticket being worked; e.g., ZEN-1234
 
 
 Cherry-picking a change
-----------------------
+-----------------------
 ``zendev port cherry-pick`` will use ``git cherry-pick`` to move a fix to the current
 branch.  It can cherry-pick individual commits or pull requests.  Pull requests are
 specified by preceding the pull-request number with either "#" or "pull/"; e.g., *#12*

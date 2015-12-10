@@ -36,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -134,20 +134,60 @@ reinstall it.</p>
 <p class="first admonition-title">Important</p>
 <p class="last">Ubuntu 14.04 or higher is required.</p>
 </div>
-<ol class="arabic simple">
-<li>Make sure the universe and multiverse repos are enabled and updated:</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the repository</span>
-sudo add-apt-repository <span class="s2">&quot;deb http://archive.ubuntu.com/ubuntu </span><span class="k">$(</span>lsb_release -sc<span class="k">)</span><span class="s2"> main universe restricted multiverse&quot;</span>
+<ol class="arabic">
+<li><p class="first">Make sure the universe and multiverse repos are enabled and updated:</p>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the repository</span>
+sudo add-apt-repository <span class="s2">&quot;deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse&quot;</span>
 
 <span class="c"># Update the repos</span>
 sudo apt-get update
 </pre></div>
 </div>
-<ol class="arabic simple" start="2">
-<li>Install <a class="reference external" href="http://docker.io/">Docker</a>:</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install dependencies</span>
+</div></blockquote>
+</li>
+<li><p class="first">Create storage for Docker:</p>
+<blockquote>
+<div><p>The development machine you were provided should have a second hard drive
+installed for extra storage.</p>
+<p>Mount the drive for Docker storage:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a mount point</span>
+sudo mkdir /var/lib/docker
+
+<span class="c"># Identify the partition you need to mount</span>
+sudo lsblk -o NAME,FSTYPE,SIZE,MOUNTPOINT,UUID
+</pre></div>
+</div>
+<p>You&#8217;ll be looking for an ext4 partition that hasn&#8217;t been mounted.</p>
+<p>Example output:</p>
+<div class="highlight-bash"><div class="highlight"><pre> NAME                     FSTYPE        SIZE MOUNTPOINT      UUID
+ sda                                  931.5G
+<span class="hll"> └─sda1                   ext4        931.5G                 84ae6065-25fd-4f0a-9fba-40da962ada20
+</span> sdb                                  238.5G
+ ├─sdb1                   ext2          243M /boot           5a2e2cd4-9a5a-4874-90ba-4195d9400a37
+ ├─sdb2                                   1K
+ └─sdb5                   LVM2_member 238.2G                 yiLydV-Bh6u-X6vH-sLgS-Gjc0-94th-vv76KJ
+   ├─it--vg-root <span class="o">(</span>dm-0<span class="o">)</span>   ext4        110.3G /               fcb63cf5-ce47-4cf3-a207-2caa2fad7f4f
+   └─it--vg-swap_1 <span class="o">(</span>dm-1<span class="o">)</span> swap        127.9G <span class="o">[</span>SWAP<span class="o">]</span>          b30cf82e-46b4-461f-9f76-d475a8bf3859
+ sr0                                   1024M
+</pre></div>
+</div>
+<p>Take note of the UUID for the partition you want to mount, add the
+partition information to your /etc/fstab so it gets automatically
+mounted at reboot, then mount the partition.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create the mount entry into /etc/fstab.  Replace &lt;UUID&gt; below with the</span>
+<span class="c"># UUID from the lsblk output above.</span>
+sudo <span class="nb">echo</span> <span class="s2">&quot;/dev/disk/by-uuid/&lt;UUID&gt; /var/lib/docker auto rw,nosuid,nodev 0 0&quot;</span> &gt;&gt; /etc/fstab
+
+<span class="c"># Mount the device</span>
+sudo mount /var/lib/docker
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Install <a class="reference external" href="http://docker.io/">Docker</a>:</p>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install dependencies</span>
 sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
 <span class="c"># ------------------------------------------------------------------</span>
@@ -156,9 +196,9 @@ sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 <span class="c"># ------------------------------------------------------------------</span>
 sudo apt-get install apt-transport-https
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 <span class="se">\</span>
-     --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
+    --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
 sudo sh -c <span class="s2">&quot;echo deb https://get.docker.com/ubuntu docker main \</span>
-<span class="s2">     &gt; /etc/apt/sources.list.d/docker.list&quot;</span>
+<span class="s2">    &gt; /etc/apt/sources.list.d/docker.list&quot;</span>
 sudo apt-get update
 sudo apt-get install lxc-docker-1.5.0
 
@@ -169,19 +209,20 @@ sudo apt-get install lxc-docker-1.5.0
 <span class="c"># ------------------------------------------------------------------</span>
 sudo apt-get install apt-transport-https
 sudo apt-key adv --keyserver hkp://pgp.mit.edu:80 <span class="se">\</span>
-     --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-sudo sh -c <span class="s2">&quot;echo deb https://apt.dockerproject.org/repo ubuntu-</span><span class="k">$(</span>lsb_release -sc<span class="k">)</span><span class="s2"> main \</span>
-<span class="s2">   &gt; /etc/apt/sources.list.d/docker.list&quot;</span>
-apt-get update
-apt-get purge lxc-docker*
-apt-get install docker-engine
+    --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+sudo sh -c <span class="s2">&quot;echo deb https://apt.dockerproject.org/repo ubuntu-$(lsb_release -sc) main \</span>
+<span class="s2">    &gt; /etc/apt/sources.list.d/docker.list&quot;</span>
+sudo apt-get update
+sudo apt-get purge lxc-docker*
+sudo apt-get install docker-engine
 </pre></div>
 </div>
 <dl class="docutils">
 <dt>If you are operating under AWS, check if docker is using the devicemapper driver.</dt>
-<dd>Run the &#8220;sudo docker info&#8221; command and look at the storage driver section. If it
+<dd><p class="first last">Run the &#8220;sudo docker info&#8221; command and look at the storage driver section. If it
 says &#8220;devicemapper&#8221;, stop docker, install linux-image-extra, and reinstall
-docker to use AUFS as a storage driver.</dd>
+docker to use AUFS as a storage driver.</p>
+</dd>
 </dl>
 <div class="highlight-bash"><div class="highlight"><pre>sudo stop docker
 sudo apt-get remove lxc-docker
@@ -192,17 +233,18 @@ sudo apt-get install linux-image-extra-<span class="sb">`</span>uname -r<span cl
 sudo apt-get install lxc-docker-1.5.0
 </pre></div>
 </div>
-<ol class="arabic simple" start="3">
-<li>Time for Docker-related configuration.</li>
-</ol>
-<p>Add your user to the <code class="docutils literal"><span class="pre">docker</span></code> group:</p>
+</div></blockquote>
+</li>
+<li><p class="first">Time for Docker-related configuration.</p>
+<blockquote>
+<div><p>Add your user to the <tt class="docutils literal"><span class="pre">docker</span></tt> group:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Add the current user to the docker group</span>
-sudo usermod -a -G docker <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>
-sudo usermod -a -G sudo <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>    <span class="c"># if ubuntu</span>
-sudo usermod -a -G wheel <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>   <span class="c"># if RHEL/Centos</span>
+sudo usermod -a -G docker <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
+sudo usermod -a -G sudo <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>    <span class="c"># if ubuntu</span>
+sudo usermod -a -G wheel <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>   <span class="c"># if RHEL/Centos</span>
 
 <span class="c"># Login again to get docker group (requires password reentry)</span>
-<span class="nb">exec </span>su -l <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>
+<span class="nb">exec </span>su -l <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
 
 <span class="c"># Restart Docker</span>
 sudo service docker restart
@@ -212,9 +254,8 @@ sudo service docker restart
 <div class="highlight-bash"><div class="highlight"><pre>docker ps
 </pre></div>
 </div>
-<p>If you see an empty list of containers (i.e., a row of column names), you&#8217;re
-good.</p>
-<p>Next, modify <code class="docutils literal"><span class="pre">/etc/security/limits.conf</span></code> to up the file limits:</p>
+<p>If you see an empty list of containers (i.e., a row of column names), you&#8217;re good.</p>
+<p>Next, modify <tt class="docutils literal"><span class="pre">/etc/security/limits.conf</span></tt> to up the file limits:</p>
 <div class="highlight-bash"><div class="highlight"><pre>cat <span class="s">&lt;&lt;\EOF | sudo /bin/bash -c &quot;cat &gt;&gt; /etc/security/limits.conf&quot;</span>
 <span class="s">*      hard   nofile   1048576</span>
 <span class="s">*      soft   nofile   1048576</span>
@@ -229,15 +270,16 @@ good.</p>
 <div class="highlight-bash"><div class="highlight"><pre>docker login -u YOUR_DOCKERHUB_USERNAME -e <span class="s2">&quot;you@zenoss.com&quot;</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="4">
-<li>Install <a class="reference external" href="http://golang.org/">Go</a>:</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install &quot;go get&quot; dependencies</span>
+</div></blockquote>
+</li>
+<li><p class="first">Install <a class="reference external" href="http://golang.org/">Go</a>:</p>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install &quot;go get&quot; dependencies</span>
 sudo apt-get install -y mercurial bzr git
 
 <span class="c"># Install the Go version we are using</span>
 sudo apt-get install -y wget curl
-curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz <span class="p">|</span> sudo tar -xzC /usr/local
+curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
 
 <span class="c"># Set GOROOT and PATH appropriately</span>
 cat <span class="s">&lt;&lt;\EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/golang.sh&quot;</span>
@@ -251,27 +293,28 @@ cat <span class="s">&lt;&lt;\EOF | sudo bash -c &quot;cat &gt; /etc/profile.d/go
 <span class="c"># Add important/useful golang things</span>
 <span class="nb">export </span><span class="nv">GOPATH</span><span class="o">=</span>/opt/go
 
-sudo mkdir -p <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/<span class="o">{</span>bin,pkg,src<span class="o">}</span>
-sudo chown -R <span class="si">${</span><span class="nv">USER</span><span class="si">}</span>:<span class="si">${</span><span class="nv">USER</span><span class="si">}</span> <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>
+sudo mkdir -p <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/<span class="o">{</span>bin,pkg,src<span class="o">}</span>
+sudo chown -R <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>:<span class="k">${</span><span class="nv">USER</span><span class="k">}</span> <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>
 
 go get github.com/golang/lint/golint
-sudo ln -s <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/bin/golint /usr/local/bin/golint
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/golint /usr/local/bin/golint
 
 go get -v code.google.com/p/rog-go/exp/cmd/godef
 go install -v code.google.com/p/rog-go/exp/cmd/godef
-sudo ln -s <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/bin/godef /usr/local/bin/godef
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/godef /usr/local/bin/godef
 
 go get -u github.com/nsf/gocode
-sudo ln -s <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/bin/gocode /usr/local/bin/gocode
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/gocode /usr/local/bin/gocode
 
 go get golang.org/x/tools/cmd/goimports
-sudo ln -s <span class="si">${</span><span class="nv">GOPATH</span><span class="si">}</span>/bin/goimports /usr/local/bin/goimports
+sudo ln -s <span class="k">${</span><span class="nv">GOPATH</span><span class="k">}</span>/bin/goimports /usr/local/bin/goimports
 </pre></div>
 </div>
-<ol class="arabic simple" start="5">
-<li>Install other dependencies:</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Python, pip</span>
+</div></blockquote>
+</li>
+<li><p class="first">Install other dependencies:</p>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre><span class="c"># Python, pip</span>
 sudo apt-get install -y python-dev python-pip
 sudo pip install --upgrade pip
 
@@ -287,10 +330,8 @@ sudo mkdir /sys/fs/cgroup/<span class="o">{</span>blkio,cpuacct,memory<span clas
 
 <span class="c"># tmux or screen will make your life better</span>
 sudo apt-get install -y tmux screen
-</pre></div>
-</div>
-<p>And, if you&#8217;re working on Europa:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Additional packages needed to build</span>
+
+<span class="c"># Additional packages needed to build</span>
 sudo apt-get install -y xfsprogs xfsdump
 sudo apt-get install -y libdevmapper-dev
 
@@ -298,36 +339,39 @@ sudo apt-get install -y libdevmapper-dev
 sudo apt-get install -y default-jdk
 </pre></div>
 </div>
-<ol class="arabic" start="6">
+</div></blockquote>
+</li>
 <li><p class="first">At this point, you need to <a class="reference external" href="https://help.github.com/articles/generating-ssh-keys">set up GitHub for SSH access</a>.</p>
-<p>When you set up your ssh access, <strong>do not use a key with a passphrase.</strong>  Also,
-make sure you&#8217;ve been added to the appropriate Zenoss teams.</p>
+<p>When you set up your ssh access, <strong>do not use a key with a passphrase.</strong></p>
+<p>Also, <strong>make sure you&#8217;ve been added to the appropriate Zenoss teams</strong>.</p>
 </li>
 <li><p class="first">Now it&#8217;s time to install zendev:</p>
-</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Path to wherever you keep your source. I like ~/src.</span>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre><span class="c"># Path to wherever you keep your source. I like ~/src.</span>
 <span class="nv">SRCDIR</span><span class="o">=</span>~/src
 
 <span class="c"># If SRCDIR does not exist, create it</span>
-mkdir -p <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>
+mkdir -p <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>
 
 <span class="c"># Switch to your source directory</span>
-<span class="nb">cd</span> <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>
+<span class="nb">cd</span> <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>
 
 <span class="c"># Clone zendev</span>
 git clone git@github.com:zenoss/zendev
 
+<span class="c"># If you get an access denied error cloning the repository, you haven&#39;t</span>
+<span class="c"># been added to the appropriate Zenoss teams (see the previous step).</span>
+
 <span class="c"># Enter the zendev directory</span>
-<span class="nb">cd</span> <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>/zendev
+<span class="nb">cd</span> <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>/zendev
 
 <span class="c"># Generate egg_info as current user to prevent permission problems</span>
 <span class="c"># down the road</span>
-python <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>/zendev/setup.py egg_info
+python <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>/zendev/setup.py egg_info
 
 <span class="c"># Install zendev in place. This means that changes to zendev source will</span>
 <span class="c"># take effect without reinstalling the package.</span>
-sudo pip install -e <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>/zendev
+sudo pip install -e <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>/zendev
 
 <span class="c"># Bootstrap zendev so it can modify the shell environment (i.e., change</span>
 <span class="c"># directories, set environment variables)</span>
@@ -337,11 +381,12 @@ sudo pip install -e <span class="si">${</span><span class="nv">SRCDIR</span><spa
 <span class="nb">source</span> <span class="k">$(</span>zendev bootstrap<span class="k">)</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="8">
-<li>Create your Europa zendev environment:</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Get back to source directory</span>
-<span class="nb">cd</span> <span class="si">${</span><span class="nv">SRCDIR</span><span class="si">}</span>
+</div></blockquote>
+</li>
+<li><p class="first">Create your zendev environment:</p>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre><span class="c"># Get back to source directory</span>
+<span class="nb">cd</span> <span class="k">${</span><span class="nv">SRCDIR</span><span class="k">}</span>
 
 <span class="c"># Create the environment for building core devimg</span>
 zendev init europa --tag develop
@@ -356,16 +401,13 @@ zendev sync
 zendev add ~/src/europa/build/manifests/zenpacks.commercial.json
 </pre></div>
 </div>
-<ol class="arabic" start="9">
-<li><dl class="first docutils">
-<dt>You can now use zendev to edit source, build Zenoss RPMs, build serviced,</dt>
-<dd><p class="first last">and (if you install <a class="reference external" href="http://www.vagrantup.com/downloads.html">Vagrant</a> and <a class="reference external" href="https://www.virtualbox.org/wiki/Downloads">VirtualBox</a>) create Vagrant boxes to run
+</div></blockquote>
+</li>
+<li><p class="first">You can now use zendev to edit source, build Zenoss RPMs, build serviced,</p>
+<blockquote>
+<div><p>and (if you install <a class="reference external" href="http://www.vagrantup.com/downloads.html">Vagrant</a> and <a class="reference external" href="https://www.virtualbox.org/wiki/Downloads">VirtualBox</a>) create Vagrant boxes to run
 serviced or Resource Manager. As an example, here&#8217;s how you build serviced
 and run it:</p>
-</dd>
-</dl>
-</li>
-</ol>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Ensure you&#39;re in the europa environment (you can also use &quot;zendev ls&quot;</span>
 <span class="c"># to check)</span>
 zendev use europa
@@ -390,10 +432,48 @@ zendev build --resmgr devimg    <span class="c"># to build resmgr</span>
 zendev serviced --reset --deploy                                <span class="c"># to deploy core</span>
 <span class="c"># -OR-</span>
 zendev serviced --reset --deploy --template Zenoss.resmgr.lite  <span class="c"># to deploy resmgr lite</span>
-
-<span class="c"># Proceed after seeing the Zenoss template in &#39;Deployed templates&#39;</span>
 </pre></div>
 </div>
+<p>If you encounter an error related to permissions while building serviced, you can
+resolve the issue by changing the owner of the directory.</p>
+<div class="highlight-bash"><div class="highlight"><pre>sudo chown <span class="k">${</span><span class="nv">User</span><span class="k">}</span> /usr/local/go/pkg/tool/linux_amd64/vet
+</pre></div>
+</div>
+<p>Proceed after seeing the Zenoss template in &#8216;Deployed templates&#8217;.</p>
+<p>Example output:</p>
+<div class="highlight-bash"><div class="highlight"><pre>Deployed templates:
+TemplateID                            Name             Description
+639b8be8e7abf1fdce1260d2521f5fd0      Zenoss.core      Zenoss Core
+</pre></div>
+</div>
+<p>When you see this, you should be able to launch Control Center from <a class="reference external" href="https://localhost/">https://localhost/</a></p>
+</div></blockquote>
+</li>
+<li><p class="first">Setting up hosts entries</p>
+<blockquote>
+<div><p>Log in to Control Center and click on Zenoss.core under the applications list.</p>
+<p>You&#8217;ll have multiple Virtual Host Names listed.</p>
+<p>Sample output:</p>
+<div class="highlight-bash"><div class="highlight"><pre>Virtual Host Name   Service         Endpoint                URL
+hbase               HMaster         hbase-masterinfo-1      https://hbase.zenoss-1273
+opentsdb            opentsdb        opentsdb-reader         https://opentsdb.zenoss-1273
+rabbitmq            RabbitMQ        rabbitmq_admin          https://rabbitmq.zenoss-1273
+zenoss5             Zenoss.core     zproxy                  https://zenoss5.zenoss-1273
+</pre></div>
+</div>
+<p>For each of the URLs listed, you&#8217;ll need to add host entries into the /etc/hosts file.
+<strong>sudo</strong> edit the file with your choice of editors, and append the host names to the
+localhost entry.</p>
+<p>Find the public IP of your dev box and replace <strong>&lt;public ip&gt;</strong> below, adding the hosts in
+the URL list from CC.</p>
+<p>Sample of the first two lines in the /etc/hosts file:</p>
+<div class="highlight-bash"><div class="highlight"><pre> 127.0.0.1       localhost
+<span class="hll"> &lt;public ip&gt;     zenoss-1273 zenoss5.zenoss-1273 hbase.zenoss-1273 opentsdb.zenoss-1273 rabbitmq.zenoss-1273
+</span></pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
 </div>
 <div class="section" id="os-x">
 <h2>OS X<a class="headerlink" href="#os-x" title="Permalink to this headline">¶</a></h2>
@@ -404,34 +484,47 @@ example, allow you to use an IDE in OS X. zendev mounts the environment&#8217;s
 source tree into the Vagrant boxes it creates, so you can modify code directly.
 If you don&#8217;t care about this, you should probably just use the <a class="reference internal" href="#vagrant-box">Vagrant
 box</a> to save yourself some effort. Otherwise:</p>
-<ol class="arabic simple">
-<li>Fire up Disk Utility. Create a partition (mine&#8217;s 50G) formatted with
-a case-sensitive filesystem. Name it, e.g., &#8220;Source&#8221;.</li>
-<li>Perform steps 6-9, above, with <code class="docutils literal"><span class="pre">/Volumes/Source</span></code> (if you named your
-partition &#8220;Source&#8221;) as the value of <code class="docutils literal"><span class="pre">SRCDIR</span></code>.</li>
-<li>Create an Ubuntu development box and go to town:</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre>zendev box create --type ubuntu europa
+<ol class="arabic">
+<li><dl class="first docutils">
+<dt>Fire up Disk Utility. Create a partition (mine&#8217;s 50G) formatted with</dt>
+<dd><p class="first last">a case-sensitive filesystem. Name it, e.g., &#8220;Source&#8221;.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Perform steps 6-9, above, with <tt class="docutils literal"><span class="pre">/Volumes/Source</span></tt> (if you named your</dt>
+<dd><p class="first last">partition &#8220;Source&#8221;) as the value of <tt class="docutils literal"><span class="pre">SRCDIR</span></tt>.</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">Create an Ubuntu development box and go to town:</p>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre>zendev box create --type ubuntu europa
 </pre></div>
 </div>
+</div></blockquote>
+</li>
+</ol>
 </div>
 <div class="section" id="windows">
 <h2>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h2>
 <p>Forget it, man. This will only end in tears. Use the <a class="reference internal" href="#vagrant-box">Vagrant box</a>.</p>
 </div>
 <div class="section" id="self-managed-vagrant-box">
-<h2>Self-managed Vagrant box<a class="headerlink" href="#self-managed-vagrant-box" title="Permalink to this headline">¶</a></h2>
+<span id="vagrant-box"></span><h2>Self-managed Vagrant box<a class="headerlink" href="#self-managed-vagrant-box" title="Permalink to this headline">¶</a></h2>
 <p>Essentially, this is a Vagrant box that has already had steps 1-4 and part of 5 applied.
 zendev has the capability to create and manage instances of this box within an
 environment, but it&#8217;s also perfectly good just to start up a VM for
 development.</p>
 <p><strong>Note:</strong> Currently this box has Docker 1.5.0 installed.</p>
-<ol class="arabic simple">
-<li>Install <a class="reference external" href="http://www.vagrantup.com/downloads.html">Vagrant</a> and <a class="reference external" href="https://www.virtualbox.org/wiki/Downloads">VirtualBox</a> (don&#8217;t use old versions, please).</li>
-<li>Make a directory, somewhere, anywhere. <code class="docutils literal"><span class="pre">cd</span></code> into it.</li>
-<li>Create the box:</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre>vagrant init ubuntu-14.04-CC-1.x
+<ol class="arabic">
+<li><p class="first">Install <a class="reference external" href="http://www.vagrantup.com/downloads.html">Vagrant</a> and <a class="reference external" href="https://www.virtualbox.org/wiki/Downloads">VirtualBox</a> (don&#8217;t use old versions, please).</p>
+</li>
+<li><p class="first">Make a directory, somewhere, anywhere. <tt class="docutils literal"><span class="pre">cd</span></tt> into it.</p>
+</li>
+<li><p class="first">Create the box:</p>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre>vagrant init ubuntu-14.04-CC-1.x
 </pre></div>
 </div>
 <p>As the pretty words will tell you, a Vagrantfile will have been created in that
@@ -444,23 +537,28 @@ so you can actually interact with the things running thereon:</p>
 <div class="highlight-ruby"><div class="highlight"><pre><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">network</span> <span class="s2">&quot;public_network&quot;</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="4">
-<li>Optionally, install any plugins.  For example, the scp plugin, which will
-allow you to copy files to the box:</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre>vagrant plugin install vagrant-scp
+</div></blockquote>
+</li>
+<li><p class="first">Optionally, install any plugins.  For example, the scp plugin, which will
+allow you to copy files to the box:</p>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre>vagrant plugin install vagrant-scp
 </pre></div>
 </div>
-<ol class="arabic simple" start="5">
-<li>Start the box and log in to it:</li>
-</ol>
-<div class="highlight-bash"><div class="highlight"><pre>vagrant up
+</div></blockquote>
+</li>
+<li><p class="first">Start the box and log in to it:</p>
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre>vagrant up
 vagrant ssh
 </pre></div>
 </div>
-<ol class="arabic" start="6">
+</div></blockquote>
+</li>
 <li><p class="first">Execute steps 3 and 5-9 from the Ubuntu section above.</p>
-<p>Notice in step 5, some of the software is already installed.  <code class="docutils literal"><span class="pre">dpkg</span> <span class="pre">-l</span></code> is your friend here.</p>
+<blockquote>
+<div><p>Notice in step 5, some of the software is already installed.  <tt class="docutils literal"><span class="pre">dpkg</span> <span class="pre">-l</span></tt> is your friend here.</p>
+</div></blockquote>
 </li>
 </ol>
 </div>
@@ -468,9 +566,11 @@ vagrant ssh
 <h2>Update zendev<a class="headerlink" href="#update-zendev" title="Permalink to this headline">¶</a></h2>
 <p>Zendev should always be installed from a source checkout, in place. If you want
 to update it, you can run:</p>
-<div class="highlight-bash"><div class="highlight"><pre>zendev selfupdate
+<blockquote>
+<div><div class="highlight-bash"><div class="highlight"><pre>zendev selfupdate
 </pre></div>
 </div>
+</div></blockquote>
 </div>
 </div>
 
@@ -484,7 +584,7 @@ to update it, you can run:</p>
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.1.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>

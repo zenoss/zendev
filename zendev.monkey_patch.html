@@ -34,7 +34,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -116,7 +116,7 @@
 <span id="zendev-monkey-patch-gitflow-create-module"></span><h2>zendev.monkey_patch.gitflow_create module<a class="headerlink" href="#module-zendev.monkey_patch.gitflow_create" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="zendev.monkey_patch.gitflow_create.create">
-<code class="descclassname">zendev.monkey_patch.gitflow_create.</code><code class="descname">create</code><span class="sig-paren">(</span><em>self</em>, <em>name</em>, <em>base=None</em>, <em>fetch=False</em>, <em>must_be_on_default_base=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/monkey_patch/gitflow_create.html#create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.monkey_patch.gitflow_create.create" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">zendev.monkey_patch.gitflow_create.</tt><tt class="descname">create</tt><big>(</big><em>self</em>, <em>name</em>, <em>base=None</em>, <em>fetch=False</em>, <em>must_be_on_default_base=False</em><big>)</big><a class="reference internal" href="_modules/zendev/monkey_patch/gitflow_create.html#create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.monkey_patch.gitflow_create.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a branch of the type that this manager manages and checks it
 out.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -127,7 +127,7 @@ out.</p>
 <li><strong>name</strong> &#8211; The (short) name of the branch to create.</li>
 <li><strong>base</strong> &#8211; The base commit or ref to base the branch off from.  If a base is
 not provided explicitly, the default base for this type of branch is
-used.  See also <code class="xref py py-meth docutils literal"><span class="pre">default_base()</span></code>.</li>
+used.  See also <tt class="xref py py-meth docutils literal"><span class="pre">default_base()</span></tt>.</li>
 <li><strong>fetch</strong> &#8211; If set, update the local repo with remote changes prior to
 creating the new branch.</li>
 <li><strong>must_be_on_default_base</strong> &#8211; If set, the <cite>base</cite> must be a valid commit on the branch
@@ -135,7 +135,7 @@ manager <cite>default_base</cite>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The newly created <code class="xref py py-class docutils literal"><span class="pre">git.refs.Head</span></code> reference.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The newly created <tt class="xref py py-class docutils literal"><span class="pre">git.refs.Head</span></tt> reference.</p>
 </td>
 </tr>
 </tbody>
@@ -158,7 +158,7 @@ manager <cite>default_base</cite>.</li>
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.1.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>

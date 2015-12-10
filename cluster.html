@@ -36,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -125,38 +125,38 @@ up on each of them.  The cluster is configured to make multihost serviced
 development easy.</p>
 <div class="section" id="creating-a-vagrant-cluster">
 <h2>Creating a Vagrant Cluster<a class="headerlink" href="#creating-a-vagrant-cluster" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">create</span></code> will create a Vagrant cluster on a private network for
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">create</span></tt> will create a Vagrant cluster on a private network for
 multi-host testing.  The nodes will be set up to run as agents, with the master running
 on the host development machine.</p>
 <p>The cluster must be given a name that will be used to manage the whole cluster.
 The individual box names are derived from the cluster name by appending a two
 digit number to the cluster name. The number of boxes
-in a cluster is specified by the <code class="docutils literal"><span class="pre">count</span></code> option. The amount of memory allocated
-to each box is specified by the <code class="docutils literal"><span class="pre">memory</span></code> option.  The number of cpus allocated to
-each box is specified by the <code class="docutils literal"><span class="pre">cpus</span></code> option.</p>
-<p>Acceptable box types are: <code class="docutils literal"><span class="pre">CC-1.x</span></code>, <code class="docutils literal"><span class="pre">CC-1.0</span></code>, and <code class="docutils literal"><span class="pre">fedora</span></code>.
-The default is <code class="docutils literal"><span class="pre">CC-1.x</span></code> and is appropriate for serviced 1.x development.  <code class="docutils literal"><span class="pre">CC-1.0</span></code>
+in a cluster is specified by the <tt class="docutils literal"><span class="pre">count</span></tt> option. The amount of memory allocated
+to each box is specified by the <tt class="docutils literal"><span class="pre">memory</span></tt> option.  The number of cpus allocated to
+each box is specified by the <tt class="docutils literal"><span class="pre">cpus</span></tt> option.</p>
+<p>Acceptable box types are: <tt class="docutils literal"><span class="pre">CC-1.x</span></tt>, <tt class="docutils literal"><span class="pre">CC-1.0</span></tt>, and <tt class="docutils literal"><span class="pre">fedora</span></tt>.
+The default is <tt class="docutils literal"><span class="pre">CC-1.x</span></tt> and is appropriate for serviced 1.x development.  <tt class="docutils literal"><span class="pre">CC-1.0</span></tt>
 has the correct versions of go and docker installed for 1.0.x development.</p>
 <p>It is also possible to create one or more btrfs volumes on each vm.  The number of
-btrfs volumes is specified with the by the <code class="docutils literal"><span class="pre">btrfs</span></code> option.  The size of the btrfs
-volumes is controlled by the <code class="docutils literal"><span class="pre">fssize</span></code> option.  The first two volumes are mounted
+btrfs volumes is specified with the by the <tt class="docutils literal"><span class="pre">btrfs</span></tt> option.  The size of the btrfs
+volumes is controlled by the <tt class="docutils literal"><span class="pre">fssize</span></tt> option.  The first two volumes are mounted
 at /var/lib/docker and /opt/serviced/var respectively.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a new cluster named demo containing 5 CC-1.0 boxes</span>
-zendev cluster create --type CC-1.0 --count <span class="m">5</span> demo
+zendev cluster create --type CC-1.0 --count 5 demo
 
 <span class="c"># Create a new cluster of 3 CC-1.x boxes named 4p with 2MB of RAM each</span>
-zendev cluster create --count <span class="m">3</span> --memory <span class="m">2048</span> 4p
+zendev cluster create --count 3 --memory 2048 4p
 </pre></div>
 </div>
 </div>
 <div class="section" id="listing-clusters">
 <h2>Listing Clusters<a class="headerlink" href="#listing-clusters" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">ls</span></code> displays a list of available clusters.</p>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">ls</span></tt> displays a list of available clusters.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># List all the clusters</span>
 zendev cluster ls
 </pre></div>
 </div>
-<p>To list the boxes within a cluster, specify the cluster name: <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">ls</span> <span class="pre">CLUSTER</span></code></p>
+<p>To list the boxes within a cluster, specify the cluster name: <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">ls</span> <span class="pre">CLUSTER</span></tt></p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># List boxes in the cluster named CLUSTER</span>
 zendev cluster ls CLUSTER
 </pre></div>
@@ -164,12 +164,12 @@ zendev cluster ls CLUSTER
 </div>
 <div class="section" id="start-a-cluster">
 <h2>Start a cluster<a class="headerlink" href="#start-a-cluster" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">up</span></code> will start all the boxes in a given cluster.</p>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">up</span></tt> will start all the boxes in a given cluster.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Start all the boxes in the cluster named CLUSTER</span>
 zendev cluster up CLUSTER
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">up</span></code> can be used to start a single box in a given cluster.</p>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">up</span></tt> can be used to start a single box in a given cluster.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Start the box named BOX in the cluster CLUSTER</span>
 zendev cluster up CLUSTER BOX
 </pre></div>
@@ -177,12 +177,12 @@ zendev cluster up CLUSTER BOX
 </div>
 <div class="section" id="halt-a-cluster">
 <h2>Halt a cluster<a class="headerlink" href="#halt-a-cluster" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">halt</span></code> will stop all the boxes in a given cluster.</p>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">halt</span></tt> will stop all the boxes in a given cluster.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Stop all the boxes in the cluster named CLUSTER</span>
 zendev cluster halt CLUSTER
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">halt</span></code> can also be used to halt a specified box in a given cluster.</p>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">halt</span></tt> can also be used to halt a specified box in a given cluster.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Stop the box named BOX in cluster CLUSTER</span>
 zendev cluster halt CLUSTER BOX
 </pre></div>
@@ -190,7 +190,7 @@ zendev cluster halt CLUSTER BOX
 </div>
 <div class="section" id="login-to-a-box-in-a-cluster">
 <h2>Login to a box in a cluster<a class="headerlink" href="#login-to-a-box-in-a-cluster" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">ssh</span></code> allows you to login to a specific box in a given cluster.</p>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">ssh</span></tt> allows you to login to a specific box in a given cluster.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Login to the box named BOX in cluster CLUSTER</span>
 zendev cluster ssh CLUSTER BOX
 </pre></div>
@@ -198,7 +198,7 @@ zendev cluster ssh CLUSTER BOX
 </div>
 <div class="section" id="destroy-a-cluster">
 <h2>Destroy a cluster<a class="headerlink" href="#destroy-a-cluster" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">destroy</span></code> rids the world of the specified cluster</p>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">cluster</span> <span class="pre">destroy</span></tt> rids the world of the specified cluster</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Destroy the cluster named CLUSTER</span>
 zendev cluster destroy CLUSTER
 </pre></div>
@@ -207,7 +207,7 @@ zendev cluster destroy CLUSTER
 <div class="section" id="example-creating-and-running-a-multi-host-network">
 <h2>Example: Creating and running a multi-host network<a class="headerlink" href="#example-creating-and-running-a-multi-host-network" title="Permalink to this headline">¶</a></h2>
 <p>All nodes in the network are set up to run as agents of a master running on the host.
-All nodes share the <code class="docutils literal"><span class="pre">devimg</span></code> mounts, so that they all run the same code.</p>
+All nodes share the <tt class="docutils literal"><span class="pre">devimg</span></tt> mounts, so that they all run the same code.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a cluster with one node</span>
 zendev cluster create foo
 
@@ -242,7 +242,7 @@ to reboot the VMs each time serviced on the host is restarted.</p>
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.1.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>
