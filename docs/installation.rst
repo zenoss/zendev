@@ -71,7 +71,7 @@ Ubuntu
 
         # Create the mount entry into /etc/fstab.  Replace <UUID> below with the
         # UUID from the lsblk output above.
-        sudo echo "/dev/disk/by-uuid/<UUID> /var/lib/docker auto rw,nosuid,nodev 0 0" >> /etc/fstab
+        echo "/dev/disk/by-uuid/<UUID> /var/lib/docker auto rw,nosuid,nodev 0 0" | sudo tee -a /etc/fstab
 
         # Mount the device
         sudo mount /var/lib/docker
