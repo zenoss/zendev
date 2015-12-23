@@ -312,7 +312,7 @@ def run_serviced(args, env):
 
 
 def attach(args, env):
-    subprocess.call("serviced service attach '%s'; stty sane" % args.specifier, shell=True)
+    subprocess.call("serviced service attach '%s'  /bin/bash -c 'export TERM=xterm; exec bash'" % args.specifier, shell=True)
 
 
 def devshell(args, env):
