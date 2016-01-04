@@ -162,7 +162,7 @@ class Repository(object):
         self.repo.git.fetch(all=True)
 
     def message(self, msg):
-        print colored('==>', 'blue'), colored(msg, 'white')
+        print colored('==>', 'blue'), colored(msg, 'grey')
 
     def merge_from_remote(self):
         try:

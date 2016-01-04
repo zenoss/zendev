@@ -73,6 +73,10 @@ class Serviced(object):
         self.proc = subprocess.Popen(args)
 
     def is_ready(self):
+        import subprocess
+        result = subprocess.call(["curl", "http://localhost:%d" % self.uiport])
+        return result == 0
+
         try:
             response = requests.get("https://localhost:%d" % self.uiport, verify=False)
         except Exception:
