@@ -51,7 +51,9 @@ def zen_image_tests(args, env, product=''):
             if rc > 0:
                 return rc
         image = "zendev_test"
-    cmd = ["docker", "run", "-t", "-i", "--rm"]
+    cmd = ["docker", "run", "-i", "-t", "--rm"]
+    if args.no_tty: 
+        cmd.remove("-t")
     for mount in mounts.iteritems():
         cmd.extend(["-v", "%s:%s" % mount])
     cmd.append(image)
@@ -62,6 +64,9 @@ def zen_image_tests(args, env, product=''):
         if args.zp:
             cmd.append("zenpack")
         cmd.extend(args.arguments[1:])
+    
+    print "Calling Docker with the following:"    
+    print cmd
     return subprocess.call(cmd)
 
 
@@ -174,6 +179,10 @@ def add_commands(subparsers):
             dest="use_existing", default=False)
     test_parser.add_argument('--interactive', action="store_true",
             help="Start an interactive shell instead of running th test",
+            default=False)
+    test_parser.add_argument('--no-tty', action="store_true",
+            help="Do not allocate a TTY",
+            dest="no_tty",
             default=False)
     #test_parser.add_argument('--with-consumer', action="store_true",
     #        help="Run metric-consumer unit tests",
