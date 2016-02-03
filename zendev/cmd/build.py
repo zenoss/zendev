@@ -79,7 +79,7 @@ def build_zenoss(args, env):
 
 
 def build_impact(args, env):
-    impact_src_image = 'zenoss/impact_5.0:latest'
+    impact_src_image = 'zenoss/impact_5.1:latest'
     impact_dst_image = 'zendev/impact-devimg'
     container_id='impact_devimg_'+uuid.uuid1().hex
     # TODO: embedding the version number in the link means that we have do rebuild the image
