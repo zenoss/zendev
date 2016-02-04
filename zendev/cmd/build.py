@@ -5,6 +5,7 @@ import re
 import tempfile
 import uuid
 import py
+from ..log import error
 
 packlists = {
         'resmgr': 'pkg/zenoss_resmgr_zenpacks.mk',
@@ -79,7 +80,10 @@ def build_zenoss(args, env):
 
 
 def build_impact(args, env):
-    impact_src_image = 'zenoss/impact_5.0:latest'
+    if not args.impact_image:
+        error('missing required "impact-image" argument for building impact-devimg')
+        return
+    impact_src_image = args.impact_image
     impact_dst_image = 'zendev/impact-devimg'
     container_id='impact_devimg_'+uuid.uuid1().hex
     # TODO: embedding the version number in the link means that we have do rebuild the image
@@ -162,6 +166,8 @@ def add_commands(subparsers):
     build_parser.add_argument('-p', '--with-pack', dest="packs", action="append",
             default=[],
             help="In a devimg build, ZenPacks to install into the image")
+    build_parser.add_argument('--impact-image', 
+            help="In an impact-devimg build, the image to use as a source")
     build_parser.add_argument('--resmgr', action="store_true", required=False,
             help="Install resmgr ZenPacks")
     build_parser.add_argument('--ucspm', action="store_true", required=False,
