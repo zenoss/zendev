@@ -67,6 +67,7 @@ class Serviced(object):
         # In serviced 1.1 and later, use subcommand 'server' to specifically request serviced be started
         servicedVersion = subprocess.check_output("%s version | awk '/^Version:/ { print $NF; exit }'" % self.serviced, shell=True).strip()
         if not servicedVersion.startswith("1.0."):
+            args.extend(["--allow-loop-back", "true"])
             args.extend(["server"])
 
         print "Running command:", args
@@ -159,7 +160,7 @@ class Serviced(object):
         tplpath = None
         if template is None:
             tplpath = self.env.srcroot.join("service/services/Zenoss.core")
-        else: 
+        else:
             tentative = py.path.local(template)
             if tentative.exists():
                 tplpath = tentative
@@ -216,22 +217,22 @@ class Serviced(object):
         else:
             raise Exception("Cannot locate base template {} ".format(baseTemplatePath))
         info("With additional services: {}".format(modules))
-      
+
         modHash = hash(tuple(modules))
         tplName = baseTemplate + self.MERGED_TEMPLATE_SUFFIX
         tplHash = tplName + "_{}_".format(str(modHash))
         temppath = self.env.zenhome.join('.zentemplate').ensure(dir=True)
 
-        # Create a temporary dir to hold the merged template. 3 older dir versions are kept, 
+        # Create a temporary dir to hold the merged template. 3 older dir versions are kept,
         # with the oldest ones removed as necessary. The module hash helps identify the merged
         # template as being applicable to the specific combination of additional services.
         tplroot = temppath.make_numbered_dir(prefix=tplHash, rootdir=temppath, keep=3)
         tpldir = tplroot.join(tplName).ensure(dir=True)
         info("Creating merged template: {}".format(tpldir))
-      
+
         tplReadme = tplroot.join("Contents")
 
-        with tplReadme.open(mode='w') as f: 
+        with tplReadme.open(mode='w') as f:
             f.write("Adding base template: {0}\n".format(baseTemplatePath))
             baseTemplatePath.copy(tpldir)
             for mod in modules:
@@ -244,9 +245,9 @@ class Serviced(object):
                     mdir.copy(targetdir)
                 else:
                     raise Exception("Cannot locate module: {0} ".format(mdir))
-            
+
         return self.add_template(self.compile_template(tpldir.strpath, image))
-      
+
 
 def run_serviced(args, env):
     timeout = 600
@@ -274,7 +275,7 @@ def run_serviced(args, env):
             if 'SERVICED_HOST_IP' in os.environ:
                 _serviced.add_host(host=os.environ.get('SERVICED_HOST_IP'))
             else:
-                ipAddr = get_ip_address() or "172.17.42.1" 
+                ipAddr = get_ip_address() or "172.17.42.1"
                 _serviced.add_host(ipAddr + ":4979")
 
             if args.deploy_ana:
@@ -283,7 +284,7 @@ def run_serviced(args, env):
             deploymentId = 'zendev-zenoss' if not args.deploy_ana else 'ana'
 
             if args.module:
-                tplid = _serviced.add_template_module(args.template, 
+                tplid = _serviced.add_template_module(args.template,
                     args.module, args.module_dir, args.image)
             else:
                 # Assume that a file is compiled json; directory needs to be compiled
@@ -362,10 +363,10 @@ def add_commands(subparsers):
                                  help="Clean service state and kill running containers first")
     serviced_parser.add_argument('--template', help="Zenoss service template"
             " file to add or directory to compile and add", default=None)
-    serviced_parser.add_argument('--image', help="Zenoss image to use when compiling template", 
+    serviced_parser.add_argument('--image', help="Zenoss image to use when compiling template",
                                  default='zendev/devimg')
     serviced_parser.add_argument('--module', help="Additional service modules"
-                                  " for the Zenoss service template", 
+                                  " for the Zenoss service template",
                                  nargs='+', default=None)
     serviced_parser.add_argument('--module_dir', help="Directory for additional service modules", default=None)
     serviced_parser.add_argument('--no-root', dest="no_root",
