@@ -16,7 +16,7 @@ _parse_date = lambda x: datetime.strptime(x,"%Y-%m-%dT%H:%M:%SZ")
 
 _formats = OrderedDict((
     ("oneline",
-        "{head.repo.name:<column=1>} {number:<column=2>} "
+        "{base.repo.name:<column=1>} {number:<column=2>} "
         "{user.login:<column=3>} {title}"),
     ("short",
         "{html_url:<color=yellow>}\n" 
@@ -151,7 +151,7 @@ def _get_sort_key(args):
     if args.sort == 'user':
         return lambda x: x['user']['login']
     if args.sort == 'repo':
-        return lambda x: x['head']['repo']['name']
+        return lambda x: x['base']['repo']['name']
     if args.sort == 'created':
         return lambda x: _parse_date(x['created_at'])
     if args.sort == 'updated':
