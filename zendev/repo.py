@@ -153,7 +153,7 @@ class Repository(object):
             self.repo.origin().push(":" + feature_name)
 
     def stash(self):
-        self.repo.git.stash( )
+        self.repo.git.stash('-u')
 
     def apply_stash(self):
         self.repo.git.stash('apply')
