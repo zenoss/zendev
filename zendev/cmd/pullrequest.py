@@ -1,8 +1,9 @@
 import argparse
-import functools
-import json
 import py
+import Queue
 import re
+from threading import Lock, Thread
+import time
 from collections import OrderedDict
 from datetime import datetime
 from httplib import HTTPException
@@ -98,6 +99,7 @@ class DictionaryFormatter(Formatter):
         self.widths[key] = max(len(value), self.widths.get(key, 0))
         return value.ljust(self.widths[key])
 
+
 def _get_user():
     url = '/user'
     headers, response = github.perform('GET', url)
@@ -158,23 +160,58 @@ def _get_sort_key(args):
         return lambda x: _parse_date(x['updated_at'])
 
 
-_link_regexp = re.compile('\s*<https://api.github.com([^>]*)>;\s*rel\s*=\s*"([^"]*)"')
-def _get_links(headers):
-    """Return a list of links extracted from the link field of the header
+_link_regexp = re.compile('\s*<.*[\?&]page=([0-9]*).*>;\s*rel\s*=\s*"([^"]*)"')
+def _get_last_page(headers):
+    """Return the number of pages for the query extracted from the link field of the header
     Example: headers with a link value of the following string
     '<https://api.github.com/repositories/13422985/pulls?per_page=10&page=2>; rel="next",
      <https://api.github.com/repositories/13422985/pulls?per_page=10&page=9>; rel="last"'
-        returns 
-    {'next': 'repositories/13422985/pulls?per_page=10&page=2',
-     'last': 'repositories/13422985/pulls?per_page=10&page=9'}
+        returns 9
     """
-    retval = {}
     links = headers.get('link','').split(',')
     for link in links:
         match = re.match(_link_regexp, link)
-        if match:
-            retval[match.group(2)] = match.group(1)
-    return retval
+        if match and match.group(2) == 'last':
+            return int(match.group(1))
+    return 1
+
+class Worker (Thread):
+    """ Fetch a single page of pull requests in a separate thread """
+    counter = 0
+    _counter_lock = Lock()
+    _logging_lock = Lock()
+
+    def __init__(self, repo, state, page, filter_func, output_queue):
+        super(self.__class__, self).__init__(name=repo + "_" + str(page),
+                target=self._fetch,
+                args=(repo, state, page, filter_func, output_queue))
+        self.daemon=True
+
+    def start(self):
+        with Worker._counter_lock:
+            Worker.counter += 1
+        super(self.__class__, self).start()
+
+    def _fetch(self, repo, state, page, filter_func, output_queue):
+        try:
+            url = '/repos/%s/pulls?state=%s&per_page=100&page=%d' % \
+                (repo, state, page)
+            headers, response = github.perform('GET', url)
+            status = headers['status']
+            if status != '200 OK':
+                raise HTTPException('Error getting ' + url + ' : ' + status)
+            if page == 1:
+                last_page = _get_last_page(headers)
+                for i in range(2, last_page + 1):
+                    Worker(repo, state, i, filter_func, output_queue).start()
+            for pr in filter(filter_func, response):
+                output_queue.put(pr)
+        except Exception as e:
+            with Worker._logging_lock:
+                zendev.log.error(e)
+        finally:
+            with Worker._counter_lock:
+                Worker.counter -= 1
 
 
 def pr_list(args, env):
@@ -184,21 +221,17 @@ def pr_list(args, env):
     sort_key = _get_sort_key(args)
     reverse_sort = args.reverse
 
-    pull_requests = []
+    pr_queue = Queue.Queue()
     for repo in _get_relevant_repos(args, env):
-        url = '/repos/%s/pulls?state=%s&per_page=100' % (repo, args.state)
-        while url:
-            headers, response = github.perform('GET', url)
-            try:
-                status = headers['status']
-                if status != '200 OK':
-                    raise HTTPException('Error getting ' + url + ' : ' + status)
-            except Exception as e:
-                zendev.log.error(e)
-                url = None
-                continue
-            url = _get_links(headers).get('next', None)
-            pull_requests.extend(filter(filter_func, response))
+        Worker(repo, args.state, 1, filter_func, pr_queue).start()
+
+    # Wait for all of the workers to finish
+    while Worker.counter > 0:
+        time.sleep(0.1)
+
+    pull_requests = []
+    while not pr_queue.empty():
+        pull_requests.append(pr_queue.get())
 
     pull_requests.sort(key=sort_key, reverse=reverse_sort)
     
