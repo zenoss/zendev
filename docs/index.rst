@@ -17,6 +17,7 @@ Contents:
    repos
    build
    devimg
+   pullrequest
    test
    port
    vagrant
