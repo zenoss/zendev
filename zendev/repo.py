@@ -2,7 +2,6 @@ import re
 import sys
 
 from git.exc import GitCommandError
-from pprint import pprint
 from termcolor import colored
 import gitflow.core
 import py
@@ -118,14 +117,18 @@ class Repository(object):
         else:
             self.path.dirpath().ensure(dir=True)
             try:
-                gitrepo = gitflow.core.Repo.clone_from(self.url, str(self.path),
-                                                       progress=self.progress,
-                                                       **kwargs)
-            except GitCommandError as e:
+                gitrepo = gitflow.core.Repo.clone_from(
+                    self.url,
+                    str(self.path),
+                    progress=self.progress,
+                    **kwargs)
+            except GitCommandError:
                 # Can't clone a hash, so clone the entire repo and check out
                 # the ref
-                gitrepo = gitflow.core.Repo.clone_from(self.url, str(self.path),
-                                                       progress=self.progress)
+                gitrepo = gitflow.core.Repo.clone_from(
+                    self.url,
+                    str(self.path),
+                    progress=self.progress)
                 gitrepo.git.checkout(self.ref)
             self._repo = gitflow.core.GitFlow(gitrepo)
             if not shallow:
@@ -153,7 +156,7 @@ class Repository(object):
             self.repo.origin().push(":" + feature_name)
 
     def stash(self):
-        self.repo.git.stash( )
+        self.repo.git.stash('-u')
 
     def apply_stash(self):
         self.repo.git.stash('apply')
@@ -224,14 +227,15 @@ class Repository(object):
             self.publish_feature(name)
 
     def changelog(self, fromref, toref):
-        return self.repo.git.log("%s..%s" % (fromref, toref), "--pretty=format:%h - %an, %ar : %s")
+        return self.repo.git.log(
+            "%s..%s" % (fromref, toref), "--pretty=format:%h - %an, %ar : %s")
 
     def create_pull_request(self, feature_name, body='', base='develop'):
         staged, unstaged, untracked = self.changes
 
         if unstaged:
-          error( "uncommited changes in: %s" % self.name)
-          return
+            error("uncommited changes in: %s" % self.name)
+            return
 
         branch = "feature/%s" % feature_name
         url = self.repo.repo.remote().url
@@ -239,7 +243,7 @@ class Repository(object):
         owner, repo = line.split('/')[-2:]
         repo = repo.split()[0]
         if repo.endswith('.git'):
-            repo= repo[:-4]
+            repo = repo[:-4]
 
         self.push()
         time.sleep(1)
@@ -254,7 +258,7 @@ class Repository(object):
                 "base": base
             }))
         if 'html_url' in response:
-            info ("Pull Request: %s" % response['html_url'])
+            info("Pull Request: %s" % response['html_url'])
         elif response['message'] == 'Validation Failed':
             for e in response['errors']:
                 error("Error: %s" % e.get('message', json.dumps(e, indent=2)))
