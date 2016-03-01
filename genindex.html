@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -63,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pullrequest.html">Pull Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="test.html">Running Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
@@ -168,6 +169,10 @@
 
         
   <dt><a href="zendev.cmd.html#zendev.cmd.port.add_commands">(in module zendev.cmd.port)</a>
+  </dt>
+
+        
+  <dt><a href="zendev.cmd.html#zendev.cmd.pullrequest.add_commands">(in module zendev.cmd.pullrequest)</a>
   </dt>
 
         
@@ -462,6 +467,10 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.pullrequest.DictionaryFormatter">DictionaryFormatter (class in zendev.cmd.pullrequest)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.progress.GitProgressBar.done">done() (zendev.progress.GitProgressBar method)</a>
   </dt>
 
@@ -547,12 +556,12 @@
   <dt><a href="zendev.cmd.html#zendev.cmd.feature.feature_pull">feature_pull() (in module zendev.cmd.feature)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.cmd.html#zendev.cmd.feature.feature_start">feature_start() (in module zendev.cmd.feature)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.fetch">fetch() (zendev.environment.ZenDevEnvironment method)</a>
   </dt>
@@ -575,6 +584,10 @@
       </dl></dd>
       
   <dt><a href="zendev.html#zendev.environment.ZenDevEnvironment.foreach">foreach() (zendev.environment.ZenDevEnvironment method)</a>
+  </dt>
+
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.pullrequest.DictionaryFormatter.format_field">format_field() (zendev.cmd.pullrequest.DictionaryFormatter method)</a>
   </dt>
 
       
@@ -618,6 +631,10 @@
   </dt>
 
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.pullrequest.DictionaryFormatter.get_field">get_field() (zendev.cmd.pullrequest.DictionaryFormatter method)</a>
+  </dt>
+
+      
   <dt><a href="zendev.html#zendev.utils.get_ip_address">get_ip_address() (in module zendev.utils)</a>
   </dt>
 
@@ -629,12 +646,12 @@
   <dt><a href="zendev.html#zendev.github.get_oauth_token">get_oauth_token() (in module zendev.github)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.cmd.html#zendev.cmd.build.get_packs">get_packs() (in module zendev.cmd.build)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="zendev.cmd.html#zendev.cmd.build.get_packs_from_mk">get_packs_from_mk() (in module zendev.cmd.build)</a>
   </dt>
@@ -830,6 +847,12 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="zendev.cmd.html#zendev.cmd.pullrequest.DictionaryFormatter.needs_preprocess">needs_preprocess() (zendev.cmd.pullrequest.DictionaryFormatter method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
   <dt><a href="zendev.html#zendev.environment.NotInitialized">NotInitialized</a>
   </dt>
 
@@ -868,11 +891,15 @@
   </dt>
 
       
-  <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.proc">proc (zendev.cmd.serviced.Serviced attribute)</a>
+  <dt><a href="zendev.cmd.html#zendev.cmd.pullrequest.pr_list">pr_list() (in module zendev.cmd.pullrequest)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="zendev.cmd.html#zendev.cmd.serviced.Serviced.proc">proc (zendev.cmd.serviced.Serviced attribute)</a>
+  </dt>
+
       
   <dt><a href="zendev.html#zendev.progress.progress">progress() (in module zendev.progress)</a>
   </dt>
@@ -1298,6 +1325,10 @@
   </dt>
 
       
+  <dt><a href="zendev.cmd.html#module-zendev.cmd.pullrequest">zendev.cmd.pullrequest (module)</a>
+  </dt>
+
+      
   <dt><a href="zendev.cmd.html#module-zendev.cmd.repos">zendev.cmd.repos (module)</a>
   </dt>
 
@@ -1397,7 +1428,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
     </p>
   </div>
 </footer>

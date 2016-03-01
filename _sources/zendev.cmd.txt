@@ -52,6 +52,14 @@ zendev.cmd.port module
     :undoc-members:
     :show-inheritance:
 
+zendev.cmd.pullrequest module
+-----------------------------
+
+.. automodule:: zendev.cmd.pullrequest
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 zendev.cmd.repos module
 -----------------------
 

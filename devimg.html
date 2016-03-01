@@ -28,7 +28,7 @@
     <script type="text/javascript" src="_static/js/bootstrap-2.2.1.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="top" title="zendev 0.1.0 documentation" href="index.html" />
-    <link rel="next" title="Running Tests" href="test.html" />
+    <link rel="next" title="Pull Requests" href="pullrequest.html" />
     <link rel="prev" title="Building Zenoss With zendev" href="build.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -36,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pullrequest.html">Pull Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="test.html">Running Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
@@ -79,7 +80,7 @@
 <li><a class="reference internal" href="#">Developing Zenoss in the Control Plane</a><ul>
 <li><a class="reference internal" href="#building-the-image">Building the Image</a></li>
 <li><a class="reference internal" href="#running-control-plane">Running Control Plane</a></li>
-<li><a class="reference internal" href="#attaching-to-running-containers-zendev-attach">Attaching to Running Containers: <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></tt></a></li>
+<li><a class="reference internal" href="#attaching-to-running-containers-zendev-attach">Attaching to Running Containers: <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -90,8 +91,8 @@
             
   <li><a href="build.html"
          title="previous chapter">&laquo; Building Zenoss With zendev</a></li>
-  <li><a href="test.html"
-         title="next chapter">Running Tests &raquo;</a></li>
+  <li><a href="pullrequest.html"
+         title="next chapter">Pull Requests &raquo;</a></li>
           
           
             <li>
@@ -122,46 +123,46 @@ process by creating a lightweight image that mounts Zenoss source from your
 host filesystem.</p>
 <div class="section" id="building-the-image">
 <h2>Building the Image<a class="headerlink" href="#building-the-image" title="Permalink to this headline">¶</a></h2>
-<p>First step is to create the image, <tt class="docutils literal"><span class="pre">zendev/devimg</span></tt>. You may choose to build
+<p>First step is to create the image, <code class="docutils literal"><span class="pre">zendev/devimg</span></code>. You may choose to build
 an image that includes any ZenPacks available in your source tree; there is a
 shortcut option to build a straight Resource Manager image.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Make sure you have necessary repos (first time only)</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Make sure you have necessary repos (first time only)</span>
 zendev restore develop
 
-<span class="c"># Build Core image</span>
+<span class="c1"># Build Core image</span>
 zendev build devimg
 
-<span class="c"># Build Core image + a couple zenpacks</span>
+<span class="c1"># Build Core image + a couple zenpacks</span>
 zendev build devimg -p EnterpriseCollector -p DistributedCollector
 
-<span class="c"># Build Resource Manager image</span>
+<span class="c1"># Build Resource Manager image</span>
 zendev build devimg --resmgr
 </pre></div>
 </div>
 <dl class="docutils">
 <dt>The image this creates has:</dt>
 <dd><ul class="first last simple">
-<li>Your zendev source root mounted at <tt class="docutils literal"><span class="pre">/mnt/src</span></tt></li>
-<li>Your zendev zenhome mounted at <tt class="docutils literal"><span class="pre">/opt/zenoss</span></tt></li>
+<li>Your zendev source root mounted at <code class="docutils literal"><span class="pre">/mnt/src</span></code></li>
+<li>Your zendev zenhome mounted at <code class="docutils literal"><span class="pre">/opt/zenoss</span></code></li>
 <li>A full Zenoss source build run</li>
 <li>ZenPacks installed (ZenJMX and PythonCollector + whatever you specified)</li>
-<li><tt class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/src/core/Products</span></tt> symlinked to <tt class="docutils literal"><span class="pre">/opt/zenoss/Products</span></tt></li>
+<li><code class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/src/core/Products</span></code> symlinked to <code class="docutils literal"><span class="pre">/opt/zenoss/Products</span></code></li>
 <li>A <cite>zenoss</cite> user with the same GID/UID as your current user, so you don&#8217;t
 have permission problems with the mounted source (sudoer, NOPASSWD)</li>
 </ul>
 </dd>
 </dl>
-<p>For the most part, since <tt class="docutils literal"><span class="pre">ZENHOME</span></tt>, <tt class="docutils literal"><span class="pre">SRCROOT</span></tt>, <tt class="docutils literal"><span class="pre">GOPATH</span></tt>, etc. are all the
-same on the host as in the image, you should be able to run <tt class="docutils literal"><span class="pre">make;</span> <span class="pre">make</span>
-<span class="pre">install</span></tt> for a component on your host, or edit source in Products directly,
+<p>For the most part, since <code class="docutils literal"><span class="pre">ZENHOME</span></code>, <code class="docutils literal"><span class="pre">SRCROOT</span></code>, <code class="docutils literal"><span class="pre">GOPATH</span></code>, etc. are all the
+same on the host as in the image, you should be able to run <code class="docutils literal"><span class="pre">make;</span> <span class="pre">make</span>
+<span class="pre">install</span></code> for a component on your host, or edit source in Products directly,
 and have it all work out so that the image serviced uses gets those changes
 without having to do any image rebuilding.</p>
 </div>
 <div class="section" id="running-control-plane">
 <h2>Running Control Plane<a class="headerlink" href="#running-control-plane" title="Permalink to this headline">¶</a></h2>
-<p>Once your image exists, you can start the control plane using <tt class="docutils literal"><span class="pre">zendev</span>
-<span class="pre">serviced</span></tt> (this replaces <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">resetserviced</span></tt>).</p>
-<div class="highlight-bash"><div class="highlight"><pre>usage: zendev serviced [-h] [-r] [-d] [-a] [-x] [--template TEMPLATE]
+<p>Once your image exists, you can start the control plane using <code class="docutils literal"><span class="pre">zendev</span>
+<span class="pre">serviced</span></code> (this replaces <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">resetserviced</span></code>).</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>usage: zendev serviced [-h] [-r] [-d] [-a] [-x] [--template TEMPLATE]
                        [--no-auto-assign-ips] [-u UIPORT] [-- ARG [ARG...]]
 
 optional arguments:
@@ -181,18 +182,18 @@ optional arguments:
                         UI port (default 443)
 </pre></div>
 </div>
-<p>Any arguments beyond the standard <tt class="docutils literal"><span class="pre">--</span></tt> will not be parsed by zendev, and will
+<p>Any arguments beyond the standard <code class="docutils literal"><span class="pre">--</span></code> will not be parsed by zendev, and will
 instead be passed directly to serviced.</p>
-<p>Note: if you use <tt class="docutils literal"><span class="pre">--template</span></tt> to deploy a Zenoss.resmgr template, you must
+<p>Note: if you use <code class="docutils literal"><span class="pre">--template</span></code> to deploy a Zenoss.resmgr template, you must
 previously have built the devimg with the necessary ZenPacks installed.</p>
 <p>Now you can make any changes you want to the source on your host, then bounce
 the service in the control plane UI or CLI to have your changes take effect.</p>
 </div>
 <div class="section" id="attaching-to-running-containers-zendev-attach">
-<h2>Attaching to Running Containers: <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></tt><a class="headerlink" href="#attaching-to-running-containers-zendev-attach" title="Permalink to this headline">¶</a></h2>
-<p>There&#8217;s a simple wrapper for <tt class="docutils literal"><span class="pre">nsinit</span></tt> called <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></tt> which uses
+<h2>Attaching to Running Containers: <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></code><a class="headerlink" href="#attaching-to-running-containers-zendev-attach" title="Permalink to this headline">¶</a></h2>
+<p>There&#8217;s a simple wrapper for <code class="docutils literal"><span class="pre">nsinit</span></code> called <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">attach</span></code> which uses
 serviced attach.  For example, to drop into bash on the container running Zope, run:</p>
-<div class="highlight-bash"><div class="highlight"><pre>zendev attach zopectl
+<div class="highlight-bash"><div class="highlight"><pre><span></span>zendev attach zopectl
 </pre></div>
 </div>
 </div>
@@ -208,7 +209,7 @@ serviced attach.  For example, to drop into bash on the container running Zope, 
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
     </p>
   </div>
 </footer>

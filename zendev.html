@@ -34,7 +34,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -62,6 +62,7 @@
 <li class="toctree-l1"><a class="reference internal" href="repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pullrequest.html">Pull Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="test.html">Running Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vagrant.html">Working With Vagrant Boxes</a></li>
@@ -130,6 +131,7 @@
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.environment">zendev.cmd.environment module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.feature">zendev.cmd.feature module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.port">zendev.cmd.port module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.pullrequest">zendev.cmd.pullrequest module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.repos">zendev.cmd.repos module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.serviced">zendev.cmd.serviced module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zendev.cmd.html#module-zendev.cmd.tags">zendev.cmd.tags module</a></li>
@@ -154,48 +156,48 @@
 <span id="zendev-config-module"></span><h2>zendev.config module<a class="headerlink" href="#module-zendev.config" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="zendev.config.ZendevConfig">
-<em class="property">class </em><tt class="descclassname">zendev.config.</tt><tt class="descname">ZendevConfig</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descclassname">zendev.config.</code><code class="descname">ZendevConfig</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="zendev.config.ZendevConfig.add">
-<tt class="descname">add</tt><big>(</big><em>name</em>, <em>path</em><big>)</big><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>name</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.config.ZendevConfig.current">
-<tt class="descname">current</tt><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig.current"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig.current" title="Permalink to this definition">¶</a></dt>
+<code class="descname">current</code><a class="headerlink" href="#zendev.config.ZendevConfig.current" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.config.ZendevConfig.environments">
-<tt class="descname">environments</tt><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig.environments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig.environments" title="Permalink to this definition">¶</a></dt>
+<code class="descname">environments</code><a class="headerlink" href="#zendev.config.ZendevConfig.environments" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.config.ZendevConfig.exists">
-<tt class="descname">exists</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig.exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig.exists" title="Permalink to this definition">¶</a></dt>
+<code class="descname">exists</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig.exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig.exists" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.config.ZendevConfig.remove">
-<tt class="descname">remove</tt><big>(</big><em>name</em>, <em>keepdata=True</em><big>)</big><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig.remove" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove</code><span class="sig-paren">(</span><em>name</em>, <em>keepdata=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig.remove" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.config.ZendevConfig.save">
-<tt class="descname">save</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig.save" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/config.html#ZendevConfig.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.ZendevConfig.save" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.config.get_config">
-<tt class="descclassname">zendev.config.</tt><tt class="descname">get_config</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/config.html#get_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.get_config" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.config.</code><code class="descname">get_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/config.html#get_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.get_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.config.get_envname">
-<tt class="descclassname">zendev.config.</tt><tt class="descname">get_envname</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/config.html#get_envname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.get_envname" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.config.</code><code class="descname">get_envname</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/config.html#get_envname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.config.get_envname" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -203,255 +205,255 @@
 <span id="zendev-environment-module"></span><h2>zendev.environment module<a class="headerlink" href="#module-zendev.environment" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="zendev.environment.MultiprocessingProgress">
-<em class="property">class </em><tt class="descclassname">zendev.environment.</tt><tt class="descname">MultiprocessingProgress</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#MultiprocessingProgress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.MultiprocessingProgress" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">git.util.RemoteProgress</span></tt></p>
+<em class="property">class </em><code class="descclassname">zendev.environment.</code><code class="descname">MultiprocessingProgress</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#MultiprocessingProgress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.MultiprocessingProgress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">git.util.RemoteProgress</span></code></p>
 <dl class="attribute">
 <dt id="zendev.environment.MultiprocessingProgress.QUEUE">
-<tt class="descname">QUEUE</tt><em class="property"> = &lt;multiprocessing.queues.Queue object at 0x2ae794195a50&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QUEUE</code><em class="property"> = &lt;multiprocessing.queues.Queue object&gt;</em><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.QUEUE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.MultiprocessingProgress.update">
-<tt class="descname">update</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#MultiprocessingProgress.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.update" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#MultiprocessingProgress.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.MultiprocessingProgress.update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="zendev.environment.NotInitialized">
-<em class="property">exception </em><tt class="descclassname">zendev.environment.</tt><tt class="descname">NotInitialized</tt><a class="reference internal" href="_modules/zendev/environment.html#NotInitialized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.NotInitialized" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<em class="property">exception </em><code class="descclassname">zendev.environment.</code><code class="descname">NotInitialized</code><a class="reference internal" href="_modules/zendev/environment.html#NotInitialized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.NotInitialized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
 </dd></dl>
 
 <dl class="class">
 <dt id="zendev.environment.ZenDevEnvironment">
-<em class="property">class </em><tt class="descclassname">zendev.environment.</tt><tt class="descname">ZenDevEnvironment</tt><big>(</big><em>name=None</em>, <em>path=None</em>, <em>manifest=None</em>, <em>srcroot=None</em>, <em>buildroot=None</em>, <em>zenhome=None</em>, <em>var_zenoss=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descclassname">zendev.environment.</code><code class="descname">ZenDevEnvironment</code><span class="sig-paren">(</span><em>name=None</em>, <em>path=None</em>, <em>manifest=None</em>, <em>srcroot=None</em>, <em>buildroot=None</em>, <em>zenhome=None</em>, <em>var_zenoss=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.bash">
-<tt class="descname">bash</tt><big>(</big><em>command</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.bash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.bash" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bash</code><span class="sig-paren">(</span><em>command</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.bash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.bash" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.buildroot">
-<tt class="descname">buildroot</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.buildroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.buildroot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">buildroot</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.buildroot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.clone">
-<tt class="descname">clone</tt><big>(</big><em>shallow=False</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.clone" title="Permalink to this definition">¶</a></dt>
+<code class="descname">clone</code><span class="sig-paren">(</span><em>shallow=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.clone" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.cluster">
-<tt class="descname">cluster</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.cluster" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cluster</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.cluster" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Vagrant cluster manager.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.clusterroot">
-<tt class="descname">clusterroot</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.clusterroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.clusterroot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">clusterroot</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.clusterroot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.configroot">
-<tt class="descname">configroot</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.configroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.configroot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">configroot</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.configroot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.ensure_build">
-<tt class="descname">ensure_build</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.ensure_build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.ensure_build" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ensure_build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.ensure_build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.ensure_build" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.ensure_manifestrepo">
-<tt class="descname">ensure_manifestrepo</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.ensure_manifestrepo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.ensure_manifestrepo" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ensure_manifestrepo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.ensure_manifestrepo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.ensure_manifestrepo" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.envvars">
-<tt class="descname">envvars</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.envvars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.envvars" title="Permalink to this definition">¶</a></dt>
+<code class="descname">envvars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.envvars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.envvars" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.feature_filter">
-<tt class="descname">feature_filter</tt><big>(</big><em>name</em>, <em>filter_</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.feature_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.feature_filter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">feature_filter</code><span class="sig-paren">(</span><em>name</em>, <em>filter_</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.feature_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.feature_filter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.fetch">
-<tt class="descname">fetch</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.fetch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.fetch" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fetch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.fetch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.fetch" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.finish_feature">
-<tt class="descname">finish_feature</tt><big>(</big><em>name</em>, <em>filter_=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.finish_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.finish_feature" title="Permalink to this definition">¶</a></dt>
+<code class="descname">finish_feature</code><span class="sig-paren">(</span><em>name</em>, <em>filter_=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.finish_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.finish_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.foreach">
-<tt class="descname">foreach</tt><big>(</big><em>func</em>, <em>filter_=None</em>, <em>silent=False</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.foreach"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.foreach" title="Permalink to this definition">¶</a></dt>
+<code class="descname">foreach</code><span class="sig-paren">(</span><em>func</em>, <em>filter_=None</em>, <em>silent=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.foreach"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.foreach" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute a method on all repositories in subprocesses.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.freeze">
-<tt class="descname">freeze</tt><big>(</big><em>hashes=False</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.freeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.freeze" title="Permalink to this definition">¶</a></dt>
+<code class="descname">freeze</code><span class="sig-paren">(</span><em>hashes=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.freeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.freeze" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a JSON representation of the repositories.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.get_manifest">
-<tt class="descname">get_manifest</tt><big>(</big><em>ref</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.get_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.get_manifest" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_manifest</code><span class="sig-paren">(</span><em>ref</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.get_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.get_manifest" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.gopath">
-<tt class="descname">gopath</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.gopath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.gopath" title="Permalink to this definition">¶</a></dt>
+<code class="descname">gopath</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.gopath" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.initialize">
-<tt class="descname">initialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.initialize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.list_feature">
-<tt class="descname">list_feature</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.list_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.list_feature" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_feature</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.list_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.list_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.list_tags">
-<tt class="descname">list_tags</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.list_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.list_tags" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.list_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.list_tags" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.manifest">
-<tt class="descname">manifest</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.manifest" title="Permalink to this definition">¶</a></dt>
+<code class="descname">manifest</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.manifest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the manifest associated with this environment.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.pull_feature">
-<tt class="descname">pull_feature</tt><big>(</big><em>name</em>, <em>filter_=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.pull_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.pull_feature" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pull_feature</code><span class="sig-paren">(</span><em>name</em>, <em>filter_=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.pull_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.pull_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.refresh_manifests">
-<tt class="descname">refresh_manifests</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.refresh_manifests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.refresh_manifests" title="Permalink to this definition">¶</a></dt>
+<code class="descname">refresh_manifests</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.refresh_manifests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.refresh_manifests" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.remove">
-<tt class="descname">remove</tt><big>(</big><em>filter_=None</em>, <em>save=True</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.remove" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove</code><span class="sig-paren">(</span><em>filter_=None</em>, <em>save=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.remove" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove repositories from the manifest and filesystem. In this case, if
 there are no repos passed in, fail.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.repos">
-<tt class="descname">repos</tt><big>(</big><em>filter_=None</em>, <em>key=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.repos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.repos" title="Permalink to this definition">¶</a></dt>
+<code class="descname">repos</code><span class="sig-paren">(</span><em>filter_=None</em>, <em>key=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.repos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.repos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Repository objects for all repos in the system.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.restore">
-<tt class="descname">restore</tt><big>(</big><em>ref</em>, <em>shallow=False</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.restore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.restore" title="Permalink to this definition">¶</a></dt>
+<code class="descname">restore</code><span class="sig-paren">(</span><em>ref</em>, <em>shallow=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.restore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.restore" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.root">
-<tt class="descname">root</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.root" title="Permalink to this definition">¶</a></dt>
+<code class="descname">root</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.root" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.srcroot">
-<tt class="descname">srcroot</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.srcroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.srcroot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">srcroot</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.srcroot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.start_feature">
-<tt class="descname">start_feature</tt><big>(</big><em>name</em>, <em>filter_=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.start_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.start_feature" title="Permalink to this definition">¶</a></dt>
+<code class="descname">start_feature</code><span class="sig-paren">(</span><em>name</em>, <em>filter_=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.start_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.start_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.status">
-<tt class="descname">status</tt><big>(</big><em>filter_=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.status" title="Permalink to this definition">¶</a></dt>
+<code class="descname">status</code><span class="sig-paren">(</span><em>filter_=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.status" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.sync">
-<tt class="descname">sync</tt><big>(</big><em>filter_=None</em>, <em>force_branch=False</em>, <em>shallow=False</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.sync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.sync" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sync</code><span class="sig-paren">(</span><em>filter_=None</em>, <em>force_branch=False</em>, <em>shallow=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.sync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.sync" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.tag">
-<tt class="descname">tag</tt><big>(</big><em>name</em>, <em>strict=False</em>, <em>force=False</em>, <em>from_ref=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.tag" title="Permalink to this definition">¶</a></dt>
+<code class="descname">tag</code><span class="sig-paren">(</span><em>name</em>, <em>strict=False</em>, <em>force=False</em>, <em>from_ref=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.tag_delete">
-<tt class="descname">tag_delete</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.tag_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.tag_delete" title="Permalink to this definition">¶</a></dt>
+<code class="descname">tag_delete</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.tag_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.tag_delete" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.environment.ZenDevEnvironment.use">
-<tt class="descname">use</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.use"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.use" title="Permalink to this definition">¶</a></dt>
+<code class="descname">use</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.use"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.use" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.vagrant">
-<tt class="descname">vagrant</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.vagrant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.vagrant" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vagrant</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.vagrant" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Vagrant manager.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.vagrantroot">
-<tt class="descname">vagrantroot</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.vagrantroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.vagrantroot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vagrantroot</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.vagrantroot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.var_zenoss">
-<tt class="descname">var_zenoss</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.var_zenoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.var_zenoss" title="Permalink to this definition">¶</a></dt>
+<code class="descname">var_zenoss</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.var_zenoss" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.zendev">
-<tt class="descname">zendev</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.zendev"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.zendev" title="Permalink to this definition">¶</a></dt>
+<code class="descname">zendev</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.zendev" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.environment.ZenDevEnvironment.zenhome">
-<tt class="descname">zenhome</tt><a class="reference internal" href="_modules/zendev/environment.html#ZenDevEnvironment.zenhome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.zenhome" title="Permalink to this definition">¶</a></dt>
+<code class="descname">zenhome</code><a class="headerlink" href="#zendev.environment.ZenDevEnvironment.zenhome" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.environment.call_repo_member">
-<tt class="descclassname">zendev.environment.</tt><tt class="descname">call_repo_member</tt><big>(</big><em>repo</em>, <em>fname</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#call_repo_member"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.call_repo_member" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.environment.</code><code class="descname">call_repo_member</code><span class="sig-paren">(</span><em>repo</em>, <em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#call_repo_member"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.call_repo_member" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.environment.get_config_dir">
-<tt class="descclassname">zendev.environment.</tt><tt class="descname">get_config_dir</tt><big>(</big><em>path=None</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#get_config_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.get_config_dir" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.environment.</code><code class="descname">get_config_dir</code><span class="sig-paren">(</span><em>path=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#get_config_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.get_config_dir" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.environment.handle_GitCommandError">
-<tt class="descclassname">zendev.environment.</tt><tt class="descname">handle_GitCommandError</tt><big>(</big><em>fn</em>, <em>repo</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#handle_GitCommandError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.handle_GitCommandError" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.environment.</code><code class="descname">handle_GitCommandError</code><span class="sig-paren">(</span><em>fn</em>, <em>repo</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#handle_GitCommandError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.handle_GitCommandError" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.environment.init_config_dir">
-<tt class="descclassname">zendev.environment.</tt><tt class="descname">init_config_dir</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#init_config_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.init_config_dir" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.environment.</code><code class="descname">init_config_dir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#init_config_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.init_config_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a config directory in PWD.</p>
 <p>:returns the config dir</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.environment.merge_repo">
-<tt class="descclassname">zendev.environment.</tt><tt class="descname">merge_repo</tt><big>(</big><em>repo</em>, <em>force_branch</em><big>)</big><a class="reference internal" href="_modules/zendev/environment.html#merge_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.merge_repo" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.environment.</code><code class="descname">merge_repo</code><span class="sig-paren">(</span><em>repo</em>, <em>force_branch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/environment.html#merge_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.environment.merge_repo" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -459,19 +461,19 @@ there are no repos passed in, fail.</p>
 <span id="zendev-github-module"></span><h2>zendev.github module<a class="headerlink" href="#module-zendev.github" title="Permalink to this headline">¶</a></h2>
 <dl class="exception">
 <dt id="zendev.github.GithubAuthException">
-<em class="property">exception </em><tt class="descclassname">zendev.github.</tt><tt class="descname">GithubAuthException</tt><a class="reference internal" href="_modules/zendev/github.html#GithubAuthException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.github.GithubAuthException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<em class="property">exception </em><code class="descclassname">zendev.github.</code><code class="descname">GithubAuthException</code><a class="reference internal" href="_modules/zendev/github.html#GithubAuthException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.github.GithubAuthException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.github.get_oauth_token">
-<tt class="descclassname">zendev.github.</tt><tt class="descname">get_oauth_token</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/github.html#get_oauth_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.github.get_oauth_token" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.github.</code><code class="descname">get_oauth_token</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/github.html#get_oauth_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.github.get_oauth_token" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get or create an OAuth token for making pull requests.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.github.perform">
-<tt class="descclassname">zendev.github.</tt><tt class="descname">perform</tt><big>(</big><em>method</em>, <em>url</em>, <em>data=None</em>, <em>params=None</em><big>)</big><a class="reference internal" href="_modules/zendev/github.html#perform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.github.perform" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.github.</code><code class="descname">perform</code><span class="sig-paren">(</span><em>method</em>, <em>url</em>, <em>data=None</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/github.html#perform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.github.perform" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -479,17 +481,17 @@ there are no repos passed in, fail.</p>
 <span id="zendev-log-module"></span><h2>zendev.log module<a class="headerlink" href="#module-zendev.log" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="zendev.log.ask">
-<tt class="descclassname">zendev.log.</tt><tt class="descname">ask</tt><big>(</big><em>msg</em>, <em>response</em><big>)</big><a class="reference internal" href="_modules/zendev/log.html#ask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.log.ask" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.log.</code><code class="descname">ask</code><span class="sig-paren">(</span><em>msg</em>, <em>response</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/log.html#ask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.log.ask" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.log.error">
-<tt class="descclassname">zendev.log.</tt><tt class="descname">error</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/zendev/log.html#error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.log.error" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.log.</code><code class="descname">error</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/log.html#error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.log.error" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.log.info">
-<tt class="descclassname">zendev.log.</tt><tt class="descname">info</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/zendev/log.html#info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.log.info" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.log.</code><code class="descname">info</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/log.html#info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.log.info" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -497,40 +499,40 @@ there are no repos passed in, fail.</p>
 <span id="zendev-manifest-module"></span><h2>zendev.manifest module<a class="headerlink" href="#module-zendev.manifest" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="zendev.manifest.Manifest">
-<em class="property">class </em><tt class="descclassname">zendev.manifest.</tt><tt class="descname">Manifest</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/zendev/manifest.html#Manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descclassname">zendev.manifest.</code><code class="descname">Manifest</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/manifest.html#Manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>A repository manifest.</p>
 <dl class="method">
 <dt id="zendev.manifest.Manifest.add">
-<tt class="descname">add</tt><big>(</big><em>path</em>, <em>repo</em>, <em>ref='develop'</em><big>)</big><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>path</em>, <em>repo</em>, <em>ref='develop'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a repo</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zendev.manifest.Manifest.freeze">
-<tt class="descname">freeze</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.freeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.freeze" title="Permalink to this definition">¶</a></dt>
+<code class="descname">freeze</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.freeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.freeze" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.manifest.Manifest.merge">
-<tt class="descname">merge</tt><big>(</big><em>manifest</em><big>)</big><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.merge" title="Permalink to this definition">¶</a></dt>
+<code class="descname">merge</code><span class="sig-paren">(</span><em>manifest</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.merge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.manifest.Manifest.repos">
-<tt class="descname">repos</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.repos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.repos" title="Permalink to this definition">¶</a></dt>
+<code class="descname">repos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.repos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.repos" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.manifest.Manifest.save">
-<tt class="descname">save</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.save" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/manifest.html#Manifest.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.Manifest.save" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.manifest.create_manifest">
-<tt class="descclassname">zendev.manifest.</tt><tt class="descname">create_manifest</tt><big>(</big><em>manifest</em><big>)</big><a class="reference internal" href="_modules/zendev/manifest.html#create_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.create_manifest" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.manifest.</code><code class="descname">create_manifest</code><span class="sig-paren">(</span><em>manifest</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/manifest.html#create_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.manifest.create_manifest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turn paths/urls to one or more manifests into a single Manifest instance.</p>
 </dd></dl>
 
@@ -539,39 +541,39 @@ there are no repos passed in, fail.</p>
 <span id="zendev-progress-module"></span><h2>zendev.progress module<a class="headerlink" href="#module-zendev.progress" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="zendev.progress.GitProgressBar">
-<em class="property">class </em><tt class="descclassname">zendev.progress.</tt><tt class="descname">GitProgressBar</tt><big>(</big><em>name</em>, <em>justification=20</em><big>)</big><a class="reference internal" href="_modules/zendev/progress.html#GitProgressBar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.GitProgressBar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descclassname">zendev.progress.</code><code class="descname">GitProgressBar</code><span class="sig-paren">(</span><em>name</em>, <em>justification=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/progress.html#GitProgressBar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.GitProgressBar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="zendev.progress.GitProgressBar.done">
-<tt class="descname">done</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/progress.html#GitProgressBar.done"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.GitProgressBar.done" title="Permalink to this definition">¶</a></dt>
+<code class="descname">done</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/progress.html#GitProgressBar.done"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.GitProgressBar.done" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.progress.GitProgressBar.get">
-<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/progress.html#GitProgressBar.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.GitProgressBar.get" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/progress.html#GitProgressBar.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.GitProgressBar.get" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.progress.GitProgressBar.update">
-<tt class="descname">update</tt><big>(</big><em>op_code</em>, <em>cur_count</em>, <em>max_count</em><big>)</big><a class="reference internal" href="_modules/zendev/progress.html#GitProgressBar.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.GitProgressBar.update" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update</code><span class="sig-paren">(</span><em>op_code</em>, <em>cur_count</em>, <em>max_count</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/progress.html#GitProgressBar.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.GitProgressBar.update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="zendev.progress.SimpleGitProgressBar">
-<em class="property">class </em><tt class="descclassname">zendev.progress.</tt><tt class="descname">SimpleGitProgressBar</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/progress.html#SimpleGitProgressBar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.SimpleGitProgressBar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">git.util.RemoteProgress</span></tt></p>
+<em class="property">class </em><code class="descclassname">zendev.progress.</code><code class="descname">SimpleGitProgressBar</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/progress.html#SimpleGitProgressBar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.SimpleGitProgressBar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">git.util.RemoteProgress</span></code></p>
 <dl class="method">
 <dt id="zendev.progress.SimpleGitProgressBar.update">
-<tt class="descname">update</tt><big>(</big><em>op_code</em>, <em>cur_count</em>, <em>max_count</em>, <em>message=None</em><big>)</big><a class="reference internal" href="_modules/zendev/progress.html#SimpleGitProgressBar.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.SimpleGitProgressBar.update" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update</code><span class="sig-paren">(</span><em>op_code</em>, <em>cur_count</em>, <em>max_count</em>, <em>message=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/progress.html#SimpleGitProgressBar.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.SimpleGitProgressBar.update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.progress.progress">
-<tt class="descclassname">zendev.progress.</tt><tt class="descname">progress</tt><big>(</big><em>name</em>, <em>message</em>, <em>max_count</em>, <em>just=20</em><big>)</big><a class="reference internal" href="_modules/zendev/progress.html#progress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.progress" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.progress.</code><code class="descname">progress</code><span class="sig-paren">(</span><em>name</em>, <em>message</em>, <em>max_count</em>, <em>just=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/progress.html#progress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.progress.progress" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -579,134 +581,134 @@ there are no repos passed in, fail.</p>
 <span id="zendev-repo-module"></span><h2>zendev.repo module<a class="headerlink" href="#module-zendev.repo" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="zendev.repo.Repository">
-<em class="property">class </em><tt class="descclassname">zendev.repo.</tt><tt class="descname">Repository</tt><big>(</big><em>localpath</em>, <em>path</em>, <em>repo</em>, <em>name=''</em>, <em>ref='develop'</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descclassname">zendev.repo.</code><code class="descname">Repository</code><span class="sig-paren">(</span><em>localpath</em>, <em>path</em>, <em>repo</em>, <em>name=''</em>, <em>ref='develop'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>A repository.</p>
 <dl class="method">
 <dt id="zendev.repo.Repository.apply_stash">
-<tt class="descname">apply_stash</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.apply_stash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.apply_stash" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply_stash</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.apply_stash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.apply_stash" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.repo.Repository.branch">
-<tt class="descname">branch</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.branch" title="Permalink to this definition">¶</a></dt>
+<code class="descname">branch</code><a class="headerlink" href="#zendev.repo.Repository.branch" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.changelog">
-<tt class="descname">changelog</tt><big>(</big><em>fromref</em>, <em>toref</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.changelog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.changelog" title="Permalink to this definition">¶</a></dt>
+<code class="descname">changelog</code><span class="sig-paren">(</span><em>fromref</em>, <em>toref</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.changelog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.changelog" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.repo.Repository.changes">
-<tt class="descname">changes</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.changes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">changes</code><a class="headerlink" href="#zendev.repo.Repository.changes" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.checkout">
-<tt class="descname">checkout</tt><big>(</big><em>ref</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.checkout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.checkout" title="Permalink to this definition">¶</a></dt>
+<code class="descname">checkout</code><span class="sig-paren">(</span><em>ref</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.checkout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.checkout" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.clone">
-<tt class="descname">clone</tt><big>(</big><em>shallow=False</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.clone" title="Permalink to this definition">¶</a></dt>
+<code class="descname">clone</code><span class="sig-paren">(</span><em>shallow=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.clone" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.create_feature">
-<tt class="descname">create_feature</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.create_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.create_feature" title="Permalink to this definition">¶</a></dt>
+<code class="descname">create_feature</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.create_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.create_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.create_pull_request">
-<tt class="descname">create_pull_request</tt><big>(</big><em>feature_name</em>, <em>body=''</em>, <em>base='develop'</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.create_pull_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.create_pull_request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">create_pull_request</code><span class="sig-paren">(</span><em>feature_name</em>, <em>body=''</em>, <em>base='develop'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.create_pull_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.create_pull_request" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.fetch">
-<tt class="descname">fetch</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.fetch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.fetch" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fetch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.fetch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.fetch" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.finish_feature">
-<tt class="descname">finish_feature</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.finish_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.finish_feature" title="Permalink to this definition">¶</a></dt>
+<code class="descname">finish_feature</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.finish_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.finish_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.repo.Repository.hash">
-<tt class="descname">hash</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.hash" title="Permalink to this definition">¶</a></dt>
+<code class="descname">hash</code><a class="headerlink" href="#zendev.repo.Repository.hash" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.initialize">
-<tt class="descname">initialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.initialize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.repo.Repository.local_branches">
-<tt class="descname">local_branches</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.local_branches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.local_branches" title="Permalink to this definition">¶</a></dt>
+<code class="descname">local_branches</code><a class="headerlink" href="#zendev.repo.Repository.local_branches" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.merge_from_remote">
-<tt class="descname">merge_from_remote</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.merge_from_remote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.merge_from_remote" title="Permalink to this definition">¶</a></dt>
+<code class="descname">merge_from_remote</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.merge_from_remote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.merge_from_remote" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.message">
-<tt class="descname">message</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.message" title="Permalink to this definition">¶</a></dt>
+<code class="descname">message</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.message" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.publish_feature">
-<tt class="descname">publish_feature</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.publish_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.publish_feature" title="Permalink to this definition">¶</a></dt>
+<code class="descname">publish_feature</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.publish_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.publish_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.push">
-<tt class="descname">push</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.push" title="Permalink to this definition">¶</a></dt>
+<code class="descname">push</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.push" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.repo.Repository.remote_branch">
-<tt class="descname">remote_branch</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.remote_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.remote_branch" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remote_branch</code><a class="headerlink" href="#zendev.repo.Repository.remote_branch" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.repo.Repository.remote_branches">
-<tt class="descname">remote_branches</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.remote_branches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.remote_branches" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remote_branches</code><a class="headerlink" href="#zendev.repo.Repository.remote_branches" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.repo.Repository.repo">
-<tt class="descname">repo</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.repo" title="Permalink to this definition">¶</a></dt>
+<code class="descname">repo</code><a class="headerlink" href="#zendev.repo.Repository.repo" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.shallow_clone">
-<tt class="descname">shallow_clone</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.shallow_clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.shallow_clone" title="Permalink to this definition">¶</a></dt>
+<code class="descname">shallow_clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.shallow_clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.shallow_clone" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.start_feature">
-<tt class="descname">start_feature</tt><big>(</big><em>name</em>, <em>base=None</em><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.start_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.start_feature" title="Permalink to this definition">¶</a></dt>
+<code class="descname">start_feature</code><span class="sig-paren">(</span><em>name</em>, <em>base=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.start_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.start_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.repo.Repository.stash">
-<tt class="descname">stash</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/repo.html#Repository.stash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.stash" title="Permalink to this definition">¶</a></dt>
+<code class="descname">stash</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/repo.html#Repository.stash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.stash" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zendev.repo.Repository.tag_names">
-<tt class="descname">tag_names</tt><a class="reference internal" href="_modules/zendev/repo.html#Repository.tag_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.repo.Repository.tag_names" title="Permalink to this definition">¶</a></dt>
+<code class="descname">tag_names</code><a class="headerlink" href="#zendev.repo.Repository.tag_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>x.__getitem__(y) &lt;==&gt; x[y]</p>
 </dd></dl>
 
@@ -714,7 +716,7 @@ there are no repos passed in, fail.</p>
 
 <dl class="function">
 <dt id="zendev.repo.is_github">
-<tt class="descclassname">zendev.repo.</tt><tt class="descname">is_github</tt><big>(</big><big>)</big><a class="headerlink" href="#zendev.repo.is_github" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.repo.</code><code class="descname">is_github</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zendev.repo.is_github" title="Permalink to this definition">¶</a></dt>
 <dd><p>match(string[, pos[, endpos]]) &#8211;&gt; match object or None.
 Matches zero or more characters at the beginning of the string</p>
 </dd></dl>
@@ -724,67 +726,67 @@ Matches zero or more characters at the beginning of the string</p>
 <span id="zendev-utils-module"></span><h2>zendev.utils module<a class="headerlink" href="#module-zendev.utils" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="zendev.utils.Reprinter">
-<em class="property">class </em><tt class="descclassname">zendev.utils.</tt><tt class="descname">Reprinter</tt><a class="reference internal" href="_modules/zendev/utils.html#Reprinter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.Reprinter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descclassname">zendev.utils.</code><code class="descname">Reprinter</code><a class="reference internal" href="_modules/zendev/utils.html#Reprinter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.Reprinter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="zendev.utils.Reprinter.clear">
-<tt class="descname">clear</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#Reprinter.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.Reprinter.clear" title="Permalink to this definition">¶</a></dt>
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/utils.html#Reprinter.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.Reprinter.clear" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.utils.Reprinter.moveup">
-<tt class="descname">moveup</tt><big>(</big><em>lines</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#Reprinter.moveup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.Reprinter.moveup" title="Permalink to this definition">¶</a></dt>
+<code class="descname">moveup</code><span class="sig-paren">(</span><em>lines</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/utils.html#Reprinter.moveup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.Reprinter.moveup" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zendev.utils.Reprinter.reprint">
-<tt class="descname">reprint</tt><big>(</big><em>text</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#Reprinter.reprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.Reprinter.reprint" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reprint</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/utils.html#Reprinter.reprint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.Reprinter.reprint" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.utils.add_repo_narg">
-<tt class="descclassname">zendev.utils.</tt><tt class="descname">add_repo_narg</tt><big>(</big><em>parser</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#add_repo_narg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.add_repo_narg" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.utils.</code><code class="descname">add_repo_narg</code><span class="sig-paren">(</span><em>parser</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/utils.html#add_repo_narg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.add_repo_narg" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.utils.colored">
-<tt class="descclassname">zendev.utils.</tt><tt class="descname">colored</tt><big>(</big><em>s</em>, <em>color=None</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#colored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.colored" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.utils.</code><code class="descname">colored</code><span class="sig-paren">(</span><em>s</em>, <em>color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/utils.html#colored"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.colored" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.utils.get_ip_address">
-<tt class="descclassname">zendev.utils.</tt><tt class="descname">get_ip_address</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#get_ip_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.get_ip_address" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.utils.</code><code class="descname">get_ip_address</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/utils.html#get_ip_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.get_ip_address" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.utils.is_git_repo">
-<tt class="descclassname">zendev.utils.</tt><tt class="descname">is_git_repo</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#is_git_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.is_git_repo" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.utils.</code><code class="descname">is_git_repo</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/utils.html#is_git_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.is_git_repo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Path is a filesystem path or a remote URI.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.utils.is_manifest">
-<tt class="descclassname">zendev.utils.</tt><tt class="descname">is_manifest</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#is_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.is_manifest" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.utils.</code><code class="descname">is_manifest</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/utils.html#is_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.is_manifest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Path is a filesystem path potentially representing a JSON manifest.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.utils.memoize">
-<tt class="descclassname">zendev.utils.</tt><tt class="descname">memoize</tt><big>(</big><em>f</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#memoize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.memoize" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.utils.</code><code class="descname">memoize</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/utils.html#memoize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.memoize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.utils.repofilter">
-<tt class="descclassname">zendev.utils.</tt><tt class="descname">repofilter</tt><big>(</big><em>repos=()</em>, <em>field_fn=&lt;function &lt;lambda&gt; at 0x2ae79418cd70&gt;</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#repofilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.repofilter" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.utils.</code><code class="descname">repofilter</code><span class="sig-paren">(</span><em>repos=()</em>, <em>field_fn=&lt;function &lt;lambda&gt;&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/utils.html#repofilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.repofilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a function that will return only those repos specified, or all if
 nothing was specified.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.utils.resolve">
-<tt class="descclassname">zendev.utils.</tt><tt class="descname">resolve</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/zendev/utils.html#resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.resolve" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.utils.</code><code class="descname">resolve</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/utils.html#resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.utils.resolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>If path is a URL, download the file somewhere and return the file path.</p>
 </dd></dl>
 
@@ -793,48 +795,48 @@ nothing was specified.</p>
 <span id="zendev-zendev-module"></span><h2>zendev.zendev module<a class="headerlink" href="#module-zendev.zendev" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="zendev.zendev.bootstrap">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">bootstrap</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#bootstrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.bootstrap" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.zendev.</code><code class="descname">bootstrap</code><span class="sig-paren">(</span><em>args</em>, <em>env</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/zendev.html#bootstrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.bootstrap" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.zendev.check_env">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">check_env</tt><big>(</big><em>name=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#check_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.check_env" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.zendev.</code><code class="descname">check_env</code><span class="sig-paren">(</span><em>name=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/zendev.html#check_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.check_env" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="class">
 <dt id="zendev.zendev.fargs">
-<em class="property">class </em><tt class="descclassname">zendev.zendev.</tt><tt class="descname">fargs</tt><a class="reference internal" href="_modules/zendev/zendev.html#fargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.fargs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descclassname">zendev.zendev.</code><code class="descname">fargs</code><a class="reference internal" href="_modules/zendev/zendev.html#fargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.fargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="zendev.zendev.main">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.main" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.zendev.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/zendev.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.zendev.parse_args">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">parse_args</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#parse_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.parse_args" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.zendev.</code><code class="descname">parse_args</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/zendev.html#parse_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.parse_args" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.zendev.restoreCompleter">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">restoreCompleter</tt><big>(</big><em>prefix</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#restoreCompleter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.restoreCompleter" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.zendev.</code><code class="descname">restoreCompleter</code><span class="sig-paren">(</span><em>prefix</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/zendev.html#restoreCompleter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.restoreCompleter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.zendev.root">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">root</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.root" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.zendev.</code><code class="descname">root</code><span class="sig-paren">(</span><em>args</em>, <em>env</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/zendev.html#root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.root" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.zendev.selfupdate">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">selfupdate</tt><big>(</big><em>args</em>, <em>env</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#selfupdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.selfupdate" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.zendev.</code><code class="descname">selfupdate</code><span class="sig-paren">(</span><em>args</em>, <em>env</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/zendev.html#selfupdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.selfupdate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="zendev.zendev.temp_env">
-<tt class="descclassname">zendev.zendev.</tt><tt class="descname">temp_env</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="_modules/zendev/zendev.html#temp_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.temp_env" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">zendev.zendev.</code><code class="descname">temp_env</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/zendev/zendev.html#temp_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zendev.zendev.temp_env" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a temporary environment and patches everything to use it for the
 lifespan of the context manager.</p>
 </dd></dl>
@@ -855,7 +857,7 @@ lifespan of the context manager.</p>
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
     </p>
   </div>
 </footer>

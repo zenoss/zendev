@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -63,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pullrequest.html">Pull Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../test.html">Running Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../vagrant.html">Working With Vagrant Boxes</a></li>
@@ -99,7 +100,7 @@
 
   
   <h1>Source code for zendev.cmd.test</h1><div class="highlight"><pre>
-<span class="kn">import</span> <span class="nn">argparse</span>
+<span></span><span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -108,115 +109,120 @@
 
 
 <div class="viewcode-block" id="check_devimg"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.test.check_devimg">[docs]</a><span class="k">def</span> <span class="nf">check_devimg</span><span class="p">():</span>
-    <span class="n">has_devimg</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;-n&quot;</span><span class="p">,</span>
-                                  <span class="s">&#39;&quot;$(docker images -q zendev/devimg)&quot;&#39;</span><span class="p">],</span>
+    <span class="n">has_devimg</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;-n&quot;</span><span class="p">,</span>
+                                  <span class="s1">&#39;&quot;$(docker images -q zendev/devimg)&quot;&#39;</span><span class="p">],</span>
                                  <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">has_devimg</span><span class="p">:</span>
-        <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="p">(</span><span class="s">&quot;You don&#39;t have the devimg built. Please run&quot;</span>
-                              <span class="s">&quot; zendev build devimg</span><span class="se">\&quot;</span><span class="s"> first.&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">print</span> <span class="o">&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;You don&#39;t have the devimg built. Please run&quot;</span>
+                              <span class="s2">&quot; zendev build devimg</span><span class="se">\&quot;</span><span class="s2"> first.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="check_zendev_test"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.test.check_zendev_test">[docs]</a><span class="k">def</span> <span class="nf">check_zendev_test</span><span class="p">():</span>
-    <span class="n">has_img</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;-n&quot;</span><span class="p">,</span>
-                                  <span class="s">&#39;&quot;$(docker images -q zendev_test)&quot;&#39;</span><span class="p">],</span>
+    <span class="n">has_img</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;-n&quot;</span><span class="p">,</span>
+                                  <span class="s1">&#39;&quot;$(docker images -q zendev_test)&quot;&#39;</span><span class="p">],</span>
                                  <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">has_img</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">has_img</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="build_image"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.test.build_image">[docs]</a><span class="k">def</span> <span class="nf">build_image</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">resmgr</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-</div>
-<div class="viewcode-block" id="zen_image_tests"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.test.zen_image_tests">[docs]</a><span class="k">def</span> <span class="nf">zen_image_tests</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="zen_image_tests"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.test.zen_image_tests">[docs]</a><span class="k">def</span> <span class="nf">zen_image_tests</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">env</span><span class="p">()</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;VAR_ZENOSS&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">var_zenoss</span><span class="o">.</span><span class="n">strpath</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;VAR_ZENOSS&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">var_zenoss</span><span class="o">.</span><span class="n">strpath</span>
     <span class="n">envvars</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">envvars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">envvars</span><span class="p">())</span>
-    <span class="n">mounts</span> <span class="o">=</span> <span class="p">{</span><span class="n">envvars</span><span class="p">[</span><span class="s">&quot;SRCROOT&quot;</span><span class="p">]:</span> <span class="s">&quot;/mnt/src&quot;</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="p">:</span> <span class="s">&quot;/mnt/build&quot;</span><span class="p">,</span> <span class="n">envvars</span><span class="p">[</span><span class="s">&quot;HOME&quot;</span><span class="p">]:</span> <span class="s">&quot;/home/zenoss/.m2&quot;</span><span class="p">}</span>
-    <span class="n">mounts</span><span class="p">[</span><span class="n">env</span><span class="o">.</span><span class="n">var_zenoss</span><span class="o">.</span><span class="n">strpath</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;/var/zenoss&quot;</span>
-    <span class="n">image</span> <span class="o">=</span> <span class="s">&quot;zendev_test&quot;</span>
-    <span class="k">if</span> <span class="n">product</span> <span class="o">==</span> <span class="s">&#39;devimg&#39;</span><span class="p">:</span>
+    <span class="n">mounts</span> <span class="o">=</span> <span class="p">{</span><span class="n">envvars</span><span class="p">[</span><span class="s2">&quot;SRCROOT&quot;</span><span class="p">]:</span> <span class="s2">&quot;/mnt/src&quot;</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="p">:</span> <span class="s2">&quot;/mnt/build&quot;</span><span class="p">,</span> <span class="n">envvars</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">]:</span> <span class="s2">&quot;/home/zenoss/.m2&quot;</span><span class="p">}</span>
+    <span class="n">mounts</span><span class="p">[</span><span class="n">env</span><span class="o">.</span><span class="n">var_zenoss</span><span class="o">.</span><span class="n">strpath</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;/var/zenoss&quot;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;zendev_test&quot;</span>
+    <span class="k">if</span> <span class="n">product</span> <span class="o">==</span> <span class="s1">&#39;devimg&#39;</span><span class="p">:</span>
         <span class="n">check_devimg</span><span class="p">()</span>
-        <span class="n">image</span> <span class="o">=</span> <span class="s">&quot;zendev/devimg&quot;</span>
-        <span class="n">mounts</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">envvars</span><span class="p">[</span><span class="s">&quot;ZENHOME&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="s">&quot;/opt/zenoss&quot;</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;zendev/devimg&quot;</span>
+        <span class="n">mounts</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">envvars</span><span class="p">[</span><span class="s2">&quot;ZENHOME&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="s2">&quot;/opt/zenoss&quot;</span>
     <span class="k">elif</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">use_existing</span> <span class="ow">or</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">use_existing</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">check_zendev_test</span><span class="p">()):</span>
-        <span class="c"># Run a build</span>
-        <span class="n">envvars</span><span class="p">[</span><span class="s">&#39;DEVIMG_SYMLINK&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
-        <span class="n">envvars</span><span class="p">[</span><span class="s">&#39;devimg_MOUNTS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
-        <span class="n">envvars</span><span class="p">[</span><span class="s">&#39;devimg_TAGNAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;zendev_test&#39;</span>
-        <span class="n">envvars</span><span class="p">[</span><span class="s">&#39;devimg_CONTAINER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;zendev_test&#39;</span>
-        <span class="n">envvars</span><span class="p">[</span><span class="s">&#39;ZENPACKS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_packs</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">product</span><span class="p">))</span>
+        <span class="c1"># Run a build</span>
+        <span class="n">envvars</span><span class="p">[</span><span class="s1">&#39;DEVIMG_SYMLINK&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">envvars</span><span class="p">[</span><span class="s1">&#39;devimg_MOUNTS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">envvars</span><span class="p">[</span><span class="s1">&#39;devimg_TAGNAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;zendev_test&#39;</span>
+        <span class="n">envvars</span><span class="p">[</span><span class="s1">&#39;devimg_CONTAINER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;zendev_test&#39;</span>
+        <span class="n">envvars</span><span class="p">[</span><span class="s1">&#39;ZENPACKS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_packs</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">product</span><span class="p">))</span>
         <span class="k">with</span> <span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-            <span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&quot;make&quot;</span><span class="p">,</span> <span class="s">&quot;devimg&quot;</span><span class="p">],</span> <span class="n">env</span><span class="o">=</span><span class="n">envvars</span><span class="p">)</span>
+            <span class="n">rc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s2">&quot;make&quot;</span><span class="p">,</span> <span class="s2">&quot;devimg&quot;</span><span class="p">],</span> <span class="n">env</span><span class="o">=</span><span class="n">envvars</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">rc</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">rc</span>
-        <span class="n">image</span> <span class="o">=</span> <span class="s">&quot;zendev_test&quot;</span>
-    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;docker&quot;</span><span class="p">,</span> <span class="s">&quot;run&quot;</span><span class="p">,</span> <span class="s">&quot;-t&quot;</span><span class="p">,</span> <span class="s">&quot;-i&quot;</span><span class="p">,</span> <span class="s">&quot;--rm&quot;</span><span class="p">]</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;zendev_test&quot;</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--rm&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_tty</span><span class="p">:</span> 
+        <span class="n">cmd</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">mount</span> <span class="ow">in</span> <span class="n">mounts</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&quot;-v&quot;</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">mount</span><span class="p">])</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mount</span><span class="p">])</span>
     <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
-        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;bash&#39;</span><span class="p">)</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;bash&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;/usr/bin/run_tests.sh&quot;</span><span class="p">)</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;/usr/bin/run_tests.sh&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">zp</span><span class="p">:</span>
-            <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;zenpack&quot;</span><span class="p">)</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zenpack&quot;</span><span class="p">)</span>
         <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-    <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    
+    <span class="k">print</span> <span class="s2">&quot;Calling Docker with the following:&quot;</span>    
+    <span class="k">print</span> <span class="n">cmd</span>
+    <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="serviced_tests"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.test.serviced_tests">[docs]</a><span class="k">def</span> <span class="nf">serviced_tests</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">smoke</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">env</span><span class="p">()</span>
     <span class="n">envvars</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">envvars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">envvars</span><span class="p">())</span>
-    <span class="n">repo</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;control-center/serviced&#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;make&quot;</span><span class="p">,</span> <span class="s">&quot;smoketest&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">smoke</span> <span class="k">else</span> <span class="p">[</span><span class="s">&quot;make&quot;</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">]</span>
+    <span class="n">repo</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">repos</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;control-center/serviced&#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;make&quot;</span><span class="p">,</span> <span class="s2">&quot;smoketest&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">smoke</span> <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;make&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">]</span>
     <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
     <span class="k">with</span> <span class="n">repo</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_cwd</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">envvars</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">envvars</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="zep_tests"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.test.zep_tests">[docs]</a><span class="k">def</span> <span class="nf">zep_tests</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">env</span><span class="p">()</span>
     <span class="n">envvars</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">envvars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">envvars</span><span class="p">())</span>
-    <span class="n">mounts</span> <span class="o">=</span> <span class="p">{</span><span class="n">envvars</span><span class="p">[</span><span class="s">&quot;SRCROOT&quot;</span><span class="p">]:</span> <span class="s">&quot;/mnt/src&quot;</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="p">:</span> <span class="s">&quot;/mnt/build&quot;</span><span class="p">}</span>
-    <span class="n">image</span> <span class="o">=</span> <span class="s">&quot;zendev_test&quot;</span>
+    <span class="n">mounts</span> <span class="o">=</span> <span class="p">{</span><span class="n">envvars</span><span class="p">[</span><span class="s2">&quot;SRCROOT&quot;</span><span class="p">]:</span> <span class="s2">&quot;/mnt/src&quot;</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">buildroot</span><span class="p">:</span> <span class="s2">&quot;/mnt/build&quot;</span><span class="p">}</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;zendev_test&quot;</span>
     <span class="n">check_devimg</span><span class="p">()</span>
-    <span class="n">image</span> <span class="o">=</span> <span class="s">&quot;zendev/devimg&quot;</span>
-    <span class="n">mounts</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">envvars</span><span class="p">[</span><span class="s">&quot;HOME&quot;</span><span class="p">],</span> <span class="s">&quot;.m2&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="s">&quot;/home/zenoss/.m2&quot;</span>
-    <span class="n">mounts</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">envvars</span><span class="p">[</span><span class="s">&quot;ZENHOME&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="s">&quot;/opt/zenoss&quot;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;zendev/devimg&quot;</span>
+    <span class="n">mounts</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">envvars</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;.m2&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">&quot;/home/zenoss/.m2&quot;</span>
+    <span class="n">mounts</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">envvars</span><span class="p">[</span><span class="s2">&quot;ZENHOME&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="s2">&quot;/opt/zenoss&quot;</span>
 
-    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;docker&quot;</span><span class="p">,</span> <span class="s">&quot;run&quot;</span><span class="p">,</span> <span class="s">&quot;-t&quot;</span><span class="p">,</span> <span class="s">&quot;-i&quot;</span><span class="p">,</span> <span class="s">&quot;--rm&quot;</span><span class="p">]</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;docker&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--rm&quot;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">mount</span> <span class="ow">in</span> <span class="n">mounts</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&quot;-v&quot;</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">mount</span><span class="p">])</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mount</span><span class="p">])</span>
     <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
-        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;bash&#39;</span><span class="p">)</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;bash&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;/usr/bin/run_tests.sh&quot;</span><span class="p">)</span>
-        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;zep&quot;</span><span class="p">)</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;/usr/bin/run_tests.sh&quot;</span><span class="p">)</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;zep&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">zep_integration</span><span class="p">:</span>
-            <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;integration&quot;</span><span class="p">)</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;integration&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">zep_unit</span><span class="p">:</span>
-            <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;unit&quot;</span><span class="p">)</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;unit&quot;</span><span class="p">)</span>
         <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-    <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span></div>
 
 
-</div>
+
 <div class="viewcode-block" id="test"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.test.test">[docs]</a><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
 
     <span class="n">rcs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">rc</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">devimg</span><span class="p">:</span>
-        <span class="n">rc</span> <span class="o">=</span> <span class="n">zen_image_tests</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s">&#39;devimg&#39;</span><span class="p">)</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">zen_image_tests</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;devimg&#39;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">resmgr</span><span class="p">:</span>
-        <span class="n">rc</span> <span class="o">=</span> <span class="n">zen_image_tests</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s">&#39;resmgr&#39;</span><span class="p">)</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">zen_image_tests</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;resmgr&#39;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">ucspm</span><span class="p">:</span>
-        <span class="n">rc</span> <span class="o">=</span> <span class="n">zen_image_tests</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s">&#39;ucspm&#39;</span><span class="p">)</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">zen_image_tests</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;ucspm&#39;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">core</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">zp</span><span class="p">:</span>
         <span class="n">rc</span> <span class="o">=</span> <span class="n">zen_image_tests</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
     <span class="n">rcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
@@ -234,58 +240,62 @@
         <span class="n">rcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">rcs</span><span class="p">:</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;No tests were specified.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;No tests were specified.&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">rcs</span><span class="p">):</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&quot;Some tests failed.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Some tests failed.&quot;</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.test.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
-    <span class="n">test_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;test&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Run tests&quot;</span><span class="p">)</span>
+    <span class="n">test_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run tests&quot;</span><span class="p">)</span>
 
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="s">&#39;--zenoss-devimg&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Run Zenoss unit tests using the current devimg instance&quot;</span><span class="p">,</span>
-            <span class="n">dest</span><span class="o">=</span><span class="s">&quot;devimg&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-r&#39;</span><span class="p">,</span> <span class="s">&#39;--zenoss-resmgr&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Build a resmgr image and run Zenoss unit tests&quot;</span><span class="p">,</span>
-            <span class="n">dest</span><span class="o">=</span><span class="s">&quot;resmgr&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="s">&#39;--zenoss-ucspm&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Build a ucspm image and run Zenoss unit tests&quot;</span><span class="p">,</span>
-            <span class="n">dest</span><span class="o">=</span><span class="s">&quot;ucspm&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-c&#39;</span><span class="p">,</span> <span class="s">&#39;--zenoss-core&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Build a core image and run Zenoss unit tests&quot;</span><span class="p">,</span>
-            <span class="n">dest</span><span class="o">=</span><span class="s">&quot;core&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-zp&#39;</span><span class="p">,</span> <span class="s">&#39;--zenoss-zenpack-restore&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Build a core image and run zenpack restore tests&quot;</span><span class="p">,</span>
-            <span class="n">dest</span><span class="o">=</span><span class="s">&quot;zp&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-e&#39;</span><span class="p">,</span> <span class="s">&#39;--zenoss-zep&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Run ZEP unit tests&quot;</span><span class="p">,</span>
-            <span class="n">dest</span><span class="o">=</span><span class="s">&quot;zep_unit&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-i&#39;</span><span class="p">,</span> <span class="s">&#39;--zenoss-zep-integration&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Run ZEP integration tests&quot;</span><span class="p">,</span>
-            <span class="n">dest</span><span class="o">=</span><span class="s">&quot;zep_integration&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-u&#39;</span><span class="p">,</span> <span class="s">&#39;--serviced&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Run serviced unit tests&quot;</span><span class="p">,</span>
-            <span class="n">dest</span><span class="o">=</span><span class="s">&quot;serviced_unit&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-s&#39;</span><span class="p">,</span> <span class="s">&#39;--serviced-smoke&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Run serviced smoke tests&quot;</span><span class="p">,</span>
-            <span class="n">dest</span><span class="o">=</span><span class="s">&quot;serviced_smoke&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--use-existing&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Use the existing tagged zendev_test image, if it exists&quot;</span><span class="p">,</span>
-            <span class="n">dest</span><span class="o">=</span><span class="s">&quot;use_existing&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--interactive&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Start an interactive shell instead of running th test&quot;</span><span class="p">,</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--zenoss-devimg&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run Zenoss unit tests using the current devimg instance&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;devimg&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="s1">&#39;--zenoss-resmgr&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Build a resmgr image and run Zenoss unit tests&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;resmgr&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="s1">&#39;--zenoss-ucspm&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Build a ucspm image and run Zenoss unit tests&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;ucspm&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--zenoss-core&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Build a core image and run Zenoss unit tests&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;core&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-zp&#39;</span><span class="p">,</span> <span class="s1">&#39;--zenoss-zenpack-restore&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Build a core image and run zenpack restore tests&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;zp&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-e&#39;</span><span class="p">,</span> <span class="s1">&#39;--zenoss-zep&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run ZEP unit tests&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;zep_unit&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="s1">&#39;--zenoss-zep-integration&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run ZEP integration tests&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;zep_integration&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="s1">&#39;--serviced&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run serviced unit tests&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;serviced_unit&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--serviced-smoke&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run serviced smoke tests&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;serviced_smoke&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--use-existing&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use the existing tagged zendev_test image, if it exists&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;use_existing&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--interactive&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Start an interactive shell instead of running th test&quot;</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="c">#test_parser.add_argument(&#39;--with-consumer&#39;, action=&quot;store_true&quot;,</span>
-    <span class="c">#        help=&quot;Run metric-consumer unit tests&quot;,</span>
-    <span class="c">#        dest=&quot;with_consumer&quot;, default=False)</span>
-    <span class="c">#test_parser.add_argument(&#39;--with-query&#39;, action=&quot;store_true&quot;,</span>
-    <span class="c">#        help=&quot;Run query unit tests&quot;,</span>
-    <span class="c">#        dest=&quot;with_query&quot;, default=False)</span>
-    <span class="c">#test_parser.add_argument(&#39;--with-zep&#39;, action=&quot;store_true&quot;,</span>
-    <span class="c">#        help=&quot;Run ZEP unit tests&quot;,</span>
-    <span class="c">#        dest=&quot;with_zep&quot;, default=False)</span>
-    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;arguments&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">REMAINDER</span><span class="p">)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--no-tty&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Do not allocate a TTY&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;no_tty&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="c1">#test_parser.add_argument(&#39;--with-consumer&#39;, action=&quot;store_true&quot;,</span>
+    <span class="c1">#        help=&quot;Run metric-consumer unit tests&quot;,</span>
+    <span class="c1">#        dest=&quot;with_consumer&quot;, default=False)</span>
+    <span class="c1">#test_parser.add_argument(&#39;--with-query&#39;, action=&quot;store_true&quot;,</span>
+    <span class="c1">#        help=&quot;Run query unit tests&quot;,</span>
+    <span class="c1">#        dest=&quot;with_query&quot;, default=False)</span>
+    <span class="c1">#test_parser.add_argument(&#39;--with-zep&#39;, action=&quot;store_true&quot;,</span>
+    <span class="c1">#        help=&quot;Run ZEP unit tests&quot;,</span>
+    <span class="c1">#        dest=&quot;with_zep&quot;, default=False)</span>
+    <span class="n">test_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;arguments&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">REMAINDER</span><span class="p">)</span>
 
     <span class="n">test_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">test</span><span class="p">)</span></div>
 </pre></div>
@@ -299,7 +309,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
     </p>
   </div>
 </footer>

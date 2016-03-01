@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -63,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../repos.html">Working With Repositories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../build.html">Building Zenoss With zendev</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devimg.html">Developing Zenoss in the Control Plane</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pullrequest.html">Pull Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../test.html">Running Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../port.html">Porting Changes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../vagrant.html">Working With Vagrant Boxes</a></li>
@@ -99,21 +100,21 @@
 
   
   <h1>Source code for zendev.progress</h1><div class="highlight"><pre>
-<span class="kn">import</span> <span class="nn">py</span>
+<span></span><span class="kn">import</span> <span class="nn">py</span>
 <span class="kn">from</span> <span class="nn">termcolor</span> <span class="kn">import</span> <span class="n">colored</span>
 <span class="kn">from</span> <span class="nn">progressbar</span> <span class="kn">import</span> <span class="n">ETA</span><span class="p">,</span> <span class="n">Bar</span><span class="p">,</span> <span class="n">ProgressBar</span><span class="p">,</span> <span class="n">Percentage</span><span class="p">,</span> <span class="n">Timer</span>
 <span class="kn">from</span> <span class="nn">git.remote</span> <span class="kn">import</span> <span class="n">RemoteProgress</span>
 
 
 <span class="n">_translation</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="bp">None</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Waiting&#39;</span><span class="p">,</span> <span class="s">&#39;blue&#39;</span><span class="p">),</span>
-    <span class="mi">4</span><span class="p">:</span>    <span class="p">(</span><span class="s">&#39;Counting objects&#39;</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">),</span>
-    <span class="mi">8</span><span class="p">:</span>    <span class="p">(</span><span class="s">&#39;Compressing objects&#39;</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">),</span>
-    <span class="mi">16</span><span class="p">:</span>   <span class="p">(</span><span class="s">&#39;Writing objects&#39;</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">),</span>
-    <span class="mi">32</span><span class="p">:</span>   <span class="p">(</span><span class="s">&#39;Receiving objects&#39;</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">),</span>
-    <span class="mi">34</span><span class="p">:</span>   <span class="p">(</span><span class="s">&#39;Error&#39;</span><span class="p">,</span> <span class="s">&#39;red&#39;</span><span class="p">),</span>
-    <span class="mi">64</span><span class="p">:</span>   <span class="p">(</span><span class="s">&#39;Resolving deltas&#39;</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">),</span>
-    <span class="mi">66</span><span class="p">:</span>   <span class="p">(</span><span class="s">&#39;Done!&#39;</span><span class="p">,</span> <span class="s">&#39;green&#39;</span><span class="p">)</span>
+    <span class="bp">None</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Waiting&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">),</span>
+    <span class="mi">4</span><span class="p">:</span>    <span class="p">(</span><span class="s1">&#39;Counting objects&#39;</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">),</span>
+    <span class="mi">8</span><span class="p">:</span>    <span class="p">(</span><span class="s1">&#39;Compressing objects&#39;</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">),</span>
+    <span class="mi">16</span><span class="p">:</span>   <span class="p">(</span><span class="s1">&#39;Writing objects&#39;</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">),</span>
+    <span class="mi">32</span><span class="p">:</span>   <span class="p">(</span><span class="s1">&#39;Receiving objects&#39;</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">),</span>
+    <span class="mi">34</span><span class="p">:</span>   <span class="p">(</span><span class="s1">&#39;Error&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">),</span>
+    <span class="mi">64</span><span class="p">:</span>   <span class="p">(</span><span class="s1">&#39;Resolving deltas&#39;</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">),</span>
+    <span class="mi">66</span><span class="p">:</span>   <span class="p">(</span><span class="s1">&#39;Done!&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">)</span>
 <span class="p">}</span>
 
 <span class="k">def</span> <span class="nf">_translate</span><span class="p">(</span><span class="n">op_code</span><span class="p">):</span>
@@ -123,16 +124,16 @@
 
 <div class="viewcode-block" id="progress"><a class="viewcode-back" href="../../zendev.html#zendev.progress.progress">[docs]</a><span class="k">def</span> <span class="nf">progress</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">max_count</span><span class="p">,</span> <span class="n">just</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
     <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">colored</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="n">just</span><span class="p">),</span> <span class="s">&#39;cyan&#39;</span><span class="p">),</span>
-        <span class="s">&#39; &#39;</span><span class="p">,</span>
-        <span class="n">Bar</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="s">&#39;[&#39;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="s">&#39;]&#39;</span><span class="p">),</span>
-        <span class="s">&#39; &#39;</span><span class="p">,</span>
+        <span class="n">colored</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="n">just</span><span class="p">),</span> <span class="s1">&#39;cyan&#39;</span><span class="p">),</span>
+        <span class="s1">&#39; &#39;</span><span class="p">,</span>
+        <span class="n">Bar</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="s1">&#39;[&#39;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="s1">&#39;]&#39;</span><span class="p">),</span>
+        <span class="s1">&#39; &#39;</span><span class="p">,</span>
         <span class="n">message</span><span class="p">,</span>
     <span class="p">]</span>
-    <span class="k">return</span> <span class="n">ProgressBar</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">max_count</span><span class="p">),</span> <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ProgressBar</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">max_count</span><span class="p">),</span> <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">)</span></div>
 
 
-</div>
+
 <div class="viewcode-block" id="SimpleGitProgressBar"><a class="viewcode-back" href="../../zendev.html#zendev.progress.SimpleGitProgressBar">[docs]</a><span class="k">class</span> <span class="nc">SimpleGitProgressBar</span><span class="p">(</span><span class="n">RemoteProgress</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SimpleGitProgressBar</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
@@ -148,9 +149,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">bar</span> <span class="o">=</span> <span class="n">progress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">_translate</span><span class="p">(</span><span class="n">op_code</span><span class="p">),</span> <span class="n">max_count</span><span class="p">,</span>
                     <span class="n">just</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">cur_count</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">cur_count</span><span class="p">))</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="GitProgressBar"><a class="viewcode-back" href="../../zendev.html#zendev.progress.GitProgressBar">[docs]</a><span class="k">class</span> <span class="nc">GitProgressBar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">justification</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">justification</span> <span class="o">=</span> <span class="n">justification</span>
@@ -160,11 +161,11 @@
         <span class="n">res</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_err</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">StdCaptureFD</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GitProgressBar.get"><a class="viewcode-back" href="../../zendev.html#zendev.progress.GitProgressBar.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_err</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_err</span></div>
+
 <div class="viewcode-block" id="GitProgressBar.done"><a class="viewcode-back" href="../../zendev.html#zendev.progress.GitProgressBar.done">[docs]</a>    <span class="k">def</span> <span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">66</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">66</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="GitProgressBar.update"><a class="viewcode-back" href="../../zendev.html#zendev.progress.GitProgressBar.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_code</span><span class="p">,</span> <span class="n">cur_count</span><span class="p">,</span> <span class="n">max_count</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">op_code</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_code</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">op_code</span> <span class="o">=</span> <span class="n">op_code</span>
@@ -175,8 +176,9 @@
         <span class="n">res</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">StdCaptureFD</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">cur_count</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_err</span> <span class="o">=</span> <span class="n">err</span>
-</pre></div></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_err</span> <span class="o">=</span> <span class="n">err</span></div></div>
+
+</pre></div>
 
 </div>
 <footer class="footer">
@@ -187,7 +189,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
     </p>
   </div>
 </footer>

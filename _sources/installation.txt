@@ -339,7 +339,7 @@ Ubuntu
 
     .. code-block:: bash
     
-        sudo chown ${USER} /usr/local/go/pkg/tool/linux_amd64/vet
+        sudo chown ${User} /usr/local/go/pkg/tool/linux_amd64/vet
     
     Proceed after seeing the Zenoss template in 'Deployed templates'.
 
