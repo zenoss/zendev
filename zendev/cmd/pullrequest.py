@@ -4,7 +4,7 @@ import Queue
 import re
 from threading import Lock, Thread
 import time
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from datetime import datetime
 from httplib import HTTPException
 from string import Formatter
@@ -31,12 +31,14 @@ _formats = OrderedDict((
     ("full",
         "{html_url:<color=yellow>}\n"
         "User: {user.login}\n"
+        "Base: {base.ref}\n"
         "Created: {created_at}\n"
         "{title:<indent=4>}\n\n"
         "{body:<indent=4>}\n"),
     ("fuller",
         "{html_url:<color=yellow>}\n"
         "User: {user.login}\n"
+        "Base: {base.ref}\n"
         "Created: {created_at}\n"
         "Updated: {updated_at}\n"
         "{title:<indent=4>}\n\n"
@@ -181,10 +183,10 @@ class Worker (Thread):
     _counter_lock = Lock()
     _logging_lock = Lock()
 
-    def __init__(self, repo, state, page, filter_func, output_queue):
+    def __init__(self, repo, page, context):
         super(self.__class__, self).__init__(name=repo + "_" + str(page),
                 target=self._fetch,
-                args=(repo, state, page, filter_func, output_queue))
+                args=(repo, page, context))
         self.daemon=True
 
     def start(self):
@@ -192,10 +194,12 @@ class Worker (Thread):
             Worker.counter += 1
         super(self.__class__, self).start()
 
-    def _fetch(self, repo, state, page, filter_func, output_queue):
+    def _fetch(self, repo, page, context):
         try:
             url = '/repos/%s/pulls?state=%s&per_page=100&page=%d' % \
-                (repo, state, page)
+                (repo, context.state, page)
+            if context.base:
+                url += '&base=%s' % context.base
             headers, response = github.perform('GET', url)
             status = headers['status']
             if status != '200 OK':
@@ -203,9 +207,9 @@ class Worker (Thread):
             if page == 1:
                 last_page = _get_last_page(headers)
                 for i in range(2, last_page + 1):
-                    Worker(repo, state, i, filter_func, output_queue).start()
-            for pr in filter(filter_func, response):
-                output_queue.put(pr)
+                    Worker(repo, i, context).start()
+            for pr in filter(context.filter_func, response):
+                context.output_queue.put(pr)
         except Exception as e:
             with Worker._logging_lock:
                 zendev.log.error(e)
@@ -222,8 +226,10 @@ def pr_list(args, env):
     reverse_sort = args.reverse
 
     pr_queue = Queue.Queue()
+    context = namedtuple('WorkerContext', 'state base filter_func output_queue')(
+            args.state, args.base, filter_func, pr_queue)
     for repo in _get_relevant_repos(args, env):
-        Worker(repo, args.state, 1, filter_func, pr_queue).start()
+        Worker(repo, 1, context).start()
 
     # Wait for all of the workers to finish
     while Worker.counter > 0:
@@ -278,6 +284,8 @@ def add_commands(subparsers):
             help='list only PRs created after this date (YYYY-MM-DD)')
     filter_group.add_argument('--before', type=_valid_date,
             help='list only PRs created before this date (YYYY-MM-DD)')
+    filter_group.add_argument('--base',
+            help='list only PRs targeting this branch')
 
     sort_group = ls_parser.add_argument_group("Sorting")
     sort_group.add_argument('--sort',
