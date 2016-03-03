@@ -107,8 +107,10 @@ Ubuntu
             > /etc/apt/sources.list.d/docker.list"
         sudo apt-get update
         sudo apt-get purge lxc-docker*
-        sudo apt-get install docker-engine
+        sudo apt-get install docker-engine=1.9.1-0~$(lsb_release -sc)
 
+        # Lock the version of Docker so updates won't bump it to a newer version
+        sudo apt-mark hold docker-engine
 
     If you are operating under AWS, check if docker is using the devicemapper driver.
         Run the "sudo docker info" command and look at the storage driver section. If it
@@ -200,8 +202,8 @@ Ubuntu
         go get github.com/golang/lint/golint
         sudo ln -s ${GOPATH}/bin/golint /usr/local/bin/golint
     
-        go get -v code.google.com/p/rog-go/exp/cmd/godef
-        go install -v code.google.com/p/rog-go/exp/cmd/godef
+        go get -v github.com/rogpeppe/godef
+        go install -v github.com/rogpeppe/godef
         sudo ln -s ${GOPATH}/bin/godef /usr/local/bin/godef
     
         go get -u github.com/nsf/gocode
@@ -232,8 +234,7 @@ Ubuntu
         sudo apt-get install -y tmux screen
 
         # Additional packages needed to build
-        sudo apt-get install -y xfsprogs xfsdump
-        sudo apt-get install -y libdevmapper-dev
+        sudo apt-get install -y xfsprogs xfsdump libdevmapper-dev
     
         # Need Java to run some of the services (and the build tests)
         sudo apt-get install -y default-jdk
@@ -339,7 +340,7 @@ Ubuntu
 
     .. code-block:: bash
     
-        sudo chown ${User} /usr/local/go/pkg/tool/linux_amd64/vet
+        sudo chown ${USER} /usr/local/go/pkg/tool/linux_amd64/vet
     
     Proceed after seeing the Zenoss template in 'Deployed templates'.
 
