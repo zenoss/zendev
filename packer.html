@@ -36,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -113,32 +113,32 @@
 <h1>Building the Development Base Box<a class="headerlink" href="#building-the-development-base-box" title="Permalink to this headline">¶</a></h1>
 <p>If you don&#8217;t have access to, don&#8217;t want to download, or want to build a custom
 version of the Ubuntu development box, you can do so locally using <a class="reference external" href="http://www.packer.io/">Packer</a>. The
-template is stored in the <code class="docutils literal"><span class="pre">boxes</span></code> directory of your zendev source.</p>
+template is stored in the <tt class="docutils literal"><span class="pre">boxes</span></tt> directory of your zendev source.</p>
 <ol class="arabic simple">
 <li><a class="reference external" href="http://www.packer.io/downloads.html">Download Packer</a>. It&#8217;s a zip file
-containing a bunch of binaries. Unzip it somewhere in your <code class="docutils literal"><span class="pre">PATH</span></code>, like
-<code class="docutils literal"><span class="pre">/usr/local/bin</span></code>.</li>
+containing a bunch of binaries. Unzip it somewhere in your <tt class="docutils literal"><span class="pre">PATH</span></tt>, like
+<tt class="docutils literal"><span class="pre">/usr/local/bin</span></tt>.</li>
 <li>Install <a class="reference external" href="https://www.virtualbox.org/wiki/Downloads">VirtualBox</a> if you haven&#8217;t already.</li>
 <li>Build the box:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Switch to your zendev checkout (may not be under ~/src)</span>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Switch to your zendev checkout (may not be under ~/src)</span>
 <span class="nb">cd</span> ~/src/zendev/boxes/ubuntu-14.04-CC-1.x
 
-<span class="c1"># Build the box</span>
+<span class="c"># Build the box</span>
 packer build ubuntu-14.04-amd64.json
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li>Now add the box to Vagrant.</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># First, remove the existing box. If you don&#39;t want to remove the existing</span>
-<span class="c1"># box, don&#39;t do this. Either way, any existing instances will be</span>
-<span class="c1"># unaffected.</span>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># First, remove the existing box. If you don&#39;t want to remove the existing</span>
+<span class="c"># box, don&#39;t do this. Either way, any existing instances will be</span>
+<span class="c"># unaffected.</span>
 vagrant box remove ubuntu-14.04-CC-1.x.box
 
-<span class="c1"># Now add the box you just generated as the new ubuntu-14.04-CC-1.x base</span>
-<span class="c1"># box. If you didn&#39;t remove the one above, pick a new name. You can</span>
-<span class="c1"># generate Vagrant boxes using &quot;vagrant init BOXNAME&quot;.</span>
+<span class="c"># Now add the box you just generated as the new ubuntu-14.04-CC-1.x base</span>
+<span class="c"># box. If you didn&#39;t remove the one above, pick a new name. You can</span>
+<span class="c"># generate Vagrant boxes using &quot;vagrant init BOXNAME&quot;.</span>
 vagrant box add ubuntu-14.04-CC-1.x <span class="se">\</span>
     ~/src/zendev/boxes/ubuntu-14.04-CC-1.x.box
 </pre></div>
@@ -146,7 +146,7 @@ vagrant box add ubuntu-14.04-CC-1.x <span class="se">\</span>
 <ol class="arabic simple" start="5">
 <li>Use zendev to create a new instance and see how it turned out:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>zendev box create --type CC-1.x mynewbox
+<div class="highlight-bash"><div class="highlight"><pre>zendev box create --type CC-1.x mynewbox
 </pre></div>
 </div>
 </div>
@@ -161,7 +161,7 @@ vagrant box add ubuntu-14.04-CC-1.x <span class="se">\</span>
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
     </p>
   </div>
 </footer>

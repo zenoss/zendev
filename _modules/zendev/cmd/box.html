@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -100,53 +100,53 @@
 
   
   <h1>Source code for zendev.cmd.box</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Template</span>
 
 <span class="kn">from</span> <span class="nn">vagrantManager</span> <span class="kn">import</span> <span class="n">VagrantManager</span>
 
-<span class="n">VAGRANT</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2"># -*- mode: ruby -*-</span>
-<span class="s2"># vi: set ft=ruby :</span>
-<span class="s2"># Vagrantfile created by zendev box</span>
+<span class="n">VAGRANT</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s"># -*- mode: ruby -*-</span>
+<span class="s"># vi: set ft=ruby :</span>
+<span class="s"># Vagrantfile created by zendev box</span>
 
-<span class="s2">$script = &lt;&lt;SCRIPT</span>
-<span class="s2">chown zenoss:zenoss /home/zenoss/{{env_name}}</span>
-<span class="s2">su - zenoss -c &quot;cd /home/zenoss &amp;&amp; zendev init {{env_name}}&quot;</span>
-<span class="s2">echo &quot;</span>
-<span class="s2">if [ -f ~/.bash_serviced ]; then</span>
-<span class="s2">    . ~/.bash_serviced</span>
-<span class="s2">fi&quot; &gt;&gt; /home/zenoss/.bashrc</span>
-<span class="s2">echo &quot;source $(zendev bootstrap)&quot; &gt;&gt; /home/zenoss/.bashrc</span>
-<span class="s2">echo &quot;zendev use {{env_name}}&quot; &gt;&gt; /home/zenoss/.bashrc</span>
-<span class="s2">{</span><span class="si">%f</span><span class="s2">or i in range(vdis) %}</span>
-<span class="s2">{{&quot;mkfs.btrfs -L volume.btrfs.</span><span class="si">%d</span><span class="s2"> /dev/sd</span><span class="si">%s</span><span class="s2">&quot;|format(i+1, &quot;bcdef&quot;[i])}} {</span><span class="si">%e</span><span class="s2">ndfor%}</span>
-<span class="s2">SCRIPT</span>
+<span class="s">$script = &lt;&lt;SCRIPT</span>
+<span class="s">chown zenoss:zenoss /home/zenoss/{{env_name}}</span>
+<span class="s">su - zenoss -c &quot;cd /home/zenoss &amp;&amp; zendev init {{env_name}}&quot;</span>
+<span class="s">echo &quot;</span>
+<span class="s">if [ -f ~/.bash_serviced ]; then</span>
+<span class="s">    . ~/.bash_serviced</span>
+<span class="s">fi&quot; &gt;&gt; /home/zenoss/.bashrc</span>
+<span class="s">echo &quot;source $(zendev bootstrap)&quot; &gt;&gt; /home/zenoss/.bashrc</span>
+<span class="s">echo &quot;zendev use {{env_name}}&quot; &gt;&gt; /home/zenoss/.bashrc</span>
+<span class="s">{</span><span class="si">%f</span><span class="s">or i in range(vdis) %}</span>
+<span class="s">{{&quot;mkfs.btrfs -L volume.btrfs.</span><span class="si">%d</span><span class="s"> /dev/sd</span><span class="si">%s</span><span class="s">&quot;|format(i+1, &quot;bcdef&quot;[i])}} {</span><span class="si">%e</span><span class="s">ndfor%}</span>
+<span class="s">SCRIPT</span>
 
-<span class="s2">Vagrant.configure(&quot;2&quot;) do |config|</span>
-<span class="s2">  config.vm.box = &quot;{{ box_name }}&quot;</span>
-<span class="s2">  config.vm.box_url = &quot;http://vagrant.zendev.org/boxes/{{ box_name }}.box&quot;</span>
-<span class="s2">  config.vm.hostname = &quot;{{ instance_name }}&quot;</span>
-<span class="s2">  config.vm.network :private_network, :ip =&gt; &#39;0.0.0.0&#39;, :auto_network =&gt; true</span>
+<span class="s">Vagrant.configure(&quot;2&quot;) do |config|</span>
+<span class="s">  config.vm.box = &quot;{{ box_name }}&quot;</span>
+<span class="s">  config.vm.box_url = &quot;http://vagrant.zendev.org/boxes/{{ box_name }}.box&quot;</span>
+<span class="s">  config.vm.hostname = &quot;{{ instance_name }}&quot;</span>
+<span class="s">  config.vm.network :private_network, :ip =&gt; &#39;0.0.0.0&#39;, :auto_network =&gt; true</span>
 
-<span class="s2">  config.vm.provider :virtualbox do |vb|</span>
-<span class="s2">    vb.customize [&quot;modifyvm&quot;, :id, &quot;--memory&quot;, {{vm_memory}}]</span>
-<span class="s2">    vb.customize [&quot;modifyvm&quot;, :id, &quot;--cpus&quot;, 4] {</span><span class="si">% i</span><span class="s2">f vdis %}</span>
-<span class="s2">    (1..{{ vdis }}).each do |vol|</span>
-<span class="s2">      disc_file = &quot;mnt/btrfs_#{vol}.vdi&quot;</span>
-<span class="s2">      unless File.exist?(disc_file)</span>
-<span class="s2">        vb.customize [&#39;createhd&#39;, &#39;--filename&#39;, disc_file, &#39;--size&#39;, 24 * 1024]</span>
-<span class="s2">      end</span>
-<span class="s2">      vb.customize [&quot;storageattach&quot;, :id, &quot;--storagectl&quot;, &quot;IDE Controller&quot;,</span>
-<span class="s2">                    &quot;--port&quot;, vol, &quot;--device&quot;, 0, &quot;--type&quot;, &quot;hdd&quot;, &quot;--medium&quot;,</span>
-<span class="s2">                    disc_file ]</span>
-<span class="s2">    end{</span><span class="si">% e</span><span class="s2">ndif %}</span>
-<span class="s2">  end</span>
-<span class="s2">  {</span><span class="si">% f</span><span class="s2">or options in shared_folders %}</span>
-<span class="s2">  config.vm.synced_folder {{ options|join(&#39;, &#39;) }}{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
-<span class="s2">  config.vm.provision &quot;shell&quot;, inline: $script</span>
-<span class="s2">end</span>
+<span class="s">  config.vm.provider :virtualbox do |vb|</span>
+<span class="s">    vb.customize [&quot;modifyvm&quot;, :id, &quot;--memory&quot;, {{vm_memory}}]</span>
+<span class="s">    vb.customize [&quot;modifyvm&quot;, :id, &quot;--cpus&quot;, 4] {</span><span class="si">% i</span><span class="s">f vdis %}</span>
+<span class="s">    (1..{{ vdis }}).each do |vol|</span>
+<span class="s">      disc_file = &quot;mnt/btrfs_#{vol}.vdi&quot;</span>
+<span class="s">      unless File.exist?(disc_file)</span>
+<span class="s">        vb.customize [&#39;createhd&#39;, &#39;--filename&#39;, disc_file, &#39;--size&#39;, 24 * 1024]</span>
+<span class="s">      end</span>
+<span class="s">      vb.customize [&quot;storageattach&quot;, :id, &quot;--storagectl&quot;, &quot;IDE Controller&quot;,</span>
+<span class="s">                    &quot;--port&quot;, vol, &quot;--device&quot;, 0, &quot;--type&quot;, &quot;hdd&quot;, &quot;--medium&quot;,</span>
+<span class="s">                    disc_file ]</span>
+<span class="s">    end{</span><span class="si">% e</span><span class="s">ndif %}</span>
+<span class="s">  end</span>
+<span class="s">  {</span><span class="si">% f</span><span class="s">or options in shared_folders %}</span>
+<span class="s">  config.vm.synced_folder {{ options|join(&#39;, &#39;) }}{</span><span class="si">% e</span><span class="s">ndfor %}</span>
+<span class="s">  config.vm.provision &quot;shell&quot;, inline: $script</span>
+<span class="s">end</span>
 
-<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+<span class="s">&quot;&quot;&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="VagrantBoxManager"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.VagrantBoxManager">[docs]</a><span class="k">class</span> <span class="nc">VagrantBoxManager</span><span class="p">(</span><span class="n">VagrantManager</span><span class="p">):</span>
@@ -154,83 +154,82 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">VagrantBoxManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">environment</span><span class="o">.</span><span class="n">vagrantroot</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">purpose</span><span class="p">,</span> <span class="n">btrfs</span><span class="p">,</span> <span class="n">vfs</span><span class="p">,</span> <span class="n">memory</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">ensure_dir</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s2">&quot;Vagrantfile&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">VAGRANT</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">ensure_dir</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="s">&quot;Vagrantfile&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">VAGRANT</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
             <span class="n">instance_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">box_name</span><span class="o">=</span><span class="n">VagrantManager</span><span class="o">.</span><span class="n">BOXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">purpose</span><span class="p">),</span>
             <span class="n">vdis</span><span class="o">=</span><span class="n">btrfs</span><span class="p">,</span>
             <span class="n">shared_folders</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_shared_directories</span><span class="p">(),</span>
             <span class="n">vm_memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
             <span class="n">env_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">name</span>
-        <span class="p">))</span></div>
+        <span class="p">))</span>
 
-
+</div>
 <div class="viewcode-block" id="box_create"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.box_create">[docs]</a><span class="k">def</span> <span class="nf">box_create</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">check_env</span><span class="p">):</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
     <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">btrfs</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">vfs</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
     <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">provision</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
-    <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">ssh</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">ssh</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-
+</div>
 <div class="viewcode-block" id="box_remove"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.box_remove">[docs]</a><span class="k">def</span> <span class="nf">box_remove</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">check_env</span><span class="p">):</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">()</span>
-    <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="n">env</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-
+</div>
 <div class="viewcode-block" id="box_ssh"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.box_ssh">[docs]</a><span class="k">def</span> <span class="nf">box_ssh</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">check_env</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">ssh</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">ssh</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-
+</div>
 <div class="viewcode-block" id="box_up"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.box_up">[docs]</a><span class="k">def</span> <span class="nf">box_up</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">check_env</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-
+</div>
 <div class="viewcode-block" id="box_halt"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.box_halt">[docs]</a><span class="k">def</span> <span class="nf">box_halt</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">check_env</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">halt</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">halt</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-
+</div>
 <div class="viewcode-block" id="box_ls"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.box_ls">[docs]</a><span class="k">def</span> <span class="nf">box_ls</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">check_env</span><span class="p">):</span>
-    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">ls</span><span class="p">()</span></div>
+    <span class="n">check_env</span><span class="p">()</span><span class="o">.</span><span class="n">vagrant</span><span class="o">.</span><span class="n">ls</span><span class="p">()</span>
 
-
+</div>
 <div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.box.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
-    <span class="n">box_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;box&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Manage Vagrant boxes&#39;</span><span class="p">)</span>
+    <span class="n">box_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;box&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Manage Vagrant boxes&#39;</span><span class="p">)</span>
     <span class="n">box_subparsers</span> <span class="o">=</span> <span class="n">box_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">()</span>
 
-    <span class="n">box_create_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Create development vagrant box&quot;</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--type&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">VagrantManager</span><span class="o">.</span><span class="n">BOXES</span><span class="p">,</span>
+    <span class="n">box_create_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;create&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Create development vagrant box&quot;</span><span class="p">)</span>
+    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
+    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--type&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">VagrantManager</span><span class="o">.</span><span class="n">BOXES</span><span class="p">,</span>
                                    <span class="n">default</span><span class="o">=</span><span class="n">VagrantManager</span><span class="o">.</span><span class="n">DEFAULT_BOX</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--btrfs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                                   <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of btrfs volumes&quot;</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--vfs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--memory&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;1024*8&quot;</span><span class="p">,</span>
-                                   <span class="n">help</span><span class="o">=</span><span class="s2">&quot;memory in mb&quot;</span><span class="p">)</span>
+    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--btrfs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                   <span class="n">help</span><span class="o">=</span><span class="s">&quot;Number of btrfs volumes&quot;</span><span class="p">)</span>
+    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--vfs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">box_create_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--memory&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&quot;1024*8&quot;</span><span class="p">,</span>
+                                   <span class="n">help</span><span class="o">=</span><span class="s">&quot;memory in mb&quot;</span><span class="p">)</span>
     <span class="n">box_create_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_create</span><span class="p">)</span>
 
-    <span class="n">box_up_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;up&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Start existing vagrant box&#39;</span><span class="p">)</span>
-    <span class="n">box_up_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;NAME&quot;</span><span class="p">)</span>
+    <span class="n">box_up_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;up&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Start existing vagrant box&#39;</span><span class="p">)</span>
+    <span class="n">box_up_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
     <span class="n">box_up_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_up</span><span class="p">)</span>
 
-    <span class="n">box_halt_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;halt&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Stop a vagrant box&#39;</span><span class="p">)</span>
-    <span class="n">box_halt_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;NAME&quot;</span><span class="p">)</span>
+    <span class="n">box_halt_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;halt&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Stop a vagrant box&#39;</span><span class="p">)</span>
+    <span class="n">box_halt_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
     <span class="n">box_halt_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_halt</span><span class="p">)</span>
 
-    <span class="n">box_remove_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;destroy&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Destroy a vagrant box&#39;</span><span class="p">)</span>
-    <span class="n">box_remove_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;NAME&quot;</span><span class="p">)</span>
+    <span class="n">box_remove_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;destroy&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Destroy a vagrant box&#39;</span><span class="p">)</span>
+    <span class="n">box_remove_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
     <span class="n">box_remove_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_remove</span><span class="p">)</span>
 
-    <span class="n">box_ssh_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;SSH to a vagrant box&#39;</span><span class="p">)</span>
-    <span class="n">box_ssh_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;NAME&quot;</span><span class="p">)</span>
+    <span class="n">box_ssh_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ssh&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;SSH to a vagrant box&#39;</span><span class="p">)</span>
+    <span class="n">box_ssh_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
     <span class="n">box_ssh_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_ssh</span><span class="p">)</span>
 
-    <span class="n">box_ls_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;ls&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;List vagrant boxes&#39;</span><span class="p">)</span>
+    <span class="n">box_ls_parser</span> <span class="o">=</span> <span class="n">box_subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ls&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;List vagrant boxes&#39;</span><span class="p">)</span>
     <span class="n">box_ls_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_ls</span><span class="p">)</span>
 
-    <span class="n">ssh_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;ssh&#39;</span><span class="p">)</span>
-    <span class="n">ssh_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;NAME&quot;</span><span class="p">)</span>
-    <span class="n">ssh_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_ssh</span><span class="p">)</span></div>
-
-</pre></div>
+    <span class="n">ssh_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;ssh&#39;</span><span class="p">)</span>
+    <span class="n">ssh_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
+    <span class="n">ssh_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">box_ssh</span><span class="p">)</span>
+</pre></div></div>
 
 </div>
 <footer class="footer">
@@ -241,7 +240,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
     </p>
   </div>
 </footer>

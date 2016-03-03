@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -100,7 +100,7 @@
 
   
   <h1>Source code for zendev.cmd.feature</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">add_repo_narg</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">add_repo_narg</span>
 
 
 <div class="viewcode-block" id="feature_start"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.feature.feature_start">[docs]</a><span class="k">def</span> <span class="nf">feature_start</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
@@ -110,16 +110,16 @@
     <span class="n">filter_</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
         <span class="n">filter_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repofilter</span>
-    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">start_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span></div>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">start_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span>
 
-
+</div>
 <div class="viewcode-block" id="feature_list"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.feature.feature_list">[docs]</a><span class="k">def</span> <span class="nf">feature_list</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    List git flow feature for all repositories.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">list_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">list_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-
+</div>
 <div class="viewcode-block" id="feature_pull"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.feature.feature_pull">[docs]</a><span class="k">def</span> <span class="nf">feature_pull</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Request github pull-request for repositories with feature name</span>
@@ -127,9 +127,9 @@
     <span class="n">filter_</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
         <span class="n">filter_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repofilter</span>
-    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">pull_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span></div>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">pull_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span>
 
-
+</div>
 <div class="viewcode-block" id="feature_finish"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.feature.feature_finish">[docs]</a><span class="k">def</span> <span class="nf">feature_finish</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    finish all git repositories with feature name</span>
@@ -137,35 +137,34 @@
     <span class="n">filter_</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
         <span class="n">filter_</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repofilter</span>
-    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">finish_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span></div>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">finish_feature</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">filter_</span><span class="p">)</span>
 
-
+</div>
 <div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.feature.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
-    <span class="n">feature_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;feature&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Manage feature branches&#39;</span><span class="p">)</span>
+    <span class="n">feature_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;feature&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Manage feature branches&#39;</span><span class="p">)</span>
     <span class="n">feature_subparser</span> <span class="o">=</span> <span class="n">feature_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">()</span>
 
-    <span class="n">feature_start_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Start feature branch on specified &#39;</span>
-                                                                      <span class="s1">&#39;repositories&#39;</span><span class="p">)</span>
-    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
+    <span class="n">feature_start_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;start&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Start feature branch on specified &#39;</span>
+                                                                      <span class="s">&#39;repositories&#39;</span><span class="p">)</span>
+    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
     <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">feature_start_parser</span><span class="p">)</span>
     <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_start</span><span class="p">)</span>
 
-    <span class="n">feature_start_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List all repos containing the specified &quot;</span>
-                                                                     <span class="s2">&quot;feature branch&quot;</span><span class="p">)</span>
-    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
+    <span class="n">feature_start_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;list&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;List all repos containing the specified &quot;</span>
+                                                                     <span class="s">&quot;feature branch&quot;</span><span class="p">)</span>
+    <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
     <span class="n">feature_start_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_list</span><span class="p">)</span>
 
-    <span class="n">feature_pull_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;pull&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Create pull request for feature branch&quot;</span><span class="p">)</span>
-    <span class="n">feature_pull_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
+    <span class="n">feature_pull_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;pull&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Create pull request for feature branch&quot;</span><span class="p">)</span>
+    <span class="n">feature_pull_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Name of the feature branch&#39;</span><span class="p">)</span>
     <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">feature_pull_parser</span><span class="p">)</span>
     <span class="n">feature_pull_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_pull</span><span class="p">)</span>
 
-    <span class="n">feature_finish_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;finish&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Finish the feature branch&#39;</span><span class="p">)</span>
-    <span class="n">feature_finish_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of the feature branch&quot;</span><span class="p">)</span>
+    <span class="n">feature_finish_parser</span> <span class="o">=</span> <span class="n">feature_subparser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;finish&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Finish the feature branch&#39;</span><span class="p">)</span>
+    <span class="n">feature_finish_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Name of the feature branch&quot;</span><span class="p">)</span>
     <span class="n">add_repo_narg</span><span class="p">(</span><span class="n">feature_finish_parser</span><span class="p">)</span>
-    <span class="n">feature_finish_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_finish</span><span class="p">)</span></div>
-
-</pre></div>
+    <span class="n">feature_finish_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">feature_finish</span><span class="p">)</span>
+</pre></div></div>
 
 </div>
 <footer class="footer">
@@ -176,7 +175,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
     </p>
   </div>
 </footer>
