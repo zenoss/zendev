@@ -10,6 +10,7 @@ from ..log import error
 packlists = {
         'resmgr': 'pkg/zenoss_resmgr_zenpacks.mk',
         'ucspm': 'pkg/zenoss_ucspm_zenpacks.mk',
+        'nfvi': 'pkg/zenoss_nfvi_zenpacks.mk',
     }
 
 def build(args, env):
@@ -51,6 +52,8 @@ def build_zenoss(args, env):
             product = 'resmgr'
         elif args.ucspm:
             product = 'ucspm'
+        elif args.nfvi:
+            product = 'nfvi'
 
         packs = get_packs(env, product)
 
@@ -172,14 +175,16 @@ def add_commands(subparsers):
             help="Install resmgr ZenPacks")
     build_parser.add_argument('--ucspm', action="store_true", required=False,
             help="Install UCS-PM ZenPacks")
+    build_parser.add_argument('--nfvi', action="store_true", required=False,
+            help="Install NFVi ZenPacks")
     build_parser.add_argument('target', metavar='TARGET', nargs="+",
-                              choices=['src', 'core', 'resmgr', 'ucspm',
-                                       'svcdef-core', 'svcdef-resmgr', 'svcdef-ucspm',
-                                       'svcdefpkg-core', 'svcdefpkg-resmgr', 'svcdefpkg-ucspm',
-                                       'svcpkg-core', 'svcpkg-resmgr', 'svcpkg-ucspm', 'svcpkg',
+                              choices=['src', 'core', 'resmgr', 'ucspm', 'nfvi',
+                                       'svcdef-core', 'svcdef-resmgr', 'svcdef-ucspm', 'svcdef-nfvi',
+                                       'svcdefpkg-core', 'svcdefpkg-resmgr', 'svcdefpkg-ucspm', 'svcdefpkg-nfvi',
+                                       'svcpkg-core', 'svcpkg-resmgr', 'svcpkg-ucspm', 'svcpkg-nfvi', 'svcpkg',
                                        'serviced', 'devimg', 'img-core', 'devimg-interactive',
-                                       'img-resmgr', 'img-ucspm', 'rps-img-core',
-                                       'rps-img-resmgr', 'rps-img-ucspm', 'impact-devimg', 'analytics-devimg',
-                                       'docker_svcdefpkg-core', 'docker_svcdefpkg-resmgr', 'docker_svcdefpkg-ucspm'])
+                                       'img-resmgr', 'img-ucspm', 'img-nfvi', 'rps-img-core',
+                                       'rps-img-resmgr', 'rps-img-ucspm', 'res-img-nfvi', 'impact-devimg', 'analytics-devimg',
+                                       'docker_svcdefpkg-core', 'docker_svcdefpkg-resmgr', 'docker_svcdefpkg-ucspm', 'docker_svcdefpkg-nfvi'])
     build_parser.set_defaults(functor=build)
 
