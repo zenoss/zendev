@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -100,7 +100,7 @@
 
   
   <h1>Source code for zendev.cmd.tags</h1><div class="highlight"><pre>
-<span class="kn">import</span> <span class="nn">sys</span>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 
@@ -114,77 +114,77 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">frommanifest</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_manifest</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag1</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="n">error</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> is an invalid tag. See available tags with `zendev tag --list`&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">tag1</span><span class="p">)</span>
+        <span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is an invalid tag. See available tags with `zendev tag --list`&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">tag1</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">tomanifest</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_manifest</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag2</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tag2</span> <span class="k">else</span> <span class="n">env</span><span class="o">.</span><span class="n">manifest</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="n">error</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> is an invalid tag. See available tags with `zendev tag --list`&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">tag2</span><span class="p">)</span>
+        <span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is an invalid tag. See available tags with `zendev tag --list`&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">tag2</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">repos</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;build&#39;</span><span class="p">:</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;../build&#39;</span>
-        <span class="n">ref1</span> <span class="o">=</span> <span class="n">frommanifest</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;repos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ref&#39;</span><span class="p">)</span>
-        <span class="n">ref2</span> <span class="o">=</span> <span class="n">tomanifest</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;repos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ref&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;build&#39;</span><span class="p">:</span> <span class="n">repo</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;../build&#39;</span>
+        <span class="n">ref1</span> <span class="o">=</span> <span class="n">frommanifest</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;repos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ref&#39;</span><span class="p">)</span>
+        <span class="n">ref2</span> <span class="o">=</span> <span class="n">tomanifest</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;repos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ref&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ref1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">ref2</span> <span class="ow">or</span> <span class="n">ref1</span> <span class="o">==</span> <span class="n">ref2</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">changelog</span><span class="p">(</span><span class="n">ref1</span><span class="p">,</span> <span class="n">ref2</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
-            <span class="n">buf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">u&quot;&quot;&quot;</span>
-<span class="s">{repo_name} | {repo_url}</span>
-<span class="s">=============================================================================</span>
-<span class="s">{changelog}</span>
-<span class="s">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">repo_name</span><span class="o">=</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">repo_url</span><span class="o">=</span><span class="n">repo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">changelog</span><span class="o">=</span><span class="n">result</span><span class="p">))</span>
+            <span class="n">buf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">u&quot;&quot;&quot;</span>
+<span class="s2">{repo_name} | {repo_url}</span>
+<span class="s2">=============================================================================</span>
+<span class="s2">{changelog}</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">repo_name</span><span class="o">=</span><span class="n">repo</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">repo_url</span><span class="o">=</span><span class="n">repo</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">changelog</span><span class="o">=</span><span class="n">result</span><span class="p">))</span>
     <span class="n">full_log</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">isatty</span><span class="p">():</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s">&quot;less&quot;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s2">&quot;less&quot;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
         <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">full_log</span><span class="p">)</span>
         <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span> <span class="n">full_log</span>
+        <span class="k">print</span> <span class="n">full_log</span></div>
 
-</div>
+
 <div class="viewcode-block" id="restore"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.tags.restore">[docs]</a><span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
-    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="tag"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.tags.tag">[docs]</a><span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">list_tags</span><span class="p">():</span>
             <span class="k">print</span> <span class="n">tag</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">delete</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-            <span class="n">error</span><span class="p">(</span><span class="s">&quot;Missing the name of a tag to delete&quot;</span><span class="p">)</span>
+            <span class="n">error</span><span class="p">(</span><span class="s2">&quot;Missing the name of a tag to delete&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;develop&#39;</span><span class="p">:</span>
-            <span class="n">error</span><span class="p">(</span><span class="s">&quot;You can&#39;t delete develop!&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;develop&#39;</span><span class="p">:</span>
+            <span class="n">error</span><span class="p">(</span><span class="s2">&quot;You can&#39;t delete develop!&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">tag_delete</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-            <span class="n">error</span><span class="p">(</span><span class="s">&quot;Missing the name of a tag to create&quot;</span><span class="p">)</span>
+            <span class="n">error</span><span class="p">(</span><span class="s2">&quot;Missing the name of a tag to create&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">strict</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">from_ref</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">()</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">strict</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">from_ref</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="add_commands"><a class="viewcode-back" href="../../../zendev.cmd.html#zendev.cmd.tags.add_commands">[docs]</a><span class="k">def</span> <span class="nf">add_commands</span><span class="p">(</span><span class="n">subparsers</span><span class="p">,</span> <span class="n">completer</span><span class="p">):</span>
-    <span class="n">restore_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;restore&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Restore repository state to a tag&#39;</span><span class="p">)</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">restore_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">)</span>
+    <span class="n">restore_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;restore&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Restore repository state to a tag&#39;</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">restore_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;NAME&quot;</span><span class="p">)</span>
     <span class="n">a</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">completer</span>
     <span class="n">restore_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">restore</span><span class="p">)</span>
 
-    <span class="n">tag_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;tag&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Save the state of an environment to a tag&#39;</span><span class="p">)</span>
-    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--strict&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-l&#39;</span><span class="p">,</span> <span class="s">&#39;--list&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="s">&#39;--force&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-D&#39;</span><span class="p">,</span> <span class="s">&#39;--delete&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store_true&quot;</span><span class="p">)</span>
-    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-F&#39;</span><span class="p">,</span> <span class="s">&#39;--from&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;from_ref&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;NAME&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;?&quot;</span><span class="p">)</span>
+    <span class="n">tag_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Save the state of an environment to a tag&#39;</span><span class="p">)</span>
+    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--strict&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-l&#39;</span><span class="p">,</span> <span class="s1">&#39;--list&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;--force&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="s1">&#39;--delete&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-F&#39;</span><span class="p">,</span> <span class="s1">&#39;--from&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;from_ref&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">tag_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;NAME&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">)</span>
     <span class="n">a</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">completer</span>
     <span class="n">tag_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">tag</span><span class="p">)</span>
 
-    <span class="n">changelog_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&#39;changelog&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Show difference between two tags&#39;</span><span class="p">)</span>
-    <span class="n">changelog_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;tag1&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;TAG&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">completer</span>
-    <span class="n">changelog_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;tag2&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;TAG&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;?&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">completer</span>
+    <span class="n">changelog_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;changelog&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show difference between two tags&#39;</span><span class="p">)</span>
+    <span class="n">changelog_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;tag1&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;TAG&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">completer</span>
+    <span class="n">changelog_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;tag2&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;TAG&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">completer</span>
     <span class="n">changelog_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">functor</span><span class="o">=</span><span class="n">changelog</span><span class="p">)</span></div>
 </pre></div>
 
@@ -197,7 +197,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
     </p>
   </div>
 </footer>

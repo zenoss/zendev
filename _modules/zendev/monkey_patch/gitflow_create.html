@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -100,10 +100,10 @@
 
   
   <h1>Source code for zendev.monkey_patch.gitflow_create</h1><div class="highlight"><pre>
-<span class="c"># Monkey-patch gitflow.branches.BranchManager.create.</span>
-<span class="c">#</span>
-<span class="c"># This fixes a bug in which we would check that the default_base is up-to-date</span>
-<span class="c">#  even when a non-default base is specified.</span>
+<span></span><span class="c1"># Monkey-patch gitflow.branches.BranchManager.create.</span>
+<span class="c1">#</span>
+<span class="c1"># This fixes a bug in which we would check that the default_base is up-to-date</span>
+<span class="c1">#  even when a non-default base is specified.</span>
 
 
 <span class="kn">import</span> <span class="nn">gitflow.branches</span>
@@ -112,8 +112,8 @@
                                 <span class="n">WorkdirIsDirtyError</span><span class="p">,</span> <span class="n">BranchTypeExistsError</span><span class="p">,</span>
                                 <span class="n">TagExistsError</span><span class="p">,</span> <span class="n">MergeError</span><span class="p">)</span>
 
-<span class="c"># This code is based on the corresponding code in gitflow v0.5.1</span>
-<span class="c"># https://github.com/htgoebel/gitflow</span>
+<span class="c1"># This code is based on the corresponding code in gitflow v0.5.1</span>
+<span class="c1"># https://github.com/htgoebel/gitflow</span>
 <div class="viewcode-block" id="create"><a class="viewcode-back" href="../../../zendev.monkey_patch.html#zendev.monkey_patch.gitflow_create.create">[docs]</a><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fetch</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
            <span class="n">must_be_on_default_base</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -148,8 +148,8 @@
 
     <span class="n">gitflow</span><span class="o">.</span><span class="n">require_no_merge_conflict</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">gitflow</span><span class="o">.</span><span class="n">has_staged_commits</span><span class="p">():</span>
-        <span class="k">raise</span> <span class="n">WorkdirIsDirtyError</span><span class="p">(</span><span class="s">&#39;Contains local changes checked into &#39;</span>
-                                  <span class="s">&#39;the index but not committed.&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">WorkdirIsDirtyError</span><span class="p">(</span><span class="s1">&#39;Contains local changes checked into &#39;</span>
+                                  <span class="s1">&#39;the index but not committed.&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">base</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_base</span><span class="p">()</span>
@@ -157,44 +157,44 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">gitflow</span><span class="o">.</span><span class="n">is_merged_into</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_base</span><span class="p">()):</span>
             <span class="k">raise</span> <span class="n">BaseNotOnBranch</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_base</span><span class="p">())</span>
 
-    <span class="c"># update the local repo with remote changes, if asked</span>
+    <span class="c1"># update the local repo with remote changes, if asked</span>
     <span class="k">if</span> <span class="n">fetch</span><span class="p">:</span>
-        <span class="c"># :fixme: Should this be really `fetch`, not `update`?</span>
-        <span class="c"># :fixme:  `fetch` does not change any refs, so it is quite</span>
-        <span class="c"># :fixme:  useless. But `update` would advance `develop` and</span>
-        <span class="c"># :fixme:  moan about required merges.</span>
-        <span class="c"># :fixme:  OTOH, `update` would also give new remote refs,</span>
-        <span class="c"># :fixme:  e.g. a remote branch with the same name.</span>
-        <span class="k">print</span> <span class="s">&quot;fetch&quot;</span><span class="p">,</span> <span class="n">base</span>
+        <span class="c1"># :fixme: Should this be really `fetch`, not `update`?</span>
+        <span class="c1"># :fixme:  `fetch` does not change any refs, so it is quite</span>
+        <span class="c1"># :fixme:  useless. But `update` would advance `develop` and</span>
+        <span class="c1"># :fixme:  moan about required merges.</span>
+        <span class="c1"># :fixme:  OTOH, `update` would also give new remote refs,</span>
+        <span class="c1"># :fixme:  e.g. a remote branch with the same name.</span>
+        <span class="k">print</span> <span class="s2">&quot;fetch&quot;</span><span class="p">,</span> <span class="n">base</span>
         <span class="n">gitflow</span><span class="o">.</span><span class="n">origin</span><span class="p">()</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
 
-    <span class="c"># If the origin branch counterpart exists, assert that the</span>
-    <span class="c"># local branch isn&#39;t behind it (to avoid unnecessary rebasing).</span>
+    <span class="c1"># If the origin branch counterpart exists, assert that the</span>
+    <span class="c1"># local branch isn&#39;t behind it (to avoid unnecessary rebasing).</span>
     <span class="k">if</span> <span class="n">gitflow</span><span class="o">.</span><span class="n">origin_name</span><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="ow">in</span> <span class="n">repo</span><span class="o">.</span><span class="n">refs</span><span class="p">:</span>
-        <span class="c"># :todo: rethink: check this only if base == default_base()?</span>
+        <span class="c1"># :todo: rethink: check this only if base == default_base()?</span>
         <span class="n">gitflow</span><span class="o">.</span><span class="n">require_branches_equal</span><span class="p">(</span>
             <span class="n">gitflow</span><span class="o">.</span><span class="n">origin_name</span><span class="p">(</span><span class="n">base</span><span class="p">),</span>
             <span class="n">base</span><span class="p">)</span>
 
-    <span class="c"># If there is a remote branch with the same name, use it</span>
+    <span class="c1"># If there is a remote branch with the same name, use it</span>
     <span class="n">remote_branch</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">if</span> <span class="n">gitflow</span><span class="o">.</span><span class="n">origin_name</span><span class="p">(</span><span class="n">full_name</span><span class="p">)</span> <span class="ow">in</span> <span class="n">repo</span><span class="o">.</span><span class="n">refs</span><span class="p">:</span>
         <span class="n">remote_branch</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">refs</span><span class="p">[</span><span class="n">gitflow</span><span class="o">.</span><span class="n">origin_name</span><span class="p">(</span><span class="n">full_name</span><span class="p">)]</span>
         <span class="k">if</span> <span class="n">fetch</span><span class="p">:</span>
             <span class="n">gitflow</span><span class="o">.</span><span class="n">origin</span><span class="p">()</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">remote_branch</span><span class="o">.</span><span class="n">remote_head</span><span class="p">)</span>
-            <span class="c"># Base must be on the remote branch, too, to avoid conflicts</span>
+            <span class="c1"># Base must be on the remote branch, too, to avoid conflicts</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">gitflow</span><span class="o">.</span><span class="n">is_merged_into</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">remote_branch</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">BaseNotOnBranch</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">remote_branch</span><span class="p">)</span>
-            <span class="c"># base the new local branch on the remote on</span>
+            <span class="c1"># base the new local branch on the remote on</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">remote_branch</span>
 
     <span class="n">branch</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">create_head</span><span class="p">(</span><span class="n">full_name</span><span class="p">,</span> <span class="n">base</span><span class="p">)</span>
     <span class="n">branch</span><span class="o">.</span><span class="n">checkout</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">remote_branch</span><span class="p">:</span>
         <span class="n">branch</span><span class="o">.</span><span class="n">set_tracking_branch</span><span class="p">(</span><span class="n">remote_branch</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">branch</span>
+    <span class="k">return</span> <span class="n">branch</span></div>
 
-</div>
+
 <span class="n">gitflow</span><span class="o">.</span><span class="n">branches</span><span class="o">.</span><span class="n">BranchManager</span><span class="o">.</span><span class="n">create</span> <span class="o">=</span> <span class="n">create</span>
 </pre></div>
 
@@ -207,7 +207,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
     </p>
   </div>
 </footer>

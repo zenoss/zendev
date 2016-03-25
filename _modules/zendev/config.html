@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -100,12 +100,12 @@
 
   
   <h1>Source code for zendev.config</h1><div class="highlight"><pre>
-<span class="kn">import</span> <span class="nn">json</span>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">py</span>
 
 <span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">info</span><span class="p">,</span> <span class="n">error</span>
 
-<span class="n">CONFIG_DIR</span> <span class="o">=</span> <span class="s">&quot;~/.zendev&quot;</span>
+<span class="n">CONFIG_DIR</span> <span class="o">=</span> <span class="s2">&quot;~/.zendev&quot;</span>
 
 
 <div class="viewcode-block" id="ZendevConfig"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig">[docs]</a><span class="k">class</span> <span class="nc">ZendevConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -116,62 +116,62 @@
                 <span class="k">try</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="k">print</span> <span class="s">&quot;File </span><span class="si">%s</span><span class="s"> has invalid JSON data: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">e</span><span class="p">)</span>
+                    <span class="k">print</span> <span class="s2">&quot;File </span><span class="si">%s</span><span class="s2"> has invalid JSON data: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">e</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{</span>
-                       <span class="s">&#39;environments&#39;</span><span class="p">:{}</span>
+                       <span class="s1">&#39;environments&#39;</span><span class="p">:{}</span>
                     <span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s">&#39;environments&#39;</span><span class="p">:{}</span>
+                <span class="s1">&#39;environments&#39;</span><span class="p">:{}</span>
             <span class="p">}</span>
 
 <div class="viewcode-block" id="ZendevConfig.save"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span></div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="ZendevConfig.environments"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.environments">[docs]</a>    <span class="k">def</span> <span class="nf">environments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;environments&#39;</span><span class="p">,</span> <span class="p">{})</span>
-</div>
+    <span class="k">def</span> <span class="nf">environments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;environments&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;current&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;current&#39;</span><span class="p">)</span>
 
     <span class="nd">@current.setter</span>
-<div class="viewcode-block" id="ZendevConfig.current"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.current">[docs]</a>    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s">&#39;current&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;current&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-</div>
+
 <div class="viewcode-block" id="ZendevConfig.exists"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.exists">[docs]</a>    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environments</span>
-</div>
+        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environments</span></div>
+
 <div class="viewcode-block" id="ZendevConfig.add"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">environments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="o">.</span><span class="n">strpath</span><span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-</div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="o">.</span><span class="n">strpath</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="ZendevConfig.remove"><a class="viewcode-back" href="../../zendev.html#zendev.config.ZendevConfig.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">keepdata</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environments</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">env</span><span class="p">:</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">keepdata</span><span class="p">:</span>
-                <span class="n">info</span><span class="p">(</span><span class="s">&quot;Environment {name} removed. Data still lives at {path}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">locals</span><span class="p">()))</span>
+                <span class="n">info</span><span class="p">(</span><span class="s2">&quot;Environment {name} removed. Data still lives at {path}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">locals</span><span class="p">()))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-                    <span class="n">info</span><span class="p">(</span><span class="s">&quot;Environment {name} and all data at {path} removed.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">locals</span><span class="p">()))</span>
+                    <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+                    <span class="n">info</span><span class="p">(</span><span class="s2">&quot;Environment {name} and all data at {path} removed.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">locals</span><span class="p">()))</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                    <span class="n">error</span><span class="p">(</span><span class="s">&quot;Environment {name} removed, but unable to remove data at {path}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">locals</span><span class="p">()))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                    <span class="n">error</span><span class="p">(</span><span class="s2">&quot;Environment {name} removed, but unable to remove data at {path}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="nb">locals</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../zendev.html#zendev.config.get_config">[docs]</a><span class="k">def</span> <span class="nf">get_config</span><span class="p">():</span>
     <span class="n">zendevhome</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">local</span><span class="p">(</span><span class="n">CONFIG_DIR</span><span class="p">,</span> <span class="n">expanduser</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">ZendevConfig</span><span class="p">(</span><span class="n">zendevhome</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;environments.json&#39;</span><span class="p">))</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">ZendevConfig</span><span class="p">(</span><span class="n">zendevhome</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;environments.json&#39;</span><span class="p">))</span>
     <span class="n">config</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">config</span>
+    <span class="k">return</span> <span class="n">config</span></div>
 
-</div>
+
 <div class="viewcode-block" id="get_envname"><a class="viewcode-back" href="../../zendev.html#zendev.config.get_envname">[docs]</a><span class="k">def</span> <span class="nf">get_envname</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">get_config</span><span class="p">()</span><span class="o">.</span><span class="n">current</span></div>
 </pre></div>
@@ -185,7 +185,7 @@
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
     </p>
   </div>
 </footer>

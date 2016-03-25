@@ -36,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -128,47 +128,47 @@ source or install from RPM</li>
 </ul>
 <div class="section" id="creating-a-vagrant-box">
 <h2>Creating a Vagrant Box<a class="headerlink" href="#creating-a-vagrant-box" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">box</span> <span class="pre">create</span></tt> will create a Vagrant box of the type specified, provision it
+<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">box</span> <span class="pre">create</span></code> will create a Vagrant box of the type specified, provision it
 appropriately, and ssh in. All boxes are created in the same private network;
 private IPs are allocated by <a class="reference external" href="https://github.com/adrienthebo/vagrant-auto_network">a Vagrant plugin</a> that zendev will
 install for you if you don&#8217;t have it already.</p>
-<p>Acceptable types are: <tt class="docutils literal"><span class="pre">ubuntu</span></tt>, <tt class="docutils literal"><span class="pre">fedora</span></tt>, <tt class="docutils literal"><span class="pre">controlplane</span></tt> (synonym of
-<tt class="docutils literal"><span class="pre">ubuntu</span></tt>) and <tt class="docutils literal"><span class="pre">sourcebuild</span></tt> (synonym of <tt class="docutils literal"><span class="pre">fedora</span></tt>).</p>
+<p>Acceptable types are: <code class="docutils literal"><span class="pre">ubuntu</span></code>, <code class="docutils literal"><span class="pre">fedora</span></code>, <code class="docutils literal"><span class="pre">controlplane</span></code> (synonym of
+<code class="docutils literal"><span class="pre">ubuntu</span></code>) and <code class="docutils literal"><span class="pre">sourcebuild</span></code> (synonym of <code class="docutils literal"><span class="pre">fedora</span></code>).</p>
 <p>Boxes must also be given a name that can be used to manage the box with zendev.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Create a new Ubuntu-based Vagrant box</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Create a new Ubuntu-based Vagrant box</span>
 zendev box create --type ubuntu cplanedev
 
-<span class="c"># Create a new Fedora-based Vagrant box</span>
+<span class="c1"># Create a new Fedora-based Vagrant box</span>
 zendev box create --type fedora rmdev
 </pre></div>
 </div>
 </div>
 <div class="section" id="sshing-to-boxes">
 <h2>SSHing to Boxes<a class="headerlink" href="#sshing-to-boxes" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">box</span> <span class="pre">ssh</span> <span class="pre">BOX</span></tt> (aliased to <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">ssh</span></tt> for convenience) will,
+<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">box</span> <span class="pre">ssh</span> <span class="pre">BOX</span></code> (aliased to <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">ssh</span></code> for convenience) will,
 unsurprisingly, start an SSH session on the Vagrant box named.</p>
 </div>
 <div class="section" id="listing-boxes">
 <h2>Listing Boxes<a class="headerlink" href="#listing-boxes" title="Permalink to this headline">¶</a></h2>
-<p>List all the boxes in your environment with <tt class="docutils literal"><span class="pre">box</span> <span class="pre">ls</span></tt>:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># List paths to all Vagrant boxes</span>
+<p>List all the boxes in your environment with <code class="docutils literal"><span class="pre">box</span> <span class="pre">ls</span></code>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># List paths to all Vagrant boxes</span>
 zendev box ls
 </pre></div>
 </div>
 </div>
 <div class="section" id="managing-boxes">
 <h2>Managing Boxes<a class="headerlink" href="#managing-boxes" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Halt a box named BOX</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Halt a box named BOX</span>
 zendev box halt BOX
 
-<span class="c"># Start a box named BOX</span>
+<span class="c1"># Start a box named BOX</span>
 zendev box up BOX
 </pre></div>
 </div>
 </div>
 <div class="section" id="destroying-boxes">
 <h2>Destroying Boxes<a class="headerlink" href="#destroying-boxes" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Destroy box named BOX</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Destroy box named BOX</span>
 zendev box destroy BOX
 </pre></div>
 </div>
@@ -185,7 +185,7 @@ zendev box destroy BOX
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
     </p>
   </div>
 </footer>

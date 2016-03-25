@@ -35,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -147,23 +147,23 @@ is open to whomever wants to implement it.</p>
 <li>Edit the documentation as you see fit. <a class="reference external" href="http://docutils.sourceforge.net/docs/user/rst/quickref.html">Here&#8217;s a reference for reStructuredText</a>.</li>
 <li>Build the docs locally to test your edits (using <a class="reference external" href="http://sphinx-doc.org/">Sphinx</a>).</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install Sphinx if not installed</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Install Sphinx if not installed</span>
 sudo pip install sphinx
 
-<span class="c"># Go to the root of the zendev tree</span>
+<span class="c1"># Go to the root of the zendev tree</span>
 <span class="nb">cd</span> ~/src/zendev
 
-<span class="c"># Build! This works best locally, because it will open a browser pointing</span>
-<span class="c"># to your freshly built docs.</span>
+<span class="c1"># Build! This works best locally, because it will open a browser pointing</span>
+<span class="c1"># to your freshly built docs.</span>
 make docs
 </pre></div>
 </div>
 <p>Alternatively, you can build using a Docker image with Sphinx already
 installed:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Go to the root of the zendev tree</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Go to the root of the zendev tree</span>
 <span class="nb">cd</span> ~/src/zendev
 
-<span class="c"># Build. No fancy browser this time.</span>
+<span class="c1"># Build. No fancy browser this time.</span>
 make docker-docs
 </pre></div>
 </div>
@@ -190,34 +190,34 @@ are welcome :)</li>
 <li>Fork the <a class="reference external" href="https://github.com/zenoss/zendev">zendev repo on GitHub</a>.</li>
 <li>Clone your fork locally:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre>git clone git@github.com:your_name_here/zendev.git
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git clone git@github.com:your_name_here/zendev.git
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
 <li>Install your local copy into a <a class="reference external" href="http://www.virtualenv.org/en/latest/">virtualenv</a>.</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Install virtualenvwrapper if you haven&#39;t already</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Install virtualenvwrapper if you haven&#39;t already</span>
 sudo pip install virtualenvwrapper
 <span class="nb">echo</span> <span class="s2">&quot;source </span><span class="k">$(</span>which virtualenvwrapper.sh<span class="k">)</span><span class="s2">&quot;</span> &gt;&gt; ~/.bashrc
 <span class="nb">source</span> <span class="k">$(</span>which virtualenvwrapper.sh<span class="k">)</span>
 
-<span class="c"># Create a virtualenv for zendev development on top of your cloned source</span>
+<span class="c1"># Create a virtualenv for zendev development on top of your cloned source</span>
 mkvirtualenv zendev
-<span class="nb">cd </span>zendev
+<span class="nb">cd</span> zendev
 pip install -e .
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li>Create a branch for local development:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre>git checkout -b name-of-your-bugfix-or-feature
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git checkout -b name-of-your-bugfix-or-feature
 </pre></div>
 </div>
 <p>Now you can make your changes locally.</p>
 <ol class="arabic simple" start="5">
 <li>Commit your changes and push your branch to GitHub:</li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre>git add .
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git add .
 git commit -m <span class="s2">&quot;Your detailed description of your changes.&quot;</span>
 git push origin name-of-your-bugfix-or-feature
 </pre></div>
@@ -239,7 +239,7 @@ git push origin name-of-your-bugfix-or-feature
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
     </p>
   </div>
 </footer>
