@@ -132,14 +132,18 @@ class ZenDevEnvironment(object):
         manifest.repos().setdefault(buildrepo_dir, buildrepo_data)
 
     def envvars(self):
-        origpath = os.environ.get('ZD_ORIGPATH', os.environ.get('PATH'))
+        origpath = os.environ.get('PATH')
+        previousMod = os.environ.get('ZD_PATH_MOD', "")
+        if len(previousMod) > 0:
+            origpath = origpath.replace(previousMod, "")
+        newMod = "%s/bin:%s/bin:" % (self._gopath, self._zenhome)
         return {
             "ZENHOME": self._zenhome.strpath,
             "SRCROOT": self._srcroot.strpath,
             "GOPATH": self._gopath.strpath,
             "GOBIN": self._gopath.strpath + "/bin",
-            "ZD_ORIGPATH": origpath,
-            "PATH":"%s/bin:%s/bin:%s" % (self._gopath, self._zenhome, origpath)
+            "ZD_PATH_MOD": newMod,
+            "PATH":"%s%s" % (newMod, origpath)
         }
 
     def _export_env(self):
