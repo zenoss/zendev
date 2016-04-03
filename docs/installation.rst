@@ -19,6 +19,7 @@ reinstall it.
 Ubuntu
 ------
 .. important:: Ubuntu 14.04 or higher is required.
+.. no less important:: Ubuntu 14.04 is suggested on AWS.
 
 1. Make sure the universe and multiverse repos are enabled and updated:
 
@@ -28,7 +29,7 @@ Ubuntu
         sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse"
 
         # Update the repos
-        sudo apt-get update
+        sudo apt-get update -y
 
 #. Install Docker_:
 
@@ -38,19 +39,6 @@ Ubuntu
         sudo apt-get install -y curl nfs-kernel-server nfs-common net-tools
 
         # ------------------------------------------------------------------
-        # Install Docker for old Europa (version 1.0.x)
-        # (Uses Docker 1.5)
-        # ------------------------------------------------------------------
-        sudo apt-get install apt-transport-https
-        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
-            --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
-        sudo sh -c "echo deb https://get.docker.com/ubuntu docker main \
-            > /etc/apt/sources.list.d/docker.list"
-        sudo apt-get update
-        sudo apt-get install lxc-docker-1.5.0
-
-        # ------------------------------------------------------------------
-        # -OR-
         # Install Docker for all other cases, including current Europa work
         # (Uses the latest version of Docker)
         # ------------------------------------------------------------------
@@ -72,8 +60,9 @@ Ubuntu
     .. code-block:: bash
 
         # Install lvm tools
-        sudo apt-get install lvm2
+        sudo apt-get install lvm2 thin-provisioning-tools
 
+    Add /usr/sbin and /sbin to your path 
 
     The development machine you were provided should have a second hard drive
     installed for extra storage.  Use that for an LVM thin pool.
@@ -160,17 +149,21 @@ Ubuntu
 	# Restart docker
 	sudo systemctl start docker
 
+    Reboot your machine to make sure your docker comes up after rebooting!
 
 #. Time for Docker-related configuration.
 
-    Add your user to the ``docker`` group:
+    Create zenoss user, add it to groups:
 
     .. code-block:: bash
 
-        # Add the current user to the docker group
-        sudo usermod -a -G docker ${USER}
-        sudo usermod -a -G sudo ${USER}    # if ubuntu
-        sudo usermod -a -G wheel ${USER}   # if RHEL/Centos
+        # Add the zenoss group/user
+        sudo addgroup --gid=1206 zenoss
+        sudo adduser --uid=1337 --gid=1206 zenoss
+        sudo usermod -a -G docker zenoss
+        sudo usermod -a -G sudo zenoss    # if ubuntu
+        sudo usermod -a -G awsadmins zenoss    # if ubuntu
+        sudo usermod -a -G wheel zenoss   # if RHEL/Centos
 
         # Login again to get docker group (requires password reentry)
         exec su -l ${USER}
@@ -212,11 +205,11 @@ Ubuntu
     .. code-block:: bash
     
         # Install "go get" dependencies
-        sudo apt-get install -y mercurial bzr git
+        sudo apt-get install -y mercurial bzr git git-flow ngrep telnet vim
     
         # Install the Go version we are using
         sudo apt-get install -y wget curl
-        curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
+        curl -s https://storage.googleapis.com/golang/go1.5.3.linux-amd64.tar.gz | sudo tar -xzC /usr/local
     
         # Set GOROOT and PATH appropriately
         cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
@@ -317,7 +310,7 @@ Ubuntu
         # Source it in the current shell
         source $(zendev bootstrap)
 
-#. Create your zendev environment:
+#. Create your zendev environment for europa:
 
     .. code-block:: bash
     
@@ -335,6 +328,40 @@ Ubuntu
     
         # Optional: add enterprise zenpacks for building resmgr devimg
         zendev add ~/src/europa/build/manifests/zenpacks.commercial.json
+
+#. Create your zendev environment for NFVi:
+
+    .. code-block:: bash
+    
+        # Get back to source directory
+        cd ${SRCDIR}
+    
+        # Create the environment for building core devimg
+        zendev init nfvi --tag support/5.1.x-nfvi
+    
+        # Start using the environment
+        zendev use nfvi
+    
+        # This may be needed if the above zendev init failed to clone some repos
+        zendev sync
+    
+        # Go to the serviced source root. cdz is an alias for "zendev cd",
+        # automatically set up by the boostrap you sourced in ~/.bashrc.
+        cdz serviced
+    
+        # Build serviced (may take a while if it's the first time)
+        # The following will build and copy serviced to $GOPATH/bin which
+        # is already in your search path established by zendev.
+        make
+    
+        # Build the Zenoss Docker repo image (also may take a while)
+        zendev build --nfvi devimg    # to build nfvi-resmgr
+    
+        # Run a totally clean instance of serviced, automatically adding localhost
+        # as a host, adding the Zenoss template, and deploying an instance of
+        # Zenoss (warning: blows away state!) 
+        zendev serviced --reset --deploy --template nfvi  # to deploy nfvi
+
 
 #. You can now use zendev to edit source, build Zenoss RPMs, build serviced,
 
