@@ -189,7 +189,7 @@ class Serviced(object):
 
         compiled=json.loads(stdout);
         self.walk_services(compiled['Services'], self.zope_debug)
-        if template and ('ucspm' in template or 'resmgr' in template or 'nfvi' in template):
+        if template and ('ucspm' in template or 'resmgr' in template or 'NFVi' in template):
             self.walk_services(compiled['Services'], self.remove_catalogservice)
         stdout = json.dumps(compiled, sort_keys=True, indent=4, separators=(',', ': '))
         return stdout
