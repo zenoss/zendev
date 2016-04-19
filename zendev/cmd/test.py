@@ -7,9 +7,7 @@ from zendev.cmd.build import get_packs
 
 
 def check_devimg():
-    has_devimg = subprocess.call(["test", "-n",
-                                  '"$(docker images -q zendev/devimg)"'],
-                                 shell=True)
+    has_devimg = subprocess.check_output('docker images -q zendev/devimg'.split()) != ''
     if not has_devimg:
         print >> sys.stderr, ("You don't have the devimg built. Please run"
                               " zendev build devimg\" first.")
