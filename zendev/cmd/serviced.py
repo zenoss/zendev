@@ -23,6 +23,15 @@ class Serviced(object):
         self.serviced = self.env._gopath.join("bin/serviced").strpath
         self.uiport = None
 
+    def get_zenoss_image(self, zenoss_image):
+        if zenoss_image != 'zendev/devimg':
+            return zenoss_image
+        zenoss_image += ':' + self.env.name
+        image_id = subprocess.check_output(['docker', 'images', '-q', zenoss_image])
+        if image_id:
+            return zenoss_image
+        return 'zendev/devimg:latest'
+
     @property
     def varpath(self):
         return self.env.root.ensure("var", dir=True).ensure("serviced",
@@ -38,7 +47,7 @@ class Serviced(object):
         print "Cleaning state"
         subprocess.call("sudo rm -rf %s/*" % self.varpath.strpath, shell=True)
 
-    def start(self, root=False, uiport=443, arguments=None, registry=False, cluster_master=False):
+    def start(self, root=False, uiport=443, arguments=None, registry=False, cluster_master=False, image=None):
         print "Starting serviced..."
         self.uiport = uiport
         args = []
@@ -54,11 +63,12 @@ class Serviced(object):
         if root:
             args.extend(["sudo", "-E"])
             args.extend("%s=%s" % x for x in envvars.iteritems())
+        devimg = self.get_zenoss_image(image)
         args.extend([self.serviced,
-            "--mount", "zendev/devimg,%s,/home/zenoss/.m2" % py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True),
-            "--mount", "zendev/devimg,%s,/opt/zenoss" % self.env.root.join("zenhome").strpath,
-            "--mount", "zendev/devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
-            "--mount", "zendev/devimg,%s,/var/zenoss" % self.env.var_zenoss.strpath,
+            "--mount", "%s,%s,/home/zenoss/.m2" % (devimg, py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)),
+            "--mount", "%s,%s,/opt/zenoss" % (devimg, self.env.root.join("zenhome").strpath),
+            "--mount", "%s,%s,/mnt/src" % (devimg, self.env.root.join("src").strpath),
+            "--mount", "%s,%s,/var/zenoss" % (devimg, self.env.var_zenoss.strpath),
             "--mount", "zendev/impact-devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
             "--uiport", ":%d" % uiport,
         ])
@@ -259,7 +269,8 @@ def run_serviced(args, env):
         args.arguments = args.arguments[1:]
     if args.root:
         print >> sys.stderr, "--root is deprecated, as it is now the default. See --no-root."
-    _serviced.start(not args.no_root, args.uiport, args.arguments, args.with_docker_registry, args.cluster_master)
+    _serviced.start(not args.no_root, args.uiport, args.arguments, args.with_docker_registry,
+            args.cluster_master, args.image)
     try:
         wait_for_ready = not args.skip_ready_wait
         while wait_for_ready and not _serviced.is_ready():
@@ -284,15 +295,16 @@ def run_serviced(args, env):
 
             deploymentId = 'zendev-zenoss' if not args.deploy_ana else 'ana'
 
+            zenoss_image = _serviced.get_zenoss_image(args.image)
             if args.module:
                 tplid = _serviced.add_template_module(args.template,
-                    args.module, args.module_dir, args.image)
+                    args.module, args.module_dir, zenoss_image)
             else:
                 # Assume that a file is compiled json; directory needs to be compiled
                 if py.path.local(args.template).isfile():
                     template = open(py.path.local(args.template).strpath).read()
                 else:
-                    template = _serviced.compile_template(args.template, args.image)
+                    template = _serviced.compile_template(args.template, zenoss_image)
                 tplid = _serviced.add_template(template)
 
             kwargs = dict(template=tplid, svcname=deploymentId )
