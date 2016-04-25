@@ -17,42 +17,45 @@ def check_devimg():
 
 
 def check_zendev_test():
-    has_img = subprocess.call(["test", "-n",
-                                  '"$(docker images -q zendev_test)"'],
-                                 shell=True)
-    return bool(has_img)
-
-
-def build_image(args, env, resmgr=False):
-    pass
-
+    command = 'test -n "$(docker images -q zendev_test)"'
+    return_code = subprocess.call(command, shell=True)
+    image_exists = return_code == 0
+    return image_exists
 
 def zen_image_tests(args, env, product=''):
     env = env()
-    os.environ['VAR_ZENOSS']=env.var_zenoss.strpath
+    os.environ['VAR_ZENOSS'] = env.var_zenoss.strpath
     envvars = os.environ.copy()
     envvars.update(env.envvars())
-    mounts = {envvars["SRCROOT"]: "/mnt/src", env.buildroot: "/mnt/build", envvars["HOME"]: "/home/zenoss/.m2"}
-    mounts[env.var_zenoss.strpath] = "/var/zenoss"
+
+    mounts = {
+        envvars["SRCROOT"]: "/mnt/src",
+        env.buildroot: "/mnt/build",
+        envvars["HOME"]: "/home/zenoss/.m2",
+        os.path.join(envvars["ZENHOME"]): "/opt/zenoss",
+        env.var_zenoss.strpath: "/var/zenoss"
+    }
+
     image = "zendev_test"
+    run_build = not args.use_existing or \
+                (args.use_existing and not check_zendev_test())
+
     if product == 'devimg':
         check_devimg()
         image = "zendev/devimg"
-        mounts[os.path.join(envvars["ZENHOME"])] = "/opt/zenoss"
-    elif not args.use_existing or (args.use_existing and not check_zendev_test()):
-        # Run a build
+    elif run_build:
         envvars['DEVIMG_SYMLINK'] = ''
         envvars['devimg_MOUNTS'] = ''
-        envvars['devimg_TAGNAME'] = 'zendev_test'
-        envvars['devimg_CONTAINER'] = 'zendev_test'
+        envvars['devimg_TAGNAME'] = image
+        envvars['devimg_CONTAINER'] = image
         envvars['ZENPACKS'] = ' '.join(get_packs(env, product))
         with env.buildroot.as_cwd():
-            rc = subprocess.call(["make", "devimg"], env=envvars)
-            if rc > 0:
-                return rc
-        image = "zendev_test"
+            return_code = subprocess.call(["make", "devimg"], env=envvars)
+            if return_code > 0:
+                return return_code
+
     cmd = ["docker", "run", "-i", "-t", "--rm"]
-    if args.no_tty: 
+    if args.no_tty:
         cmd.remove("-t")
     for mount in mounts.iteritems():
         cmd.extend(["-v", "%s:%s" % mount])
@@ -64,9 +67,11 @@ def zen_image_tests(args, env, product=''):
         if args.zp:
             cmd.append("zenpack")
         cmd.extend(args.arguments[1:])
-    
-    print "Calling Docker with the following:"    
-    print cmd
+
+    print "Using %s image." % image
+    print "Calling Docker with the following:"
+    print " ".join(cmd)
+
     return subprocess.call(cmd)
 
 
