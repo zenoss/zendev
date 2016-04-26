@@ -37,7 +37,6 @@ def zen_image_tests(args, env, product=''):
         envvars["SRCROOT"]: "/mnt/src",
         env.buildroot: "/mnt/build",
         envvars["HOME"]: "/home/zenoss/.m2",
-        os.path.join(envvars["ZENHOME"]): "/opt/zenoss",
         env.var_zenoss.strpath: "/var/zenoss"
     }
 
@@ -47,6 +46,7 @@ def zen_image_tests(args, env, product=''):
 
     if product == 'devimg':
         image = check_devimg(env)
+        mounts[os.path.join(envvars["ZENHOME"])] = "/opt/zenoss"
     elif run_build:
         envvars['DEVIMG_SYMLINK'] = ''
         envvars['devimg_MOUNTS'] = ''
