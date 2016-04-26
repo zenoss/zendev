@@ -6,14 +6,19 @@ import os
 from zendev.cmd.build import get_packs
 
 
-def check_devimg():
-    has_devimg = subprocess.call(["test", "-n",
-                                  '"$(docker images -q zendev/devimg)"'],
-                                 shell=True)
-    if not has_devimg:
-        print >> sys.stderr, ("You don't have the devimg built. Please run"
-                              " zendev build devimg\" first.")
-        sys.exit(1)
+def check_devimg(env):
+    """
+    return the image repo/tag for devimg
+    prefer the image for this environment if one exists; otherwise the latest
+    exit the program with a warning if no image is available
+    """
+    for tag in (env.name, 'latest'):
+        devimg = 'zendev/devimg:' + tag
+        if subprocess.check_output(['docker', 'images', '-q', devimg]) != '':
+            return devimg
+    print >> sys.stderr, ("You don't have the devimg built. Please run"
+                          " zendev build devimg\" first.")
+    sys.exit(1)
 
 
 def check_zendev_test():
@@ -41,8 +46,7 @@ def zen_image_tests(args, env, product=''):
                 (args.use_existing and not check_zendev_test())
 
     if product == 'devimg':
-        check_devimg()
-        image = "zendev/devimg"
+        image = check_devimg(env)
     elif run_build:
         envvars['DEVIMG_SYMLINK'] = ''
         envvars['devimg_MOUNTS'] = ''
@@ -91,9 +95,7 @@ def zep_tests(args, env):
     envvars = os.environ.copy()
     envvars.update(env.envvars())
     mounts = {envvars["SRCROOT"]: "/mnt/src", env.buildroot: "/mnt/build"}
-    image = "zendev_test"
-    check_devimg()
-    image = "zendev/devimg"
+    image = check_devimg(env)
     mounts[os.path.join(envvars["HOME"], ".m2")] = "/home/zenoss/.m2"
     mounts[os.path.join(envvars["ZENHOME"])] = "/opt/zenoss"
 

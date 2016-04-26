@@ -216,7 +216,7 @@ Ubuntu
     
         # Install the Go version we are using
         sudo apt-get install -y wget curl
-        curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
+        curl -s https://storage.googleapis.com/golang/go1.6.linux-amd64.tar.gz | sudo tar -xzC /usr/local
     
         # Set GOROOT and PATH appropriately
         cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
