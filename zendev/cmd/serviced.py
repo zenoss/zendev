@@ -53,6 +53,7 @@ class Serviced(object):
         args = []
         envvars = self.env.envvars()
         envvars['SERVICED_VARPATH'] = self.varpath.strpath
+        envvars['SERVICED_DOCKER_REGISTRY'] = "localhost:5000"
         envvars['TZ'] = os.getenv('TZ', 'UTC')
         envvars['SERVICED_MASTER'] = os.getenv('SERVICED_MASTER', '1')
         envvars['SERVICED_AGENT'] = os.getenv('SERVICED_AGENT', '1')
