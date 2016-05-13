@@ -184,6 +184,7 @@ class Serviced(object):
         print "Compiling template", tplpath
         serviceMakefile = self.env.srcroot.join("service/makefile")
         hbaseVersion = subprocess.check_output("awk -F= '/^hbase_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
+        hdfsVersion = subprocess.check_output("awk -F= '/^hdfs_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
         opentsdbVersion = subprocess.check_output("awk -F= '/^opentsdb_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
         print "Detected hbase version in makefile is %s" % hbaseVersion
         print "Detected opentsdb version in makefile is %s" % opentsdbVersion
@@ -192,6 +193,7 @@ class Serviced(object):
         proc = subprocess.Popen([self.serviced, "template", "compile",
             "--map=zenoss/zenoss5x,%s" % image,
             "--map=zenoss/hbase:xx,zenoss/hbase:%s" % hbaseVersion,
+            "--map=zenoss/hdfs:xx,zenoss/hdfs:%s" % hdfsVersion,
             "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion, tplpath],
             stdout=subprocess.PIPE)
         stdout, _ = proc.communicate()
