@@ -38,7 +38,7 @@ def use(args, env):
     """
     Use a zendev environment.
     """
-    env(args.name).use()
+    env(args.name).use(not args.no_switch)
 
 
 def drop(args, env):
@@ -67,6 +67,7 @@ def add_commands(subparsers):
 
     use_parser = subparsers.add_parser('use', help='Switch to an environemtn')
     use_parser.add_argument('name', metavar='ENVIRONMENT').completer = EnvironmentCompleter
+    use_parser.add_argument('--no-switch', action="store_true")
     use_parser.set_defaults(functor=use)
 
     drop_parser = subparsers.add_parser('drop', help='Delete an environment')
