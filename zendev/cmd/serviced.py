@@ -340,14 +340,17 @@ def devshell(args, env):
     if args.command:
         command += " -c '%s'" % " ".join(args.command)
 
+    devimg = Serviced(env).get_zenoss_image('zendev/devimg')
+
     m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
     if args.docker:
-        cmd = "docker run --privileged --rm -w /opt/zenoss -v %s:/serviced/serviced -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/var/zenoss -v %s:/home/zenoss/.m2 -i -t zendev/devimg %s" % (
+        cmd = "docker run --privileged --rm -w /opt/zenoss -v %s:/serviced/serviced -v %s/src:/mnt/src -v %s:/opt/zenoss -v %s:/var/zenoss -v %s:/home/zenoss/.m2 -i -t %s %s" % (
             _serviced,
             env.root.strpath,
             env.root.join("zenhome").strpath,
             env.root.join("var_zenoss").strpath,
             m2.strpath,
+            devimg,
             command
         )
     else:
