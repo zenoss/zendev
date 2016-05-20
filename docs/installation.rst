@@ -30,52 +30,6 @@ Ubuntu
         # Update the repos
         sudo apt-get update
 
-#. Create storage for Docker:
-
-    The development machine you were provided should have a second hard drive
-    installed for extra storage.
-
-    Mount the drive for Docker storage:
-
-    .. code-block:: bash
-
-        # Create a mount point
-        sudo mkdir /var/lib/docker
-
-        # Identify the partition you need to mount
-        sudo lsblk -o NAME,FSTYPE,SIZE,MOUNTPOINT,UUID
-
-    You'll be looking for an ext4 partition that hasn't been mounted.
-
-    Example output:
-
-    .. code-block:: bash
-       :emphasize-lines: 3
-
-        NAME                     FSTYPE        SIZE MOUNTPOINT      UUID
-        sda                                  931.5G                 
-        └─sda1                   ext4        931.5G                 84ae6065-25fd-4f0a-9fba-40da962ada20
-        sdb                                  238.5G                 
-        ├─sdb1                   ext2          243M /boot           5a2e2cd4-9a5a-4874-90ba-4195d9400a37
-        ├─sdb2                                   1K                 
-        └─sdb5                   LVM2_member 238.2G                 yiLydV-Bh6u-X6vH-sLgS-Gjc0-94th-vv76KJ
-          ├─it--vg-root (dm-0)   ext4        110.3G /               fcb63cf5-ce47-4cf3-a207-2caa2fad7f4f
-          └─it--vg-swap_1 (dm-1) swap        127.9G [SWAP]          b30cf82e-46b4-461f-9f76-d475a8bf3859
-        sr0                                   1024M                 
-
-    Take note of the UUID for the partition you want to mount, add the
-    partition information to your /etc/fstab so it gets automatically
-    mounted at reboot, then mount the partition.
-
-    .. code-block:: bash
-
-        # Create the mount entry into /etc/fstab.  Replace <UUID> below with the
-        # UUID from the lsblk output above.
-        sudo echo "/dev/disk/by-uuid/<UUID> /var/lib/docker auto rw,nosuid,nodev 0 0" >> /etc/fstab
-
-        # Mount the device
-        sudo mount /var/lib/docker
-
 #. Install Docker_:
 
     .. code-block:: bash
@@ -107,23 +61,105 @@ Ubuntu
             > /etc/apt/sources.list.d/docker.list"
         sudo apt-get update
         sudo apt-get purge lxc-docker*
-        sudo apt-get install docker-engine
+        sudo apt-get install docker-engine=1.9.1-0~$(lsb_release -sc)
+
+        # Lock the version of Docker so updates won't bump it to a newer version
+        sudo apt-mark hold docker-engine
 
 
-    If you are operating under AWS, check if docker is using the devicemapper driver.
-        Run the "sudo docker info" command and look at the storage driver section. If it
-        says "devicemapper", stop docker, install linux-image-extra, and reinstall
-        docker to use AUFS as a storage driver.
+#. Create and configure devicemapper storage for Docker:
 
     .. code-block:: bash
 
-        sudo stop docker
-        sudo apt-get remove lxc-docker
-        sudo apt-get autoremove
-        sudo rm -rf /var/lib/docker
-        sudo apt-get update
-        sudo apt-get install linux-image-extra-`uname -r`
-        sudo apt-get install lxc-docker-1.5.0
+        # Install lvm tools
+        sudo apt-get install lvm2
+
+
+    The development machine you were provided should have a second hard drive
+    installed for extra storage.  Use that for an LVM thin pool.
+
+    .. code-block:: bash
+
+        # Identify the partition you need to mount
+        sudo lsblk -o NAME,FSTYPE,SIZE,MOUNTPOINT,UUID
+
+    You'll be looking for an ext4 partition that hasn't been mounted.  Take note of the device name (e.g., /dev/sda1)
+
+    Example output:
+
+    .. code-block:: bash
+       :emphasize-lines: 3
+
+        NAME                     FSTYPE        SIZE MOUNTPOINT      UUID
+        sda                                  931.5G                 
+        └─sda1                   ext4        931.5G                 84ae6065-25fd-4f0a-9fba-40da962ada20
+        sdb                                  238.5G                 
+        ├─sdb1                   ext2          243M /boot           5a2e2cd4-9a5a-4874-90ba-4195d9400a37
+        ├─sdb2                                   1K                 
+        └─sdb5                   LVM2_member 238.2G                 yiLydV-Bh6u-X6vH-sLgS-Gjc0-94th-vv76KJ
+          ├─it--vg-root (dm-0)   ext4        110.3G /               fcb63cf5-ce47-4cf3-a207-2caa2fad7f4f
+          └─it--vg-swap_1 (dm-1) swap        127.9G [SWAP]          b30cf82e-46b4-461f-9f76-d475a8bf3859
+        sr0                                   1024M                 
+
+
+    Set up the LVM thin pool
+
+    .. code-block:: bash
+
+	# Set up parameters for following commands
+	# DEV_NAME is the name of the device on your system (e.g., /dev/sda1)
+	# VOLUME_GROUP and THIN_POOL can be whatever you want, but these 
+	# are reasonable values.
+	DEV_NAME=/dev/whatever
+	VOLUME_GROUP=docker
+	THIN_POOL=pool
+
+	# Create an LVM physical volume and volume group
+	sudo vgcreate $VOLUME_GROUP $DEV_NAME
+
+	# Create an LVM thin pool logical volume
+	sudo lvcreate -l98%FREE -T $VOLUME_GROUP/$THIN_POOL
+
+	# Note the devicemapper path for the thin pool.  This will be 
+	# referenced in the docker configuration.  It should be something 
+	# like /dev/mapper/docker-pool
+	LV_DMPATH=$(sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings $VOLUME_GROUP | tr -d \ )
+
+        # Depending on the version of lvm, the preceding command may fail.  If
+        # it does, you will have to determine the devicemapper path manually.
+        # Run the following command, and set LV_DMPATH to the filename appended
+        # to /dev/mapper.  It should look like this /dev/mapper/docker-pool-tpool
+        sudo dmsetup ls --target=thin-pool
+        LV_DMPATH=/dev/mapper/docker-pool-tpool
+
+    Configure docker to use the thin pool
+
+    .. code-block:: bash
+
+	# Populate a docker environment file with devicemapper storage options and the 
+	# addresses of the zenoss DNS servers
+	sudo sh -c "cat >/etc/default/docker << EOL
+	DOCKER_OPTS=\"--storage-driver=devicemapper --storage-opt dm.thinpooldev=$LV_DMPATH --dns 10.87.113.13 --dns 10.88.102.13\"
+	EOL"
+
+	# Add the environment file to the docker service
+	sudo sed -i 's~\[Service\]~&\nEnvironmentFile=/etc/default/docker~' /lib/systemd/system/docker.service 
+
+	# Add DOCKER_OPTS to the docker startup command
+	sudo sed -i 's~ExecStart.*$~& $DOCKER_OPTS~' /lib/systemd/system/docker.service 
+
+	# Stop docker
+	sudo systemctl stop docker
+
+	# Clean up existing docker storage
+	sudo rm -rf /var/lib/docker
+
+	# Reload docker.service
+	sudo systemctl daemon-reload
+
+	# Restart docker
+	sudo systemctl start docker
+
 
 #. Time for Docker-related configuration.
 
@@ -140,7 +176,7 @@ Ubuntu
         exec su -l ${USER}
 
         # Restart Docker
-        sudo service docker restart
+        sudo systemctl restart docker
 
     Test that you can communicate with the docker daemon:
 
@@ -180,7 +216,7 @@ Ubuntu
     
         # Install the Go version we are using
         sudo apt-get install -y wget curl
-        curl -s https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz | sudo tar -xzC /usr/local
+        curl -s https://storage.googleapis.com/golang/go1.6.linux-amd64.tar.gz | sudo tar -xzC /usr/local
     
         # Set GOROOT and PATH appropriately
         cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
@@ -200,8 +236,8 @@ Ubuntu
         go get github.com/golang/lint/golint
         sudo ln -s ${GOPATH}/bin/golint /usr/local/bin/golint
     
-        go get -v code.google.com/p/rog-go/exp/cmd/godef
-        go install -v code.google.com/p/rog-go/exp/cmd/godef
+        go get -v github.com/rogpeppe/godef
+        go install -v github.com/rogpeppe/godef
         sudo ln -s ${GOPATH}/bin/godef /usr/local/bin/godef
     
         go get -u github.com/nsf/gocode
@@ -232,8 +268,7 @@ Ubuntu
         sudo apt-get install -y tmux screen
 
         # Additional packages needed to build
-        sudo apt-get install -y xfsprogs xfsdump
-        sudo apt-get install -y libdevmapper-dev
+        sudo apt-get install -y xfsprogs xfsdump libdevmapper-dev
     
         # Need Java to run some of the services (and the build tests)
         sudo apt-get install -y default-jdk
@@ -339,7 +374,7 @@ Ubuntu
 
     .. code-block:: bash
     
-        sudo chown ${User} /usr/local/go/pkg/tool/linux_amd64/vet
+        sudo chown ${USER} /usr/local/go/pkg/tool/linux_amd64/vet
     
     Proceed after seeing the Zenoss template in 'Deployed templates'.
 

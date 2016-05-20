@@ -6,53 +6,60 @@ import os
 from zendev.cmd.build import get_packs
 
 
-def check_devimg():
-    has_devimg = subprocess.call(["test", "-n",
-                                  '"$(docker images -q zendev/devimg)"'],
-                                 shell=True)
-    if not has_devimg:
-        print >> sys.stderr, ("You don't have the devimg built. Please run"
-                              " zendev build devimg\" first.")
-        sys.exit(1)
+def check_devimg(env):
+    """
+    return the image repo/tag for devimg
+    prefer the image for this environment if one exists; otherwise the latest
+    exit the program with a warning if no image is available
+    """
+    for tag in (env.name, 'latest'):
+        devimg = 'zendev/devimg:' + tag
+        if subprocess.check_output(['docker', 'images', '-q', devimg]) != '':
+            return devimg
+    print >> sys.stderr, ("You don't have the devimg built. Please run"
+                          " zendev build devimg\" first.")
+    sys.exit(1)
 
 
 def check_zendev_test():
-    has_img = subprocess.call(["test", "-n",
-                                  '"$(docker images -q zendev_test)"'],
-                                 shell=True)
-    return bool(has_img)
-
-
-def build_image(args, env, resmgr=False):
-    pass
-
+    command = 'test -n "$(docker images -q zendev_test)"'
+    return_code = subprocess.call(command, shell=True)
+    image_exists = return_code == 0
+    return image_exists
 
 def zen_image_tests(args, env, product=''):
     env = env()
-    os.environ['VAR_ZENOSS']=env.var_zenoss.strpath
+    os.environ['VAR_ZENOSS'] = env.var_zenoss.strpath
     envvars = os.environ.copy()
     envvars.update(env.envvars())
-    mounts = {envvars["SRCROOT"]: "/mnt/src", env.buildroot: "/mnt/build", envvars["HOME"]: "/home/zenoss/.m2"}
-    mounts[env.var_zenoss.strpath] = "/var/zenoss"
+
+    mounts = {
+        envvars["SRCROOT"]: "/mnt/src",
+        env.buildroot: "/mnt/build",
+        envvars["HOME"]: "/home/zenoss/.m2",
+        env.var_zenoss.strpath: "/var/zenoss"
+    }
+
     image = "zendev_test"
+    run_build = not args.use_existing or \
+                (args.use_existing and not check_zendev_test())
+
     if product == 'devimg':
-        check_devimg()
-        image = "zendev/devimg"
+        image = check_devimg(env)
         mounts[os.path.join(envvars["ZENHOME"])] = "/opt/zenoss"
-    elif not args.use_existing or (args.use_existing and not check_zendev_test()):
-        # Run a build
+    elif run_build:
         envvars['DEVIMG_SYMLINK'] = ''
         envvars['devimg_MOUNTS'] = ''
-        envvars['devimg_TAGNAME'] = 'zendev_test'
-        envvars['devimg_CONTAINER'] = 'zendev_test'
+        envvars['devimg_TAGNAME'] = image
+        envvars['devimg_CONTAINER'] = image
         envvars['ZENPACKS'] = ' '.join(get_packs(env, product))
         with env.buildroot.as_cwd():
-            rc = subprocess.call(["make", "devimg"], env=envvars)
-            if rc > 0:
-                return rc
-        image = "zendev_test"
+            return_code = subprocess.call(["make", "devimg"], env=envvars)
+            if return_code > 0:
+                return return_code
+
     cmd = ["docker", "run", "-i", "-t", "--rm"]
-    if args.no_tty: 
+    if args.no_tty:
         cmd.remove("-t")
     for mount in mounts.iteritems():
         cmd.extend(["-v", "%s:%s" % mount])
@@ -64,9 +71,11 @@ def zen_image_tests(args, env, product=''):
         if args.zp:
             cmd.append("zenpack")
         cmd.extend(args.arguments[1:])
-    
-    print "Calling Docker with the following:"    
-    print cmd
+
+    print "Using %s image." % image
+    print "Calling Docker with the following:"
+    print " ".join(cmd)
+
     return subprocess.call(cmd)
 
 
@@ -86,9 +95,7 @@ def zep_tests(args, env):
     envvars = os.environ.copy()
     envvars.update(env.envvars())
     mounts = {envvars["SRCROOT"]: "/mnt/src", env.buildroot: "/mnt/build"}
-    image = "zendev_test"
-    check_devimg()
-    image = "zendev/devimg"
+    image = check_devimg(env)
     mounts[os.path.join(envvars["HOME"], ".m2")] = "/home/zenoss/.m2"
     mounts[os.path.join(envvars["ZENHOME"])] = "/opt/zenoss"
 
@@ -121,6 +128,8 @@ def test(args, env):
         rc = zen_image_tests(args, env, product='resmgr')
     elif args.ucspm:
         rc = zen_image_tests(args, env, product='ucspm')
+    elif args.nfvi:
+        rc = zen_image_tests(args, env, product='nfvi')
     elif args.core or args.zp:
         rc = zen_image_tests(args, env)
     rcs.append(rc)
@@ -156,6 +165,9 @@ def add_commands(subparsers):
     test_parser.add_argument('-p', '--zenoss-ucspm', action="store_true",
             help="Build a ucspm image and run Zenoss unit tests",
             dest="ucspm", default=False)
+    test_parser.add_argument('-n', '--zenoss-nfvi', action="store_true",
+            help="Build a nfvi image and run Zenoss unit tests",
+            dest="nfvi", default=False)
     test_parser.add_argument('-c', '--zenoss-core', action="store_true",
             help="Build a core image and run Zenoss unit tests",
             dest="core", default=False)

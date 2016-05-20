@@ -57,7 +57,7 @@ def handle_GitCommandError (fn, repo):
         # Convert GitCommandError so that multiprocessing.apply_async
         #  can handle it normally
         msg = "Error executing '{}' on {}\n{}".format(
-                ' '.join(e.command), repo.path, e.stderr) 
+                ' '.join(e.command), repo.path, e.stderr)
         raise RuntimeError(msg)
 
 
@@ -106,12 +106,12 @@ class ZenDevEnvironment(object):
         self.name = name
         self._config = cfg_dir
         self._root = py.path.local(cfg_dir.dirname)
-        self._srcroot = (py.path.local(srcroot).ensure(dir=True) if srcroot 
+        self._srcroot = (py.path.local(srcroot).ensure(dir=True) if srcroot
                 else self._root.ensure('src', dir=True))
         self._gopath = self._srcroot.ensure('golang', dir=True)
         self._vroot = self._root.join('vagrant')
         self._croot = self._vroot.join('clusters')
-        self._zenhome = (py.path.local(zenhome).ensure(dir=True) if zenhome 
+        self._zenhome = (py.path.local(zenhome).ensure(dir=True) if zenhome
                 else self._root.ensure('zenhome', dir=True))
         self._var_zenoss = (py.path.local(var_zenoss).ensure(dir=True) if var_zenoss
                 else self._root.ensure('var_zenoss', dir=True))
@@ -132,14 +132,18 @@ class ZenDevEnvironment(object):
         manifest.repos().setdefault(buildrepo_dir, buildrepo_data)
 
     def envvars(self):
-        origpath = os.environ.get('ZD_ORIGPATH', os.environ.get('PATH'))
+        origpath = os.environ.get('PATH')
+        previousMod = os.environ.get('ZD_PATH_MOD', "")
+        if len(previousMod) > 0:
+            origpath = origpath.replace(previousMod, "")
+        newMod = "%s/bin:%s/bin:" % (self._gopath, self._zenhome)
         return {
             "ZENHOME": self._zenhome.strpath,
             "SRCROOT": self._srcroot.strpath,
             "GOPATH": self._gopath.strpath,
             "GOBIN": self._gopath.strpath + "/bin",
-            "ZD_ORIGPATH": origpath,
-            "PATH":"%s/bin:%s/bin:%s" % (self._gopath, self._zenhome, origpath)
+            "ZD_PATH_MOD": newMod,
+            "PATH":"%s%s" % (newMod, origpath)
         }
 
     def _export_env(self):
@@ -220,7 +224,7 @@ class ZenDevEnvironment(object):
         """
         Get Repository objects for all repos in the system.
         """
-        return sorted(itertools.ifilter(filter_, self._repos()), 
+        return sorted(itertools.ifilter(filter_, self._repos()),
                 key=key or (lambda r:r.name.count('/')))
 
     def remove(self, filter_=None, save=True):
@@ -388,9 +392,10 @@ class ZenDevEnvironment(object):
         info("Remote changes have been merged")
         info("Up to date!")
 
-    def use(self):
+    def use(self, switch_dir=True):
         get_config().current = self.name
-        self.bash('cd "%s"' % self.root.strpath)
+        if switch_dir:
+            self.bash('cd "%s"' % self.root.strpath)
         self._export_env()
 
     def status(self, filter_=None):
@@ -445,7 +450,7 @@ class ZenDevEnvironment(object):
         info("Repositores with feature: %s" % name)
         fname = "feature/%s" % name
         ofname = "origin/feature/%s" % name
-        for r in self.repos(): 
+        for r in self.repos():
             local = fname in r.local_branches
             remote = ofname in r.remote_branches
             if local and remote:
