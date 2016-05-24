@@ -128,8 +128,8 @@ def test(args, env):
         rc = zen_image_tests(args, env, product='resmgr')
     elif args.ucspm:
         rc = zen_image_tests(args, env, product='ucspm')
-    elif args.nfvi:
-        rc = zen_image_tests(args, env, product='nfvi')
+    elif args.nfvimon:
+        rc = zen_image_tests(args, env, product='nfvimon')
     elif args.core or args.zp:
         rc = zen_image_tests(args, env)
     rcs.append(rc)
@@ -165,9 +165,9 @@ def add_commands(subparsers):
     test_parser.add_argument('-p', '--zenoss-ucspm', action="store_true",
             help="Build a ucspm image and run Zenoss unit tests",
             dest="ucspm", default=False)
-    test_parser.add_argument('-n', '--zenoss-nfvi', action="store_true",
-            help="Build a nfvi image and run Zenoss unit tests",
-            dest="nfvi", default=False)
+    test_parser.add_argument('-n', '--zenoss-nfvimon', action="store_true",
+            help="Build a nfvimon image and run Zenoss unit tests",
+            dest="nfvimon", default=False)
     test_parser.add_argument('-c', '--zenoss-core', action="store_true",
             help="Build a core image and run Zenoss unit tests",
             dest="core", default=False)
