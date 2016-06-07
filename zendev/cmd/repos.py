@@ -157,9 +157,9 @@ def add_commands(subparsers):
     add_repo_narg(status_parser)
     status_parser.set_defaults(functor=status)
 
-    each_parser = subparsers.add_parser('each', help='Execute a command in each repo\'s directory.')
+    each_parser = subparsers.add_parser('each', help='Execute a command in each repo\'s directory.', usage='%(prog)s <command> [-r|--repo [REPO [REPO ...]]]')
     each_parser.add_argument('-r', '--repo', dest="repos", nargs='*')
-    each_parser.add_argument('command', nargs="*")
+    each_parser.add_argument('command', nargs="+")
     each_parser.set_defaults(functor=each)
 
     cd_parser = subparsers.add_parser('cd', help='Change working directory to a repo')
