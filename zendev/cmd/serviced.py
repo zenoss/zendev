@@ -11,7 +11,7 @@ import py.path
 import requests
 from vagrantManager import VagrantManager
 from ..log import info
-from ..utils import get_ip_address
+from ..utils import get_ip_address, rename_tmux_window
 
 class Serviced(object):
 
@@ -49,6 +49,7 @@ class Serviced(object):
 
     def start(self, root=False, uiport=443, arguments=None, registry=False, cluster_master=False, image=None):
         print "Starting serviced..."
+        rename_tmux_window("serviced")
         self.uiport = uiport
         args = []
         envvars = self.env.envvars()
@@ -328,6 +329,7 @@ def run_serviced(args, env):
 
 
 def attach(args, env):
+    rename_tmux_window(args.specifier)
     subprocess.call("serviced service attach '%s'; stty sane" % args.specifier, shell=True)
 
 
@@ -337,6 +339,8 @@ def devshell(args, env):
     """
     env = env()
     _serviced = env._gopath.join("bin/serviced").strpath
+
+    rename_tmux_window("devshell")
 
     command = "su - zenoss"
     if args.command:
