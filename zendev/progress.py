@@ -47,7 +47,10 @@ class SimpleGitProgressBar(RemoteProgress):
             self.bar = progress(self.name, _translate(op_code), max_count,
                     just=len(self.name))
             self.bar.start()
-        self.bar.update(int(cur_count))
+        cur_count = int(cur_count)
+        if (cur_count > self.bar.maxval):
+            self.bar.maxval = cur_count
+        self.bar.update(cur_count)
 
 
 class GitProgressBar(object):
@@ -71,8 +74,10 @@ class GitProgressBar(object):
             self.bar = progress(self.name, _translate(op_code), max_count,
                     just=self.justification)
             py.io.StdCaptureFD.call(self.bar.start)
+        cur_count = int(cur_count)
+        if (cur_count > self.bar.maxval):
+            self.bar.maxval = cur_count
         res, out, err = py.io.StdCaptureFD.call(
-                self.bar.update, int(cur_count))
+            self.bar.update, cur_count)
         if err:
             self._err = err
-
