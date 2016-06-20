@@ -6,6 +6,7 @@ import tempfile
 import uuid
 import py
 from ..log import error
+from ..utils import rename_tmux_window
 
 packlists = {
         'resmgr': 'pkg/zenoss_resmgr_zenpacks.mk',
@@ -14,6 +15,7 @@ packlists = {
     }
 
 def build(args, env):
+    rename_tmux_window("build")
     if "impact-devimg" in args.target:
         build_impact(args, env)
     elif "analytics-devimg" in args.target:

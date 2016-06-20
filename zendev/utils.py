@@ -7,6 +7,7 @@ import json
 import socket
 import requests
 from termcolor import colored as colored_orig
+import subprocess
 
 _COLORS = not os.environ.get("ZENDEV_COLORS", '').lower() in ('0', 'false', 'no', 'none')
 
@@ -123,3 +124,12 @@ def get_ip_address():
         return None
     finally:
         del s
+
+
+def rename_tmux_window(name=None):
+    """
+    Inside tmux renames current window.
+    """
+    if os.environ.get("TMUX") and name:
+        subprocess.call("tmux rename-window {} >/dev/null 2>&1".format(name), shell=True)
+
