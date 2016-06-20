@@ -367,6 +367,15 @@ def devshell(args, env):
         )
     subprocess.call(cmd, shell=True)
 
+
+def ServicesCompleter(prefix, **kwargs):
+    cmd = "serviced service list --show-fields 'Inst, Name' | awk '$1 + 0 > 0 { print tolower($2) }'"
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    out, _ = p.communicate()
+    prefix = prefix.lower()
+    return (v for v in out.splitlines() if v.startswith(prefix))
+
+
 def add_commands(subparsers):
     serviced_parser = subparsers.add_parser('serviced', help='Run serviced')
     serviced_parser.add_argument('-r', '--root', action='store_true',
@@ -404,7 +413,8 @@ def add_commands(subparsers):
 
     attach_parser = subparsers.add_parser('attach', help='Attach to serviced container')
     attach_parser.add_argument('specifier', metavar="SERVICEID|SERVICENAME|DOCKERID",
-                               help="Attach to a container matching SERVICEID|SERVICENAME|DOCKERID in service instances")
+                               help="Attach to a container matching SERVICEID|SERVICENAME|DOCKERID in service instances"
+                               ).completer = ServicesCompleter
     attach_parser.set_defaults(functor=attach)
 
     devshell_parser = subparsers.add_parser('devshell', help='Start a development shell')
