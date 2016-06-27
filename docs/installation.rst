@@ -72,7 +72,7 @@ Ubuntu
     .. code-block:: bash
 
         # Install lvm tools
-        sudo apt-get install lvm2
+        sudo apt-get install lvm2 thin-provisioning-tools
 
 
     The development machine you were provided should have a second hard drive
