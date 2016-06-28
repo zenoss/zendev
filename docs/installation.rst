@@ -140,6 +140,7 @@ Ubuntu
 	# addresses of the zenoss DNS servers
 	sudo sh -c "cat >/etc/default/docker << EOL
 	DOCKER_OPTS=\"--storage-driver=devicemapper --storage-opt dm.thinpooldev=$LV_DMPATH --dns 10.87.113.13 --dns 10.88.102.13\"
+	DOCKER_TASKS_MAX=infinity
 	EOL"
 
 	# Add the environment file to the docker service
@@ -147,6 +148,9 @@ Ubuntu
 
 	# Add DOCKER_OPTS to the docker startup command
 	sudo sed -i 's~ExecStart.*$~& $DOCKER_OPTS~' /lib/systemd/system/docker.service 
+
+	# Use DOCKER_TASKS_MAX to set the tasks limit
+	sudo sed -i 's~ExecStart.*~&\nTasksMax=$DOCKER_TASKS_MAX~' /lib/systemd/system/docker.service 
 
 	# Stop docker
 	sudo systemctl stop docker
