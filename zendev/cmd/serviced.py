@@ -199,7 +199,7 @@ class Serviced(object):
         stdout, _ = proc.communicate()
         print "Compiled new template"
 
-        compiled=json.loads(stdout);
+        compiled=json.loads(stdout)
         self.walk_services(compiled['Services'], self.zope_debug)
         if template and ('ucspm' in template or 'resmgr' in template or 'nfvimon' in template):
             self.walk_services(compiled['Services'], self.remove_catalogservice)
@@ -367,6 +367,28 @@ def devshell(args, env):
         )
     subprocess.call(cmd, shell=True)
 
+
+def _compile_template(serviced, template, image=None):
+    template = serviced.compile_template(template, serviced.get_zenoss_image(image))
+    return template
+
+
+def compile_template(args, env):
+    # Temporarily redirect stdout to /dev/null to avoid any messages in compiled template
+    f = open(os.devnull, 'w')
+    stdout, sys.stdout = sys.stdout, f
+    try:
+        s = Serviced(env())
+        t = _compile_template(s, args.template, args.image)
+    except (Exception,):
+        pass
+    else:
+        sys.stdout = stdout
+        sys.stdout.write(t)
+    finally:
+        f.close()
+
+
 def add_commands(subparsers):
     serviced_parser = subparsers.add_parser('serviced', help='Run serviced')
     serviced_parser.add_argument('-r', '--root', action='store_true',
@@ -401,6 +423,11 @@ def add_commands(subparsers):
                                  help="UI port")
     serviced_parser.add_argument('arguments', nargs=argparse.REMAINDER)
     serviced_parser.set_defaults(functor=run_serviced)
+
+    compile_parser = subparsers.add_parser('compile', help='Compile template')
+    compile_parser.add_argument('--image', help="Zenoss image to use when compiling template", default='zendev/devimg')
+    compile_parser.add_argument('template')
+    compile_parser.set_defaults(functor=compile_template)
 
     attach_parser = subparsers.add_parser('attach', help='Attach to serviced container')
     attach_parser.add_argument('specifier', metavar="SERVICEID|SERVICENAME|DOCKERID",
