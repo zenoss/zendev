@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 
@@ -15,7 +16,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
+        URL_ROOT:    '',
         VERSION:     '0.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -36,7 +37,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -124,13 +125,13 @@ the environment&#8217;s source tree. This is, in effect, the new Zenoss build sy
 <h2>Building from Source<a class="headerlink" href="#building-from-source" title="Permalink to this headline">¶</a></h2>
 <p>This should (currently) only be attempted on the provided Fedora base box.
 Simply issue the command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>zendev build srcbuild
+<div class="highlight-bash"><div class="highlight"><pre>zendev build srcbuild
 </pre></div>
 </div>
-<p>Since zendev already set up <code class="docutils literal"><span class="pre">ZENHOME</span></code> to <code class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/zenhome</span></code>, that&#8217;s
+<p>Since zendev already set up <tt class="docutils literal"><span class="pre">ZENHOME</span></tt> to <tt class="docutils literal"><span class="pre">$(zendev</span> <span class="pre">root)/zenhome</span></tt>, that&#8217;s
 where it will end up.</p>
 <p>Although Zenoss will be built using the environment&#8217;s source tree, zendev does
-NOT currently symlink Products/bin from the source tree into <code class="docutils literal"><span class="pre">$ZENHOME</span></code>,
+NOT currently symlink Products/bin from the source tree into <tt class="docutils literal"><span class="pre">$ZENHOME</span></tt>,
 a common development environment practice. Contributions welcome.</p>
 </div>
 <div class="section" id="building-rpms">
@@ -138,14 +139,14 @@ a common development environment practice. Contributions welcome.</p>
 <p>The only requirement to build RPMs is Docker. zendev will create a Docker image
 that can build an RPM, mount the appropriate source directories, build the RPM,
 and copy it to an output directory mounted from the host.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Build Core (+ core ZenPacks)</span>
-<span class="c1"># Make sure you have necessary repos (first time only)</span>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Build Core (+ core ZenPacks)</span>
+<span class="c"># Make sure you have necessary repos (first time only)</span>
 zendev add <span class="k">$(</span>zendev root<span class="k">)</span>/build/manifests/<span class="o">{</span>core,zenpacks.core<span class="o">}</span>.json
 zendev sync
 zendev build --clean core
 
-<span class="c1"># Build RM (Core + ZenPacks).</span>
-<span class="c1"># Make sure you have necessary repos (first time only)</span>
+<span class="c"># Build RM (Core + ZenPacks).</span>
+<span class="c"># Make sure you have necessary repos (first time only)</span>
 zendev add <span class="k">$(</span>zendev root<span class="k">)</span>/build/manifests/<span class="o">{</span>core,zenpacks.core,zenpacks.commercial<span class="o">}</span>.json
 zendev sync
 zendev build --clean resmgr
@@ -154,31 +155,31 @@ zendev build --clean resmgr
 </div>
 <div class="section" id="clean-builds">
 <h2>Clean Builds<a class="headerlink" href="#clean-builds" title="Permalink to this headline">¶</a></h2>
-<p>Passing <code class="docutils literal"><span class="pre">--clean</span></code> to <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">build</span></code> will run <code class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></code> in the build
+<p>Passing <tt class="docutils literal"><span class="pre">--clean</span></tt> to <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">build</span></tt> will run <tt class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></tt> in the build
 directory before running the build, which might be necessary to pull in
 repositories you&#8217;ve synced.</p>
 </div>
 <div class="section" id="artifact-output">
 <h2>Artifact Output<a class="headerlink" href="#artifact-output" title="Permalink to this headline">¶</a></h2>
-<p>Passing <code class="docutils literal"><span class="pre">--output</span></code> or <code class="docutils literal"><span class="pre">-o</span></code> with an argument will cause any build artifacts
+<p>Passing <tt class="docutils literal"><span class="pre">--output</span></tt> or <tt class="docutils literal"><span class="pre">-o</span></tt> with an argument will cause any build artifacts
 produced during the run to end up in the directory specified; the default is
-<code class="docutils literal"><span class="pre">$PWD/output</span></code>.</p>
+<tt class="docutils literal"><span class="pre">$PWD/output</span></tt>.</p>
 </div>
 <div class="section" id="building-from-a-different-manifest">
 <h2>Building from a different manifest<a class="headerlink" href="#building-from-a-different-manifest" title="Permalink to this headline">¶</a></h2>
 <p>zendev can build from a manifest other than your current source tree. In this
 case, it will perform a shallow clone (last commit only) of all the repos into
 a temp directory, then build the specified artifact from that.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Build from a local manifest</span>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Build from a local manifest</span>
 zendev -n build core -m /path/to/manifest.json
 
-<span class="c1"># Build from a remote manifest</span>
+<span class="c"># Build from a remote manifest</span>
 zendev -n build core -m https://dl.dropboxusercontent.com/u/784231/manifest.mf
 
-<span class="c1"># Build using source from several manifests</span>
+<span class="c"># Build using source from several manifests</span>
 zendev -n build core -m /path/to/manifest1.json http://host/manifest2.json
 
-<span class="c1"># Build from a manifest tag</span>
+<span class="c"># Build from a manifest tag</span>
 zendev -n build core -t nightly-build-123
 </pre></div>
 </div>
@@ -195,7 +196,7 @@ zendev -n build core -t nightly-build-123
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.<br/>
     </p>
   </div>
 </footer>

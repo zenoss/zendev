@@ -1,5 +1,85 @@
-zendev package
+zendev Package
 ==============
+
+:mod:`zendev` Package
+---------------------
+
+.. automodule:: zendev.__init__
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`config` Module
+--------------------
+
+.. automodule:: zendev.config
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`environment` Module
+-------------------------
+
+.. automodule:: zendev.environment
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`github` Module
+--------------------
+
+.. automodule:: zendev.github
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`log` Module
+-----------------
+
+.. automodule:: zendev.log
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`manifest` Module
+----------------------
+
+.. automodule:: zendev.manifest
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`progress` Module
+----------------------
+
+.. automodule:: zendev.progress
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`repo` Module
+------------------
+
+.. automodule:: zendev.repo
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`utils` Module
+-------------------
+
+.. automodule:: zendev.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`zendev` Module
+--------------------
+
+.. automodule:: zendev.zendev
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 Subpackages
 -----------
@@ -9,86 +89,3 @@ Subpackages
     zendev.cmd
     zendev.monkey_patch
 
-Submodules
-----------
-
-zendev.config module
---------------------
-
-.. automodule:: zendev.config
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-zendev.environment module
--------------------------
-
-.. automodule:: zendev.environment
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-zendev.github module
---------------------
-
-.. automodule:: zendev.github
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-zendev.log module
------------------
-
-.. automodule:: zendev.log
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-zendev.manifest module
-----------------------
-
-.. automodule:: zendev.manifest
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-zendev.progress module
-----------------------
-
-.. automodule:: zendev.progress
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-zendev.repo module
-------------------
-
-.. automodule:: zendev.repo
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-zendev.utils module
--------------------
-
-.. automodule:: zendev.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-zendev.zendev module
---------------------
-
-.. automodule:: zendev.zendev
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: zendev
-    :members:
-    :undoc-members:
-    :show-inheritance:

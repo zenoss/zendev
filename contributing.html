@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 
@@ -15,7 +16,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
+        URL_ROOT:    '',
         VERSION:     '0.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -34,7 +35,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -168,20 +169,17 @@ are welcome :)</li>
 <li><p class="first">Fork the <cite>zendev</cite> repo on GitHub.</p>
 </li>
 <li><p class="first">Clone your fork locally:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>$ git clone git@github.com:your_name_here/zendev.git
-</pre></div>
+<div class="highlight-python"><pre>$ git clone git@github.com:your_name_here/zendev.git</pre>
 </div>
 </li>
 <li><p class="first">Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>$ mkvirtualenv zendev
+<div class="highlight-python"><pre>$ mkvirtualenv zendev
 $ cd zendev/
-$ python setup.py develop
-</pre></div>
+$ python setup.py develop</pre>
 </div>
 </li>
 <li><p class="first">Create a branch for local development:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>$ git checkout -b name-of-your-bugfix-or-feature
-</pre></div>
+<div class="highlight-python"><pre>$ git checkout -b name-of-your-bugfix-or-feature</pre>
 </div>
 </li>
 </ol>
@@ -189,19 +187,17 @@ $ python setup.py develop
 <div>Now you can make your changes locally.</div></blockquote>
 <p>5. When you&#8217;re done making changes, check that your changes pass flake8 and the
 tests, including testing other Python versions with tox:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>  $ flake8 zendev tests
+<div class="highlight-python"><pre>  $ flake8 zendev tests
         $ python setup.py test
   $ tox
 
-To get flake8 and tox, just pip install them into your virtualenv.
-</pre></div>
+To get flake8 and tox, just pip install them into your virtualenv.</pre>
 </div>
 <ol class="arabic" start="6">
 <li><p class="first">Commit your changes and push your branch to GitHub:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>$ git add .
-$ git commit -m &quot;Your detailed description of your changes.&quot;
-$ git push origin name-of-your-bugfix-or-feature
-</pre></div>
+<div class="highlight-python"><pre>$ git add .
+$ git commit -m "Your detailed description of your changes."
+$ git push origin name-of-your-bugfix-or-feature</pre>
 </div>
 </li>
 <li><p class="first">Submit a pull request through the GitHub website.</p>
@@ -224,8 +220,7 @@ and make sure that the tests pass for all supported Python versions.</li>
 <div class="section" id="tips">
 <h2>Tips<a class="headerlink" href="#tips" title="Permalink to this headline">¶</a></h2>
 <p>To run a subset of tests:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>$ python -m unittest tests.test_zendev
-</pre></div>
+<div class="highlight-python"><pre>$ python -m unittest tests.test_zendev</pre>
 </div>
 </div>
 </div>
@@ -240,7 +235,7 @@ and make sure that the tests pass for all supported Python versions.</li>
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.<br/>
     </p>
   </div>
 </footer>

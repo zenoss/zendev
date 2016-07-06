@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 
@@ -15,7 +16,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
+        URL_ROOT:    '',
         VERSION:     '0.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -36,7 +37,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body role="document">
+  <body>
 <div class="container">
   
   <div id="navbar" class="navbar navbar-fixed-top">
@@ -119,57 +120,54 @@
 <div class="section" id="filtering-pull-requests">
 <h2>Filtering Pull Requests<a class="headerlink" href="#filtering-pull-requests" title="Permalink to this headline">¶</a></h2>
 <p><strong>Listing Pull-Requests</strong></p>
-<p><code class="docutils literal"><span class="pre">zendev</span> <span class="pre">pr</span> <span class="pre">ls</span></code> will list all open PR&#8217;s for the current user in the current repo.</p>
+<p><tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">pr</span> <span class="pre">ls</span></tt> will list all open PR&#8217;s for the current user in the current repo.</p>
 <p><strong>Listing Pull-Requests by User</strong></p>
-<p>By default, <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">pr</span> <span class="pre">ls</span></code> will list PR&#8217;s for the current user.  The <code class="docutils literal"><span class="pre">--all-users</span></code>
-argument specifies that all users should be listed.  The <code class="docutils literal"><span class="pre">--user</span></code> argument can be
+<p>By default, <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">pr</span> <span class="pre">ls</span></tt> will list PR&#8217;s for the current user.  The <tt class="docutils literal"><span class="pre">--all-users</span></tt>
+argument specifies that all users should be listed.  The <tt class="docutils literal"><span class="pre">--user</span></tt> argument can be
 used to specify a particular user; it can be repeated to specify more than one.</p>
 <p><strong>Listing Pull-Requests by Repo</strong></p>
-<p>By default, <code class="docutils literal"><span class="pre">zendev</span> <span class="pre">pr</span> <span class="pre">ls</span></code> will list PR&#8217;s for the current repo.  The <code class="docutils literal"><span class="pre">-all-repos</span></code>
-argument specifies that all repos should be listed.  The <code class="docutils literal"><span class="pre">--repo</span></code> argument can be
+<p>By default, <tt class="docutils literal"><span class="pre">zendev</span> <span class="pre">pr</span> <span class="pre">ls</span></tt> will list PR&#8217;s for the current repo.  The <tt class="docutils literal"><span class="pre">-all-repos</span></tt>
+argument specifies that all repos should be listed.  The <tt class="docutils literal"><span class="pre">--repo</span></tt> argument can be
 used to specify a particular repo; it can be repeated to specify more than one.
-When selecting repos with <code class="docutils literal"><span class="pre">--repo</span></code>, zendev does a regex match on the argument to
+When selecting repos with <tt class="docutils literal"><span class="pre">--repo</span></tt>, zendev does a regex match on the argument to
 find the repos on which to list.</p>
 <p><strong>Listing Pull-Requests by Date</strong></p>
-<p>The <code class="docutils literal"><span class="pre">--before</span></code> and <code class="docutils literal"><span class="pre">--after</span></code> arguements can be used to indicate a date range for
+<p>The <tt class="docutils literal"><span class="pre">--before</span></tt> and <tt class="docutils literal"><span class="pre">--after</span></tt> arguements can be used to indicate a date range for
 listing pull requests.  The format for the dates is YYYY-MM-DD.</p>
 <p><strong>Listing Pull-Requests by State</strong></p>
-<p>The <code class="docutils literal"><span class="pre">--state</span></code> argument indicates which states (i.e., open closed, or all) for which
+<p>The <tt class="docutils literal"><span class="pre">--state</span></tt> argument indicates which states (i.e., open closed, or all) for which
 to list ull requests.  By default it will list open pull requests only.</p>
 </div>
 <div class="section" id="output-format">
 <h2>Output Format<a class="headerlink" href="#output-format" title="Permalink to this headline">¶</a></h2>
 <p><strong>Predefined formats</strong></p>
-<p>The <code class="docutils literal"><span class="pre">--pretty</span></code> allows the specification of one of a number of predefined output formats.
-Legal values in order of increasing verbosity are <code class="docutils literal"><span class="pre">oneline</span></code>, <code class="docutils literal"><span class="pre">short</span></code>, <code class="docutils literal"><span class="pre">medium</span></code>,
-<code class="docutils literal"><span class="pre">full</span></code>, and <code class="docutils literal"><span class="pre">fuller</span></code>.  The default is to use the <code class="docutils literal"><span class="pre">short</span></code> format.</p>
+<p>The <tt class="docutils literal"><span class="pre">--pretty</span></tt> allows the specification of one of a number of predefined output formats.
+Legal values in order of increasing verbosity are <tt class="docutils literal"><span class="pre">oneline</span></tt>, <tt class="docutils literal"><span class="pre">short</span></tt>, <tt class="docutils literal"><span class="pre">medium</span></tt>,
+<tt class="docutils literal"><span class="pre">full</span></tt>, and <tt class="docutils literal"><span class="pre">fuller</span></tt>.  The default is to use the <tt class="docutils literal"><span class="pre">short</span></tt> format.</p>
 <ul class="simple">
 <li>oneline</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span></span>serviced   2524 smousa Upgrade to go1.6
-</pre></div>
+<div class="highlight-python"><pre>serviced   2524 smousa Upgrade to go1.6</pre>
 </div>
 <ul class="simple">
 <li>short</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span></span>https://github.com/control-center/serviced/pull/2524
+<div class="highlight-python"><pre>https://github.com/control-center/serviced/pull/2524
 User: smousa
-    Upgrade to go1.6
-</pre></div>
+    Upgrade to go1.6</pre>
 </div>
 <ul class="simple">
 <li>medium</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span></span>https://github.com/control-center/serviced/pull/2524
+<div class="highlight-python"><pre>https://github.com/control-center/serviced/pull/2524
 User: smousa
 Created: 2016-02-24T20:54:51Z
-    Upgrade to go1.6
-</pre></div>
+    Upgrade to go1.6</pre>
 </div>
 <ul class="simple">
 <li>full</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span></span>https://github.com/control-center/serviced/pull/2524
+<div class="highlight-python"><pre>https://github.com/control-center/serviced/pull/2524
 User: smousa
 Created: 2016-02-24T20:54:51Z
     Upgrade to go1.6
@@ -178,13 +176,12 @@ Created: 2016-02-24T20:54:51Z
     * Updated zookeeper client package (affects CC-1962)
     * Fix to metrics/cache
     * Reverse sort of TLS keys
-    * Removed (possible security?) issue with obsolete web terminal code
-</pre></div>
+    * Removed (possible security?) issue with obsolete web terminal code</pre>
 </div>
 <ul class="simple">
 <li>fuller</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span></span>https://github.com/control-center/serviced/pull/2524
+<div class="highlight-python"><pre>https://github.com/control-center/serviced/pull/2524
 User: smousa
 Created: 2016-02-24T20:54:51Z
 Updated: 2016-02-25T21:30:57Z
@@ -194,11 +191,10 @@ Updated: 2016-02-25T21:30:57Z
     * Updated zookeeper client package (affects CC-1962)
     * Fix to metrics/cache
     * Reverse sort of TLS keys
-    * Removed (possible security?) issue with obsolete web terminal code
-</pre></div>
+    * Removed (possible security?) issue with obsolete web terminal code</pre>
 </div>
 <p><strong>Custom Output Format</strong></p>
-<p>A custom output format can be specified with th <code class="docutils literal"><span class="pre">--format</span></code> argument.  The
+<p>A custom output format can be specified with th <tt class="docutils literal"><span class="pre">--format</span></tt> argument.  The
 format string is a <a class="reference external" href="https://docs.python.org/2/library/string.html#format-string-syntax">python format string</a>
 which has been augmented slightly for this usage.  Replacement field names of
 the form &#8221;.key&#8221; are treated as dictionary lookups instead of attribute
@@ -209,16 +205,15 @@ instead of &#8220;a[b][c]&#8221;.  The fields available to the format string are
 are allowed.  To specify a custom operation, surround the operation and its
 parameters in angle brackets (e.g., &lt;operation=argument,argument&gt;) and append
 it to the standard format specification string. The custom formats are
-<code class="docutils literal"><span class="pre">color</span></code>, which colorizes a field based on a color argument as defined in the
-<a class="reference external" href="https://pypi.python.org/pypi/termcolor">termcolor</a> module, and <code class="docutils literal"><span class="pre">indent</span></code>,
+<tt class="docutils literal"><span class="pre">color</span></tt>, which colorizes a field based on a color argument as defined in the
+<a class="reference external" href="https://pypi.python.org/pypi/termcolor">termcolor</a> module, and <tt class="docutils literal"><span class="pre">indent</span></tt>,
 which indents all lines of the field by the given amount.</p>
-<p>For example, the definition for the <code class="docutils literal"><span class="pre">full</span></code> format is:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>&quot;{html_url:&lt;color=yellow&gt;}\n&quot; +
-&quot;User: {user.login}\n&quot; +
-&quot;Created: {created_at}\n&quot; +
-&quot;{title:&lt;indent=4&gt;}\n\n&quot; +
-&quot;{body:&lt;indent=4&gt;}\n&quot;),
-</pre></div>
+<p>For example, the definition for the <tt class="docutils literal"><span class="pre">full</span></tt> format is:</p>
+<div class="highlight-python"><pre>"{html_url:&lt;color=yellow&gt;}\n" +
+"User: {user.login}\n" +
+"Created: {created_at}\n" +
+"{title:&lt;indent=4&gt;}\n\n" +
+"{body:&lt;indent=4&gt;}\n"),</pre>
 </div>
 </div>
 </div>
@@ -233,7 +228,7 @@ which indents all lines of the field by the given amount.</p>
     </p>
     <p>
         &copy; Copyright 2014 Zenoss.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.5.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.<br/>
     </p>
   </div>
 </footer>
