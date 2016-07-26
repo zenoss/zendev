@@ -61,7 +61,7 @@ Ubuntu
             > /etc/apt/sources.list.d/docker.list"
         sudo apt-get update
         sudo apt-get purge lxc-docker*
-        sudo apt-get install docker-engine=1.9.1-0~$(lsb_release -sc)
+        sudo apt-get install docker-engine=1.11.1-0~$(lsb_release -sc)
 
         # Lock the version of Docker so updates won't bump it to a newer version
         sudo apt-mark hold docker-engine

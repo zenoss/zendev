@@ -43,6 +43,8 @@ docs/_build
 docs/_themes
 docs/modules.rst
 docs/zendev.rst
+docs/zendev.cmd.rst
+docs/zendev.monkey_patch.rst
 
 # Vagrant
 packer_cache
