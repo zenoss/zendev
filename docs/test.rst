@@ -25,11 +25,11 @@ tests. Otherwise, a Core or Resource Manager image will be built from your
 current source to run the tests.
 
 If you want to pass arguments to the underlying test runner, specify them after
-a ``--``. e.g.:
+two double-dashes, ``-- --``. e.g.:
 
 .. code-block:: bash
 
-    $ zendev test -d -- -m Products.ZenUtils
+    $ zendev test -d -- -- -m Products.ZenUtils
 
 
 Control Center Tests
