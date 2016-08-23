@@ -3,13 +3,11 @@ import json
 import os
 import sys
 import subprocess
-import tempfile
 import time
 import re
 
 import py.path
 import requests
-from vagrantManager import VagrantManager
 from ..log import info
 from ..utils import get_ip_address, rename_tmux_window
 
@@ -57,10 +55,6 @@ class Serviced(object):
         envvars['TZ'] = os.getenv('TZ', 'UTC')
         envvars['SERVICED_MASTER'] = os.getenv('SERVICED_MASTER', '1')
         envvars['SERVICED_AGENT'] = os.getenv('SERVICED_AGENT', '1')
-        if registry or cluster_master:
-            envvars['SERVICED_REGISTRY'] = 'true'
-        if cluster_master:
-            envvars['SERVICED_OUTBOUND_IP'] = VagrantManager.VIRTUALBOX_HOST_IP
         if root:
             args.extend(["sudo", "-E"])
             args.extend("%s=%s" % x for x in envvars.iteritems())

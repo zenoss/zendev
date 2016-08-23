@@ -18,20 +18,11 @@ def init(args, _):
         except NotInitialized:
             init_config_dir()
             env = ZenDevEnvironment(name=name, path=path)
-        env.manifest.save()
         env.initialize()
         env.use()
     if args.tag:
         env.restore(args.tag)
     return env
-
-
-def clone(args, _):
-    env = ZenDevEnvironment(srcroot=args.output, manifest=args.manifest)
-    if args.tag:
-        env.restore(args.tag, shallow=args.shallow)
-    else:
-        env.clone(shallow=args.shallow)
 
 
 def use(args, env):
@@ -74,17 +65,6 @@ def add_commands(subparsers):
     drop_parser.add_argument('name', metavar='ENVIRONMENT').completer = EnvironmentCompleter
     drop_parser.add_argument('--purge', action="store_true")
     drop_parser.set_defaults(functor=drop)
-
-    clone_parser = subparsers.add_parser('clone', help='Clone an environment from a manifest')
-    clone_parser.add_argument('-t', '--tag', metavar='TAG',
-                              help="Manifest tag to restore")
-    clone_parser.add_argument('-m', '--manifest', nargs='+',
-                              metavar='MANIFEST', help="Manifest to use")
-    clone_parser.add_argument('-s', '--shallow', action='store_true',
-                              help="Only check out the most recent commit for each repo")
-    clone_parser.add_argument('output', metavar='SRCROOT',
-                              help="Target directory into which to clone")
-    clone_parser.set_defaults(functor=clone)
 
     which_parser = subparsers.add_parser('env', help='Print the current environment name')
     which_parser.set_defaults(functor=env)
