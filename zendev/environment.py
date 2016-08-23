@@ -1,12 +1,11 @@
 import os
-
 import py
 import subprocess
+import sys
 
 from .log import info, error
 from .config import get_config
 from .utils import is_git_repo, here
-
 
 CONFIG_DIR = '.zendev'
 STATUS_HEADERS = ["Path", "Branch", "Staged", "Unstaged", "Untracked"]
@@ -18,6 +17,7 @@ class NotInitialized(Exception): pass
 def call_repo_member(repo, fname):
     getattr(repo, fname)()
 
+
 def init_config_dir():
     """
     Create a config directory in PWD.
@@ -27,22 +27,22 @@ def init_config_dir():
     cfgdir = py.path.local().ensure(CONFIG_DIR, dir=True)
     return cfgdir
 
+
 def get_config_dir(path=None):
     if path is None:
         paths = py.path.local().parts(reverse=True)
     else:
         paths = [py.path.local(path)]
     for path in paths:
-       cfgdir = path.join(CONFIG_DIR, abs=1)
-       if cfgdir.check():
-           break
+        cfgdir = path.join(CONFIG_DIR, abs=1)
+        if cfgdir.check():
+            break
     else:
         raise NotInitialized()
     return cfgdir
 
 
 class ZenDevEnvironment(object):
-
     def __init__(self, name=None, path=None):
         if path:
             path = py.path.local(path)
@@ -58,6 +58,8 @@ class ZenDevEnvironment(object):
         self._gopath = self._srcroot
         self._zenhome = self._root.ensure('zenhome', dir=True)
         self._var_zenoss = self._root.ensure('var_zenoss', dir=True)
+        self._productAssembly = self._srcroot.join('github.com', 'zenoss', 'product-assembly')
+
         self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
 
     def envvars(self):
@@ -72,7 +74,7 @@ class ZenDevEnvironment(object):
             "GOPATH": self._gopath.strpath,
             "GOBIN": self._gopath.strpath + "/bin",
             "ZD_PATH_MOD": newMod,
-            "PATH":"%s%s" % (newMod, origpath)
+            "PATH": "%s%s" % (newMod, origpath)
         }
 
     def _export_env(self):
@@ -104,28 +106,37 @@ class ZenDevEnvironment(object):
         return here("..")
 
     def bash(self, command):
-        print >>self._bash, command
+        print >> self._bash, command
 
     def _ensure_product_assembly(self):
-        repodir = py.path.local(os.path.join('github.com','zenoss', 'product-assembly'))
-        if repodir.check() and not is_git_repo(repodir):
+        if self._productAssembly.check() and not is_git_repo(self._productAssembly):
             error("%s exists but isn't a git repository. Not sure "
-                  "what to do." % repodir)
+                  "what to do." % self._productAssembly.strpath)
+            sys.exit(1)
         else:
-            if not repodir.check(dir=True):
+            if not self._productAssembly.check(dir=True):
                 info("Checking out product-assembly repository")
-                github_zenoss = self.srcroot.ensure('github.com','zenoss', dir=True)
+                github_zenoss = self.srcroot.ensure('github.com', 'zenoss', dir=True)
                 github_zenoss.chdir()
                 subprocess.check_call(['git', 'clone', '--progress', 'https://github.com/zenoss/product-assembly.git'])
 
     def initialize(self):
         # Clone product-assembly directory
         self._ensure_product_assembly()
+        self.generateRepoJSON()
+
+    def generateRepoJSON(self):
+        repos_sh = self._productAssembly.join('repos.sh')
+        if not repos_sh.check():
+            error("%s does not exist" % repos_sh.strpath)
+            sys.exit(1)
+        else:
+            # run from root env dir so .repos.json is created there
+            self._root.chdir()
+            subprocess.check_call([repos_sh.strpath])
 
     def use(self, switch_dir=True):
         get_config().current = self.name
         if switch_dir:
             self.bash('cd "%s"' % self.root.strpath)
         self._export_env()
-
-
