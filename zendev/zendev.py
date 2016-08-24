@@ -3,7 +3,7 @@ import argparse
 import subprocess
 import sys
 import textwrap
-from .utils import here
+from .utils import here, colored
 
 from .environment import ZenDevEnvironment
 from .environment import NotInitialized
@@ -29,6 +29,9 @@ def parse_args():
     root_parser = subparsers.add_parser('root', help='Print root directory of the current environment')
     root_parser.set_defaults(functor=root)
 
+    ls_parser = subparsers.add_parser('ls', help='List environments')
+    ls_parser.set_defaults(functor=ls)
+
     update_parser = subparsers.add_parser('selfupdate', help='Update zendev')
     update_parser.set_defaults(functor=selfupdate)
 
@@ -53,6 +56,17 @@ def root(args, env):
 
 def bootstrap(args, env):
     print here("bootstrap.sh").strpath
+
+
+def ls(args, env):
+     """
+     Output information about repositories.
+     """
+     config = get_config()
+     cur = get_envname()
+     for env in config.environments:
+         prefix = colored('*', 'blue') if env == cur else ' '
+         print prefix, env
 
 
 def check_env(name=None, **kwargs):
