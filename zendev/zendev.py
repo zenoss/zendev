@@ -59,14 +59,14 @@ def bootstrap(args, env):
 
 
 def ls(args, env):
-     """
-     Output information about repositories.
-     """
-     config = get_config()
-     cur = get_envname()
-     for env in config.environments:
-         prefix = colored('*', 'blue') if env == cur else ' '
-         print prefix, env
+    """
+    Output information about environments.
+    """
+    config = get_config()
+    cur = get_envname()
+    for env in config.environments:
+        prefix = colored('*', 'blue') if env == cur else ' '
+        print prefix, env
 
 
 def check_env(name=None, **kwargs):
