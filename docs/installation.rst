@@ -211,44 +211,102 @@ Ubuntu
 
         docker login -u YOUR_DOCKERHUB_USERNAME -e "you@zenoss.com"
 
-#. Install Go_:
+#. Install Go_ Dependencies:
 
     .. code-block:: bash
-    
+
         # Install "go get" dependencies
         sudo apt-get install -y mercurial bzr git
-    
+
+#. Install Go_ normally (Note: Skip the section on GVM):
+
+   .. note::
+
+      This section assumes you are using Serviced version >= 1.2
+
+      Different versions of Serviced require different versions of Go.
+      You must build the correct version of Go and its associated
+      packages. If you need different versions of Go, please see the GVM
+      option below.
+
+    .. code-block:: bash
+
         # Install the Go version we are using
         sudo apt-get install -y wget curl
         curl -s https://storage.googleapis.com/golang/go1.6.linux-amd64.tar.gz | sudo tar -xzC /usr/local
-    
+
         # Set GOROOT and PATH appropriately
         cat <<\EOF | sudo bash -c "cat > /etc/profile.d/golang.sh"
             export GOROOT=/usr/local/go
             export PATH=$GOROOT/bin:$PATH
         EOF
-    
+
         # Source the new profile
         source /etc/profile.d/golang.sh
-    
+
         # Add important/useful golang things
         export GOPATH=/opt/go
-    
+
         sudo mkdir -p ${GOPATH}/{bin,pkg,src}
         sudo chown -R ${USER}:${USER} ${GOPATH}
-    
+
         go get github.com/golang/lint/golint
-        sudo ln -s ${GOPATH}/bin/golint /usr/local/bin/golint
-    
+        sudo ln -sf ${GOPATH}/bin/golint /usr/local/bin/golint
+
         go get -v github.com/rogpeppe/godef
         go install -v github.com/rogpeppe/godef
-        sudo ln -s ${GOPATH}/bin/godef /usr/local/bin/godef
-    
+        sudo ln -sf ${GOPATH}/bin/godef /usr/local/bin/godef
+
         go get -u github.com/nsf/gocode
-        sudo ln -s ${GOPATH}/bin/gocode /usr/local/bin/gocode
-    
+        sudo ln -sf ${GOPATH}/bin/gocode /usr/local/bin/gocode
+
         go get golang.org/x/tools/cmd/goimports
-        sudo ln -s ${GOPATH}/bin/goimports /usr/local/bin/goimports
+        sudo ln -sf ${GOPATH}/bin/goimports /usr/local/bin/goimports
+
+#. Install Go_ using GVM (Skip the prior section):
+
+   GVM will build and install Go locally and sets GOROOT and GOPATH.
+   It allows you to manage and use different versions of GO more easily.
+
+   Note: 
+
+      Each time you change your GVM environment you must change
+      your zendev environment as well so that GOROOT and GOPATH 
+      are consistent! See the section below on 
+      *Create your zendev environment*.
+
+    .. code-block:: bash
+
+        bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
+
+        # ------------------------------------------------------------------
+        # Install Go 1.4.2 for Serviced version <= 1.1.x
+        # ------------------------------------------------------------------
+
+        gvm install go1.4.2 --binary
+        gvm use go1.4.2
+        zendev use env_111           # See zendev environment section below
+
+        # ------------------------------------------------------------------
+        # Install Go 1.6.3 for Serviced version >= 1.2
+        # ------------------------------------------------------------------
+        gvm install go1.6.3 --binary
+        gvm use go1.6.3 --default    # Only set one default
+        zendev use env_122           # See zendev environment section below
+
+        # ------------------------------------------------------------------
+        # Setup the rest of the Go Environment
+        # ------------------------------------------------------------------
+        echo  '[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"' >> ~/.bashrc
+        source ~/.bashrc
+
+        mkdir -p ${GOPATH}/{bin,pkg,src}
+
+        go get github.com/golang/lint/golint
+        go get -v github.com/rogpeppe/godef
+        go install -v github.com/rogpeppe/godef
+        go get -u github.com/nsf/gocode
+        go get golang.org/x/tools/cmd/goimports
 
 #. Install other dependencies:
 
@@ -320,6 +378,7 @@ Ubuntu
     
         # Source it in the current shell
         source $(zendev bootstrap)
+
 
 #. Create your zendev environment:
 
