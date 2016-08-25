@@ -300,8 +300,6 @@ Ubuntu
         echo  '[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"' >> ~/.bashrc
         source ~/.bashrc
 
-        mkdir -p ${GOPATH}/{bin,pkg,src}
-
         go get github.com/golang/lint/golint
         go get -v github.com/rogpeppe/godef
         go install -v github.com/rogpeppe/godef
