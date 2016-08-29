@@ -105,6 +105,10 @@ class ZenDevEnvironment(object):
     def zendev(self):
         return here("..")
 
+    @property
+    def productAssembly(self):
+        return self._productAssembly
+
     def bash(self, command):
         print >> self._bash, command
 

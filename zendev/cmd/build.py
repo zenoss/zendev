@@ -1,0 +1,51 @@
+import py
+import subprocess
+import sys
+
+from ..environment import ZenDevEnvironment, init_config_dir, NotInitialized
+from ..config import get_config
+from ..log import info, error
+
+
+def build(args, env):
+    """
+    Build a Zenoss Product the same way the nightly build does.
+    """
+
+    targetDir = env().productAssembly.join(args.target_product)
+    if not targetDir.check():
+        error("%s does not exist" % targetDir.strpath)
+        sys.exit(1)
+
+    # This is just a simple sanity check to avoid building from subdirectories
+    # of product-assembly which are NOT actually product directories
+    zenpackManifestFile = targetDir.join("zenpacks.json")
+    if not zenpackManifestFile.check():
+        error("Target product '%s' does not appear to be a valid product. Could not find %s" % (args.target_product, zenpackManifestFile.strpath))
+        sys.exit(1)
+
+    productBase = env().productAssembly.join("product-base")
+    cmdArgs = ['make']
+    if args.clean:
+        cmdArgs.append('clean')
+    cmdArgs.append('build')
+
+    print "Building product-base ..."
+    print "cd %s" % productBase.strpath
+    productBase.chdir()
+    print " ".join(cmdArgs)
+    subprocess.check_call(cmdArgs)
+
+    print "Building %s" % args.target_product
+    print "cd %s" % targetDir.strpath
+    targetDir.chdir()
+    print " ".join(cmdArgs)
+    subprocess.check_call(cmdArgs)
+
+def add_commands(subparsers):
+    build_parser = subparsers.add_parser('build', help='Build Zenoss')
+    build_parser.add_argument('-c', '--clean', action="store_true", default=False,
+                              help='Delete any existing images before building')
+    build_parser.add_argument('target_product', metavar="TARGET",
+                               help='Name of the target product to build; e.g. core, resmgr, etc')
+    build_parser.set_defaults(functor=build)
