@@ -56,7 +56,7 @@ def add_commands(subparsers):
     init_parser.add_argument('-t', '--tag', metavar="TAG", required=False)
     init_parser.set_defaults(functor=init)
 
-    use_parser = subparsers.add_parser('use', help='Switch to an environemtn')
+    use_parser = subparsers.add_parser('use', help='Switch to an environment')
     use_parser.add_argument('name', metavar='ENVIRONMENT').completer = EnvironmentCompleter
     use_parser.add_argument('--no-switch', action="store_true")
     use_parser.set_defaults(functor=use)

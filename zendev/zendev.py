@@ -8,7 +8,7 @@ from .utils import here, colored
 from .environment import ZenDevEnvironment
 from .environment import NotInitialized
 
-from .cmd import serviced, environment, build
+from .cmd import serviced, environment, build, devimg
 
 from .config import get_config, get_envname
 
@@ -42,6 +42,7 @@ def parse_args():
     environment.add_commands(subparsers)
     serviced.add_commands(subparsers)
     build.add_commands(subparsers)
+    devimg.add_commands(subparsers)
 
     argcomplete.autocomplete(parser)
 
