@@ -8,7 +8,7 @@ from .utils import here, colored
 from .environment import ZenDevEnvironment
 from .environment import NotInitialized
 
-from .cmd import serviced, environment
+from .cmd import serviced, environment, build, devimg
 
 from .config import get_config, get_envname
 
@@ -35,9 +35,14 @@ def parse_args():
     update_parser = subparsers.add_parser('selfupdate', help='Update zendev')
     update_parser.set_defaults(functor=selfupdate)
 
+    build_parser = subparsers.add_parser('build', help='Build Zenoss')
+    build_parser.set_defaults(functor=build)
+
     # Add sub commands here
     environment.add_commands(subparsers)
     serviced.add_commands(subparsers)
+    build.add_commands(subparsers)
+    devimg.add_commands(subparsers)
 
     argcomplete.autocomplete(parser)
 
@@ -67,7 +72,6 @@ def ls(args, env):
     for env in config.environments:
         prefix = colored('*', 'blue') if env == cur else ' '
         print prefix, env
-
 
 def check_env(name=None, **kwargs):
     envname = name or get_envname()
