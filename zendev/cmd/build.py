@@ -92,17 +92,21 @@ def build_impact(args, env):
     impact_src_image = args.impact_image
     impact_dst_image = 'zendev/impact-devimg'
     container_id='impact_devimg_'+uuid.uuid1().hex
-    # TODO: embedding the version number in the link means that we have do rebuild the image
+    pom_file = env().srcroot.strpath + '/impact/impact-server/model-adapters-common/pom.xml'
+    command = r"sed -n 's~\s*<version>\([^<]*\)</version>~\1~p' " + pom_file
+    version=subprocess.check_output(command, shell=True)
+    # TODO: embedding the version number in the link means that we have to rebuild the image
     #  if the version changes.  Better if the pom.xml set up a non-versioned symlink to the
     #  versioned file; then this could link to the non-versioned symlink.
     startup="""
         SRC=/mnt/src/impact/impact-server
         DST=/opt/zenoss_impact
-        VSN=5.0.70.0.0-SNAPSHOT
+        VSN=%s
         ln -fs $SRC/zenoss-dsa/target/impact-server.war $DST/webapps/impact-server.war
+        find $DST/lib/adapters/ -name model-adapters\*.jar | xargs rm
         ln -fs $SRC/model-adapters-common/target/model-adapters-common-$VSN.jar $DST/lib/adapters
         ln -fs $SRC/model-adapters-zenoss/target/model-adapters-zenoss-$VSN.jar $DST/lib/adapters/zenoss
-    """
+    """ % (version, )
     with tempfile.NamedTemporaryFile() as f:
         f.write(startup)
         f.flush()
