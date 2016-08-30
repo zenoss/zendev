@@ -100,8 +100,8 @@ def build_impact(args, env):
         DST=/opt/zenoss_impact
         VSN=5.0.70.0.0-SNAPSHOT
         ln -fs $SRC/zenoss-dsa/target/impact-server.war $DST/webapps/impact-server.war
-        ln -fs $SRC/model-adapters-common/target/model-adapters-common-$VSN.jar $DST/lib/ext/adapters
-        ln -fs $SRC/model-adapters-zenoss/target/model-adapters-zenoss-$VSN.jar $DST/lib/ext/adapters/zenoss
+        ln -fs $SRC/model-adapters-common/target/model-adapters-common-$VSN.jar $DST/lib/adapters
+        ln -fs $SRC/model-adapters-zenoss/target/model-adapters-zenoss-$VSN.jar $DST/lib/adapters/zenoss
     """
     with tempfile.NamedTemporaryFile() as f:
         f.write(startup)
