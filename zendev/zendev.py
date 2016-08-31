@@ -11,7 +11,7 @@ from .environment import NotInitialized
 from .cmd import serviced, environment, build, devimg
 
 from .config import get_config, get_envname
-
+from .log import error
 
 def parse_args():
     epilog = textwrap.dedent('''
@@ -35,14 +35,11 @@ def parse_args():
     update_parser = subparsers.add_parser('selfupdate', help='Update zendev')
     update_parser.set_defaults(functor=selfupdate)
 
-    build_parser = subparsers.add_parser('build', help='Build Zenoss')
-    build_parser.set_defaults(functor=build)
-
     # Add sub commands here
-    environment.add_commands(subparsers)
-    serviced.add_commands(subparsers)
     build.add_commands(subparsers)
     devimg.add_commands(subparsers)
+    environment.add_commands(subparsers)
+    serviced.add_commands(subparsers)
 
     argcomplete.autocomplete(parser)
 
@@ -71,7 +68,11 @@ def ls(args, env):
     cur = get_envname()
     for env in config.environments:
         prefix = colored('*', 'blue') if env == cur else ' '
-        print prefix, env
+        envDetails =  config.environments[env]
+        suffix = '(zendev1)'
+        if 'version' in envDetails and envDetails['version'] == 'zendev2':
+            suffix = '(zendev2)'
+        print prefix, env, suffix
 
 def check_env(name=None, **kwargs):
     envname = name or get_envname()
@@ -88,9 +89,28 @@ def check_env(name=None, **kwargs):
         error("Not a zendev environment. Run 'zendev init' first.")
         sys.exit(1)
 
+#
+# A whitelist of all of commands which are allowed in all implementations of zendev.
+#
+all_env_whitelist = [
+    "env",
+    "ls",
+    "root",
+    "selfupdate",
+    "use"
+]
+
+def validate_cmd_env(args):
+    if any(args.subparser in s for s in all_env_whitelist):
+        return True
+    config = get_config()
+    return config.validate(config.current)
 
 def main():
     args = parse_args()
+    if not validate_cmd_env(args):
+        sys.exit(1)
+
     args.functor(args, check_env)
 
 

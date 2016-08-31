@@ -1,5 +1,6 @@
 import json
 import py
+import sys
 
 from .log import info, error
 
@@ -62,10 +63,26 @@ class ZendevConfig(object):
                     error("Environment {name} removed, but unable to remove data at {path}.".format(**locals()))
             self.save()
 
+    def validate(self, envName):
+        if not envName:
+            return True
+
+        if not self.exists(envName):
+            error("Environment '%s' is not defined" % envName)
+            return False
+
+        env = self.environments[envName]
+        if not 'version' in env or env['version'] != "zendev2":
+            error("Environment '%s' is not compatible with zendev2" % envName)
+            return False
+
+        return True
+
 
 def get_config():
     zendevhome = py.path.local(CONFIG_DIR, expanduser=True).ensure(dir=True)
     config = ZendevConfig(zendevhome.join('environments.json'))
+
     config.save()
     return config
 
