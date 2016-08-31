@@ -46,7 +46,7 @@ class ZendevConfig(object):
     def add(self, name, path):
         path = py.path.local(path)
         if not self.exists(name):
-            self.environments[name] = {'path': path.strpath}
+            self.environments[name] = {'path': path.strpath, 'version': 'zendev2'}
             self.save()
 
     def remove(self, name, keepdata=True):

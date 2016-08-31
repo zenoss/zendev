@@ -94,6 +94,7 @@ def check_env(name=None, **kwargs):
 #
 all_env_whitelist = [
     "env",
+    "init,"
     "ls",
     "root",
     "selfupdate",
