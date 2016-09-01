@@ -69,9 +69,9 @@ def ls(args, env):
     for env in config.environments:
         prefix = colored('*', 'blue') if env == cur else ' '
         envDetails =  config.environments[env]
-        suffix = '(zendev1)'
-        if 'version' in envDetails and envDetails['version'] == 'zendev2':
-            suffix = '(zendev2)'
+        suffix = '(v1)'
+        if 'version' in envDetails:
+            suffix = '(%s)' % envDetails['version']
         print prefix, env, suffix
 
 def check_env(name=None, **kwargs):

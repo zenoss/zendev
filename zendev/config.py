@@ -7,6 +7,9 @@ from .log import info, error
 CONFIG_DIR = "~/.zendev"
 
 
+ZENDEV_VERSION = "v2"
+
+
 class ZendevConfig(object):
     def __init__(self, path):
         self._path = py.path.local(path)
@@ -46,7 +49,7 @@ class ZendevConfig(object):
     def add(self, name, path):
         path = py.path.local(path)
         if not self.exists(name):
-            self.environments[name] = {'path': path.strpath, 'version': 'zendev2'}
+            self.environments[name] = {'path': path.strpath, 'version': ZENDEV_VERSION}
             self.save()
 
     def remove(self, name, keepdata=True):
@@ -72,8 +75,8 @@ class ZendevConfig(object):
             return False
 
         env = self.environments[envName]
-        if not 'version' in env or env['version'] != "zendev2":
-            error("Environment '%s' is not compatible with zendev2" % envName)
+        if not 'version' in env or env['version'] != ZENDEV_VERSION:
+            error("Environment '%s' is not compatible with zendev version %s" % (envName, ZENDEV_VERSION))
             return False
 
         return True
