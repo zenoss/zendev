@@ -18,7 +18,7 @@ class Serviced(object):
 
     def __init__(self, env):
         self.env = env
-        self.serviced = self.env._gopath.join("bin/serviced").strpath
+        self.serviced = self.env.gopath.join("bin/serviced").strpath
         self.uiport = None
 
     def get_zenoss_image(self, zenoss_image):
@@ -45,7 +45,7 @@ class Serviced(object):
         print "Cleaning state"
         subprocess.call("sudo rm -rf %s/*" % self.varpath.strpath, shell=True)
 
-    def start(self, root=False, uiport=443, arguments=None, registry=False, cluster_master=False, image=None):
+    def start(self, root=False, uiport=443, arguments=None, image=None):
         print "Starting serviced..."
         rename_tmux_window("serviced")
         self.uiport = uiport
@@ -62,7 +62,7 @@ class Serviced(object):
         args.extend([self.serviced,
             "--mount", "%s,%s,/home/zenoss/.m2" % (devimg, py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)),
             "--mount", "%s,%s,/opt/zenoss" % (devimg, self.env.root.join("zenhome").strpath),
-            "--mount", "%s,%s,/mnt/src" % (devimg, self.env.root.join("src").strpath),
+            "--mount", "%s,%s,/mnt/src" % (devimg, self.env.root.join("src/github.com/zenoss").strpath),
             "--mount", "%s,%s,/var/zenoss" % (devimg, self.env.var_zenoss.strpath),
             "--mount", "zendev/impact-devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
             "--uiport", ":%d" % uiport,
@@ -163,24 +163,27 @@ class Serviced(object):
             self.walk_services(svc['Services'], visitor)
 
     def get_template_path(self, template=None):
-        tplpath = None
         if template is None:
-            tplpath = self.env.srcroot.join("service/services/Zenoss.core")
+            tplpath = self.zenoss_service_dir.join('services', 'Zenoss.core')
         else:
             tentative = py.path.local(template)
             if tentative.exists():
                 tplpath = tentative
             else:
-                tplpath = self.env.srcroot.join("service/services/" + template)
+                tplpath = self.zenoss_service_dir.join(template)
         return tplpath
+
+    @property
+    def zenoss_service_dir(self):
+        return self.env.srcroot.join('github.com/zenoss/zenoss-service/')
 
     def compile_template(self, template, image):
         tplpath = self.get_template_path(template).strpath
         print "Compiling template", tplpath
-        serviceMakefile = self.env.srcroot.join("service/makefile")
-        hbaseVersion = subprocess.check_output("awk -F= '/^hbase_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
-        hdfsVersion = subprocess.check_output("awk -F= '/^hdfs_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
-        opentsdbVersion = subprocess.check_output("awk -F= '/^opentsdb_VERSION/ { print $NF }' %s | sed 's/^\s*//g;s/\s*$//g'" % serviceMakefile, shell=True).strip()
+        versionsFile = self.env.productAssembly.join("versions.mk")
+        hbaseVersion = subprocess.check_output("awk -F= '/^HBASE_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
+        hdfsVersion = subprocess.check_output("awk -F= '/^HDFS_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
+        opentsdbVersion = subprocess.check_output("awk -F= '/^OPENTSDB_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
         print "Detected hbase version in makefile is %s" % hbaseVersion
         print "Detected opentsdb version in makefile is %s" % opentsdbVersion
         if hbaseVersion == "" or opentsdbVersion == "":
@@ -259,15 +262,13 @@ class Serviced(object):
 
 def run_serviced(args, env):
     timeout = 600
-    _serviced = Serviced(env())
+    environ = env()
+    _serviced = Serviced(environ)
     if args.reset:
         _serviced.reset()
     if args.arguments and args.arguments[0] == '--':
         args.arguments = args.arguments[1:]
-    if args.root:
-        print >> sys.stderr, "--root is deprecated, as it is now the default. See --no-root."
-    _serviced.start(not args.no_root, args.uiport, args.arguments, args.with_docker_registry,
-            args.cluster_master, args.image)
+    _serviced.start(not args.no_root, args.uiport, args.arguments, args.image)
     try:
         wait_for_ready = not args.skip_ready_wait
         while wait_for_ready and not _serviced.is_ready():
@@ -277,6 +278,8 @@ def run_serviced(args, env):
             print "Not ready yet (countdown:%d). Checking again in 1 second." % timeout
             time.sleep(1)
             timeout -= 1
+        
+
         if wait_for_ready:
             print "serviced is ready!"
 
@@ -288,7 +291,7 @@ def run_serviced(args, env):
                 _serviced.add_host(ipAddr + ":4979")
 
             if args.deploy_ana:
-                args.template=env().srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
+                args.template=environ.srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
 
             deploymentId = 'zendev-zenoss' if not args.deploy_ana else 'ana'
 
@@ -367,8 +370,6 @@ def devshell(args, env):
 
 def add_commands(subparsers):
     serviced_parser = subparsers.add_parser('serviced', help='Run serviced')
-    serviced_parser.add_argument('-r', '--root', action='store_true',
-                                 help="Run serviced as root (DEPRECATED. Currently ignored; see --no-root)")
     serviced_parser.add_argument('--deploy_ana', action='store_true',
                                  help="Add only analytics service definitions and deploy an instance")
     serviced_parser.add_argument('-d', '--deploy', action='store_true',
@@ -411,4 +412,5 @@ def add_commands(subparsers):
     devshell_parser.add_argument('-s', '--service', default='zope', help="run serviced shell for service")
     devshell_parser.add_argument('command', nargs=argparse.REMAINDER, metavar='COMMAND')
     devshell_parser.set_defaults(functor=devshell)
+
 
