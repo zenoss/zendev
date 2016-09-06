@@ -127,7 +127,8 @@ class ZenDevEnvironment(object):
 
     def _initializeJig(self):
         self._srcroot.chdir()
-        subprocess.check_call(['jig', 'init'])
+        if not self._srcroot.join(".jig").check():
+            subprocess.check_call(['jig', 'init'])
 
     def initialize(self):
         # Clone product-assembly directory
