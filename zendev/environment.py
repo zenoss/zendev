@@ -55,7 +55,7 @@ class ZenDevEnvironment(object):
         self._config = cfg_dir
         self._root = py.path.local(cfg_dir.dirname)
         self._srcroot = self._root.ensure('src', dir=True)
-        self._gopath = self._srcroot
+        self.gopath = self._root
         self._zenhome = self._root.ensure('zenhome', dir=True)
         self._var_zenoss = self._root.ensure('var_zenoss', dir=True)
         self._productAssembly = self._srcroot.join('github.com', 'zenoss', 'product-assembly')
@@ -67,13 +67,13 @@ class ZenDevEnvironment(object):
         previousMod = os.environ.get('ZD_PATH_MOD', "")
         if len(previousMod) > 0:
             origpath = origpath.replace(previousMod, "")
-        newMod = "%s/bin:%s/bin:" % (self._gopath, self._zenhome)
+        newMod = "%s/bin:%s/bin:" % (self.gopath, self._zenhome)
         return {
             "ZENHOME": self._zenhome.strpath,
             "SRCROOT": self._srcroot.strpath,
             "JIGROOT": self._srcroot.strpath,
-            "GOPATH": self._gopath.strpath,
-            "GOBIN": self._gopath.strpath + "/bin",
+            "GOPATH": self.gopath.strpath,
+            "GOBIN": self.gopath.strpath + "/bin",
             "ZD_PATH_MOD": newMod,
             "PATH": "%s%s" % (newMod, origpath)
         }

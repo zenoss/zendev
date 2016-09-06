@@ -3,9 +3,7 @@ import py
 import subprocess
 import sys
 
-from ..environment import ZenDevEnvironment, init_config_dir, NotInitialized
-from ..config import get_config
-from ..log import info, error
+from ..log import error
 
 
 def devimg(args, env):
@@ -23,14 +21,16 @@ def devimg(args, env):
     of zenpacks defined in a custom zenpacks.json file, or simply an adhoc list
     defined on the zendev command line.
     """
+    environ = env()
     cmdArgs = ['make']
     if args.clean:
         cmdArgs.append('clean')
     cmdArgs.append('build')
-    cmdArgs.append("ZENDEV_ROOT=%s" % env().root.strpath)
-    cmdArgs.append("SRCROOT=%s" % env().srcroot.join("github.com", "zenoss").strpath)
+    cmdArgs.append("ZENDEV_ROOT=%s" % environ.root.strpath)
+    cmdArgs.append("SRCROOT=%s" % environ.srcroot.join("github.com", "zenoss").strpath)
+    cmdArgs.append('DEV_ENV=%s' % environ.name)
     if args.product:
-        targetDir = env().productAssembly.join(args.product)
+        targetDir = environ.productAssembly.join(args.product)
         if not targetDir.check():
             error("%s does not exist" % targetDir.strpath)
             sys.exit(1)
@@ -51,7 +51,7 @@ def devimg(args, env):
         cmdArgs.append("ZENPACK_FILE=%s" % zenpackManifestFile.strpath)
 
     elif args.zenpacks:
-        zenpackManifestFile = env().root.join("tmp/zenpacks.json")
+        zenpackManifestFile = environ.root.join("tmp/zenpacks.json")
         zenpackManifestFile.ensure()
         zenpacks = {}
         zenpacks['install_order'] = args.zenpacks.split(",")
@@ -63,7 +63,7 @@ def devimg(args, env):
         print "No zenpacks specified"
 
     print "Building devimg ..."
-    devimgSrcDir = env().productAssembly.join("devimg")
+    devimgSrcDir = environ.productAssembly.join("devimg")
     print "cd %s" % devimgSrcDir.strpath
     devimgSrcDir.chdir()
     print " ".join(cmdArgs)
