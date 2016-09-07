@@ -63,14 +63,14 @@ here = py.path.local(__file__).dirpath().join
 #         self.text = text
 #
 #
-# def memoize(f):
-#     class memodict(dict):
-#         def __missing__(self, key):
-#             ret = self[key] = f(key)
-#             return ret
-#     return memodict().__getitem__
-#
-#
+def memoize(f):
+    class memodict(dict):
+        def __missing__(self, key):
+            ret = self[key] = f(key)
+            return ret
+    return memodict().__getitem__
+
+
 def colored(s, color=None):
     return s if not _COLORS else colored_orig(s, color)
 #
