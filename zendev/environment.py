@@ -55,7 +55,7 @@ class ZenDevEnvironment(object):
         self._config = cfg_dir
         self._root = py.path.local(cfg_dir.dirname)
         self._srcroot = self._root.ensure('src', dir=True)
-        self._gopath = self._srcroot
+        self.gopath = self._root
         self._zenhome = self._root.ensure('zenhome', dir=True)
         self._var_zenoss = self._root.ensure('var_zenoss', dir=True)
         self._productAssembly = self._srcroot.join('github.com', 'zenoss', 'product-assembly')
@@ -67,12 +67,13 @@ class ZenDevEnvironment(object):
         previousMod = os.environ.get('ZD_PATH_MOD', "")
         if len(previousMod) > 0:
             origpath = origpath.replace(previousMod, "")
-        newMod = "%s/bin:%s/bin:" % (self._gopath, self._zenhome)
+        newMod = "%s/bin:%s/bin:" % (self.gopath, self._zenhome)
         return {
             "ZENHOME": self._zenhome.strpath,
             "SRCROOT": self._srcroot.strpath,
-            "GOPATH": self._gopath.strpath,
-            "GOBIN": self._gopath.strpath + "/bin",
+            "JIGROOT": self._srcroot.strpath,
+            "GOPATH": self.gopath.strpath,
+            "GOBIN": self.gopath.strpath + "/bin",
             "ZD_PATH_MOD": newMod,
             "PATH": "%s%s" % (newMod, origpath)
         }
@@ -122,12 +123,19 @@ class ZenDevEnvironment(object):
                 info("Checking out product-assembly repository")
                 github_zenoss = self.srcroot.ensure('github.com', 'zenoss', dir=True)
                 github_zenoss.chdir()
-                subprocess.check_call(['git', 'clone', '--progress', 'https://github.com/zenoss/product-assembly.git'])
+                subprocess.check_call(['git', 'clone', '--progress', 'git@github.com:zenoss/product-assembly.git'])
+
+    def _initializeJig(self):
+        self._srcroot.chdir()
+        if not self._srcroot.join(".jig").check():
+            subprocess.check_call(['jig', 'init'])
 
     def initialize(self):
         # Clone product-assembly directory
         self._ensure_product_assembly()
-        self.generateRepoJSON()
+        self._initializeJig()
+        # Start with the latest code on develop
+        self.restore('develop')
 
     def generateRepoJSON(self):
         repos_sh = self._productAssembly.join('repos.sh')
@@ -135,12 +143,29 @@ class ZenDevEnvironment(object):
             error("%s does not exist" % repos_sh.strpath)
             sys.exit(1)
         else:
-            # run from root env dir so .repos.json is created there
-            self._root.chdir()
+            # run from _config dir so that .repos.json is created there
+            self._config.chdir()
             subprocess.check_call([repos_sh.strpath])
+            repos_json = self._config.join('.repos.json')
+            if not repos_json.check():
+                error("%s does not exist" % repos_json.strpath)
+                sys.exit(1)
+            return repos_json
 
     def use(self, switch_dir=True):
         get_config().current = self.name
         if switch_dir:
             self.bash('cd "%s"' % self.root.strpath)
         self._export_env()
+
+    def restore(self, ref, shallow=False):
+        # TODO: checkout the 'ref' version of product-assembly
+        info("Generating list of github repos and versions ...")
+        repos_json = self.generateRepoJSON()
+        self._srcroot.chdir()
+        info("Checking out github repos defined by %s" % repos_json.strpath)
+        subprocess.check_call(['jig', 'restore', repos_json.strpath])
+
+    def list_tags(self):
+        # TODO: get list of tags on product-assembly
+        return []

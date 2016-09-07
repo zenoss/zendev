@@ -8,7 +8,7 @@ from .utils import here, colored
 from .environment import ZenDevEnvironment
 from .environment import NotInitialized
 
-from .cmd import serviced, environment, build, devimg
+from .cmd import build, devimg, environment, serviced, tags
 
 from .config import get_config, get_envname
 from .log import error
@@ -36,9 +36,10 @@ def parse_args():
     update_parser.set_defaults(functor=selfupdate)
 
     # Add sub commands here
+    environment.add_commands(subparsers)
+    tags.add_commands(subparsers, tagsCompleter)
     build.add_commands(subparsers)
     devimg.add_commands(subparsers)
-    environment.add_commands(subparsers)
     serviced.add_commands(subparsers)
 
     argcomplete.autocomplete(parser)
@@ -58,6 +59,10 @@ def root(args, env):
 
 def bootstrap(args, env):
     print here("bootstrap.sh").strpath
+
+
+def tagsCompleter(prefix, **kwargs):
+    return (x for x in check_env().list_tags() if x.startswith(prefix))
 
 
 def ls(args, env):
