@@ -98,6 +98,7 @@ def check_env(name=None, **kwargs):
 # A whitelist of all of commands which are allowed in all implementations of zendev.
 #
 all_env_whitelist = [
+    "bootstrap",
     "env",
     "init,"
     "ls",
