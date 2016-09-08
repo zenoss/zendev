@@ -5,6 +5,7 @@ import sys
 
 from .log import info, error
 from .config import get_config
+from .repo import Repository
 from .utils import is_git_repo, here
 
 CONFIG_DIR = '.zendev'
@@ -59,7 +60,6 @@ class ZenDevEnvironment(object):
         self._zenhome = self._root.ensure('zenhome', dir=True)
         self._var_zenoss = self._root.ensure('var_zenoss', dir=True)
         self._productAssembly = self._srcroot.join('github.com', 'zenoss', 'product-assembly')
-
         self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
 
     def envvars(self):
@@ -119,11 +119,13 @@ class ZenDevEnvironment(object):
                   "what to do." % self._productAssembly.strpath)
             sys.exit(1)
         else:
+            repo = Repository(self._productAssembly.strpath, self._productAssembly.strpath, "zenoss/product-assembly")
             if not self._productAssembly.check(dir=True):
-                info("Checking out product-assembly repository")
+                info("Cloning product-assembly repository")
                 github_zenoss = self.srcroot.ensure('github.com', 'zenoss', dir=True)
                 github_zenoss.chdir()
-                subprocess.check_call(['git', 'clone', '--progress', 'git@github.com:zenoss/product-assembly.git'])
+                repo.clone()
+            return repo
 
     def _initializeJig(self):
         self._srcroot.chdir()
@@ -132,7 +134,7 @@ class ZenDevEnvironment(object):
 
     def initialize(self):
         # Clone product-assembly directory
-        self._ensure_product_assembly()
+        self._export_env()
         self._initializeJig()
         # Start with the latest code on develop
         self.restore('develop')
@@ -159,11 +161,15 @@ class ZenDevEnvironment(object):
         self._export_env()
 
     def restore(self, ref, shallow=False):
-        # TODO: checkout the 'ref' version of product-assembly
+        repo = self._ensure_product_assembly()
+        info("Checking out '%s' for product-assembly ..." % ref)
+        repo.checkout(ref)
+
         info("Generating list of github repos and versions ...")
         repos_json = self.generateRepoJSON()
-        self._srcroot.chdir()
+
         info("Checking out github repos defined by %s" % repos_json.strpath)
+        self._srcroot.chdir()
         subprocess.check_call(['jig', 'restore', repos_json.strpath])
 
     def list_tags(self):
