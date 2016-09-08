@@ -51,16 +51,12 @@ def devimg(args, env):
         cmdArgs.append("ZENPACK_FILE=%s" % zenpackManifestFile.strpath)
 
     elif args.zenpacks:
-        zenpackManifestFile = environ.root.join("tmp/zenpacks.json")
-        zenpackManifestFile.ensure()
-        zenpacks = {}
-        zenpacks['install_order'] = args.zenpacks.split(",")
-        with zenpackManifestFile.open("w") as jsonFile:
-            json.dump(zenpacks, jsonFile, sort_keys=True, indent=4, separators=(',', ': '))
-        cmdArgs.append("ZENPACK_FILE=%s" % zenpackManifestFile.strpath)
+        zenpacks = args.zenpacks.split(",")
+        cmdArgs.append("ZENPACK_FILE=%s" % _createZPFile(environ, zenpacks))
 
     else:
-        print "No zenpacks specified"
+        print "Adding default ZenPacks.zenoss.PythonCollector..."
+        cmdArgs.append("ZENPACK_FILE=%s" % _createZPFile(environ, ['ZenPacks.zenoss.PythonCollector']))
 
     print "Building devimg ..."
     devimgSrcDir = environ.productAssembly.join("devimg")
@@ -68,6 +64,16 @@ def devimg(args, env):
     devimgSrcDir.chdir()
     print " ".join(cmdArgs)
     subprocess.check_call(cmdArgs)
+
+def _createZPFile(environ, zenpackList):
+        zenpackManifestFile = environ.root.join("tmp/zenpacks.json")
+        zenpackManifestFile.ensure()
+        zenpacks = {}
+        zenpacks['install_order'] = zenpackList
+        with zenpackManifestFile.open("w") as jsonFile:
+            json.dump(zenpacks, jsonFile, sort_keys=True, indent=4, separators=(',', ': '))
+        return zenpackManifestFile.strpath
+
 
 def add_commands(subparsers):
     devimg_parser = subparsers.add_parser('devimg',
