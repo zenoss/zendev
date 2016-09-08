@@ -5,7 +5,6 @@ from git.exc import GitCommandError
 from termcolor import colored
 import gitflow.core
 import py
-import github
 import time
 import json
 
