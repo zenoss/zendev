@@ -82,9 +82,6 @@ class Repository(object):
             if not shallow:
                 self.initialize()
 
-    def shallow_clone(self):
-        return self.clone(shallow=True)
-
     def initialize(self):
         if not self._repo and is_git_repo(self.path):
             self._repo = gitflow.core.GitFlow(self.path.strpath)
