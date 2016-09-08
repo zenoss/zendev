@@ -134,8 +134,8 @@ class ZenDevEnvironment(object):
 
     def initialize(self):
         # Clone product-assembly directory
-        self._initializeJig()
         self._export_env()
+        self._initializeJig()
         # Start with the latest code on develop
         self.restore('develop')
 
