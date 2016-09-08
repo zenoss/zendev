@@ -135,6 +135,7 @@ class ZenDevEnvironment(object):
     def initialize(self):
         # Clone product-assembly directory
         self._initializeJig()
+        self._export_env()
         # Start with the latest code on develop
         self.restore('develop')
 
@@ -169,8 +170,7 @@ class ZenDevEnvironment(object):
 
         info("Checking out github repos defined by %s" % repos_json.strpath)
         self._srcroot.chdir()
-        jigRootSetting = 'JIGROOT=%s' % self._srcroot.strpath
-        subprocess.check_call(['jig', 'restore', repos_json.strpath, jigRootSetting])
+        subprocess.check_call(['jig', 'restore', repos_json.strpath])
 
     def list_tags(self):
         # TODO: get list of tags on product-assembly
