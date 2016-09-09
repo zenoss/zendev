@@ -16,7 +16,7 @@ from .log import error
 def parse_args():
     epilog = textwrap.dedent('''
     Environment commands: {init, ls, use, drop, env, root}
-    Repo commands: {cd, restore}
+    Repo commands: {cd, restore, status, pull}
     Serviced commands: {serviced, atttach, devshell}
     ''')
 
@@ -100,6 +100,7 @@ def check_env(name=None, **kwargs):
 # A whitelist of all of commands which are allowed in all implementations of zendev.
 #
 all_env_whitelist = [
+    "bootstrap",
     "env",
     "init,"
     "ls",
