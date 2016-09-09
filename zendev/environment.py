@@ -1,3 +1,5 @@
+import itertools
+import json
 import os
 import py
 import subprocess
@@ -54,6 +56,7 @@ class ZenDevEnvironment(object):
         cfg_dir = get_config_dir(path)
         self.name = name
         self._config = cfg_dir
+        self._repos_file = self._config.join('.repos.json')
         self._root = py.path.local(cfg_dir.dirname)
         self._srcroot = self._root.ensure('src', dir=True)
         self.gopath = self._root
@@ -147,14 +150,13 @@ class ZenDevEnvironment(object):
             error("%s does not exist" % repos_sh.strpath)
             sys.exit(1)
         else:
-            # run from _config dir so that .repos.json is created there
+            # run from _config dir so that repos.json is created there
             self._config.chdir()
             subprocess.check_call([repos_sh.strpath])
-            repos_json = self._config.join('.repos.json')
-            if not repos_json.check():
-                error("%s does not exist" % repos_json.strpath)
+            if not self._repos_file.check():
+                error("%s does not exist" % self._repos_file.strpath)
                 sys.exit(1)
-            return repos_json
+            return self._repos_file
 
     def use(self, switch_dir=True):
         get_config().current = self.name
@@ -173,6 +175,29 @@ class ZenDevEnvironment(object):
         self._srcroot.chdir()
         subprocess.check_call(['jig', 'restore', repos_json.strpath])
 
-    def list_tags(self):
-        # TODO: get list of tags on product-assembly
-        return []
+    def _repos(self):
+        if not self._repos_file.check():
+            error("%s does not exist" % self._repos_file.strpath)
+            sys.exit(1)
+
+        with self._repos_file.open() as f:
+            repos_list = json.load(f)
+        for item in repos_list:
+            name = str(item['repo'])
+            if name.startswith('git@'):
+                name = name[len('git@'):]
+                name = name.replace(":", "/")
+            elif name.startswith('https://'):
+                name = name[len('https://'):]
+            if name.endswith(".git"):
+                name = name[0:len(name)-len('.git')]
+            repopath =  self._srcroot.join(name)
+            repo = Repository(repopath.strpath, repopath.strpath, name)
+            yield repo
+
+    def repos(self, filter_=None, key=None):
+        """
+        Get Repository objects for all repos in the system.
+        """
+        return sorted(itertools.ifilter(filter_, self._repos()),
+                key=key or (lambda r:r.name.count('/')))

@@ -97,26 +97,26 @@ def colored(s, color=None):
 #
 # def add_repo_narg(parser):
 #     parser.add_argument('repos', nargs='*', help='List of repositories')
-#
-#
-# def repofilter(repos=(), field_fn=lambda x:x.name):
-#     """
-#     Create a function that will return only those repos specified, or all if
-#     nothing was specified.
-#     """
-#     if isinstance(repos, basestring):
-#         repos = (repos,)
-#
-#     patterns = [re.compile(r, re.I) for r in repos]
-#
-#     def filter_(repo):
-#         if repos:
-#             return any(p.search(field_fn(repo)) for p in patterns)
-#         return True
-#
-#     return filter_
-#
-#
+
+
+def repofilter(repos=(), field_fn=lambda x:x.name):
+    """
+    Create a function that will return only those repos specified, or all if
+    nothing was specified.
+    """
+    if isinstance(repos, basestring):
+        repos = (repos,)
+
+    patterns = [re.compile(r, re.I) for r in repos]
+
+    def filter_(repo):
+        if repos:
+            return any(p.search(field_fn(repo)) for p in patterns)
+        return True
+
+    return filter_
+
+
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
