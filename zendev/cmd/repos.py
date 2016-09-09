@@ -63,7 +63,11 @@ def ls(args, env):
     cur = get_envname()
     for env in config.environments:
         prefix = colored('*', 'blue') if env == cur else ' '
-        print prefix, env
+        envDetails =  config.environments[env]
+        suffix = '(v1)'
+        if 'version' in envDetails:
+             suffix = '(%s)' % envDetails['version']
+        print prefix, env, suffix
 
 
 def sync(args, env):

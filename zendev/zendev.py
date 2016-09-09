@@ -148,8 +148,30 @@ def parse_args():
     return args
 
 
+#
+# A whitelist of all of commands which are allowed in all implementations of zendev.
+#
+all_env_whitelist = [
+    "bootstrap",
+    "env",
+    "init,"
+    "ls",
+    "root",
+    "selfupdate",
+    "use"
+]
+
+def validate_cmd_env(args):
+    if any(args.subparser in s for s in all_env_whitelist):
+        return True
+    config = get_config()
+    return config.validate(config.current)
+
 def main():
     args = parse_args()
+    if not validate_cmd_env(args):
+         sys.exit(1)
+
     if args.noenv:
         with temp_env(args.noenv_init_tag):
             args.functor(args, check_env)

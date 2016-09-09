@@ -5,6 +5,7 @@ from .log import info, error
 
 CONFIG_DIR = "~/.zendev"
 
+ZENDEV_VERSION = "v1"
 
 class ZendevConfig(object):
     def __init__(self, path):
@@ -61,6 +62,22 @@ class ZendevConfig(object):
                 except Exception:
                     error("Environment {name} removed, but unable to remove data at {path}.".format(**locals()))
             self.save()
+
+    def validate(self, envName):
+        if not envName:
+            return True
+
+        if not self.exists(envName):
+            error("Environment '%s' is not defined" % envName)
+            return False
+
+        # Note that no 'version' property is assumed to be compatible with 'v1'
+        env = self.environments[envName]
+        if 'version' in env and env['version'] != ZENDEV_VERSION:
+            error("Environment '%s' is not compatible with zendev version %s" % (envName, ZENDEV_VERSION))
+            return False
+
+        return True
 
 
 def get_config():
