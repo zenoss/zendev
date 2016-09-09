@@ -16,7 +16,7 @@ from .log import error
 def parse_args():
     epilog = textwrap.dedent('''
     Environment commands: {init, ls, use, drop, env, root}
-    Repo commands: {cd, restore}
+    Repo commands: {cd, restore, status, pull}
     Serviced commands: {serviced, atttach, devshell}
     ''')
 
