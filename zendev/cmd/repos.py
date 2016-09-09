@@ -30,6 +30,7 @@ def cd(args, env):
         env.bash('cd "%s"' % env._root.strpath)
 
 def status(args, env):
+    env = env()
     jigCmd = ['jig', 'status']
     if args.all:
         jigCmd.append('-a')
@@ -38,6 +39,7 @@ def status(args, env):
     subprocess.check_call(jigCmd)
 
 def pull(args, env):
+    env = env()
     jigCmd = ['jig', 'pull']
     if args.verbose:
         jigCmd.append('-v')
