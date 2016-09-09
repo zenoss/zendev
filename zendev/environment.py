@@ -61,6 +61,7 @@ class ZenDevEnvironment(object):
         self._var_zenoss = self._root.ensure('var_zenoss', dir=True)
         self._productAssembly = self._srcroot.join('github.com', 'zenoss', 'product-assembly')
         self._bash = open(os.environ.get('ZDCTLCHANNEL', os.devnull), 'w')
+        self._export_env()
 
     def envvars(self):
         origpath = os.environ.get('PATH')
@@ -79,8 +80,10 @@ class ZenDevEnvironment(object):
         }
 
     def _export_env(self):
-        for k, v in self.envvars().iteritems():
+        envvars = self.envvars()
+        for k, v in envvars.iteritems():
             self.bash('export %s="%s"' % (k, v))
+        os.environ.update(envvars)
 
     @property
     def srcroot(self):
@@ -134,7 +137,6 @@ class ZenDevEnvironment(object):
 
     def initialize(self):
         # Clone product-assembly directory
-        self._export_env()
         self._initializeJig()
         # Start with the latest code on develop
         self.restore('develop')
@@ -158,7 +160,6 @@ class ZenDevEnvironment(object):
         get_config().current = self.name
         if switch_dir:
             self.bash('cd "%s"' % self.root.strpath)
-        self._export_env()
 
     def restore(self, ref, shallow=False):
         repo = self._ensure_product_assembly()
