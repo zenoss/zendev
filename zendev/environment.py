@@ -77,7 +77,6 @@ class ZenDevEnvironment(object):
             "SRCROOT": self._srcroot.strpath,
             "JIGROOT": self._srcroot.strpath,
             "GOPATH": self.gopath.strpath,
-            "GOBIN": self.gopath.strpath + "/bin",
             "ZD_PATH_MOD": newMod,
             "PATH": "%s%s" % (newMod, origpath)
         }
