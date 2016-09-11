@@ -131,6 +131,7 @@ class ZenDevEnvironment(object):
                 github_zenoss = self.srcroot.ensure('github.com', 'zenoss', dir=True)
                 github_zenoss.chdir()
                 repo.clone()
+                subprocess.check_call(['jig', 'add', 'product-assembly'])
             return repo
 
     def _initializeJig(self):
@@ -174,6 +175,7 @@ class ZenDevEnvironment(object):
         info("Checking out github repos defined by %s" % repos_json.strpath)
         self._srcroot.chdir()
         subprocess.check_call(['jig', 'restore', repos_json.strpath])
+        subprocess.check_call(['jig', 'add', 'github.com/zenoss/product-assembly'])
 
     def _repos(self):
         if not self._repos_file.check():
