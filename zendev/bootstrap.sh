@@ -11,7 +11,7 @@ zendev () {
     return ${RC}
 }
 
-alias cdz="zendev cd"
+eval "$(jig bootstrap --cd-command=cdz)"
 
 if [ ${BASH_VERSION:0:1} -ge 4 ]; then
     ZENDEV_ARGCOMPLETE=$(mktemp -u /tmp/zd.argcomplete.XXXXX)
