@@ -154,6 +154,15 @@ class Serviced(object):
                     if "runzope" in hc['Script']:
                         hc['Script'] = hc['Script'].replace("runzope", "zopectl")
 
+    def zproxy_debug(self, services, svc):
+        title = svc.get("Title", None)
+        if title and title.lower() == "zproxy":
+            configs = svc.get("ConfigFiles", {})
+            config = configs.get("/opt/zenoss/zproxy/conf/zproxy-nginx.conf", None)
+            if config:
+                config["Content"] = config["Content"].replace("pagespeed on", "pagespeed off")
+                print "Disabled pagespeed in zproxy template"
+
     def walk_services(self, services, visitor):
         if not services:
             return
@@ -170,7 +179,7 @@ class Serviced(object):
             if tentative.exists():
                 tplpath = tentative
             else:
-                tplpath = self.zenoss_service_dir.join(template)
+                tplpath = self.zenoss_service_dir.join('services', template)
         return tplpath
 
     @property
@@ -195,10 +204,15 @@ class Serviced(object):
             "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion, tplpath],
             stdout=subprocess.PIPE)
         stdout, _ = proc.communicate()
+        # TODO - verify subprocess exited normally
+
         print "Compiled new template"
 
         compiled=json.loads(stdout);
         self.walk_services(compiled['Services'], self.zope_debug)
+        # disable pagespeed in zproxy to avoid
+        # obfuscating javascript
+        self.walk_services(compiled['Services'], self.zproxy_debug)
         if template and ('ucspm' in template or 'resmgr' in template or 'nfvimon' in template):
             self.walk_services(compiled['Services'], self.remove_catalogservice)
         stdout = json.dumps(compiled, sort_keys=True, indent=4, separators=(',', ': '))
