@@ -179,7 +179,7 @@ class Serviced(object):
             if tentative.exists():
                 tplpath = tentative
             else:
-                tplpath = self.zenoss_service_dir.join(template)
+                tplpath = self.zenoss_service_dir.join('services', template)
         return tplpath
 
     @property
@@ -204,6 +204,8 @@ class Serviced(object):
             "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion, tplpath],
             stdout=subprocess.PIPE)
         stdout, _ = proc.communicate()
+        # TODO - verify subprocess exited normally
+
         print "Compiled new template"
 
         compiled=json.loads(stdout);
