@@ -4,9 +4,10 @@
 #Should be run by the linux user that will be doing develop. User should be in sudo group.  If run by root set the USER env variable 
 #when running the script.  e.g.  USER=jdoe newdev-installer
 
+#This script Installs required software, git jdk etc.... Provisions a thin pool for docker if not present, installs and configures docker.
 
 
-#Provisions a thin pool for docker; 
+
 display_error() {
     tput sgr0
     tput setaf 1
@@ -30,7 +31,7 @@ fi
 
 if ! sudo lvs --help > /dev/null 2>&1 ; then
     if [ -z "$1" ] ; then
-        display_error "Please specify device for docker thin pool lvs not installed."
+        display_error "Please specify device for docker thin pool, e.g. /dev/sda"
     fi
 else
     #see if thin pool exists
@@ -39,7 +40,7 @@ else
 	CREATE_THINPOOL=false
     else
 	if [ -z "$1" ] ; then
-            display_error "Please specify device for docker thin pool."
+            display_error "Please specify device for docker thin pool, e.g. /dev/sdb"
 	    fi
     fi
 fi
