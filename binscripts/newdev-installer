@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+
+#New developer install of all system prereqs. Takes an single argument of the device to be used for the docker thinpool e.g. /dev/sdb
+#Should be run by the linux user that will be doing develop. User should be in sudo group.  If run by root set the USER env variable 
+#when running the script.  e.g.  USER=jdoe newdev-installer
+
+
+
+#Provisions a thin pool for docker; 
+display_error() {
+    tput sgr0
+    tput setaf 1
+    echo "ERROR: $1"
+    tput sgr0
+    exit 1
+}
+#exits if user not set
+: ${USER?"USER must be set"}
+
+DEVICE=$1
+DOCKER_VERSION=1.11.2-0
+VGNAME=docker
+CREATE_THINPOOL=true
+THINPOOL=
+THINPOOL_CMD="sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings"
+
+if ! sudo -V  > /dev/null 2>&1  ; then
+    display_error "Please install sudo to run this script"
+fi
+
+if ! sudo lvs --help > /dev/null 2>&1 ; then
+    if [ -z "$1" ] ; then
+        display_error "Please specify device for docker thin pool lvs not installed."
+    fi
+else
+    #see if thin pool exists
+    THINPOOL=$(sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings | tr -d \ )
+    if [ "${THINPOOL}" = "/dev/mapper/${VGNAME}-docker--pool" ] ; then
+	CREATE_THINPOOL=false
+    else
+	if [ -z "$1" ] ; then
+            display_error "Please specify device for docker thin pool."
+	    fi
+    fi
+fi
+
+if ! lsb_release -v  >/dev/null 2>&1 ; then
+    echo "Installing lsb_release to determine version"
+    sudo apt-get update  > /dev/null2>&1
+    sudo apt-get install -y lsb-release || display_error "failed to install lsb-release"
+fi
+
+UBUNTU_VERSION=$(lsb_release -sc)
+
+echo "Configuring ${UBUNTU_VERSION} for developer environment."
+echo "Updating Repositories..."
+
+if ! add-apt-repository --help > /dev/null 2>&1 ; then
+    echo "Install software-properties-common to get add-apt-repository..."
+    apt-get update  > /dev/null 2>&1
+    sudo apt-get install -y software-properties-common || display_error "failed to install software-properties-common"
+fi
+
+sudo apt-add-repository multiverse  ||     display_error "failed to add multiverse repository"
+sudo apt-add-repository universe    ||     display_error "failed to add universe repository"
+sudo apt-add-repository restricted  ||     display_error "failed to add restricted repository"
+
+sudo apt-get update > /dev/null 2>&1
+sudo apt-get install -y  apt-transport-https || display_error "failed to add apt-transport-https"
+sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D \
+    || display_error "failed to add repo key"
+sudo apt-get install -y          \
+     ca-certificates         \
+     thin-provisioning-tools \
+     curl                    \
+     nfs-kernel-server       \
+     nfs-common              \
+     net-tools               \
+     build-essential         \
+     bison                   \
+     libpam0g-dev            \
+     xfsprogs                \
+     xfsdump                 \
+     libdevmapper-dev        \
+     python-dev              \
+     python-pip              \
+     git                     \
+     openjdk-8-jdk-headless  \
+    || display_error "failed to install software packages"
+
+
+
+echo "Upgrading pip..."
+sudo pip install --upgrade pip  || display_error "failed to upgrade pip"
+
+
+if $CREATE_THINPOOL ; then
+    echo "Creating thinpool with device ${DEVICE}..."
+
+    sudo vgcreate ${VGNAME} ${DEVICE} || display_error "Failed to create volume group"
+
+    sudo lvcreate -T -l98%FREE --name ${VGNAME}/docker-pool || display_error "Failed to create logical volume"
+
+    THINPOOL=$(sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings | tr -d \ )
+else
+    echo "Thinpool exists, skipping thinpool creation"
+fi
+
+echo "Installing docker..."
+sudo apt-add-repository "deb https://apt.dockerproject.org/repo ubuntu-${UBUNTU_VERSION} main" || display_error "Failed to add docker repo"
+sudo apt-get update  > /dev/null 2>&1
+sudo apt-get install -y docker-engine=${DOCKER_VERSION}~${UBUNTU_VERSION} || display_error "failed to install docker"
+sudo apt-mark hold docker-engine || display_error "failed to apt-mark hold docker"
+sudo usermod -a -G docker ${USER} || display_error "failed to add ${USER} to docker group"
+
+echo "Configuring docker..."
+sudo systemctl stop docker
+
+sudo echo "DOCKER_OPTS=\"--dns 10.87.113.13 --dns 10.88.102.13 --dns 10.88.120.84 --dns 8.8.8.8 --bip=172.17.42.1/16 -s devicemapper --storage-opt dm.thinpooldev=${THINPOOL} --userland-proxy=false --insecure-registry=$(hostname)\:5000\"" | sudo tee -a /etc/default/docker > /dev/null  || display_error "Failed to set docker opts"
+
+sudo sed -i -e 's:ExecStart=/usr/bin/docker daemon -H fd\://:TasksMax=infinity\nEnvironmentFile=/etc/default/docker\nExecStart=/usr/bin/docker daemon $DOCKER_OPTS -H fd\://:' /lib/systemd/system/docker.service || display_error "Failed to modify docker bin script"
+
+sudo rm -rf /var/lib/docker
+sudo systemctl daemon-reload
+sudo systemctl start docker
+
+
+echo "Adding ${USER} to sudo"
+sudo usermod -a -G sudo ${USER} || display_error "failed to add ${USER} to sudo group"
+echo "May need to re-login to see user group changes."
+
+echo "Please make sure git ssh keys are set up for your user."
+
