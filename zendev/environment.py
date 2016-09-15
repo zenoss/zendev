@@ -60,7 +60,7 @@ class ZenDevEnvironment(object):
         self._root = py.path.local(cfg_dir.dirname)
         self._srcroot = self._root.ensure('src', dir=True)
         self.gopath = self._root
-        self.servicedhome = self._root.ensure('serviced', dir=True)
+        self.servicedhome = self._root.ensure('opt_serviced', dir=True)
         self._zenhome = self._root.ensure('zenhome', dir=True)
         self._var_zenoss = self._root.ensure('var_zenoss', dir=True)
         self._productAssembly = self._srcroot.join('github.com', 'zenoss', 'product-assembly')
