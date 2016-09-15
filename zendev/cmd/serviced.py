@@ -30,11 +30,6 @@ class Serviced(object):
             return zenoss_image
         return 'zendev/devimg:latest'
 
-    @property
-    def varpath(self):
-        return self.env.root.ensure("var", dir=True).ensure("serviced",
-                dir=True)
-
     def reset(self):
         print "Stopping any running serviced"
         subprocess.call(['sudo', 'pkill', 'serviced'])
@@ -43,7 +38,7 @@ class Serviced(object):
         if running:
             subprocess.call(["docker", "kill"] + running.splitlines())
         print "Cleaning state"
-        subprocess.call("sudo rm -rf %s/*" % self.varpath.strpath, shell=True)
+        subprocess.call("sudo rm -rf %s/*" % self.env.servicedhome.strpath, shell=True)
 
     def start(self, root=False, uiport=443, arguments=None, image=None):
         print "Starting serviced..."
@@ -51,7 +46,6 @@ class Serviced(object):
         self.uiport = uiport
         args = []
         envvars = self.env.envvars()
-        envvars['SERVICED_VARPATH'] = self.varpath.strpath
         envvars['TZ'] = os.getenv('TZ', 'UTC')
         envvars['SERVICED_MASTER'] = os.getenv('SERVICED_MASTER', '1')
         envvars['SERVICED_AGENT'] = os.getenv('SERVICED_AGENT', '1')
