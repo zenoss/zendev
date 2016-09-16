@@ -127,6 +127,8 @@ sudo usermod -a -G docker ${USER} || display_error "failed to add ${USER} to doc
 echo "Configuring docker..."
 sudo systemctl stop docker
 
+#comment out existing docker opts
+sudo sed -in '/DOCKER_OPTS/ s/^#*/#/' /etc/default/docker
 sudo echo "DOCKER_OPTS=\"--dns 10.87.113.13 --dns 10.88.102.13 --dns 10.88.120.84 --dns 8.8.8.8 --bip=172.17.42.1/16 -s devicemapper ${STORAGE_OPT} --userland-proxy=false --insecure-registry=$(hostname)\:5000\"" | sudo tee -a /etc/default/docker > /dev/null  || display_error "Failed to set docker opts"
 
 sudo sed -i -e 's:ExecStart=/usr/bin/docker daemon -H fd\://:TasksMax=infinity\nEnvironmentFile=/etc/default/docker\nExecStart=/usr/bin/docker daemon $DOCKER_OPTS -H fd\://:' /lib/systemd/system/docker.service || display_error "Failed to modify docker bin script"
