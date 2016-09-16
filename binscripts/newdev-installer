@@ -25,23 +25,29 @@ CREATE_THINPOOL=true
 THINPOOL=
 THINPOOL_CMD="sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings"
 
+#Set by caller of script to skip thinpool creation and configuration
+CONF_THINPOOL="${CONF_THINPOOL:-true}"
+
+
 if ! sudo -V  > /dev/null 2>&1  ; then
     display_error "Please install sudo to run this script"
 fi
 
-if ! sudo lvs --help > /dev/null 2>&1 ; then
-    if [ -z "$1" ] ; then
-        display_error "Please specify device for docker thin pool, e.g. /dev/sda"
-    fi
-else
-    #see if thin pool exists
-    THINPOOL=$(sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings | tr -d \ )
-    if [ "${THINPOOL}" = "/dev/mapper/${VGNAME}-docker--pool" ] ; then
-	CREATE_THINPOOL=false
+if [ $CONF_THINPOOL ] ; then
+    if ! sudo lvs --help > /dev/null 2>&1 ; then
+        if [ -z "$1" ] ; then
+            display_error "Please specify device for docker thin pool, e.g. /dev/sda"
+        fi
     else
-	if [ -z "$1" ] ; then
-            display_error "Please specify device for docker thin pool, e.g. /dev/sdb"
-	    fi
+        #see if thin pool exists
+        THINPOOL=$(sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings | tr -d \ )
+        if [ "${THINPOOL}" = "/dev/mapper/${VGNAME}-docker--pool" ] ; then
+        CREATE_THINPOOL=false
+        else
+        if [ -z "$1" ] ; then
+                display_error "Please specify device for docker thin pool, e.g. /dev/sdb"
+            fi
+        fi
     fi
 fi
 
@@ -94,17 +100,21 @@ sudo apt-get install -y          \
 echo "Upgrading pip..."
 sudo pip install --upgrade pip  || display_error "failed to upgrade pip"
 
+STORAGE_OPT=""
+if [ $CONF_THINPOOL ] ; then
 
-if $CREATE_THINPOOL ; then
-    echo "Creating thinpool with device ${DEVICE}..."
+    if $CREATE_THINPOOL ; then
+        echo "Creating thinpool with device ${DEVICE}..."
 
-    sudo vgcreate ${VGNAME} ${DEVICE} || display_error "Failed to create volume group"
+        sudo vgcreate ${VGNAME} ${DEVICE} || display_error "Failed to create volume group"
 
-    sudo lvcreate -T -l98%FREE --name ${VGNAME}/docker-pool || display_error "Failed to create logical volume"
+        sudo lvcreate -T -l98%FREE --name ${VGNAME}/docker-pool || display_error "Failed to create logical volume"
 
-    THINPOOL=$(sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings | tr -d \ )
-else
-    echo "Thinpool exists, skipping thinpool creation"
+        THINPOOL=$(sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings | tr -d \ )
+    else
+        echo "Thinpool exists, skipping thinpool creation"
+    fi
+    STORAGE_OPT=" -s devicemapper --storage-opt dm.thinpooldev=${THINPOOL}"
 fi
 
 echo "Installing docker..."
@@ -117,11 +127,17 @@ sudo usermod -a -G docker ${USER} || display_error "failed to add ${USER} to doc
 echo "Configuring docker..."
 sudo systemctl stop docker
 
-sudo echo "DOCKER_OPTS=\"--dns 10.87.113.13 --dns 10.88.102.13 --dns 10.88.120.84 --dns 8.8.8.8 --bip=172.17.42.1/16 -s devicemapper --storage-opt dm.thinpooldev=${THINPOOL} --userland-proxy=false --insecure-registry=$(hostname)\:5000\"" | sudo tee -a /etc/default/docker > /dev/null  || display_error "Failed to set docker opts"
+sudo echo "DOCKER_OPTS=\"--dns 10.87.113.13 --dns 10.88.102.13 --dns 10.88.120.84 --dns 8.8.8.8 --bip=172.17.42.1/16  ${STORAGE_OPT} --userland-proxy=false --insecure-registry=$(hostname)\:5000\"" | sudo tee -a /etc/default/docker > /dev/null  || display_error "Failed to set docker opts"
 
 sudo sed -i -e 's:ExecStart=/usr/bin/docker daemon -H fd\://:TasksMax=infinity\nEnvironmentFile=/etc/default/docker\nExecStart=/usr/bin/docker daemon $DOCKER_OPTS -H fd\://:' /lib/systemd/system/docker.service || display_error "Failed to modify docker bin script"
 
-sudo rm -rf /var/lib/docker
+if [ $CONF_THINPOOL ] ; then
+    sudo rm -rf /var/lib/docker
+    echo "Docker configured to use thinpool ${THINPOOL}."
+else
+    echo "Docker configured to use default storage. It is recommended you configure a devicemapper thinpool.
+fi
+
 sudo systemctl daemon-reload
 sudo systemctl start docker
 
