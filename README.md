@@ -16,6 +16,9 @@ Please feel free to fork and submit pull requests for this project.
 
 ##Installation
 
+These instructions are known to work with ubuntu 16.0.4 xenial. Specifially the `newdev-installer` script is known not 
+ to work with ubuntu 14.0.4. 
+
 ###Host Preparation
 
 For a new developer machine the `newdev-installer` script will prepare machine by installing docker etc. and creating a 
