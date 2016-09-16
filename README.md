@@ -24,7 +24,7 @@ These instructions are known to work with ubuntu 16.0.4 xenial. Specifially the 
 For a new developer machine the `newdev-installer` script will prepare machine by installing docker etc. and creating a 
 thin pool with an existing device.  
 
-####Without an existing thin pool
+###Without an existing thin pool
 Start by identifying an unused device on your system. You can use `lsblk` to seek the devices on your system. 
 If unsure of which device to choose, please ask for help.
 
@@ -37,7 +37,7 @@ Alternatively you can run as root but must set the USER environment variable for
 
 `USER=leeroy_jenkins bash -c "curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash -s /dev/xvdb"`
 
-####With an existing thin pool or use loopback
+###With an existing thin pool or use loopback
 You can run the newdev-installer if you already have an existing thin pool or just want to run docker with a loopback 
 device, not recommended, by passing in `CONF_THINPOOL=false` to the script.  This will install all the tools needed for
  a developer as well as docker but it will not configure docker to use a thinpool. 
