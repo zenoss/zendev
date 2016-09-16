@@ -70,14 +70,17 @@ class Serviced(object):
         if not servicedVersion.startswith("1.0."):
             args.extend(["server"])
 
+        # Symlink in isvcs/resources
         isvcs = self.env.servicedhome.ensure('isvcs', dir=True)
         linkpath = isvcs.join('resources')
-        if not linkpath.check(link=True, dir=True):
-            try:
-                linkpath.remove(rec=True, ignore_errors=True)
-            except Exception:
-                pass
+        if not linkpath.check(exists=True):
             linkpath.mksymlinkto(self.env.servicedsrc.join('isvcs', 'resources'))
+
+        # Symlink in the web UI
+        web = self.env.servicedhome.ensure("share", "web", dir=True)
+        linkpath = web.join("static")
+        if not linkpath.check(exists=True):
+            linkpath.mksymlinkto(self.env.servicedsrc.join('web', 'ui', 'build'))
 
         print "Running command:", args
         self.proc = subprocess.Popen(args)
