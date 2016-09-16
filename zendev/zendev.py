@@ -8,7 +8,7 @@ from .utils import here, colored
 from .environment import ZenDevEnvironment
 from .environment import NotInitialized
 
-from .cmd import build, devimg, environment, repos, serviced, tags
+from .cmd import build, devimg, environment, repos, serviced, tags, test
 
 from .config import get_config, get_envname
 from .log import error
@@ -41,6 +41,7 @@ def parse_args():
     tags.add_commands(subparsers, tagsCompleter)
     build.add_commands(subparsers)
     devimg.add_commands(subparsers)
+    test.add_commands(subparsers)
     repos.add_commands(subparsers)
     serviced.add_commands(subparsers)
 
