@@ -70,6 +70,15 @@ class Serviced(object):
         if not servicedVersion.startswith("1.0."):
             args.extend(["server"])
 
+        isvcs = self.env.servicedhome.ensure('isvcs', dir=True)
+        linkpath = isvcs.join('resources')
+        if not linkpath.check(link=True, dir=True):
+            try:
+                linkpath.remove(rec=True, ignore_errors=True)
+            except Exception:
+                pass
+            linkpath.mksymlinkto(self.env.servicedsrc.join('isvcs', 'resources'))
+
         print "Running command:", args
         self.proc = subprocess.Popen(args)
 
