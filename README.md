@@ -32,16 +32,17 @@ Replace `/dev/xvdb` with an unused device to create the docker thin pool.
 
 Alternatively you can run as root but must set the USER environment variable for the script using your desired development user. e.g.
 
-`USER=leeroy_jenkins curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash -s /dev/xvdb`
+`USER=leeroy_jenkins bash -c "curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash -s /dev/xvdb"`
 
 ####With an existing thin pool or use loopback
 You can run the newdev-installer if you already have an existing thin pool or just want to run docker with a loopback 
 device, not recommended, by passing in `CONF_THINPOOL=false` to the script.  This will install all the tools needed for
  a developer as well as docker but it will not configure docker to use a thinpool. 
 
-`CONF_THINPOOL=false curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash -s /dev/xvdb`
+`CONF_THINPOOL=false bash -c "curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash"`
 
-Note: If you have an existing thinpool and use this option you will have to modify the docker config if you want it to be used.
+Note: Docker may not startup properly if you had it configured for an existing thinpool and use this option. You will 
+have to modify the docker config if you want your thinpool to be used.
 
 ##GitHub Setup
 
