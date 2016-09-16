@@ -2,14 +2,14 @@
 
 ##Description
 zendev takes care of setting up and managing the disparate components of a standard Zenoss development environment, 
-with or without the control plane. It's primary usecase is to checkou out all github repositories needed for 
+with or without Control Center. It's primary usecase is to checkout all github repositories needed for 
 development and to build a developer focused docker image to run Zenoss in Control-Center. It can also:
 
-* Add GitHub repositories to your source environment
 * Quickly view branches across some or all repositories
-* Perform arbitrary actions across some or all repositories
 * Automatically set up ``GOPATH``, ``PATH`` and ``ZENHOME`` to point to your zendev environment
 * Set up and switch between multiple zendev environments on the same box
+* Installs `gvm` for go version management. See https://github.com/moovweb/gvm
+* Installs `hub` to extend git functionality. See https://github.com/github/hub
 
 Please feel free to fork and submit pull requests for this project.
 
