@@ -26,14 +26,14 @@ THINPOOL=
 THINPOOL_CMD="sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings"
 
 #Set by caller of script to skip thinpool creation and configuration
-CONF_THINPOOL="${CONF_THINPOOL:-true}"
+CONF_THINPOOL=${CONF_THINPOOL:-true}
 
 
 if ! sudo -V  > /dev/null 2>&1  ; then
     display_error "Please install sudo to run this script"
 fi
 
-if [ $CONF_THINPOOL ] ; then
+if ${CONF_THINPOOL}  ; then
     if ! sudo lvs --help > /dev/null 2>&1 ; then
         if [ -z "$1" ] ; then
             display_error "Please specify device for docker thin pool, e.g. /dev/sda"
@@ -101,7 +101,7 @@ echo "Upgrading pip..."
 sudo pip install --upgrade pip  || display_error "failed to upgrade pip"
 
 STORAGE_OPT=""
-if [ $CONF_THINPOOL ] ; then
+if ${CONF_THINPOOL} ; then
 
     if $CREATE_THINPOOL ; then
         echo "Creating thinpool with device ${DEVICE}..."
@@ -131,7 +131,7 @@ sudo echo "DOCKER_OPTS=\"--dns 10.87.113.13 --dns 10.88.102.13 --dns 10.88.120.8
 
 sudo sed -i -e 's:ExecStart=/usr/bin/docker daemon -H fd\://:TasksMax=infinity\nEnvironmentFile=/etc/default/docker\nExecStart=/usr/bin/docker daemon $DOCKER_OPTS -H fd\://:' /lib/systemd/system/docker.service || display_error "Failed to modify docker bin script"
 
-if [ $CONF_THINPOOL ] ; then
+if ${CONF_THINPOOL} ; then
     sudo rm -rf /var/lib/docker
     echo "Docker configured to use thinpool ${THINPOOL}."
 else
@@ -147,4 +147,3 @@ sudo usermod -a -G sudo ${USER} || display_error "failed to add ${USER} to sudo 
 echo "May need to re-login to see user group changes."
 
 echo "Please make sure git ssh keys are set up for your user."
-
