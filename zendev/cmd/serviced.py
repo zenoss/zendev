@@ -106,15 +106,19 @@ class Serviced(object):
                 pass
 
     def add_host(self, host="172.17.42.1:4979", pool="default"):
+        print "Adding host %s" % host
         hostid = None
-        while not hostid:
+        # give up after 60 seconds
+        timeout = time.time() + 60
+        err = None
+        while not hostid and time.time() < timeout:
             time.sleep(1)
             process = subprocess.Popen([self.serviced, "host","add", host, pool], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = process.communicate()
             if out:
                 ahostid = out.rstrip()
                 process = subprocess.Popen([self.serviced, "host", "list", ahostid], stdout=subprocess.PIPE)
-                out, _ = process.communicate()
+                out, err = process.communicate()
                 if ahostid in out:
                     hostid = ahostid
                     print "Added hostid %s for host %s  pool %s" % (hostid, host, pool)
@@ -122,6 +126,10 @@ class Serviced(object):
                 match = re.match("host already exists: (\\w+)", err)
                 if match:
                     hostid = match.group(1)
+
+        if time.time() >= timeout:
+            print "Gave up trying to add host %s due to error: %s" % (host, err)
+
 
     def deploy(self, template, pool="default", svcname="HBase",
             noAutoAssignIpFlag=""):
@@ -208,9 +216,13 @@ class Serviced(object):
             "--map=zenoss/hbase:xx,zenoss/hbase:%s" % hbaseVersion,
             "--map=zenoss/hdfs:xx,zenoss/hdfs:%s" % hdfsVersion,
             "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion, tplpath],
-            stdout=subprocess.PIPE)
-        stdout, _ = proc.communicate()
-        # TODO - verify subprocess exited normally
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdout, stderr = proc.communicate()
+
+        if proc.returncode:
+            print "Failed to compile template %s with return code %i\n %s" % (template, proc.returncode, stderr)
+            return
 
         print "Compiled new template"
 
@@ -316,6 +328,7 @@ def run_serviced(args, env):
             deploymentId = 'zendev-zenoss' if not args.deploy_ana else 'ana'
 
             zenoss_image = _serviced.get_zenoss_image(args.image)
+            tplid = None
             if args.module:
                 tplid = _serviced.add_template_module(args.template,
                     args.module, args.module_dir, zenoss_image)
@@ -325,13 +338,18 @@ def run_serviced(args, env):
                     template = open(py.path.local(args.template).strpath).read()
                 else:
                     template = _serviced.compile_template(args.template, zenoss_image)
-                tplid = _serviced.add_template(template)
 
-            kwargs = dict(template=tplid, svcname=deploymentId )
-            if args.no_auto_assign_ips:
-                kwargs['noAutoAssignIpFlag'] = '--manual-assign-ips'
+                if template:
+                    tplid = _serviced.add_template(template)
 
-            _serviced.deploy(**kwargs)
+            if tplid is None:
+                print "Failed to deploy %s. Continuing anyway." % args.template
+            else:
+                kwargs = dict(template=tplid, svcname=deploymentId )
+                if args.no_auto_assign_ips:
+                    kwargs['noAutoAssignIpFlag'] = '--manual-assign-ips'
+
+                _serviced.deploy(**kwargs)
 
         if args.startall:
             _serviced.startall()
