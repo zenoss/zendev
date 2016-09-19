@@ -57,6 +57,7 @@ def parse_args():
 def selfupdate(args, env):
     with here().as_cwd():
         subprocess.call(["git", "pull"])
+        subprocess.call(["go", "get", "-u", "github.com/iancmcc/jig"])
 
 
 def root(args, env):
