@@ -16,7 +16,7 @@ Please feel free to fork and submit pull requests for this project.
 
 ##Installation
 
-These instructions are known to work with ubuntu 16.0.4 xenial. Specifially the `newdev-installer` script is known not 
+These instructions are known to work with ubuntu 16.0.4 xenial. Specifically the `newdev-installer` script is known not 
  to work with ubuntu 14.0.4. 
 
 ###Host Preparation
@@ -70,11 +70,11 @@ If you have an existing (old zendev) environment and you wish to continue using 
 
 1. Go to a directory for checkout.
     * `cd ~/src`
-1. Initialiaze an environment, the metis name is arbitrary. This may take some time.
+1. Initialize an environment, the metis name is arbitrary. This may take some time.
     * `zendev init metis`  
 1. Use the previously created environment.
     * `zendev use metis`
-1. Build a develepment based zenoss dockerimage. 
+1. Build a development based zenoss docker image. 
     * `zendev devimg`
 1. Build Control-Center.
     * `cdz serviced; make clean build`
