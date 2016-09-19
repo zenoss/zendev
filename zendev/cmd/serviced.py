@@ -9,6 +9,7 @@ import re
 import py.path
 import requests
 from ..log import info
+from ..devimage import DevImage
 from ..utils import get_ip_address, rename_tmux_window
 
 class Serviced(object):
@@ -20,15 +21,12 @@ class Serviced(object):
         self.env = env
         self.serviced = self.env.gopath.join("bin/serviced").strpath
         self.uiport = None
+        self.dev_image = DevImage(env)
 
     def get_zenoss_image(self, zenoss_image):
         if zenoss_image != 'zendev/devimg':
             return zenoss_image
-        zenoss_image += ':' + self.env.name
-        image_id = subprocess.check_output(['docker', 'images', '-q', zenoss_image])
-        if image_id:
-            return zenoss_image
-        return 'zendev/devimg:latest'
+        return self.dev_image.get_image_name()
 
     def reset(self):
         print "Stopping any running serviced"
@@ -41,6 +39,12 @@ class Serviced(object):
         subprocess.call("sudo rm -rf %s/*" % self.env.servicedhome.strpath, shell=True)
 
     def start(self, root=False, uiport=443, arguments=None, image=None):
+        devimg_name = self.get_zenoss_image(image)
+        if not self.dev_image.image_exists(devimg_name):
+            print >> sys.stderr, ("You don't have the devimg built. Please run"
+                      " zendev devimg\" first.")
+            sys.exit(1)
+
         print "Starting serviced..."
         rename_tmux_window("serviced")
         self.uiport = uiport
@@ -52,17 +56,18 @@ class Serviced(object):
         if root:
             args.extend(["sudo", "-E"])
             args.extend("%s=%s" % x for x in envvars.iteritems())
-        devimg = self.get_zenoss_image(image)
-        args.extend([self.serviced,
-            "--mount", "%s,%s,/home/zenoss/.m2" % (devimg, py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)),
-            "--mount", "%s,%s,/opt/zenoss" % (devimg, self.env.root.join("zenhome").strpath),
-            "--mount", "%s,%s,/mnt/src" % (devimg, self.env.root.join("src/github.com/zenoss").strpath),
-            "--mount", "%s,%s,/var/zenoss" % (devimg, self.env.var_zenoss.strpath),
+
+        args.extend([self.serviced])
+        mounts = self.dev_image.get_mounts()
+        for mount in mounts.iteritems():
+            args.extend(["--mount", "%s,%s,%s" % (devimg_name, mount[0], mount[1])])
+        args.extend([
             "--mount", "zendev/impact-devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
             "--uiport", ":%d" % uiport,
         ])
         if arguments:
           args.extend(arguments)
+
         # In serviced 1.1 and later, use subcommand 'server' to specifically request serviced be started
         servicedVersion = subprocess.check_output("%s version | awk '/^Version:/ { print $NF; exit }'" % self.serviced, shell=True).strip()
         if not servicedVersion.startswith("1.0.") and servicedVersion != "1.1.0":
@@ -310,7 +315,7 @@ def run_serviced(args, env):
             print "Not ready yet (countdown:%d). Checking again in 1 second." % timeout
             time.sleep(1)
             timeout -= 1
-        
+
 
         if wait_for_ready:
             print "serviced is ready!"
