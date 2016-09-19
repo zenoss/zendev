@@ -1,6 +1,7 @@
 import argcomplete
 import argparse
 import subprocess
+import os
 import sys
 import textwrap
 from .utils import here, colored
@@ -57,6 +58,10 @@ def parse_args():
 def selfupdate(args, env):
     with here().as_cwd():
         subprocess.call(["git", "pull"])
+        env = {}
+        env.update(os.environ)
+        env['GOPATH'] = env['HOME']
+        subprocess.call(["go", "get", "-u", "github.com/iancmcc/jig"], env=env)
 
 
 def root(args, env):
