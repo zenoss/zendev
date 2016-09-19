@@ -36,6 +36,9 @@ def parse_args():
     update_parser = subparsers.add_parser('selfupdate', help='Update zendev')
     update_parser.set_defaults(functor=selfupdate)
 
+    version_parser = subparsers.add_parser('version', help='Print version')
+    version_parser.set_defaults(functor=version)
+
     # Add sub commands here
     environment.add_commands(subparsers)
     tags.add_commands(subparsers, tagsCompleter)
@@ -57,6 +60,11 @@ def selfupdate(args, env):
 
 def root(args, env):
     print env().root.strpath
+
+def version(args, env):
+    import pkg_resources
+    print pkg_resources.require("zendev")[0].version
+    
 
 
 def bootstrap(args, env):
@@ -106,7 +114,8 @@ all_env_whitelist = [
     "ls",
     "root",
     "selfupdate",
-    "use"
+    "use",
+    "version"
 ]
 
 def validate_cmd_env(args):
