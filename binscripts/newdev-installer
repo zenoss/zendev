@@ -93,6 +93,7 @@ sudo apt-get install -y          \
      python-pip              \
      git                     \
      openjdk-8-jdk-headless  \
+     lvm2                    \
     || display_error "failed to install software packages"
 
 
