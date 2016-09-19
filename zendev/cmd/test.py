@@ -3,49 +3,25 @@ import subprocess
 import sys
 import os
 
+from ..devimage import DevImage
 
-def check_devimg(env):
-    """
-    return the image repo/tag for devimg
-    prefer the image for this environment if one exists; otherwise the latest
-    exit the program with a warning if no image is available
-    """
-    for tag in (env.name, 'latest'):
-        devimg = 'zendev/devimg:' + tag
-        if subprocess.check_output(['docker', 'images', '-q', devimg]) != '':
-            return devimg
-    print >> sys.stderr, ("You don't have the devimg built. Please run"
-                          " zendev devimg\" first.")
-    sys.exit(1)
-
-def get_mounts(env):
-    """
-    return a map of mount points in the form of
-    OS-local-directory-name:container-local-directory-name
-    """
-    envvars = env.envvars()
-    envvars['HOME'] = os.getenv('HOME')
-    print "envvars=%s" % envvars
-    mounts = {
-        os.path.join(envvars["HOME"], ".m2"):           "/home/zenoss/.m2",
-        env.root.join("zenhome").strpath:               "/opt/zenoss",
-        env.var_zenoss.strpath:                         "/var/zenoss",
-        env.root.join("src/github.com/zenoss").strpath: "/mnt/src"
-    }
-    return mounts
 
 def test(args, env):
     cmd = ["docker", "run", "-i", "-t", "--rm"]
     if args.no_tty:
         cmd.remove("-t")
 
-    env = env()
-    mounts = get_mounts(env)
+    devImage = DevImage(env())
+    mounts = devImage.get_mounts()
     for mount in mounts.iteritems():
         cmd.extend(["-v", "%s:%s" % mount])
 
-    image = check_devimg(env)
-    cmd.append(image)
+    imageName = devImage.get_image_name()
+    if not devImage.image_exists(imageName):
+        print >> sys.stderr, ("You don't have the devimg built. Please run"
+                              " zendev devimg\" first.")
+        sys.exit(1)
+    cmd.append(imageName)
 
     if args.interactive:
         cmd.append('bash')
@@ -53,7 +29,7 @@ def test(args, env):
         cmd.append("/opt/zenoss/install_scripts/starttests.sh")
         cmd.extend(args.arguments[1:])
 
-    print "Using %s image." % image
+    print "Using %s image." % imageName
     print "Calling Docker with the following:"
     print " ".join(cmd)
     return subprocess.call(cmd)
