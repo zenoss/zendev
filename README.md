@@ -65,6 +65,8 @@ To use zendev immediately without logging in again:
 *   `source ~/.bashrc`
 
 ##Initialize a zendev environment
+_Note: The new zendev2 environment is not compatible with the older zendev environment.  Thus, you cannot use an existing (old zendev) environment with zendev2.
+If you have an existing (old zendev) environment and you wish to continue using the same name with zendev2 you must remove/rename the existing environment's directory._
 
 1. Go to a directory for checkout.
     * `cd ~/src`
@@ -78,3 +80,10 @@ To use zendev immediately without logging in again:
     * `cdz serviced; make clean build`
 1. Run zenoss in Control-Center. 
     * `zendev serviced -dxa`  
+
+##Frequently Asked Questions
+
+**Why doesn't `cdz` work?**
+If you experience problems running cdz edit your `~/.bashrc` file and ensure that the line `source $(zendev bootstrap)` occurs _after_ the addition 
+of the directory `${HOME}/.local/bin` to your PATH.  If you make changes to your `.bashrc` file be sure to either close and reopen your shell or 
+run `source ~/.bashrc`.
