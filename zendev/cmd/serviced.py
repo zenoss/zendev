@@ -320,6 +320,11 @@ def run_serviced(args, env):
         if wait_for_ready:
             print "serviced is ready!"
 
+        # opt_serviced/var/isvcs needs 755 perms
+        var_isvcs = environ.servicedhome.join('var', 'isvcs').__str__()
+        if subprocess.call(["sudo", "chmod", "755", var_isvcs]):
+            print "Could not set appropriate permissions for %s. Continuing anyway." % var_isvcs
+
         if args.deploy or args.deploy_ana:
             if 'SERVICED_HOST_IP' in os.environ:
                 _serviced.add_host(host=os.environ.get('SERVICED_HOST_IP'))
