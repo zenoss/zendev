@@ -1,8 +1,24 @@
 #zendev
 
+# Table of Contents
+  - [Description](#description)
+  - [Installation](#installation)
+    - [Host Preparation](#host-preparation)
+    - [Without an existing thin pool](#without-an-existing-thin-pool)
+    - [With an existing thin pool or use loopback](#with-an-existing-thin-pool-or-use-loopback)
+  - [GitHub Setup](#github-setup)
+  - [Install zendev](#install-zendev)
+  - [Initialize a zendev environment](#initialize-a-zendev-environment)
+  - [Building Images](#building-images)
+    - [Building Product Images](#building-product-images)
+    - [Building Dev Images](#building-dev-images)
+  - [Testing Images](#testing-images)
+  - [Frequently Asked Questions](#frequently-asked-questions)
+
 ##Description
-zendev takes care of setting up and managing the disparate components of a standard Zenoss development environment, 
-with or without Control Center. It's primary usecase is to checkout all github repositories needed for 
+
+zendev takes care of setting up and managing the disparate components of a standard Zenoss development environment,
+with or without Control Center. It's primary usecase is to checkout all github repositories needed for
 development and to build a developer focused docker image to run Zenoss in Control-Center. It can also:
 
 * Quickly view branches across some or all repositories
@@ -16,19 +32,19 @@ Please feel free to fork and submit pull requests for this project.
 
 ##Installation
 
-These instructions are known to work with ubuntu 16.0.4 xenial. Specifically the `newdev-installer` script is known not 
- to work with ubuntu 14.0.4. 
+These instructions are known to work with ubuntu 16.0.4 xenial. Specifically the `newdev-installer` script is known not
+ to work with ubuntu 14.0.4.
 
 ###Host Preparation
 
-For a new developer machine the `newdev-installer` script will prepare machine by installing docker etc. and creating a 
-thin pool with an existing device.  
+For a new developer machine the `newdev-installer` script will prepare machine by installing docker etc. and creating a
+thin pool with an existing device.
 
 ###Without an existing thin pool
-Start by identifying an unused device on your system. You can use `lsblk` to seek the devices on your system. 
+Start by identifying an unused device on your system. You can use `lsblk` to seek the devices on your system.
 If unsure of which device to choose, please ask for help.
 
-Once a device has been identified run the following script as your user as long as the user has sudo privileges. 
+Once a device has been identified run the following script as your user as long as the user has sudo privileges.
 Replace `/dev/xvdb` with an unused device to create the docker thin pool.
 
 `curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash -s /dev/xvdb`
@@ -38,19 +54,19 @@ Alternatively you can run as root but must set the USER environment variable for
 `USER=leeroy_jenkins bash -c "curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash -s /dev/xvdb"`
 
 ###With an existing thin pool or use loopback
-You can run the newdev-installer if you already have an existing thin pool or just want to run docker with a loopback 
+You can run the newdev-installer if you already have an existing thin pool or just want to run docker with a loopback
 device, not recommended, by passing in `CONF_THINPOOL=false` to the script.  This will install all the tools needed for
- a developer as well as docker but it will not configure docker to use a thinpool. 
+ a developer as well as docker but it will not configure docker to use a thinpool.
 
 `CONF_THINPOOL=false bash -c "curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash"`
 
-Note: Docker may not startup properly if you had it configured for an existing thinpool and use this option. You will 
+Note: Docker may not startup properly if you had it configured for an existing thinpool and use this option. You will
 have to modify the docker config if you want your thinpool to be used.
 
 ##GitHub Setup
 
-A GitHub account is needed for the next part. Please make sure you have a GitHub account and that your local git 
-installation is setup to use SSH keys. Instructions to setup github to use SSH keys can be found at:  
+A GitHub account is needed for the next part. Please make sure you have a GitHub account and that your local git
+installation is setup to use SSH keys. Instructions to setup github to use SSH keys can be found at:
 
 https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
@@ -71,19 +87,20 @@ If you have an existing (old zendev) environment and you wish to continue using 
 1. Go to a directory for checkout.
     * `cd ~/src`
 1. Initialize an environment, the metis name is arbitrary. This may take some time.
-    * `zendev init metis`  
+    * `zendev init metis`
 1. Use the previously created environment.
     * `zendev use metis`
-1. Build a development based zenoss docker image. 
+1. Build a development based zenoss docker image.
     * `zendev devimg`
 1. Build Control-Center.
     * `cdz serviced; make clean build`
-1. Run zenoss in Control-Center. 
-    * `zendev serviced -dxa`  
+1. Run zenoss in Control-Center.
+    * `zendev serviced -dxa`
 
 ##Frequently Asked Questions
 
 **Why doesn't `cdz` work?**
-If you experience problems running cdz edit your `~/.bashrc` file and ensure that the line `source $(zendev bootstrap)` occurs _after_ the addition 
-of the directory `${HOME}/.local/bin` to your PATH.  If you make changes to your `.bashrc` file be sure to either close and reopen your shell or 
+If you experience problems running cdz edit your `~/.bashrc` file and ensure that the line `source $(zendev bootstrap)` occurs _after_ the addition
+of the directory `${HOME}/.local/bin` to your PATH.  If you make changes to your `.bashrc` file be sure to either close and reopen your shell or
 run `source ~/.bashrc`.
+
