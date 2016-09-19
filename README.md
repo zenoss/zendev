@@ -74,5 +74,7 @@ To use zendev immediately without logging in again:
     * `zendev use metis`
 1. Build a develepment based zenoss dockerimage. 
     * `zendev devimg`
+1. Build Control-Center.
+    * `cdz serviced; make clean build`
 1. Run zenoss in Control-Center. 
     * `zendev serviced -dxa`  
