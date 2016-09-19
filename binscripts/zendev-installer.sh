@@ -25,25 +25,28 @@ ZENDEV_DIR=${ZENDEV_DEST}/zendev
 ZENDEV_REPO=git@github.com:zenoss/zendev.git
 
 
-#TODO check zendev version for switch over from v1 to v2 (when zendev -v works)
-if ! zendev -h  >/dev/null 2>&1 ; then
-    echo "Installing zendev"
+#if no zendev or zendev version command fails (only v2 has version option)
+if ! zendev version > /dev/null 2>&1 ; then
+    echo "Installing zendev to ${ZENDEV_DIR}"
 
-    [ -d "${ZENDEV_DIR}" ] && display_error "zendev already installed"
     [ -d "${ZENDEV_DEST}" ] || mkdir -p ${ZENDEV_DEST} > /dev/null 2>&1 || display_error "Failed to create ${ZENDEV_DEST}"
-
+    
     if ! git --help > /dev/null 2>&1 ; then
 	display_error "git not installed"
     fi
 
-    git clone ${ZENDEV_REPO} ${ZENDEV_DIR} > /dev/null 2>&1 || display_error "Failed to clone from ${ZENDEV_REPO} into ${ZENDEV_DIR}"
+    if [ -d "${ZENDEV_DIR}" ]; then 
+	echo "${ZENDEV_DIR} exists. Attempting to checkout branch ${BRANCH}"
+    else
+	git clone ${ZENDEV_REPO} ${ZENDEV_DIR} > /dev/null 2>&1 || display_error "Failed to clone from ${ZENDEV_REPO} into ${ZENDEV_DIR}"
+    fi
 
     pushd . > /dev/null
 
     cd ${ZENDEV_DIR} && git checkout ${BRANCH} > /dev/null 2>&1
     pip install --user -e . || display_error "Failed to pip install zendev"
     popd > /dev/null
-
+	
 else
     echo "zendev already installed"
 fi
