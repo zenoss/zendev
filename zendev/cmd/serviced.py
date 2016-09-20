@@ -383,7 +383,7 @@ def devshell(args, env):
     Start up a shell with the imports of the Zope service but no command.
     """
     env = env()
-    _serviced = env._gopath.join("bin/serviced").strpath
+    _serviced = env.gopath.join("bin/serviced").strpath
 
     rename_tmux_window("devshell")
 
