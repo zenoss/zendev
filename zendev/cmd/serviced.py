@@ -8,7 +8,7 @@ import re
 
 import py.path
 import requests
-from ..log import info
+from ..log import info, error
 from ..devimage import DevImage
 from ..utils import get_ip_address, rename_tmux_window
 
@@ -29,23 +29,22 @@ class Serviced(object):
         return self.dev_image.get_image_name()
 
     def reset(self):
-        print "Stopping any running serviced"
+        info("Stopping any running serviced")
         subprocess.call(['sudo', 'pkill', 'serviced'])
-        print "Killing any running containers"
+        info("Killing any running containers")
         running = subprocess.check_output(["docker", "ps", "-q"])
         if running:
             subprocess.call(["docker", "kill"] + running.splitlines())
-        print "Cleaning state"
+        info("Cleaning state")
         subprocess.call("sudo rm -rf %s/*" % self.env.servicedhome.strpath, shell=True)
 
     def start(self, root=False, uiport=443, arguments=None, image=None):
         devimg_name = self.get_zenoss_image(image)
         if not self.dev_image.image_exists(devimg_name):
-            print >> sys.stderr, ("You don't have the devimg built. Please run"
-                      " zendev devimg\" first.")
+            error("You don't have the devimg built. Please run \"zendev devimg\" first.")
             sys.exit(1)
 
-        print "Starting serviced..."
+        info("Starting serviced...")
         rename_tmux_window("serviced")
         self.uiport = uiport
         args = []
@@ -87,7 +86,7 @@ class Serviced(object):
         if not linkpath.check(exists=True):
             linkpath.mksymlinkto(self.env.servicedsrc.join('web', 'ui', 'build'))
 
-        print "Running command:", args
+        info("Running command: %s" % args)
         self.proc = subprocess.Popen(args)
 
     def is_ready(self):
@@ -111,7 +110,7 @@ class Serviced(object):
                 pass
 
     def add_host(self, host="172.17.42.1:4979", pool="default"):
-        print "Adding host %s" % host
+        info("Adding host %s" % host)
         hostid = None
         # give up after 60 seconds
         timeout = time.time() + 60
@@ -126,19 +125,19 @@ class Serviced(object):
                 out, err = process.communicate()
                 if ahostid in out:
                     hostid = ahostid
-                    print "Added hostid %s for host %s  pool %s" % (hostid, host, pool)
+                    info("Added hostid %s for host %s  pool %s" % (hostid, host, pool))
             elif err:
                 match = re.match("host already exists: (\\w+)", err)
                 if match:
                     hostid = match.group(1)
 
         if time.time() >= timeout:
-            print "Gave up trying to add host %s due to error: %s" % (host, err)
+            error("Gave up trying to add host %s due to error: %s" % (host, err))
 
 
     def deploy(self, template, pool="default", svcname="HBase",
             noAutoAssignIpFlag=""):
-        print "Deploying template"
+        info("Deploying template")
         deploy_command = [self.serviced, "template", "deploy"]
         if noAutoAssignIpFlag != "":
             deploy_command.append(noAutoAssignIpFlag)
@@ -147,13 +146,13 @@ class Serviced(object):
         deploy_command.append(svcname)
         time.sleep(1)
         subprocess.call(deploy_command)
-        print "Deployed templates:"
+        info("Deployed templates:")
         subprocess.call([self.serviced, "template", "list"])
 
     def remove_catalogservice(self, services, svc):
         if svc['Name'] and svc['Name'] == 'zencatalogservice':
             services.remove(svc)
-            print "Removed zencatalogservice from resmgr template"
+            info("Removed zencatalogservice from resmgr template")
             return
 
         if svc['HealthChecks'] and 'catalogservice_answering' in svc['HealthChecks']:
@@ -165,7 +164,7 @@ class Serviced(object):
 
     def zope_debug(self, services, svc):
         if svc['Name'] and svc['Name'] == 'Zope':
-            print "Set Zope to debug in template"
+            info("Set Zope to debug in template")
             svc['Command'] = svc['Command'].replace("runzope", "zopectl fg")
 
             if svc['HealthChecks']:
@@ -180,7 +179,7 @@ class Serviced(object):
             config = configs.get("/opt/zenoss/zproxy/conf/zproxy-nginx.conf", None)
             if config:
                 config["Content"] = config["Content"].replace("pagespeed on", "pagespeed off")
-                print "Disabled pagespeed in zproxy template"
+                info("Disabled pagespeed in zproxy template")
 
     def walk_services(self, services, visitor):
         if not services:
@@ -207,13 +206,13 @@ class Serviced(object):
 
     def compile_template(self, template, image):
         tplpath = self.get_template_path(template).strpath
-        print "Compiling template", tplpath
+        info("Compiling template %s" % tplpath)
         versionsFile = self.env.productAssembly.join("versions.mk")
         hbaseVersion = subprocess.check_output("awk -F= '/^HBASE_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
         hdfsVersion = subprocess.check_output("awk -F= '/^HDFS_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
         opentsdbVersion = subprocess.check_output("awk -F= '/^OPENTSDB_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
-        print "Detected hbase version in makefile is %s" % hbaseVersion
-        print "Detected opentsdb version in makefile is %s" % opentsdbVersion
+        info("Detected hbase version in makefile is %s" % hbaseVersion)
+        info("Detected opentsdb version in makefile is %s" % opentsdbVersion)
         if hbaseVersion == "" or opentsdbVersion == "":
             raise Exception("Unable to get opentsdb/hbase tags from services makefile")
         proc = subprocess.Popen([self.serviced, "template", "compile",
@@ -226,10 +225,10 @@ class Serviced(object):
         stdout, stderr = proc.communicate()
 
         if proc.returncode:
-            print "Failed to compile template %s with return code %i\n %s" % (template, proc.returncode, stderr)
+            error("Failed to compile template %s with return code %i\n %s" % (template, proc.returncode, stderr))
             return
 
-        print "Compiled new template"
+        info("Compiled new template")
 
         compiled=json.loads(stdout);
         self.walk_services(compiled['Services'], self.zope_debug)
@@ -242,12 +241,12 @@ class Serviced(object):
         return stdout
 
     def add_template(self, template=None):
-        print "Adding template"
+        info("Adding template")
         addtpl = subprocess.Popen([self.serviced, "template", "add"],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         tplid, _ = addtpl.communicate(template)
         tplid = tplid.strip()
-        print "Added template", tplid
+        info("Added template %s" % tplid)
         return tplid
 
     def startall(self):
@@ -310,20 +309,22 @@ def run_serviced(args, env):
         wait_for_ready = not args.skip_ready_wait
         while wait_for_ready and not _serviced.is_ready():
             if not timeout:
-                print "Timed out waiting for serviced!"
+                error("Timed out waiting for serviced!")
                 sys.exit(1)
-            print "Not ready yet (countdown:%d). Checking again in 1 second." % timeout
+            # log every 5 attempts
+            if not timeout % 5:
+                info("Waiting for serviced to be ready")
             time.sleep(1)
             timeout -= 1
 
 
         if wait_for_ready:
-            print "serviced is ready!"
+            info("serviced is ready!")
 
         # opt_serviced/var/isvcs needs 755 perms
         var_isvcs = environ.servicedhome.join('var', 'isvcs').__str__()
         if subprocess.call(["sudo", "chmod", "755", var_isvcs]):
-            print "Could not set appropriate permissions for %s. Continuing anyway." % var_isvcs
+            error("Could not set appropriate permissions for %s. Continuing anyway." % var_isvcs)
 
         if args.deploy or args.deploy_ana:
             if 'SERVICED_HOST_IP' in os.environ:
@@ -353,7 +354,7 @@ def run_serviced(args, env):
                     tplid = _serviced.add_template(template)
 
             if tplid is None:
-                print "Failed to deploy %s. Continuing anyway." % args.template
+                error("Failed to deploy %s. Continuing anyway." % template)
             else:
                 kwargs = dict(template=tplid, svcname=deploymentId )
                 if args.no_auto_assign_ips:
@@ -363,7 +364,28 @@ def run_serviced(args, env):
 
         if args.startall:
             _serviced.startall()
+            info("Starting all services");
             # Join the subprocess
+
+	# subtle hint that zenoss is
+	# ready to use
+	print """
+ __________ _   _ ____  _______     __
+|__  / ____| \ | |  _ \| ____\ \   / /
+  / /|  _| |  \| | | | |  _|  \ \ / /
+ / /_| |___| |\  | |_| | |___  \ V /
+/____|_____|_| \_|____/|_____|  \_/
+ ____  _____ ____  _     _____   ____  __ _____ _   _ _____
+|  _ \| ____|  _ \| |   / _ \ \ / /  \/  | ____| \ | |_   _|
+| | | |  _| | |_) | |  | | | \ V /| |\/| |  _| |  \| | | |
+| |_| | |___|  __/| |__| |_| || | | |  | | |___| |\  | | |
+|____/|_____|_|   |_____\___/ |_| |_|  |_|_____|_| \_| |_|
+  ____ ___  __  __ ____  _     _____ _____ _____
+ / ___/ _ \|  \/  |  _ \| |   | ____|_   _| ____|
+| |  | | | | |\/| | |_) | |   |  _|   | | |  _|
+| |__| |_| | |  | |  __/| |___| |___  | | | |___
+ \____\___/|_|  |_|_|   |_____|_____| |_| |_____|
+"""
         _serviced.wait()
     except Exception:
         _serviced.stop()
@@ -371,7 +393,6 @@ def run_serviced(args, env):
     except (KeyboardInterrupt, SystemExit):
         _serviced.stop()
         sys.exit(0)
-
 
 def attach(args, env):
     rename_tmux_window(args.specifier)
