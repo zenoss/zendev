@@ -367,9 +367,9 @@ def run_serviced(args, env):
             info("Starting all services");
             # Join the subprocess
 
-	# subtle hint that zenoss is
-	# ready to use
-	print """
+        # subtle hint that zenoss is
+        # ready to use
+        print """
  __________ _   _ ____  _______     __
 |__  / ____| \ | |  _ \| ____\ \   / /
   / /|  _| |  \| | | | |  _|  \ \ / /
