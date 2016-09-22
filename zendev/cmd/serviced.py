@@ -109,7 +109,7 @@ class Serviced(object):
         hostid = None
         while not hostid:
             time.sleep(1)
-            process = subprocess.Popen([self.serviced, "host","add", host, pool], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen([self.serviced, "host","add", "--register", host, pool], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = process.communicate()
             if out:
                 ahostid = out.rstrip()
