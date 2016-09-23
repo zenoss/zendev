@@ -242,3 +242,9 @@ If you experience problems running cdz edit your `~/.bashrc` file and ensure tha
 of the directory `${HOME}/.local/bin` to your PATH.  If you make changes to your `.bashrc` file be sure to either close and reopen your shell or
 run `source ~/.bashrc`.
 
+**Why wont the docker-registry service start?**
+If `zendev serviced` doesn't successfully come up and you see a message like:
+```
+ERRO[0133] Unable to start internal service              error=healthcheck timed out isvc=docker-registry location=manager.go:379 logger=isvcs
+```
+The problem can be that the docker-registry healthcheck is trying to connect to the local ip6 address and not the ip4 address. Look in /etc/hosts and make sure the ip6 entries are not mapping `localhost`. If they are, change it to something like `ip6-localhost`. 
