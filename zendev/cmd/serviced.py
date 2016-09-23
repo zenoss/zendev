@@ -117,7 +117,7 @@ class Serviced(object):
         err = None
         while not hostid and time.time() < timeout:
             time.sleep(1)
-            process = subprocess.Popen(["sudo", self.serviced, "host","add", "--register", host, pool], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(["sudo", "-E", "SERVICED_HOME=%s" % self.env.servicedhome.strpath, self.serviced, "host","add", "--register", host, pool], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = process.communicate()
             if out:
                 ahostid = out.rstrip()
