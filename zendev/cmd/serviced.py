@@ -74,6 +74,9 @@ class Serviced(object):
         if not servicedVersion.startswith("1.0."):
             args.extend(["server"])
 
+        # Make sure etc is there
+        self.env.servicedhome.ensure('etc', dir=True)
+
         # Symlink in isvcs/resources
         isvcs = self.env.servicedhome.ensure('isvcs', dir=True)
         linkpath = isvcs.join('resources')
@@ -117,10 +120,16 @@ class Serviced(object):
         err = None
         while not hostid and time.time() < timeout:
             time.sleep(1)
-            process = subprocess.Popen(["sudo", "-E", "SERVICED_HOME=%s" % self.env.servicedhome.strpath, self.serviced, "host","add", "--register", host, pool], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(["sudo", "-E", "SERVICED_HOME=%s"
+                                        % self.env.servicedhome.strpath,
+                                        self.serviced, "host", "add",
+                                        "--register", host, pool],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
             out, err = process.communicate()
             if out:
-                ahostid = out.rstrip()
+                info(out)
+                ahostid = out.splitlines()[-1].strip()
                 process = subprocess.Popen([self.serviced, "host", "list", ahostid], stdout=subprocess.PIPE)
                 out, err = process.communicate()
                 if ahostid in out:
@@ -326,12 +335,14 @@ def run_serviced(args, env):
         if subprocess.call(["sudo", "chmod", "755", var_isvcs]):
             error("Could not set appropriate permissions for %s. Continuing anyway." % var_isvcs)
 
+        # Add host
+        if 'SERVICED_HOST_IP' in os.environ:
+            _serviced.add_host(host=os.environ.get('SERVICED_HOST_IP'))
+        else:
+            ipAddr = get_ip_address() or "172.17.42.1"
+            _serviced.add_host(ipAddr + ":4979")
+
         if args.deploy or args.deploy_ana:
-            if 'SERVICED_HOST_IP' in os.environ:
-                _serviced.add_host(host=os.environ.get('SERVICED_HOST_IP'))
-            else:
-                ipAddr = get_ip_address() or "172.17.42.1"
-                _serviced.add_host(ipAddr + ":4979")
 
             if args.deploy_ana:
                 args.template=environ.srcroot.join('/analytics/pkg/service/Zenoss.analytics').strpath
