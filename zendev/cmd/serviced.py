@@ -397,35 +397,26 @@ def run_serviced(args, env):
 | |__| |_| | |  | |  __/| |___| |___  | | | |___
  \____\___/|_|  |_|_|   |_____|_____| |_| |_____|
                                 
-                                
-                                
-             `'+++'             
-           `+++++++++`          
-          ;+++;;;;;+++;         
-         ;++';;;;;;;+++:        
-        `++   ;;;;;;++++        
-        ++'   ;;;;;;'++++       
-        +++   ;;;;;;+++++       
-       :++++';;;;;;;+++++,      
-       '++++++;;;;;++++++'      
-       ++++++++'''+++++++'      
-       '+++++++++++++++++;      
-       ,+++++++++++++++++`      
-        +++++++++++++++++       
-        +++++++++++++++++       
-        ++'  +++  ++, +++       
-       '++`  +++ `++. :++,      
-       .++  ,++, ;++   +++      
-     :;:    +++  +++   :+: ,    
-    :;;;.  ,++' `++;    ' ;;;.  
-    ;;;;,  +++ .: ;      :;;;:  
-     ;;;  +++:,;;;       `;;;,  
-          +++ :;;;,       .:,   
-       ;;: +  :;;;              
-      :;;;.    ,:`              
-      :;;;.                     
-       ;;:                      
-                                
+              `-/+ossoo/:`               
+          -ohmmmdhhhhdmmmdo-            
+        -ymmddhyssssssshmmmmh/          
+       ommy.  `+ssssssssymmmmmy`        
+      ymmm:    .sssssssssmmmmmmh`       
+     /mmmmdo/:/ssssssssshmmmmmmmo       
+     ymmmmmmmmdyssssssydmmmmmmmmd       
+     hmmmmmmmmmmmddddmmmmmmmmmmmm       
+     ommmmmmmmmmmmmmmmmmmmmmmmmmy       
+     `dmmmmmmmmmmmmmmmmmmmmmmmmd.       
+      ymmmy+++dmmms++mmmmo+smmmh        
+     ommmd`  -mmmm` `mmmm` `dmmm+       
+   `-/smh.  `hmmmo  +mmmy   -dmmms      
+ /ssss:.`  `ymmmy  :mmmm-    .ym/-/o+/. 
+-ssssss`  -hmmmy`.-::/d/       ..ssssss`
+ :oss+- .smmmmo`ossss+          `ossss+ 
+    `://-:ymy- .ssssss`           .--`  
+   .ssssso`:    ./++/`                  
+   .ssssso                              
+    `:/:-                            
 """
         _serviced.wait()
     except Exception:
