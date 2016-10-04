@@ -78,8 +78,8 @@ GOPATH=${HOME} go get github.com/github/hub
 if ! grep -F "#Setup hub completion" ${ENV_FILE} > /dev/null 2>&1 ; then
     cat <<EOF>> ${ENV_FILE}
 #Setup hub completion
-if [ -f ${SRC_ROOT}/github.com/hub/etc/hub.bash_completion.sh ]; then
-. ${SRC_ROOT}/github.com/hub/etc/hub.bash_completion.sh
+if [ -f ${SRC_ROOT}/github.com/github/hub/etc/hub.bash_completion.sh ]; then
+. ${SRC_ROOT}/github.com/github/hub/etc/hub.bash_completion.sh
 fi
 EOF
 fi
