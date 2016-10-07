@@ -70,7 +70,8 @@ bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/bins
 source ${HOME}/.gvm/scripts/gvm
 gvm install go1.6.3 --binary
 gvm install go1.4.3 --binary
-gvm use go1.6.3 --default
+gvm install go1.7.1 --binary
+gvm use go1.7.1 --default
 
 echo "Installing hub"
 GOPATH=${HOME} go get github.com/github/hub
