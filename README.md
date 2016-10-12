@@ -73,7 +73,7 @@ https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
 ##Install zendev
 
-Run the following as your user:
+Run the following as your user (*NOTE: run from a plain shell, i.e. not within a zendev environment*):
 
 `curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/zendev-installer.sh | bash`
 
