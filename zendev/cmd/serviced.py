@@ -74,8 +74,17 @@ class Serviced(object):
         if not servicedVersion.startswith("1.0."):
             args.extend(["server"])
 
-        # Make sure etc is there
-        self.env.servicedhome.ensure('etc', dir=True)
+        # Make sure etc is present and contains copies of config files
+        etc = self.env.servicedhome.ensure('etc', dir=True)
+        pkg = self.env.servicedsrc.join('pkg')
+        for filename in ('logconfig-server.yaml', 'logconfig-cli.yaml'):
+            source = pkg.join(filename)
+            target = etc.join(filename)
+            if not target.check():
+                try:
+                    source.copy(target)
+                except:
+                    pass
 
         # Symlink in isvcs/resources
         isvcs = self.env.servicedhome.ensure('isvcs', dir=True)
