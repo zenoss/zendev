@@ -145,9 +145,11 @@ class Serviced(object):
                     hostid = ahostid
                     info("Added hostid %s for host %s  pool %s" % (hostid, host, pool))
             elif err:
-                match = re.match("host already exists: (\\w+)", err)
-                if match:
-                    hostid = match.group(1)
+                for line in err.split('\n'):
+                    match = re.match("host already exists: (\\w+)", line)
+                    if match:
+                        hostid = match.group(1)
+                        break
 
         if time.time() >= timeout:
             error("Gave up trying to add host %s due to error: %s" % (host, err))
