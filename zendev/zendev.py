@@ -9,7 +9,7 @@ from .utils import here, colored
 from .environment import ZenDevEnvironment
 from .environment import NotInitialized
 
-from .cmd import build, devimg, environment, repos, serviced, tags, test
+from .cmd import build, devimg, environment, repos, serviced, tags, test, zodb
 
 from .config import get_config, get_envname
 from .log import error
@@ -18,7 +18,7 @@ def parse_args():
     epilog = textwrap.dedent('''
     Environment commands: {init, ls, use, drop, env, root}
     Repo commands: {cd, restore, status, pull}
-    Serviced commands: {serviced, atttach, devshell}
+    Serviced commands: {serviced, atttach, devshell, zodb}
     ''')
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, epilog=epilog)
@@ -48,6 +48,7 @@ def parse_args():
     test.add_commands(subparsers)
     repos.add_commands(subparsers)
     serviced.add_commands(subparsers)
+    zodb.add_commands(subparsers)
 
     argcomplete.autocomplete(parser)
 
