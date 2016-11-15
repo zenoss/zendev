@@ -1,8 +1,6 @@
 import subprocess
 
 def dumpzodb(args, env):
-    
-
     environ = env()
     cmdArgs = ['make']
     cmdArgs.append('dumpdb')
@@ -13,14 +11,11 @@ def dumpzodb(args, env):
     if not args.gz:
         cmdArgs.append('ZENWIPE_ARGS=--xml')
 
-
-
     devimgSrcDir = environ.productAssembly.join("devimg")
     print "cd %s" % devimgSrcDir.strpath
     devimgSrcDir.chdir()
     print " ".join(cmdArgs)
     subprocess.check_call(cmdArgs)
-
 
 def add_commands(subparsers):
     epilog = '''
@@ -30,12 +25,10 @@ def add_commands(subparsers):
     and then run:
     zendev dump-zodb
     '''
-    
-    dumpzodb_parser = subparsers.add_parser('dump-zodb', help="Manage zodb", epilog=epilog)
 
+    dumpzodb_parser = subparsers.add_parser('dump-zodb', help="Manage zodb", epilog=epilog)
     dumpzodb_parser.add_argument('-z', '--load-from-gz', action="store_true",
             help="Load data from the .gz file instead of the .xml files",
             dest="gz",
             default=False)
-
     dumpzodb_parser.set_defaults(functor=dumpzodb)
