@@ -95,7 +95,7 @@ class Repository(object):
         if self.repo.is_merged_into(remote_name, local_name):
             # Nothing to do
             return
-        self.message("Changes found in %s:%s! Rebasing %s..." % (
+        print("Changes found in %s:%s! Rebasing %s..." % (
             self.name, remote_name, local_name))
         weStashed = False
         if any(self.changes):
@@ -116,3 +116,25 @@ class Repository(object):
             self._repo = gitflow.core.GitFlow(self.path.strpath)
         if self._repo and not self._repo.is_initialized():
             py.io.StdCaptureFD.call(self._repo.init)
+
+    @property
+    @memoize
+    def changes(self):
+        staged = unstaged = untracked = False
+        lines = self.repo.repo.git.status('-z', porcelain=True).split('\x00')
+        for char in (x[:2] for x in lines):
+            if char.startswith('?'):
+                untracked = True
+            elif char.startswith(' '):
+                unstaged = True
+            elif char:
+                staged = True
+
+        return staged, unstaged, untracked
+
+    def stash(self):
+        self.repo.git.stash('-u')
+
+    def apply_stash(self):
+        self.repo.git.stash('apply')
+                     
