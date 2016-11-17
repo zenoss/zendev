@@ -170,7 +170,8 @@ class ZenDevEnvironment(object):
         repo = self._ensure_product_assembly()
         info("Checking out '%s' for product-assembly ..." % ref)
         repo.checkout(ref)
-
+        repo.fetch()
+        repo.merge_from_remote()
         info("Generating list of github repos and versions ...")
         repos_json = self.generateRepoJSON()
 
