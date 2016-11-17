@@ -82,6 +82,35 @@ class Repository(object):
             if not shallow:
                 self.initialize()
 
+    def merge_from_remote(self):
+        try:
+            active_branch = self.repo.repo.active_branch
+        except TypeError:
+            # We're detached
+            return
+        local_name = active_branch.name
+        tracking = active_branch.tracking_branch()
+        remote_name = tracking.name if tracking else local_name
+
+        if self.repo.is_merged_into(remote_name, local_name):
+            # Nothing to do
+            return
+        self.message("Changes found in %s:%s! Rebasing %s..." % (
+            self.name, remote_name, local_name))
+        weStashed = False
+        if any(self.changes):
+            weStashed = True
+            self.stash()
+        self.repo.git.rebase(remote_name, output_stream=sys.stderr)
+        try:
+            if weStashed:
+                self.apply_stash()
+        except GitCommandError:
+            pass
+
+    def fetch(self):
+        self.repo.git.fetch(all=True)
+ 
     def initialize(self):
         if not self._repo and is_git_repo(self.path):
             self._repo = gitflow.core.GitFlow(self.path.strpath)
