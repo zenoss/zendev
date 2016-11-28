@@ -108,6 +108,8 @@ class Repository(object):
             self._repo = gitflow.core.GitFlow(self.path.strpath)
         if self._repo and not self._repo.is_initialized():
             py.io.StdCaptureFD.call(self._repo.init)
+        if self._repo and not self._repo.get('include.path', ''):
+            self._repo.set('include.path', '../gitflow-branch-config')
 
 
                      

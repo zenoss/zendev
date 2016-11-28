@@ -63,6 +63,13 @@ def selfupdate(args, env):
         env.update(os.environ)
         env['GOPATH'] = env['HOME']
         subprocess.call(["go", "get", "-u", "github.com/iancmcc/jig"], env=env)
+    # Initialize all repos for all environments.  This is to ensure that repos
+    # created without a branch.path config value are updated to include that.
+    config = get_config()
+    for env_name in config.environments:
+        env = check_env(env_name)
+        for repo in env.repos():
+            repo.initialize()
 
 
 def root(args, env):
