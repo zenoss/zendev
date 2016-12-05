@@ -9,10 +9,11 @@ from .utils import here, colored
 from .environment import ZenDevEnvironment
 from .environment import NotInitialized
 
-from .cmd import build, devimg, environment, repos, serviced, tags, test, dumpzodb
+from .cmd import build, devimg, environment, repos, serviced, tags, test, dumpzodb, impact_devimg
 
 from .config import get_config, get_envname
 from .log import error
+
 
 def parse_args():
     epilog = textwrap.dedent('''
@@ -45,13 +46,12 @@ def parse_args():
     tags.add_commands(subparsers, tagsCompleter)
     build.add_commands(subparsers)
     devimg.add_commands(subparsers)
+    impact_devimg.add_commands(subparsers)
     test.add_commands(subparsers)
     repos.add_commands(subparsers)
     serviced.add_commands(subparsers)
     dumpzodb.add_commands(subparsers)
-
     argcomplete.autocomplete(parser)
-
     args = parser.parse_args()
     return args
 
@@ -75,10 +75,10 @@ def selfupdate(args, env):
 def root(args, env):
     print env().root.strpath
 
+
 def version(args, env):
     import pkg_resources
     print pkg_resources.require("zendev")[0].version
-    
 
 
 def bootstrap(args, env):
@@ -97,11 +97,12 @@ def ls(args, env):
     cur = get_envname()
     for env in config.environments:
         prefix = colored('*', 'blue') if env == cur else ' '
-        envDetails =  config.environments[env]
+        envDetails = config.environments[env]
         suffix = '(v1)'
         if 'version' in envDetails:
             suffix = '(%s)' % envDetails['version']
         print prefix, env, suffix
+
 
 def check_env(name=None, **kwargs):
     envname = name or get_envname()
@@ -118,6 +119,7 @@ def check_env(name=None, **kwargs):
         error("Not a zendev environment. Run 'zendev init' first.")
         sys.exit(1)
 
+
 #
 # A whitelist of all of commands which are allowed in all implementations of zendev.
 #
@@ -132,11 +134,13 @@ all_env_whitelist = [
     "version"
 ]
 
+
 def validate_cmd_env(args):
     if any(args.subparser in s for s in all_env_whitelist):
         return True
     config = get_config()
     return config.validate(config.current)
+
 
 def main():
     args = parse_args()
