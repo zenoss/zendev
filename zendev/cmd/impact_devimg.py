@@ -22,13 +22,13 @@ def impact_devimg(args, env):
     #  if the version changes.  Better if the pom.xml set up a non-versioned symlink to the
     #  versioned file; then this could link to the non-versioned symlink.
     startup = """
-        SRC=/mnt/src/github.com/zenoss/impact-server
+        SRC=/mnt/src/
         DST=/opt/zenoss_impact
         VSN=%s
-        ln -fs $SRC/zenoss-dsa/target/impact-server.war $DST/webapps/impact-server.war
+        ln -fs $SRC/impact-server/zenoss-dsa/target/impact-server.war $DST/webapps/impact-server.war
         find $DST/lib/adapters/ -name model-adapters\*.jar | xargs rm
-        ln -fs $SRC/model-adapters-common/target/model-adapters-common-$VSN.jar $DST/lib/adapters
-        ln -fs $SRC/model-adapters-zenoss/target/model-adapters-zenoss-$VSN.jar $DST/lib/adapters/zenoss
+        ln -fs $SRC/impact-server/model-adapters-common/target/model-adapters-common-$VSN.jar $DST/lib/adapters
+        ln -fs $SRC/impact-server/model-adapters-zenoss/target/model-adapters-zenoss-$VSN.jar $DST/lib/adapters/zenoss
     """ % (version,)
     with tempfile.NamedTemporaryFile() as f:
         f.write(startup)
