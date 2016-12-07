@@ -61,7 +61,7 @@ class Serviced(object):
         for mount in mounts.iteritems():
             args.extend(["--mount", "%s,%s,%s" % (devimg_name, mount[0], mount[1])])
         args.extend([
-            "--mount", "zendev/impact-devimg,%s,/mnt/src" % self.env.root.join("src").strpath,
+            "--mount", "zendev/impact-devimg,%s,/mnt/src" % self.env.root.join("src/github.com/zenoss").strpath,
             "--uiport", ":%d" % uiport,
         ])
         if arguments:
