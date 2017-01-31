@@ -22,7 +22,7 @@ def impact_devimg(args, env):
     #  if the version changes.  Better if the pom.xml set up a non-versioned symlink to the
     #  versioned file; then this could link to the non-versioned symlink.
     startup = """
-        SRC=/mnt/src/
+        SRC=/mnt/src
         DST=/opt/zenoss_impact
         VSN=%s
         ln -fs $SRC/impact-server/zenoss-dsa/target/impact-server.war $DST/webapps/impact-server.war
