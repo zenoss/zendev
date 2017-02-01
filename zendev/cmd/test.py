@@ -32,7 +32,8 @@ def test(args, env):
     print "Using %s image." % imageName
     print "Calling Docker with the following:"
     print " ".join(cmd)
-    return subprocess.call(cmd)
+    if subprocess.call(cmd):
+        sys.exit(1)
 
 
 def add_commands(subparsers):
