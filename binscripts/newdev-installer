@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #New developer install of all system prereqs. Takes an single argument of the device to be used for the docker thinpool e.g. /dev/sdb
-#Should be run by the linux user that will be doing develop. User should be in sudo group.  If run by root set the USER env variable 
+#Should be run by the linux user that will be doing develop. User should be in sudo group.  If run by root set the USER env variable
 #when running the script.  e.g.  USER=jdoe newdev-installer
 
 #This script Installs required software, git jdk etc.... Provisions a thin pool for docker if not present, installs and configures docker.
@@ -94,6 +94,7 @@ sudo apt-get install -y          \
      git                     \
      openjdk-8-jdk-headless  \
      lvm2                    \
+     sysstat                 \
     || display_error "failed to install software packages"
 
 
