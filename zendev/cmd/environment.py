@@ -44,7 +44,11 @@ def drop(args, env):
     """
     Drop a zendev environment.
     """
-    get_config().remove(args.name, not args.purge)
+    config = get_config()
+    if args.name:
+        config.remove(args.name, not args.purge)
+    else:
+        config.cleanup()
 
 
 def env(args, env):
@@ -70,7 +74,9 @@ def add_commands(subparsers):
     use_parser.set_defaults(functor=use)
 
     drop_parser = subparsers.add_parser('drop', help='Delete an environment')
-    drop_parser.add_argument('name', metavar='ENVIRONMENT').completer = EnvironmentCompleter
+    drop_parser.add_argument(
+            'name', metavar='ENVIRONMENT', nargs='?', default=None
+            ).completer = EnvironmentCompleter
     drop_parser.add_argument('--purge', action="store_true")
     drop_parser.set_defaults(functor=drop)
 

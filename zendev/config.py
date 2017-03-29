@@ -1,6 +1,7 @@
 import json
 import py
 import sys
+import os
 
 from .log import info, error
 
@@ -80,6 +81,18 @@ class ZendevConfig(object):
             return False
 
         return True
+
+
+    def cleanup(self):
+        trash = []
+        for key, value in self.environments.iteritems():
+            if not os.path.exists(value['path']):
+                trash.append(key)
+
+        for item in trash:
+            self.environments.pop(item)
+
+        self.save()
 
 
 def get_config():
