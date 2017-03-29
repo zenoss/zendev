@@ -1,4 +1,5 @@
 import py
+import sys
 
 from ..environment import ZenDevEnvironment, init_config_dir, NotInitialized
 from ..config import get_config
@@ -11,6 +12,13 @@ def init(args, _):
     path = py.path.local().ensure(args.path, dir=True)
     name = args.path  # TODO: Better name-getting
     config = get_config()
+
+    # Do not allow multiple environment with the same name.
+    if config.exists(name):
+        print('Zendev environment {} already exists at {}.'.format(
+            name, config.environments[name]['path']))
+        sys.exit(1)
+
     config.add(name, args.path)
     with path.as_cwd():
         try:
