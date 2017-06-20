@@ -59,7 +59,7 @@ installed:
     make docker-docs
 
 3. When satisfied, submit a pull request.
-4. Once merged, `Jenkins <http://jenkins.zendev.org/job/zendev-docs/>`_ will
+4. Once merged, `Jenkins <http://jenkins.zenoss.eng/job/zendev-docs/>`_ will
    build the docs and publish them to http://zenoss.github.io/zendev.
 
 .. _Sphinx: http://sphinx-doc.org/
