@@ -475,7 +475,7 @@ development.
     
     .. code-block:: ruby
         
-        config.vm.box_url = "http://vagrant.zendev.org/boxes/ubuntu-14.04-CC-1.x.box"
+        config.vm.box_url = "http://vagrant.zenoss.eng/boxes/ubuntu-14.04-CC-1.x.box"
     
     You should also probably uncomment either the private or public networking line
     so you can actually interact with the things running thereon:
