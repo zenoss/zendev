@@ -26,10 +26,10 @@ def init(args, _):
         except NotInitialized:
             init_config_dir()
             env = ZenDevEnvironment(name=name, path=path)
-        env.initialize()
+        env.initialize(args.shallow)
         env.use()
     if args.tag:
-        env.restore(args.tag)
+        env.restore(args.tag, shallow=args.shallow)
     return env
 
 
@@ -66,6 +66,7 @@ def add_commands(subparsers):
     init_parser = subparsers.add_parser('init', help='Create a new environment')
     init_parser.add_argument('path', metavar="PATH")
     init_parser.add_argument('-t', '--tag', metavar="TAG", required=False)
+    init_parser.add_argument('-s', '--shallow', action="store_true", required=False)
     init_parser.set_defaults(functor=init)
 
     use_parser = subparsers.add_parser('use', help='Switch to an environment')
