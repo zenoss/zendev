@@ -77,7 +77,7 @@ class Serviced(object):
         # Make sure etc is present and contains copies of config files
         etc = self.env.servicedhome.ensure('etc', dir=True)
         pkg = self.env.servicedsrc.join('pkg')
-        for filename in ('logconfig-server.yaml', 'logconfig-cli.yaml'):
+        for filename in ('logconfig-server.yaml', 'logconfig-cli.yaml', 'logconfig-controller.yaml'):
             source = pkg.join(filename)
             target = etc.join(filename)
             if not target.check():
