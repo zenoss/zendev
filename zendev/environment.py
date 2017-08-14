@@ -62,6 +62,7 @@ class ZenDevEnvironment(object):
         self.gopath = self._root
         self.servicedhome = self._root.ensure('opt_serviced', dir=True)
         self.servicedsrc = self._srcroot.join('github.com', 'control-center', 'serviced')
+        self._prodbinsrc = self._srcroot.join('github.com', 'zenoss', 'zenoss-prodbin')
         self._zenhome = self._root.ensure('zenhome', dir=True)
         self._var_zenoss = self._root.ensure('var_zenoss', dir=True)
         self._productAssembly = self._srcroot.join('github.com', 'zenoss', 'product-assembly')
@@ -118,6 +119,10 @@ class ZenDevEnvironment(object):
     def productAssembly(self):
         return self._productAssembly
 
+    @property
+    def prodbinsrc(self):
+        return self._prodbinsrc
+
     def bash(self, command):
         print >> self._bash, command
 
@@ -134,6 +139,21 @@ class ZenDevEnvironment(object):
                 github_zenoss.chdir()
                 repo.clone()
                 subprocess.check_call(['jig', 'add', 'product-assembly'])
+            return repo
+
+    def _ensure_prodbin(self):
+        if self._prodbinsrc.check() and not is_git_repo(self._prodbinsrc):
+            error("%s exists but isn't a git repository. Not sure "
+                  "what to do." % self._prodbinsrc.strpath)
+            sys.exit(1)
+        else:
+            repo = Repository(self._prodbinsrc.strpath, self._prodbinsrc.strpath, "zenoss/zenoss-prodbin")
+            if not self._prodbinsrc.check(dir=True):
+                info("Cloning zenoss-prodbin repository")
+                github_zenoss = self.srcroot.ensure('github.com', 'zenoss', dir=True)
+                github_zenoss.chdir()
+                repo.clone()
+                subprocess.check_call(['jig', 'add', 'zenoss-prodbin'])
             return repo
 
     def _initializeJig(self):
@@ -160,6 +180,16 @@ class ZenDevEnvironment(object):
                 error("%s does not exist" % self._repos_file.strpath)
                 sys.exit(1)
             return self._repos_file
+
+    def generateZVersions(self):
+        self._ensure_prodbin()
+
+        print "cd %s" %  self._prodbinsrc.strpath
+        self._prodbinsrc.chdir()
+
+        cmdArgs = ['make', 'generate-zversion']
+        print " ".join(cmdArgs)
+        subprocess.check_call(cmdArgs)
 
     def use(self, switch_dir=True):
         get_config().current = self.name

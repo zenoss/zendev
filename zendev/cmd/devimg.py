@@ -22,6 +22,8 @@ def devimg(args, env):
     defined on the zendev command line.
     """
     environ = env()
+    environ.generateZVersions()
+
     cmdArgs = ['make']
     if args.clean:
         cmdArgs.append('clean')
@@ -73,7 +75,6 @@ def _createZPFile(environ, zenpackList):
         with zenpackManifestFile.open("w") as jsonFile:
             json.dump(zenpacks, jsonFile, sort_keys=True, indent=4, separators=(',', ': '))
         return zenpackManifestFile.strpath
-
 
 def add_commands(subparsers):
     devimg_parser = subparsers.add_parser('devimg',

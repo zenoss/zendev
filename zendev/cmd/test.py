@@ -7,11 +7,14 @@ from ..devimage import DevImage
 
 
 def test(args, env):
+
     cmd = ["docker", "run", "-i", "-t", "--rm"]
     if args.no_tty:
         cmd.remove("-t")
 
-    devImage = DevImage(env())
+    environ = env()
+    environ.generateZVersions()
+    devImage = DevImage(environ)
     mounts = devImage.get_mounts()
     for mount in mounts.iteritems():
         cmd.extend(["-v", "%s:%s" % mount])
