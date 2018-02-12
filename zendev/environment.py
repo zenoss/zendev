@@ -74,7 +74,7 @@ class ZenDevEnvironment(object):
         previousMod = os.environ.get('ZD_PATH_MOD', "")
         if len(previousMod) > 0:
             origpath = origpath.replace(previousMod, "")
-        newMod = "%s/bin:%s/bin:" % (self.gopath, self._zenhome)
+        newMod = "%s/bin:" % (self.gopath)
         return {
             "ZENHOME": self._zenhome.strpath,
             "SRCROOT": self._srcroot.strpath,
