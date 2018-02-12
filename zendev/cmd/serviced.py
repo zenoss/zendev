@@ -231,17 +231,27 @@ class Serviced(object):
         hbaseVersion = subprocess.check_output("awk -F= '/^HBASE_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
         hdfsVersion = subprocess.check_output("awk -F= '/^HDFS_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
         opentsdbVersion = subprocess.check_output("awk -F= '/^OPENTSDB_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
-        info("Detected hbase version in makefile is %s" % hbaseVersion)
-        info("Detected opentsdb version in makefile is %s" % opentsdbVersion)
+        info("Detected hbase version in makefile is '%s'" % hbaseVersion)
+        info("Detected opentsdb version in makefile is '%s'" % opentsdbVersion)
         if hbaseVersion == "" or opentsdbVersion == "":
             raise Exception("Unable to get opentsdb/hbase tags from services makefile")
-        proc = subprocess.Popen([self.serviced, "template", "compile",
+        popenArgs = [self.serviced, "template", "compile",
             "--map=zenoss/zenoss5x,%s" % image,
             "--map=zenoss/hbase:xx,zenoss/hbase:%s" % hbaseVersion,
             "--map=zenoss/hdfs:xx,zenoss/hdfs:%s" % hdfsVersion,
-            "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion, tplpath],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+            "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion]
+
+        zingConnectorVersion = subprocess.check_output("awk -F= '/^ZING_CONNECTOR_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
+        imageProject = subprocess.check_output("awk -F= '/^IMAGE_PROJECT/ { print $NF }' %s" % versionsFile, shell=True).strip()
+        info("Detected zing-connector version in makefile is '%s'" % zingConnectorVersion)
+        info("Detected GCR project in makefile is '%s'" % imageProject)
+        if zingConnectorVersion == "" or imageProject == "":
+            info("Skipping image ID substitution for zing-connector")
+        else:
+            popenArgs.append("--map=gcr-repo/zing-connector:xx,gcr.io/%s/zing-connector:%s" % (imageProject, zingConnectorVersion))
+
+        popenArgs.append(tplpath)
+        proc = subprocess.Popen(popenArgs, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = proc.communicate()
 
         if proc.returncode:
