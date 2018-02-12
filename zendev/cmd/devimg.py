@@ -41,7 +41,7 @@ def devimg(args, env):
         # of product-assembly which are NOT actually product directories
         zenpackManifestFile = targetDir.join("zenpacks.json")
         if not zenpackManifestFile.check():
-            error("Target product '%s' does not appear to be a valid product. Could not find %s" % (args.target_product, zenpackManifestFile.strpath))
+            error("Target product '%s' does not appear to be a valid product. Could not find %s" % (args.product, zenpackManifestFile.strpath))
             sys.exit(1)
         cmdArgs.append("TARGET_PRODUCT=%s" % args.product)
 
