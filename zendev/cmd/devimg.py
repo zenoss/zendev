@@ -50,7 +50,9 @@ def devimg(args, env):
         if not zenpackManifestFile.check():
             error("File '%s' does not exist" % zenpackManifestFile.strpath)
             sys.exit(1)
-        cmdArgs.append("ZENPACK_FILE=%s" % zenpackManifestFile.strpath)
+        tmpZenpackManifestFile = environ.root.join("tmp/zenpacks.json")
+        zenpackManifestFile.copy(tmpZenpackManifestFile)
+        cmdArgs.append("ZENPACK_FILE=%s" % tmpZenpackManifestFile.strpath)
 
     elif args.zenpacks:
         zenpacks = args.zenpacks.split(",")
