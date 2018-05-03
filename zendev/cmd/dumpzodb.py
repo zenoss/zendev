@@ -5,7 +5,7 @@ def dumpzodb(args, env):
     cmdArgs = ['make']
     cmdArgs.append('dumpdb')
     cmdArgs.append("ZENDEV_ROOT=%s" % environ.root.strpath)
-    cmdArgs.append("SRCROOT=%s" % environ.srcroot.join("github.com", "zenoss").strpath)
+    cmdArgs.append("SRCROOT=%s" % environ.srcroot.strpath)
     cmdArgs.append('DEV_ENV=%s' % environ.name)
 
     if not args.gz:
@@ -19,9 +19,9 @@ def dumpzodb(args, env):
 
 def add_commands(subparsers):
     epilog = '''
-    To dump clean, updated database files to Products/ZenModel/data, 
-    build a core devimg with: 
-    zendev devimg --clean 
+    To dump clean, updated database files to Products/ZenModel/data,
+    build a core devimg with:
+    zendev devimg --clean
     and then run:
     zendev dump-zodb
     '''
