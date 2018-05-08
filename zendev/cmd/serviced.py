@@ -182,6 +182,12 @@ class Serviced(object):
                 if prereq['Name'] == 'zencatalogservice response':
                     svc['Prereqs'].remove(prereq)
 
+    def remove_otsdb_bigtable(self, services, svc):
+        if svc['Name'] and svc['Name'] in ('reader-bigtable', 'writer-bigtable'):
+            services.remove(svc)
+            info("Removed %s from resmgr template" % svc['Name'])
+            return
+
     def zope_debug(self, services, svc):
         if svc['Name'] and svc['Name'] == 'Zope':
             info("Set Zope to debug in template")
@@ -267,6 +273,8 @@ class Serviced(object):
         self.walk_services(compiled['Services'], self.zproxy_debug)
         if template and ('ucspm' in template or 'resmgr' in template or 'nfvimon' in template):
             self.walk_services(compiled['Services'], self.remove_catalogservice)
+        self.walk_services(compiled['Services'], self.remove_otsdb_bigtable)
+
         stdout = json.dumps(compiled, sort_keys=True, indent=4, separators=(',', ': '))
         return stdout
 
