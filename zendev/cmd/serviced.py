@@ -207,6 +207,13 @@ class Serviced(object):
                 config["Content"] = config["Content"].replace("pagespeed on", "pagespeed off")
                 info("Disabled pagespeed in zproxy template")
 
+    def remove_auth0_vars(self, services, svc):
+        if svc["Name"] and svc["Name"] == 'Zenoss.cse':
+            for var in ('auth0-audience', 'auth0-emailkey', 'auth0-tenant', 'auth0-tenantkey', 'auth0-whitelist'):
+                key = "global.conf.%s"%var
+                if svc["Context"].get(key, None):
+                    svc["Context"][key]=""
+
     def walk_services(self, services, visitor):
         if not services:
             return
@@ -274,6 +281,10 @@ class Serviced(object):
         if template and ('ucspm' in template or 'resmgr' in template or 'nfvimon' in template):
             self.walk_services(compiled['Services'], self.remove_catalogservice)
         self.walk_services(compiled['Services'], self.remove_otsdb_bigtable)
+
+        self.walk_services(compiled['Services'], self.remove_auth0_vars)
+
+
 
         stdout = json.dumps(compiled, sort_keys=True, indent=4, separators=(',', ': '))
         return stdout
