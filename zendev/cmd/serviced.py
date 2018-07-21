@@ -263,6 +263,14 @@ class Serviced(object):
         else:
             popenArgs.append("--map=gcr-repo/zing-connector:xx,gcr.io/%s/zing-connector:%s" % (imageProject, zingConnectorVersion))
 
+        apiProxyVersion = subprocess.check_output("awk -F= '/^ZING_API_PROXY_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
+        info("Detected api-key-proxy version in makefile is '%s'" % apiProxyVersion)
+        info("Detected GCR project in makefile is '%s'" % imageProject)
+        if apiProxyVersion == "" or imageProject == "":
+            info("Skipping image ID substitution for api-key-proxy")
+        else:
+            popenArgs.append("--map=gcr-repo/api-key-proxy:xx,gcr.io/%s/api-key-proxy:%s" % (imageProject, apiProxyVersion))
+        
         popenArgs.append(tplpath)
         proc = subprocess.Popen(popenArgs, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = proc.communicate()
