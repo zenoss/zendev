@@ -161,11 +161,11 @@ class ZenDevEnvironment(object):
         if not self._srcroot.join(".jig").check():
             subprocess.check_call(['jig', 'init'])
 
-    def initialize(self, shallow=False):
+    def initialize(self, shallow=False, tag="develop"):
         # Clone product-assembly directory
         self._initializeJig()
-        # Start with the latest code on develop
-        self.restore('develop', shallow=shallow)
+        # Initialize the env with the specified tag
+        self.restore(tag, shallow=shallow)
 
     def generateRepoJSON(self):
         repos_sh = self._productAssembly.join('repos.sh')

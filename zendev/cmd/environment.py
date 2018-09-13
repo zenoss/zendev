@@ -26,10 +26,9 @@ def init(args, _):
         except NotInitialized:
             init_config_dir()
             env = ZenDevEnvironment(name=name, path=path)
-        env.initialize(args.shallow)
+        tag = args.tag or "develop"
+        env.initialize(args.shallow, tag=tag)
         env.use()
-    if args.tag:
-        env.restore(args.tag, shallow=args.shallow)
     return env
 
 
