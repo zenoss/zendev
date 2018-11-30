@@ -15,7 +15,7 @@
   - [Testing With devimg](#testing-with-devimg)
   - [Frequently Asked Questions](#frequently-asked-questions)
 
-##Description
+## Description
 
 zendev takes care of setting up and managing the disparate components of a standard Zenoss development environment,
 with or without Control Center. It's primary usecase is to checkout all github repositories needed for
@@ -30,17 +30,17 @@ development and to build a developer focused docker image to run Zenoss in Contr
 Please feel free to fork and submit pull requests for this project.
 
 
-##Installation
+## Installation
 
 These instructions are known to work with ubuntu 16.0.4 xenial. Specifically the `newdev-installer` script is known not
  to work with ubuntu 14.0.4.
 
-###Host Preparation
+### Host Preparation
 
 For a new developer machine the `newdev-installer` script will prepare machine by installing docker etc. and creating a
 thin pool with an existing device.
 
-###Without an existing thin pool
+### Without an existing thin pool
 Start by identifying an unused device on your system. You can use `lsblk` to seek the devices on your system.
 If unsure of which device to choose, please ask for help.
 
@@ -53,7 +53,7 @@ Alternatively you can run as root but must set the USER environment variable for
 
 `USER=leeroy_jenkins bash -c "curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash -s /dev/xvdb"`
 
-###With an existing thin pool or use loopback
+### With an existing thin pool or use loopback
 You can run the newdev-installer if you already have an existing thin pool or just want to run docker with a loopback
 device, not recommended, by passing in `CONF_THINPOOL=false` to the script.  This will install all the tools needed for
  a developer as well as docker but it will not configure docker to use a thinpool.
@@ -71,7 +71,7 @@ installation is setup to use SSH keys. Instructions to setup github to use SSH k
 https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
 
-##Install zendev
+## Install zendev
 
 Run the following as your user (*NOTE: run from a plain shell, i.e. not within a zendev environment*):
 
@@ -80,7 +80,7 @@ Run the following as your user (*NOTE: run from a plain shell, i.e. not within a
 To use zendev immediately without logging in again:
 *   `source ~/.bashrc`
 
-##Initialize a zendev environment
+## Initialize a zendev environment
 _Note: The new zendev2 environment is not compatible with the older zendev environment.  Thus, you cannot use an existing (old zendev) environment with zendev2.
 If you have an existing (old zendev) environment and you wish to continue using the same name with zendev2 you must remove/rename the existing environment's directory._
 
