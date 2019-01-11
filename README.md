@@ -119,12 +119,12 @@ optional arguments:
 ### Examples
 Build core, removing any previous image
 ```
-$ zendev build -c core
+$ zendev devimg -c
 ```
 
-Build RM
+Build CZ
 ```
-$ zendev build resmgr
+$ zendev devimg -c -p cse
 ```
 
 ### Under the hood
