@@ -36,6 +36,7 @@ class Serviced(object):
         if running:
             subprocess.call(["docker", "kill"] + running.splitlines())
         info("Cleaning state")
+        subprocess.call("sudo umount -f %s/var/volumes/*" % self.env.servicedhome.strpath, shell=True)
         subprocess.call("sudo rm -rf %s/*" % self.env.servicedhome.strpath, shell=True)
 
     def start(self, root=False, uiport=443, arguments=None, image=None):

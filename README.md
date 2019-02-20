@@ -235,6 +235,13 @@ $ zendev test -i
 (zenoss) [zenoss@0f7b409c35ae ~]$ runtests --help
 ```
 
+Run a single service migration test. This doesn't require you to start the Zenoss runtime, so you can just use a devshell.
+```
+$ zendev devshell
+(zenoss) [zenoss@e58eadd05b61 ~]$ runtests Products.ZenModel.migrate -m runtests test_MakeTuningParamsIntoVariables
+```
+
+
 ## Frequently Asked Questions
 
 **Why doesn't `cdz` work?**
