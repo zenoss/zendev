@@ -227,7 +227,7 @@ $ zendev devimg --clean -p core
 $ zendev test -- --type=unit --name ZenPacks.zenoss.LinuxMonitor
 ```
 
-Run the tests interactively. Note that you must first start the Zenoss runtime. Once the Zenoss has started, you can run whatever test(s) you want using the `runtests` script.
+Run the tests interactively. Note that you must first start the Zenoss Infrastructure services. Once the Zenoss has started, you can run whatever test(s) you want using the `runtests` script.
 ```
 $ zendev test -i
 [root@0f7b409c35ae /]# /opt/zenoss/install_scripts/startZenossForTests.sh
@@ -235,7 +235,7 @@ $ zendev test -i
 (zenoss) [zenoss@0f7b409c35ae ~]$ runtests --help
 ```
 
-Run a single service migration test. This doesn't require you to start the Zenoss runtime, so you can just use a devshell.
+Run a single service migration test. This doesn't require you to start any services, so you can just use a devshell.
 ```
 $ zendev devshell
 (zenoss) [zenoss@e58eadd05b61 ~]$ runtests Products.ZenModel.migrate -m test_MakeTuningParamsIntoVariables
