@@ -238,7 +238,7 @@ $ zendev test -i
 Run a single service migration test. This doesn't require you to start the Zenoss runtime, so you can just use a devshell.
 ```
 $ zendev devshell
-(zenoss) [zenoss@e58eadd05b61 ~]$ runtests Products.ZenModel.migrate -m runtests test_MakeTuningParamsIntoVariables
+(zenoss) [zenoss@e58eadd05b61 ~]$ runtests Products.ZenModel.migrate -m test_MakeTuningParamsIntoVariables
 ```
 
 
