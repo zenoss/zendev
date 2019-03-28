@@ -128,6 +128,14 @@ def get_ip_address():
         del s
 
 
+def get_tmux_name():
+    """Return the name of the current tmux window."""
+    if os.environ.get("TMUX"):
+        return subprocess.check_output(
+            "tmux list-panes -F '#W' 2>/dev/null", shell=True,
+        )
+
+
 def rename_tmux_window(name=None):
     """
     Inside tmux renames current window.

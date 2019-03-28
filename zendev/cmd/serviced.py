@@ -10,7 +10,8 @@ import py.path
 import requests
 from ..log import info, error
 from ..devimage import DevImage
-from ..utils import get_ip_address, rename_tmux_window
+from ..utils import get_ip_address, rename_tmux_window, get_tmux_name
+
 
 class Serviced(object):
 
@@ -355,6 +356,7 @@ class Serviced(object):
 
 
 def run_serviced(args, env):
+    old_name = get_tmux_name()
     timeout = 600
     environ = env()
     _serviced = Serviced(environ)
@@ -474,19 +476,27 @@ def run_serviced(args, env):
     except (KeyboardInterrupt, SystemExit):
         _serviced.stop()
         sys.exit(0)
+    finally:
+        rename_tmux_window(old_name)
+
 
 def attach(args, env):
-    rename_tmux_window(args.specifier)
-    subprocess.call("serviced service attach '%s'; stty sane" % args.specifier, shell=True)
+    """Attach to the container of the named service."""
+    old_name = get_tmux_name()
+    cmd = "serviced service attach '%s'; stty sane" % args.specifier
+    try:
+        rename_tmux_window(args.specifier)
+        subprocess.call(cmd, shell=True)
+    finally:
+        rename_tmux_window(old_name)
 
 
 def devshell(args, env):
-    """
-    Start up a shell with the imports of the Zope service but no command.
-    """
+    """Start a shell with the import of the Zope service but no command."""
     env = env()
     _serviced = env.gopath.join("bin/serviced").strpath
 
+    old_name = get_tmux_name()
     rename_tmux_window("devshell")
 
     command = "su - zenoss"
@@ -497,26 +507,46 @@ def devshell(args, env):
 
     m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
     if args.docker:
-        cmd = "docker run --privileged --rm -w /opt/zenoss -v %s:/serviced/serviced -v %s:/mnt/src -v %s:/opt/zenoss -v %s:/var/zenoss -v %s:/home/zenoss/.m2 -i -t %s %s" % (
-            _serviced,
-            env.root.join("src", "github.com", "zenoss").strpath,
-            env.root.join("zenhome").strpath,
-            env.root.join("var_zenoss").strpath,
-            m2.strpath,
-            devimg,
-            command
+        cmd = (
+            "docker run --privileged --rm -w /opt/zenoss "
+            "-v {serviced}:/serviced/serviced "
+            "-v {src}:/mnt/src "
+            "-v {zenhome}:/opt/zenoss "
+            "-v {var}:/var/zenoss "
+            "-v {m2}:/home/zenoss/.m2 "
+            "-e TZ=America/Chicago "
+            "-i -t {image} {command}"
+        ).format(
+            serviced=_serviced,
+            src=env.root.join("src", "github.com", "zenoss").strpath,
+            zenhome=env.root.join("zenhome").strpath,
+            var=env.root.join("var_zenoss").strpath,
+            m2=m2.strpath,
+            image=devimg,
+            command=command,
         )
     else:
-        cmd = "%s service shell -i --mount %s,/mnt/src --mount %s,/opt/zenoss --mount %s,/var/zenoss --mount %s,/home/zenoss/.m2 '%s' %s" % (
-            _serviced,
-            env.root.join("src", "github.com", "zenoss").strpath,
-            env.root.join("zenhome").strpath,
-            env.root.join("var_zenoss").strpath,
-            m2.strpath,
-            args.service,
-            command
+        cmd = (
+            "{serviced} service shell -i "
+            "--mount {src},/mnt/src "
+            "--mount {zenhome},/opt/zenoss "
+            "--mount {var},/var/zenoss "
+            "--mount {m2},/home/zenoss/.m2 "
+            "'{service}' {command}"
+        ).format(
+            serviced=_serviced,
+            src=env.root.join("src", "github.com", "zenoss").strpath,
+            zenhome=env.root.join("zenhome").strpath,
+            var=env.root.join("var_zenoss").strpath,
+            m2=m2.strpath,
+            service=args.service,
+            command=command,
         )
-    subprocess.call(cmd, shell=True)
+    try:
+        subprocess.call(cmd, shell=True)
+    finally:
+        rename_tmux_window(old_name)
+
 
 def add_commands(subparsers):
     serviced_parser = subparsers.add_parser('serviced', help='Run serviced')
@@ -562,5 +592,3 @@ def add_commands(subparsers):
     devshell_parser.add_argument('-s', '--service', default='zope', help="run serviced shell for service")
     devshell_parser.add_argument('command', nargs=argparse.REMAINDER, metavar='COMMAND')
     devshell_parser.set_defaults(functor=devshell)
-
-
