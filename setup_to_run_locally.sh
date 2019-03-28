@@ -12,10 +12,10 @@ serviced service variable set Zenoss.cse cse.source wily_coyote
 # Create a script to enable the emulator,
 cat << EOF >> /tmp/enable_zing_emulator.sh
 #!/bin/bash
-sed -i '/^use-emulator.*$/d' \$1
-sed -i '/^emulator-host-port.*$/d' \$1
-sed -i '/^ *#use-emulator/a use-emulator: true' \$1
-sed -i '/^ *#emulator-host-port/a emulator-host-port: $HOST:8085' \$1
+sed -i '/^[ ]*use-emulator.*$/d' \$1
+sed -i '/^[ ]*emulator-host-port.*$/d' \$1
+sed -i '/^ *#use-emulator/a \ \ use-emulator: true' \$1
+sed -i '/^ *#emulator-host-port/a \ \ emulator-host-port: $HOST:8085' \$1
 EOF
 chmod +x /tmp/enable_zing_emulator.sh
 
@@ -25,9 +25,13 @@ serviced service config edit --editor /tmp/enable_zing_emulator.sh zing-connecto
 rm -f /tmp/enable_zing_emulator.sh
 
 # Start the emulator running 
+echo "Stopping anything running locally on port 8085"
+sudo pkill -f 8085
+sleep 10
+#
 echo "Starting zing-connector emulator on port 8085"
 docker run --rm --env CLOUDSDK_CORE_PROJECT=zenoss-zing -p 8085:8085 zenoss/gcloud-emulator:pubsub &
-sleep 5
+sleep 10
 #
 # Create a script to enable local logins
 cat << EOF >> /tmp/enable_local_login.sh
