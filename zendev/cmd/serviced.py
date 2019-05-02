@@ -254,7 +254,8 @@ class Serviced(object):
             "--map=zenoss/zenoss5x,%s" % image,
             "--map=zenoss/hbase:xx,zenoss/hbase:%s" % hbaseVersion,
             "--map=zenoss/hdfs:xx,zenoss/hdfs:%s" % hdfsVersion,
-            "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion]
+            "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion,
+            "--map=zenoss/mariadb:xx,zendev/mariadb:%s" % self.dev_image.env.name]
 
         zingConnectorVersion = subprocess.check_output("awk -F= '/^ZING_CONNECTOR_VERSION/ { print $NF }' %s" % versionsFile, shell=True).strip()
         imageProject = subprocess.check_output("awk -F= '/^IMAGE_PROJECT/ { print $NF }' %s" % versionsFile, shell=True).strip()
