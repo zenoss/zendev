@@ -500,9 +500,12 @@ def devshell(args, env):
     old_name = get_tmux_name()
     rename_tmux_window("devshell")
 
-    command = "su - zenoss"
-    if args.command:
-        command += " -c '%s'" % " ".join(args.command)
+    if not args.root:
+        command = "su - zenoss"
+        if args.command:
+            command += " -c '%s'" % " ".join(args.command)
+    else:
+        command = "" if not args.command else " ".join(args.command)
 
     devimg = Serviced(env).get_zenoss_image('zendev/devimg')
 
@@ -591,5 +594,11 @@ def add_commands(subparsers):
     devshell_parser.add_argument('-d', '--docker', action='store_true',
                                  help="docker run instead of serviced shell")
     devshell_parser.add_argument('-s', '--service', default='zope', help="run serviced shell for service")
+    devshell_parser.add_argument(
+        "--root",
+        action="store_true",
+        default=False,
+        help="Run shell as root instead of zenoss",
+    )
     devshell_parser.add_argument('command', nargs=argparse.REMAINDER, metavar='COMMAND')
     devshell_parser.set_defaults(functor=devshell)
