@@ -15,8 +15,11 @@ def init(args, _):
 
     # Do not allow multiple environment with the same name.
     if config.exists(name):
-        print('Zendev environment {} already exists at {}.'.format(
-            name, config.environments[name]['path']))
+        print (
+            "Zendev environment {} already exists at {}.".format(
+                name, config.environments[name]["path"]
+            )
+        )
         sys.exit(1)
 
     config.add(name, args.path)
@@ -58,28 +61,37 @@ def env(args, env):
 
 
 def EnvironmentCompleter(prefix, **kwargs):
-    return (v for v in get_config().environments.keys() if v.startswith(prefix))
+    return (
+        v for v in get_config().environments.keys() if v.startswith(prefix)
+    )
 
 
 def add_commands(subparsers):
-    init_parser = subparsers.add_parser('init', help='Create a new environment')
-    init_parser.add_argument('path', metavar="PATH")
-    init_parser.add_argument('-t', '--tag', metavar="TAG", required=False)
-    init_parser.add_argument('-s', '--shallow', action="store_true", required=False)
+    init_parser = subparsers.add_parser(
+        "init", help="Create a new environment"
+    )
+    init_parser.add_argument("path", metavar="PATH")
+    init_parser.add_argument("-t", "--tag", metavar="TAG", required=False)
+    init_parser.add_argument(
+        "-s", "--shallow", action="store_true", required=False
+    )
     init_parser.set_defaults(functor=init)
 
-    use_parser = subparsers.add_parser('use', help='Switch to an environment')
-    use_parser.add_argument('name', metavar='ENVIRONMENT').completer = EnvironmentCompleter
-    use_parser.add_argument('--no-switch', action="store_true")
+    use_parser = subparsers.add_parser("use", help="Switch to an environment")
+    use_parser.add_argument(
+        "name", metavar="ENVIRONMENT"
+    ).completer = EnvironmentCompleter
+    use_parser.add_argument("--no-switch", action="store_true")
     use_parser.set_defaults(functor=use)
 
-    drop_parser = subparsers.add_parser('drop', help='Delete an environment')
+    drop_parser = subparsers.add_parser("drop", help="Delete an environment")
     drop_parser.add_argument(
-            'name', metavar='ENVIRONMENT', nargs='?', default=None
-            ).completer = EnvironmentCompleter
-    drop_parser.add_argument('--purge', action="store_true")
+        "name", metavar="ENVIRONMENT", nargs="?", default=None
+    ).completer = EnvironmentCompleter
+    drop_parser.add_argument("--purge", action="store_true")
     drop_parser.set_defaults(functor=drop)
 
-    which_parser = subparsers.add_parser('env', help='Print the current environment name')
+    which_parser = subparsers.add_parser(
+        "env", help="Print the current environment name"
+    )
     which_parser.set_defaults(functor=env)
-

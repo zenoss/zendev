@@ -9,36 +9,54 @@ from .utils import here, colored
 from .environment import ZenDevEnvironment
 from .environment import NotInitialized
 
-from .cmd import build, devimg, environment, repos, serviced, tags, test, dumpzodb, impact_devimg
+from .cmd import (
+    build,
+    devimg,
+    environment,
+    repos,
+    serviced,
+    tags,
+    test,
+    dumpzodb,
+    impact_devimg,
+)
 
 from .config import get_config, get_envname
 from .log import error
 
 
 def parse_args():
-    epilog = textwrap.dedent('''
+    epilog = textwrap.dedent(
+        """
     Environment commands: {init, ls, use, drop, env, root}
     Repo commands: {cd, restore, status, pull}
     Serviced commands: {serviced, atttach, devshell, dump-zodb}
-    ''')
+    """
+    )
 
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, epilog=epilog)
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter, epilog=epilog
+    )
 
-    subparsers = parser.add_subparsers(dest='subparser')
+    subparsers = parser.add_subparsers(dest="subparser")
 
-    bootstrap_parser = subparsers.add_parser('bootstrap', help='Bootstrap zendev to modify the shell environment')
+    bootstrap_parser = subparsers.add_parser(
+        "bootstrap", help="Bootstrap zendev to modify the shell environment"
+    )
     bootstrap_parser.set_defaults(functor=bootstrap)
 
-    root_parser = subparsers.add_parser('root', help='Print root directory of the current environment')
+    root_parser = subparsers.add_parser(
+        "root", help="Print root directory of the current environment"
+    )
     root_parser.set_defaults(functor=root)
 
-    ls_parser = subparsers.add_parser('ls', help='List environments')
+    ls_parser = subparsers.add_parser("ls", help="List environments")
     ls_parser.set_defaults(functor=ls)
 
-    update_parser = subparsers.add_parser('selfupdate', help='Update zendev')
+    update_parser = subparsers.add_parser("selfupdate", help="Update zendev")
     update_parser.set_defaults(functor=selfupdate)
 
-    version_parser = subparsers.add_parser('version', help='Print version')
+    version_parser = subparsers.add_parser("version", help="Print version")
     version_parser.set_defaults(functor=version)
 
     # Add sub commands here
@@ -61,7 +79,7 @@ def selfupdate(args, env):
         subprocess.call(["git", "pull"])
         env = {}
         env.update(os.environ)
-        env['GOPATH'] = env['HOME']
+        env["GOPATH"] = env["HOME"]
         subprocess.call(["go", "get", "-u", "github.com/iancmcc/jig"], env=env)
     # Initialize all repos for all environments.  This is to ensure that repos
     # created without a branch.path config value are updated to include that.
@@ -78,6 +96,7 @@ def root(args, env):
 
 def version(args, env):
     import pkg_resources
+
     print pkg_resources.require("zendev")[0].version
 
 
@@ -96,18 +115,20 @@ def ls(args, env):
     config = get_config()
     cur = get_envname()
     for env in config.environments:
-        prefix = colored('*', 'blue') if env == cur else ' '
+        prefix = colored("*", "blue") if env == cur else " "
         envDetails = config.environments[env]
-        suffix = '(v1)'
-        if 'version' in envDetails:
-            suffix = '(%s)' % envDetails['version']
+        suffix = "(v1)"
+        if "version" in envDetails:
+            suffix = "(%s)" % envDetails["version"]
         print prefix, env, suffix
 
 
 def check_env(name=None, **kwargs):
     envname = name or get_envname()
     if envname is None:
-        error("Not in a zendev environment. Run 'zendev init' or 'zendev use'.")
+        error(
+            "Not in a zendev environment. Run 'zendev init' or 'zendev use'."
+        )
         sys.exit(1)
     if not get_config().exists(envname):
         error("Zendev environment %s does not exist." % envname)
@@ -121,17 +142,17 @@ def check_env(name=None, **kwargs):
 
 
 #
-# A whitelist of all of commands which are allowed in all implementations of zendev.
+# A whitelist of all of commands which are allowed in all
+# implementations of zendev.
 #
 all_env_whitelist = [
     "bootstrap",
     "env",
-    "init,"
-    "ls",
+    "init," "ls",
     "root",
     "selfupdate",
     "use",
-    "version"
+    "version",
 ]
 
 

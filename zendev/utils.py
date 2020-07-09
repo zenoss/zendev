@@ -1,15 +1,18 @@
 import re
-import sys
 import os
 import py
 import git
-import json
+import six
 import socket
-import requests
 from termcolor import colored as colored_orig
 import subprocess
 
-_COLORS = not os.environ.get("ZENDEV_COLORS", '').lower() in ('0', 'false', 'no', 'none')
+_COLORS = not os.environ.get("ZENDEV_COLORS", "").lower() in (
+    "0",
+    "false",
+    "no",
+    "none",
+)
 
 
 def is_git_repo(path):
@@ -23,6 +26,7 @@ def is_git_repo(path):
         return True
     except git.InvalidGitRepositoryError:
         return False
+
 
 here = py.path.local(__file__).dirpath().join
 
@@ -61,18 +65,23 @@ here = py.path.local(__file__).dirpath().join
 #         self.clear()
 #         sys.stdout.write(text)
 #         self.text = text
-#
-#
+
+
 def memoize(f):
+
     class memodict(dict):
+
         def __missing__(self, key):
             ret = self[key] = f(key)
             return ret
+
     return memodict().__getitem__
 
 
 def colored(s, color=None):
     return s if not _COLORS else colored_orig(s, color)
+
+
 #
 #
 # _isurl = re.compile(r'^https?://').search
@@ -82,7 +91,8 @@ def colored(s, color=None):
 #     """
 #     if isinstance(path, basestring) and _isurl(path):
 #         url = path
-#         local_filename = url.split('/')[-1].split('?')[0].split('#')[0] or 'download'
+#         local_filename = \
+#             url.split('/')[-1].split('?')[0].split('#')[0] or 'download'
 #         path = py.path.local.mkdtemp().join(local_filename).strpath
 #         r = requests.get(url, stream=True)
 #         with open(path, 'wb') as f:
@@ -99,12 +109,12 @@ def colored(s, color=None):
 #     parser.add_argument('repos', nargs='*', help='List of repositories')
 
 
-def repofilter(repos=(), field_fn=lambda x:x.name):
+def repofilter(repos=(), field_fn=lambda x: x.name):
     """
     Create a function that will return only those repos specified, or all if
     nothing was specified.
     """
-    if isinstance(repos, basestring):
+    if isinstance(repos, six.string_types):
         repos = (repos,)
 
     patterns = [re.compile(r, re.I) for r in repos]
@@ -120,7 +130,7 @@ def repofilter(repos=(), field_fn=lambda x:x.name):
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        s.connect(('1.2.3.4', 9))
+        s.connect(("1.2.3.4", 9))
         return s.getsockname()[0]
     except socket.error:
         return None
@@ -141,4 +151,6 @@ def rename_tmux_window(name=None):
     Inside tmux renames current window.
     """
     if os.environ.get("TMUX") and name:
-        subprocess.call("tmux rename-window {} >/dev/null 2>&1".format(name), shell=True)
+        subprocess.call(
+            "tmux rename-window {} >/dev/null 2>&1".format(name), shell=True
+        )
