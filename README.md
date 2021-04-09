@@ -90,7 +90,7 @@ If you have an existing (old zendev) environment and you wish to continue using 
     * `cd ~/src`
 1. Initialize an environment, the metis name is arbitrary. This may take some time.
     * `zendev init metis`
-    * to use stable version of zendev (tags can be found in https://github.com/zenoss/product-assembly) 
+    * to use stable version of Zenoss (tags can be found in https://github.com/zenoss/product-assembly) 
         * `zendev init -t <tag> <yourEnvironmentName>` (i.e.$  zendev init -t 7.0.18 zenoss718x)
 1. Go to the valid directory
    * `cd ~/src`
@@ -102,18 +102,17 @@ If you have an existing (old zendev) environment and you wish to continue using 
 1. Build a development based zenoss docker image.
     * `zendev devimg`
     * To build devimage with zenpacks:
-        * for RM: `zendev devimg -p resmgr`
-        * for CZ: `zendev devimg --clean --product cse`
+        * for RM: `zendev devimg -c -p resmgr`
+        * for CZ: `zendev devimg -c -p cse`
     * If you have docker errors: `sudo usermod -a -G docker $USER` and relogin
 1. Build Control-Center.
     * `cdz serviced; make clean build`
     * if have an issue with CC building on 6.5+ or CZ:
         * https://github.com/control-center/serviced#dev-environment
-        * `sudo sysctl -w vm.max_map_count=262144`
+        * `sudo -- sh -c 'echo "vm.max_map_count=262144" >> /etc/sysctl.conf && sysctl --system'`
         * `gvm install go1.14.4`
         * `gvm use go1.14.4`
         * `export GOPATH=/home/zenny/src/<environment_name>`
-        * to make `vm.max_map_count=262144` permanent add it to the /etc/sysctl.conf
 1. Run zenoss in Control-Center.
     * `zendev serviced -dxa`
     * for CZ use:`zendev serviced -dxa --template Zenoss.cse`
@@ -156,7 +155,7 @@ If you need Impact and you can't pull it with docker:
 
 ### Configure Zenoss.cse to run locally
 
-There is a script in zendev that disable Auth0, enable local CZ login and set up a zing connector emulator:
+Add your VM IP and hostname to the /etc/hosts. After this you will be able to use a script in zendev that disable Auth0, enable local CZ login and set up a zing connector emulator:
 https://github.com/zenoss/zendev/blob/zendev2/setup_to_run_locally.sh
 The steps below are the manual way to do this.
 
