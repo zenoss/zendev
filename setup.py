@@ -40,7 +40,7 @@ setup(
         "progressbar2==2.6.0",
         "python-vagrant==0.4.0",
         "jinja2",
-        "requests"
+        "requests<2.26"
     ],
     dependency_links=['https://github.com/todddeluca/python-vagrant/archive/master.zip#egg=python-vagrant-0.4.2'],
     license="Commercial",
