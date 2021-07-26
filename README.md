@@ -77,6 +77,8 @@ Run the following as your user (*NOTE: run from a plain shell, i.e. not within a
 
 `curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/zendev-installer.sh | bash`
 
+if you have issues related to the pip - `sudo easy_install pip==20.3.4`
+
 To use zendev immediately without logging in again:
 *   `source ~/.bashrc`
 
@@ -88,14 +90,119 @@ If you have an existing (old zendev) environment and you wish to continue using 
     * `cd ~/src`
 1. Initialize an environment, the metis name is arbitrary. This may take some time.
     * `zendev init metis`
+    * to use stable version of Zenoss (tags can be found in https://github.com/zenoss/product-assembly) 
+        * `zendev init -t <tag> <yourEnvironmentName>` (i.e.$  zendev init -t 7.0.18 zenoss718x)
+1. Go to the valid directory
+   * `cd ~/src`
 1. Use the previously created environment.
-    * `zendev use metis`
+    * `zendev use metis` or `zendev use <yourEnvironmentName>`
+1. Update docker - (https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+    * `sudo apt-get update`
+    * `sudo apt-get install docker-ce docker-ce-cli containerd.io`
 1. Build a development based zenoss docker image.
     * `zendev devimg`
+    * To build devimage with zenpacks:
+        * for RM: `zendev devimg -c -p resmgr`
+        * for CZ: `zendev devimg -c -p cse`
+    * If you have docker errors: `sudo usermod -a -G docker $USER` and relogin
 1. Build Control-Center.
     * `cdz serviced; make clean build`
+    * if have an issue with CC building on 6.5+ or CZ:
+        * https://github.com/control-center/serviced#dev-environment
+        * `sudo -- sh -c 'echo "vm.max_map_count=262144" >> /etc/sysctl.conf && sysctl --system'`
+        * `gvm install go1.14.4`
+        * `gvm use go1.14.4`
+        * `export GOPATH=/home/zenny/src/<environment_name>`
 1. Run zenoss in Control-Center.
     * `zendev serviced -dxa`
+    * for CZ use:`zendev serviced -dxa --template Zenoss.cse`
+1. To run zenoss next time use:
+    * `zendev serviced`, using `-dxa` will redeploy zenoss application
+
+## CZ specific part
+
+### Errors during `zendev serviced`
+
+If you encounter devimg serviced run errors relating to missing docker images , you may have to manually pull those images. For example: `gcloud docker -- pull gcr.io/zing-registry-188222/api-key-proxy:latest`.
+
+Note: **Please make sure the version in the logs is what you actually pull**.
+
+You may use non deprecated syntax:
+* `gcloud auth login`
+* `gcloud auth configure-docker`
+* `docker pull gcr.io/zing-registry-188222/api-key-proxy:latest`
+
+If you don’t want or need impact, you should remove it from the build by editing `$YOUR_ENVIRONMENT/.zendev/.repos.json`
+and remove the references to the following Impact items:
+
+    {
+        "ref": "develop",
+        "repo": "git@github.com:zenoss/ZenPacks.zenoss.ImpactServer.git"
+    },
+    {
+        "ref": "develop",
+        "repo": "git@github.com:zenoss/ZenPacks.zenoss.Impact.git"
+    },
+
+If you need Impact and you can't pull it with docker:
+
+* go to http://artifacts.zenoss.eng/releases/impact/
+* find suitable version of Impact (you may look at **valid** branch of https://github.com/zenoss/product-assembly/blob/develop/versions.mk to get the version number)
+* download install-zenoss-impact_*.run file and run it on your machine. That will install docker image locally.
+* use docker tag command to change image name to valid. For example: `docker tag zenoss/impact_5.5:5.5.3.0.0 zendev/impact-devimg:latest`
+* after this, redeploy Zenoss.cse template with `zendev serviced -dxa --template Zenoss.cse`
+
+
+### Configure Zenoss.cse to run locally
+
+Add your VM IP and hostname to the /etc/hosts. After this you will be able to use a script in zendev that disable Auth0, enable local CZ login and set up a zing connector emulator:
+https://github.com/zenoss/zendev/blob/zendev2/setup_to_run_locally.sh
+The steps below are the manual way to do this.
+
+#### Set global variables
+The first change is to disable the global config vars associated with the auth0 and cse:
+* In the CC UI, open the Zenoss.cse application and click **Edit Variables**:
+* Comment out (or delete) all entries that begin with **global.conf.auth0**
+* Change *global.conf.cse-vhost* to your CC host name or IP address
+* Change *global.conf.cse-virtualroot* to **/cse**
+* Set *cse.project* to the ID of your GCP project.
+* Set *cse.tenant* and *cse.source* to any values you like (they can’t be blank. Furthermore they must be lower-case and single-word strings.
+* Save those changes
+
+Note: These changes will not take effect until after zproxy is restarted, but you may want to defer a restart until you have modified the configuration for zing-connector and/or have fixed 403 error for RM UI.
+
+#### Configure zing-connector to send to Emulators
+
+Edit the Configuration File */etc/zing-connector.yml* and set the values for project, tenant, source,  use-emulator and host-port as shown below:
+* *project* - The value must match the value for GCP project used to start the GCP pubsub emulator. Typically, we use zenoss-zing as the project id for the emulator.
+* *tenant* - any non-blank value will work
+* *source* - any non-blank value will work
+* *use-emulator* -  must be true to send data to the emulator
+* *host-port* - must be the IP where the emulator is running and the port number of the emulator.
+
+Notes:
+* After changing the configuration files, you must restart the zing-connector service.
+* You can run the pubsub emulator locally with a command like: `docker run --rm --env CLOUDSDK_CORE_PROJECT=zenoss-zing -p 8085:8085 zenoss/gcloud-emulator:pubsub`. CLOUDSDK_CORE_PROJECT is the GCP project id for the emulator
+* You must have the emulator running BEFORE you restart zing-connector.  If the zing-connector has a persistent failed health check - stop zing-connector, verify there is a GCP pubsub emulator running at  the IP:port defined by host-port, and restart the zing-connector service.
+
+#### Debugging 403 Error in Proxy
+
+If you find that you get a 403 when attaching to the zing-proxy at port 9443 you may need change the Nginx setup:
+
+You can edit */opt/zenoss/zproxy/conf/zproxy-nginx.conf* in the CC UI for Zenoss.cse service (zproxy), or edit them in zendev.
+In zendev to edit the nginx configuration as follows:
+* `cdz zenoss-service`
+* `vi services/Zenoss.cse/-CONFIGS-/opt/zenoss/zproxy/conf/zproxy-nginx.conf`
+* find and delete
+
+        location ~* ^/zport/acl_users/cookieAuthHelper/login {
+            # ZEN-30567: Disallow the basic auth login page.
+            return 403;
+        }
+
+* If you edited in zendev, then you must redeploy your template in the usual way
+  `Zendev serviced -dxa --template <whatever_template_you_use>`
+* If you edited the Zenoss.cse (zproxy) config file, just restart that one service
 
 ## Building Images
 
