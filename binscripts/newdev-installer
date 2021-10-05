@@ -19,7 +19,7 @@ display_error() {
 : ${USER?"USER must be set"}
 
 DEVICE=$1
-DOCKER_VERSION=17.03.1~ce-0
+#DOCKER_VERSION=17.03.1~ce-0
 VGNAME=docker
 CREATE_THINPOOL=true
 THINPOOL=
@@ -73,29 +73,29 @@ sudo apt-add-repository universe    ||     display_error "failed to add universe
 sudo apt-add-repository restricted  ||     display_error "failed to add restricted repository"
 
 sudo apt-get update > /dev/null 2>&1
-sudo apt-get install -y  apt-transport-https || display_error "failed to add apt-transport-https"
-sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D \
-    || display_error "failed to add repo key"
-sudo apt-get install -y          \
-     ca-certificates         \
-     thin-provisioning-tools \
-     curl                    \
-     nfs-kernel-server       \
-     nfs-common              \
-     net-tools               \
-     build-essential         \
-     bison                   \
-     libpam0g-dev            \
-     xfsprogs                \
-     xfsdump                 \
-     libdevmapper-dev        \
-     python-dev              \
-     python-pip              \
-     git                     \
-     openjdk-8-jdk-headless  \
-     lvm2                    \
-     sysstat                 \
-    || display_error "failed to install software packages"
+sudo apt-get install -y apt-transport-https      || display_error "failed to install apt-transport-https"
+sudo apt-get install -y ca-certificates          || display_error "failed to install ca-certificates"
+sudo apt-get install -y thin-provisioning-tools  || display_error "failed to install thin-provisioning-tools"
+sudo apt-get install -y curl                     || display_error "failed to install curl"
+sudo apt-get install -y gnupg                    || display_error "failed to install gnupg"
+sudo apt-get install -y lsb-release              || display_error "failed to install lsb-release"
+sudo apt-get install -y python-pip               || display_error "failed to install pip"
+sudo pip2 install --upgrade pip==20.3.4          || display_error "failed to upgrade pip to version 20.3.4"
+sudo apt-get install -y nfs-kernel-server        || display_error "failed to install nfs-kernel-server"
+sudo apt-get install -y nfs-common               || display_error "failed to install nfs-common"
+sudo apt-get install -y net-tools                || display_error "failed to install net-tools"
+sudo apt-get install -y build-essential          || display_error "failed to install build-essential"
+sudo apt-get install -y bison                    || display_error "failed to install bison"
+sudo apt-get install -y libpam0g-dev             || display_error "failed to install libpam0g-dev"
+sudo apt-get install -y xfsprogs                 || display_error "failed to install xfsprogs"
+sudo apt-get install -y xfsdump                  || display_error "failed to install xfsdump"
+sudo apt-get install -y libdevmapper-dev         || display_error "failed to install libdevmapper-dev"
+sudo apt-get install -y python-dev               || display_error "failed to install python-dev"
+sudo apt-get install -y git                      || display_error "failed to install git"
+sudo apt-get install -y openjdk-8-jdk-headless   || display_error "failed to install openjdk-8-jdk-headless"
+sudo apt-get install -y lvm2                     || display_error "failed to install lvm2"
+sudo apt-get install -y sysstat                  || display_error "failed to install sysstat"
+sudo apt-get install -y screen                  || display_error "failed to install screen"
 
 echo "Install gcloud tools"
 # Create environment variable for correct distribution
@@ -131,13 +131,20 @@ if ${CONF_THINPOOL} ; then
     STORAGE_OPT="--storage-opt dm.thinpooldev=${THINPOOL}"
 fi
 
+
 echo "Installing docker..."
-sudo apt-add-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu ${UBUNTU_VERSION} stable" || display_error "Failed to add docker repo"
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+    | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
+    || display_error "failed to add Docker’s official GPG key"
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update  > /dev/null 2>&1
-sudo apt-get install -y docker-ce=${DOCKER_VERSION}~ubuntu-${UBUNTU_VERSION} || display_error "failed to install docker"
-sudo apt-mark hold docker-ce || display_error "failed to apt-mark hold docker"
-sudo usermod -a -G docker ${USER} || display_error "failed to add ${USER} to docker group"
+sudo apt-get install docker-ce     || display_error "failed to install docker-ce"
+sudo apt-get install docker-ce-cli || display_error "failed to install docker-ce-cli"
+sudo apt-get install containerd.io || display_error "failed to install containerd.io"
+sudo usermod -a -G docker ${USER}  || display_error "failed to add ${USER} to docker group"
+
 
 echo "Configuring docker..."
 sudo systemctl stop docker
