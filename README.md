@@ -32,8 +32,11 @@ Please feel free to fork and submit pull requests for this project.
 
 ## Installation
 
-These instructions are known to work with ubuntu 16.0.4 xenial. Specifically the `newdev-installer` script is known not
- to work with ubuntu 14.0.4.
+These instructions are known to work with: 
+- [Ubuntu 16.04 LTS Xenial Xerus](https://releases.ubuntu.com/16.04/) 
+- [Ubuntu 18.04 LTS Bionic Beaver](https://releases.ubuntu.com/18.04/)
+
+Specifically the `newdev-installer` script is known not to work with Ubuntu 14.04 LTS Trusty Tahr.
 
 ### Host Preparation
 
@@ -56,14 +59,14 @@ Alternatively you can run as root but must set the USER environment variable for
 ### With an existing thin pool or use loopback
 You can run the newdev-installer if you already have an existing thin pool or just want to run docker with a loopback
 device, not recommended, by passing in `CONF_THINPOOL=false` to the script.  This will install all the tools needed for
- a developer as well as docker but it will not configure docker to use a thinpool.
+ a developer as well as docker, but it will not configure docker to use a thinpool.
 
 `CONF_THINPOOL=false bash -c "curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash"`
 
 Note: Docker may not startup properly if you had it configured for an existing thinpool and use this option. You will
 have to modify the docker config if you want your thinpool to be used.
 
-##GitHub Setup
+### GitHub Setup
 
 A GitHub account is needed for the next part. Please make sure you have a GitHub account and that your local git
 installation is setup to use SSH keys. Instructions to setup github to use SSH keys can be found at:
@@ -77,10 +80,7 @@ Run the following as your user (*NOTE: run from a plain shell, i.e. not within a
 
 `curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/zendev-installer.sh | bash`
 
-if you have issues related to the pip - `sudo easy_install pip==20.3.4`
-
-To use zendev immediately without logging in again:
-*   `source ~/.bashrc`
+To use zendev immediately without logging in again - `source ~/.bashrc`
 
 ## Initialize a zendev environment
 _Note: The new zendev2 environment is not compatible with the older zendev environment.  Thus, you cannot use an existing (old zendev) environment with zendev2.
@@ -88,36 +88,38 @@ If you have an existing (old zendev) environment and you wish to continue using 
 
 1. Go to a directory for checkout.
     * `cd ~/src`
-1. Initialize an environment, the metis name is arbitrary. This may take some time.
-    * `zendev init metis`
-    * to use stable version of Zenoss (tags can be found in https://github.com/zenoss/product-assembly) 
-        * `zendev init -t <tag> <yourEnvironmentName>` (i.e.$  zendev init -t 7.0.18 zenoss718x)
-1. Go to the valid directory
+2. Initialize an environment `<yourEnvironmentName>`. This may take some time.
+    * `zendev init -t <tag> <yourEnvironmentName>`
+    * to use stable version of Zenoss (tags can be found in [product-assembly](https://github.com/zenoss/product-assembly)) 
+        * for version 7.x: `zendev init -t <tag> <yourEnvironmentName>` (i.e.$ zendev init -t 7.0.18 zenoss718x)
+        * for version 6.x: `zendev init -t support/6.x <yourEnvironmentName>` (i.e.$ zendev init -t support/6.x zenoss-6x)
+3. Go to the valid directory
    * `cd ~/src`
-1. Use the previously created environment.
-    * `zendev use metis` or `zendev use <yourEnvironmentName>`
-1. Update docker - (https://docs.docker.com/install/linux/docker-ce/ubuntu/)
-    * `sudo apt-get update`
-    * `sudo apt-get install docker-ce docker-ce-cli containerd.io`
-1. Build a development based zenoss docker image.
+4. Use the previously created environment.
+    * `zendev use <yourEnvironmentName>`
+5. Build a development based zenoss docker image.
     * `zendev devimg`
     * To build devimage with zenpacks:
-        * for RM: `zendev devimg -c -p resmgr`
-        * for CZ: `zendev devimg -c -p cse`
+        * for RM use: `zendev devimg -c -p resmgr`
+        * for CZ use: `zendev devimg -c -p cse`
     * If you have docker errors: `sudo usermod -a -G docker $USER` and relogin
-1. Build Control-Center.
+6. To build Control-Center use:
     * `cdz serviced; make clean build`
-    * if have an issue with CC building on 6.5+ or CZ:
-        * https://github.com/control-center/serviced#dev-environment
+    * if you have an issue with Control-Center building on 6.5+ or CZ:
+        * do all steps from [Dev Environment section](https://github.com/control-center/serviced#dev-environment) 
         * `sudo -- sh -c 'echo "vm.max_map_count=262144" >> /etc/sysctl.conf && sysctl --system'`
         * `gvm install go1.14.4`
         * `gvm use go1.14.4`
         * `export GOPATH=/home/zenny/src/<environment_name>`
-1. Run zenoss in Control-Center.
-    * `zendev serviced -dxa`
+        * `cdz serviced; make clean build`
+7. To deploy and run zenoss:
+    * in Control-Center use: `zendev serviced -dxa`
+    * for RM use:`zendev serviced -dxa --template Zenoss.resmgr`
     * for CZ use:`zendev serviced -dxa --template Zenoss.cse`
-1. To run zenoss next time use:
-    * `zendev serviced`, using `-dxa` will redeploy zenoss application
+9. To run zenoss next time use:
+    * `screen zendev serviced`.
+10. To redeploy zenoss application use step 7.
+
 
 ## CZ specific part
 
