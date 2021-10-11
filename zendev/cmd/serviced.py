@@ -650,7 +650,7 @@ def devshell(args, env):
     else:
         command = "" if not args.command else " ".join(args.command)
 
-    devimg = Serviced(env).get_zenoss_image("zendev/devimg")
+    devimg = Serviced(env).get_zenoss_image("zendev/devimg:%s" % env.name)
 
     m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
     if args.docker:
