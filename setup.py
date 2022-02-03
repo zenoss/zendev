@@ -37,13 +37,9 @@ setup(
         "py",
         "argcomplete",
         "tabulate",
-        "progressbar2==2.6.0",
-        "python-vagrant==0.4.0",
+        "progressbar2<4",
         "jinja2",
-        "requests<2.26",
-    ],
-    dependency_links=[
-        "https://github.com/todddeluca/python-vagrant/archive/master.zip#egg=python-vagrant-0.4.2"
+        "requests",
     ],
     license="Commercial",
     zip_safe=False,
