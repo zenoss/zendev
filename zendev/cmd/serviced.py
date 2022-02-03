@@ -67,11 +67,11 @@ class Serviced(object):
         envvars["SERVICED_AGENT"] = os.getenv("SERVICED_AGENT", "1")
         if root:
             args.extend(["sudo", "-E"])
-            args.extend("%s=%s" % x for x in envvars.iteritems())
+            args.extend("%s=%s" % x for x in envvars.items())
 
         args.extend([self.serviced])
         mounts = self.dev_image.get_mounts()
-        for mount in mounts.iteritems():
+        for mount in mounts.items():
             args.extend(
                 ["--mount", "%s,%s,%s" % (devimg_name, mount[0], mount[1])]
             )

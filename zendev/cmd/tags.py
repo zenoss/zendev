@@ -1,3 +1,6 @@
+from __future__ import absolute_import, print_function
+
+
 def restore(args, env):
     env().restore(args.name, shallow=args.shallow)
 

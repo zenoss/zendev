@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 import argparse
 import os
 import subprocess
@@ -17,7 +19,7 @@ def test(args, env):
 
     devImage = DevImage(environ)
     mounts = devImage.get_mounts()
-    for mount in mounts.iteritems():
+    for mount in mounts.items():
         cmd.extend(["--mount", "%s:%s" % mount])
 
     cmd.extend(["--env", "SRCROOT=/mnt/src"])
@@ -29,25 +31,27 @@ def test(args, env):
 
     productImageName = devImage.get_image_name()
     if not devImage.image_exists(productImageName):
-        print >> sys.stderr, (
-            "You don't have the devimg built. Please run "
-            '"zendev devimg" first.'
+        print(
+            "You don't have the devimg built. Please run"
+            '"zendev devimg" first.',
+            file=sys.stderr,
         )
         sys.exit(1)
     envvars["PRODUCT_IMAGE_ID"] = productImageName
 
     mariadbImageName = devImage.get_mariadb_name()
     if not devImage.image_exists(mariadbImageName):
-        print >> sys.stderr, (
-            "You don't have the mariadb image built. Please run "
-            '"zendev devimg" first.'
+        print(
+            "You don't have the mariadb image built. Please run"
+            '"zendev devimg" first.',
+            file=sys.stderr,
         )
         sys.exit(1)
     envvars["MARIADB_IMAGE_ID"] = mariadbImageName
 
     devimgSrcDir = environ.productAssembly
     devimgSrcDir.chdir()
-    print " ".join(cmd)
+    print(" ".join(cmd))
     subprocess.Popen(cmd, env=envvars).wait()
 
 
@@ -60,14 +64,15 @@ def _old_test(args, env):
     environ.generateZVersions()
     devImage = DevImage(environ)
     mounts = devImage.get_mounts()
-    for mount in mounts.iteritems():
+    for mount in mounts.items():
         cmd.extend(["-v", "%s:%s" % mount])
 
     imageName = devImage.get_image_name()
     if not devImage.image_exists(imageName):
-        print >> sys.stderr, (
+        print(
             "You don't have the devimg built. Please run "
-            '"zendev devimg" first.'
+            '"zendev devimg" first.',
+            file=sys.stderr,
         )
         sys.exit(1)
     cmd.append(imageName)
@@ -78,9 +83,9 @@ def _old_test(args, env):
         cmd.append("/opt/zenoss/install_scripts/starttests.sh")
         cmd.extend(args.arguments[1:])
 
-    print "Using %s image." % imageName
-    print "Calling Docker with the following:"
-    print " ".join(cmd)
+    print("Using %s image." % imageName)
+    print("Calling Docker with the following:")
+    print(" ".join(cmd))
     if subprocess.call(cmd):
         sys.exit(1)
 

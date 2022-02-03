@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 import itertools
 import json
 import os
@@ -96,7 +98,7 @@ class ZenDevEnvironment(object):
 
     def _export_env(self):
         envvars = self.envvars()
-        for k, v in envvars.iteritems():
+        for k, v in envvars.items():
             self.bash('export %s="%s"' % (k, v))
         os.environ.update(envvars)
 
@@ -133,7 +135,7 @@ class ZenDevEnvironment(object):
         return self._prodbinsrc
 
     def bash(self, command):
-        print >> self._bash, command
+        print(command, file=self._bash)
 
     def _ensure_product_assembly(self):
         if self._productAssembly.check() and not is_git_repo(
@@ -211,11 +213,11 @@ class ZenDevEnvironment(object):
     def generateZVersions(self):
         self._ensure_prodbin()
 
-        print "cd %s" % self._prodbinsrc.strpath
+        print("cd %s" % self._prodbinsrc.strpath)
         self._prodbinsrc.chdir()
 
         cmdArgs = ["make", "generate-zversion"]
-        print " ".join(cmdArgs)
+        print(" ".join(cmdArgs))
         subprocess.check_call(cmdArgs)
 
     def use(self, switch_dir=True):

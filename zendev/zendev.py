@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 import argcomplete
 import argparse
 import subprocess
@@ -24,7 +26,7 @@ from .config import get_config, get_envname
 from .log import error
 
 
-def parse_args():
+def build_argparser():
     epilog = textwrap.dedent(
         """
     Environment commands: {init, ls, use, drop, env, root}
@@ -69,8 +71,8 @@ def parse_args():
     serviced.add_commands(subparsers)
     dumpzodb.add_commands(subparsers)
     argcomplete.autocomplete(parser)
-    args = parser.parse_args()
-    return args
+
+    return parser
 
 
 def selfupdate(args, env):
@@ -90,17 +92,17 @@ def selfupdate(args, env):
 
 
 def root(args, env):
-    print env().root.strpath
+    print(env().root.strpath)
 
 
 def version(args, env):
     import pkg_resources
 
-    print pkg_resources.require("zendev")[0].version
+    print(pkg_resources.require("zendev")[0].version)
 
 
 def bootstrap(args, env):
-    print here("bootstrap.sh").strpath
+    print(here("bootstrap.sh").strpath)
 
 
 def tagsCompleter(prefix, **kwargs):
@@ -119,7 +121,7 @@ def ls(args, env):
         suffix = "(v1)"
         if "version" in envDetails:
             suffix = "(%s)" % envDetails["version"]
-        print prefix, env, suffix
+        print(prefix, env, suffix)
 
 
 def check_env(name=None, **kwargs):
@@ -156,18 +158,22 @@ all_env_whitelist = [
 
 
 def validate_cmd_env(args):
-    if any(args.subparser in s for s in all_env_whitelist):
+    if args.subparser and any(args.subparser in s for s in all_env_whitelist):
         return True
     config = get_config()
     return config.validate(config.current)
 
 
 def main():
-    args = parse_args()
+    parser = build_argparser()
+    args = parser.parse_args()
     if not validate_cmd_env(args):
         sys.exit(1)
 
-    args.functor(args, check_env)
+    if not args.subparser:
+        parser.print_usage()
+    else:
+        args.functor(args, check_env)
 
 
 if __name__ == "__main__":

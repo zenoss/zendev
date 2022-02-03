@@ -19,12 +19,12 @@ history = open("HISTORY.rst").read().replace(".. :changelog:", "")
 
 setup(
     name="zendev",
-    version="0.2.0",
+    version="0.3.0",
     description="Zenoss Dev Environment",
     long_description=readme + "\n\n" + history,
     author="Ian McCracken",
     author_email="ian@zenoss.com",
-    url="https://github.com/iancmcc/zendev",
+    url="https://github.com/zenoss/zendev",
     packages=[
         "zendev",
     ],
@@ -32,7 +32,7 @@ setup(
     include_package_data=True,
     package_data={"zendev": ["*.sh"]},
     install_requires=[
-        "gitflow",
+        "nu-gitflow",
         "termcolor",
         "py",
         "argcomplete",

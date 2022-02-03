@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 import subprocess
 
 
@@ -15,9 +17,9 @@ def dumpzodb(args, env):
         cmdArgs.append("ZENWIPE_ARGS=--xml")
 
     devimgSrcDir = environ.productAssembly.join("devimg")
-    print "cd %s" % devimgSrcDir.strpath
+    print("cd %s" % devimgSrcDir.strpath)
     devimgSrcDir.chdir()
-    print " ".join(cmdArgs)
+    print(" ".join(cmdArgs))
     subprocess.check_call(cmdArgs)
 
 

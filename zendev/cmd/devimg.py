@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 import json
 import py
 import subprocess
@@ -67,17 +69,17 @@ def devimg(args, env):
         cmdArgs.append("ZENPACK_FILE=%s" % _createZPFile(environ, zenpacks))
 
     else:
-        print "Adding default ZenPacks.zenoss.PythonCollector..."
+        print("Adding default ZenPacks.zenoss.PythonCollector...")
         cmdArgs.append(
             "ZENPACK_FILE=%s"
             % _createZPFile(environ, ["ZenPacks.zenoss.PythonCollector"])
         )
 
-    print "Building devimg ..."
+    print("Building devimg ...")
     devimgSrcDir = environ.productAssembly.join("devimg")
-    print "cd %s" % devimgSrcDir.strpath
+    print("cd %s" % devimgSrcDir.strpath)
     devimgSrcDir.chdir()
-    print " ".join(cmdArgs)
+    print(" ".join(cmdArgs))
     subprocess.check_call(cmdArgs)
 
 

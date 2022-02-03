@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 import subprocess
 import sys
 
@@ -26,14 +28,14 @@ def build(args, env):
         sys.exit(1)
 
     zenservicemigrations = env().productAssembly.join("svcdefs")
-    print "Building zenservicemigrations ..."
-    print "cd %s" % zenservicemigrations.strpath
+    print("Building zenservicemigrations ...")
+    print("cd %s" % zenservicemigrations.strpath)
     zenservicemigrations.chdir()
     cmdArgs = ["make"]
     if args.clean:
         cmdArgs.append("clean")
     cmdArgs.append("migrations")
-    print " ".join(cmdArgs)
+    print(" ".join(cmdArgs))
     try:
         subprocess.check_call(cmdArgs)
     except Exception:
@@ -45,24 +47,24 @@ def build(args, env):
     cmdArgs.append("build")
 
     productBase = env().productAssembly.join("product-base")
-    print "Building product-base ..."
-    print "cd %s" % productBase.strpath
+    print("Building product-base ...")
+    print("cd %s" % productBase.strpath)
     productBase.chdir()
-    print " ".join(cmdArgs)
+    print(" ".join(cmdArgs))
     subprocess.check_call(cmdArgs)
 
     mariadbBase = env().productAssembly.join("mariadb-base")
     if mariadbBase.check():
-        print "Building mariadb-base ..."
-        print "cd %s" % mariadbBase.strpath
+        print("Building mariadb-base ...")
+        print("cd %s" % mariadbBase.strpath)
         mariadbBase.chdir()
-        print " ".join(cmdArgs)
+        print(" ".join(cmdArgs))
         subprocess.check_call(cmdArgs)
 
-    print "Building %s" % args.target_product
-    print "cd %s" % targetDir.strpath
+    print("Building %s" % args.target_product)
+    print("cd %s" % targetDir.strpath)
     targetDir.chdir()
-    print " ".join(cmdArgs)
+    print(" ".join(cmdArgs))
     subprocess.check_call(cmdArgs)
 
 

@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 import json
 import os
 import py
@@ -16,7 +18,7 @@ class ZendevConfig(object):
                 try:
                     self._data = json.load(f)
                 except ValueError as e:
-                    print "File %s has invalid JSON data: %s" % (f, e)
+                    print("File %s has invalid JSON data: %s" % (f, e))
                     self._data = {"environments": {}}
         else:
             self._data = {"environments": {}}
@@ -92,7 +94,7 @@ class ZendevConfig(object):
 
     def cleanup(self):
         trash = []
-        for key, value in self.environments.iteritems():
+        for key, value in self.environments.items():
             if not os.path.exists(value["path"]):
                 trash.append(key)
 

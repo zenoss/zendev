@@ -17,18 +17,12 @@ from zendev.environment import init_config_dir, get_config_dir, CONFIG_DIR
 from zendev.environment import NotInitialized, ZenDevEnvironment
 
 
-_MANIFEST = json.dumps({
-    'repos': {
-        'arepo': {
-            'repo': 'iancmcc/dotfiles',
-            'ref': 'master'
-        }
-    } 
-})
+_MANIFEST = json.dumps(
+    {"repos": {"arepo": {"repo": "iancmcc/dotfiles", "ref": "master"}}}
+)
 
 
 class TestEnvironment(unittest.TestCase):
-
     def run(self, *args, **kwargs):
         self.tempdir = py.path.local(tempfile.mkdtemp())
         self.cfgdir = self.tempdir.join(CONFIG_DIR)
@@ -48,7 +42,7 @@ class TestEnvironment(unittest.TestCase):
 
     def test_get_config_dir(self):
         self.assertRaises(NotInitialized, get_config_dir)
-        child = self.tempdir.ensure('child/a/b/c', dir=True)
+        child = self.tempdir.ensure("child/a/b/c", dir=True)
         with child.as_cwd():
             self.assertRaises(NotInitialized, get_config_dir)
         init_config_dir()
@@ -66,5 +60,5 @@ class TestEnvironment(unittest.TestCase):
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

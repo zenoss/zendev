@@ -17,18 +17,12 @@ import subprocess
 from zendev.utils import is_git_repo, is_manifest
 
 
-_MANIFEST = json.dumps({
-    'repos': {
-        'arepo': {
-            'repo': 'iancmcc/dotfiles',
-            'ref': 'master'
-        }
-    } 
-})
+_MANIFEST = json.dumps(
+    {"repos": {"arepo": {"repo": "iancmcc/dotfiles", "ref": "master"}}}
+)
 
 
 class TestUtils(unittest.TestCase):
-
     def run(self, *args, **kwargs):
         self.tempdir = py.path.local(tempfile.mkdtemp())
         try:
@@ -37,24 +31,24 @@ class TestUtils(unittest.TestCase):
         finally:
             self.tempdir.remove()
 
-
     def test_is_git_repo(self):
         self.assertFalse(is_git_repo(self.tempdir))
-        subprocess.call(["git", "init"], stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT)
+        subprocess.call(
+            ["git", "init"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
         self.assertTrue(is_git_repo(self.tempdir))
         self.assertFalse(is_git_repo("/not/a/path"))
-        fileinrepo = self.tempdir.ensure('something.file')
+        fileinrepo = self.tempdir.ensure("something.file")
         self.assertFalse(is_git_repo(fileinrepo))
 
     def test_is_manifest(self):
-        manifest = self.tempdir.join('manifest')
+        manifest = self.tempdir.join("manifest")
 
         # Check nonexistent
         self.assertFalse(is_manifest(manifest))
 
         # Check invalid manifest
-        self.tempdir.ensure('manifest')
+        self.tempdir.ensure("manifest")
         manifest.write("NOT A MANIFEST")
         self.assertFalse(is_manifest(manifest))
 
@@ -63,6 +57,5 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(is_manifest(manifest))
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 import py
 import sys
 
@@ -15,7 +17,7 @@ def init(args, _):
 
     # Do not allow multiple environment with the same name.
     if config.exists(name):
-        print (
+        print(
             "Zendev environment {} already exists at {}.".format(
                 name, config.environments[name]["path"]
             )
@@ -57,7 +59,7 @@ def env(args, env):
     """
     Print the current environment
     """
-    print get_config().current
+    print(get_config().current)
 
 
 def EnvironmentCompleter(prefix, **kwargs):
@@ -86,7 +88,7 @@ def add_commands(subparsers):
 
     drop_parser = subparsers.add_parser("drop", help="Delete an environment")
     drop_parser.add_argument(
-        "name", metavar="ENVIRONMENT", nargs="?", default=None
+        "name", metavar="ENVIRONMENT", default=None
     ).completer = EnvironmentCompleter
     drop_parser.add_argument("--purge", action="store_true")
     drop_parser.set_defaults(functor=drop)
