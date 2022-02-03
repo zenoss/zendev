@@ -2,7 +2,7 @@ requests
 jinja2
 nose
 py
-gitflow
+nu-gitflow
 termcolor
 argcomplete
 tabulate
