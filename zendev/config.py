@@ -5,8 +5,6 @@ import py
 from .log import info, error
 
 CONFIG_DIR = "~/.zendev"
-
-
 ZENDEV_VERSION = "v2"
 
 

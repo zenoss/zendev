@@ -53,7 +53,7 @@ class Serviced(object):
         if not self.dev_image.image_exists(devimg_name):
             error(
                 "You don't have the devimg built. "
-                "Please run \"zendev devimg\" first."
+                'Please run "zendev devimg" first.'
             )
             sys.exit(1)
 
@@ -519,8 +519,7 @@ def run_serviced(args, env):
         if subprocess.call(["sudo", "chmod", "755", var_isvcs]):
             error(
                 "Could not set appropriate permissions for %s. "
-                "Continuing anyway."
-                % var_isvcs
+                "Continuing anyway." % var_isvcs
             )
 
         # Add host
@@ -575,7 +574,8 @@ def run_serviced(args, env):
             # Join the subprocess
 
         # subtle hint that zenoss is ready to use
-        print(r"""
+        print(
+            r"""
  __________ _   _ ____  _______     __
 |__  / ____| \ | |  _ \| ____\ \   / /
   / /|  _| |  \| | | | |  _|  \ \ / /
@@ -612,7 +612,8 @@ def run_serviced(args, env):
    .ssssso`:    ./++/`
    .ssssso
     `:/:-
-""")
+"""
+        )
         _serviced.wait()
     except Exception:
         _serviced.stop()

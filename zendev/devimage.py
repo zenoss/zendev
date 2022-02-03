@@ -19,7 +19,8 @@ class DevImage(object):
 
     def _get_name(self, basename):
         image_name = "zendev/{base}:{tag}".format(
-            base=basename, tag=self.env.name,
+            base=basename,
+            tag=self.env.name,
         )
         image_id = subprocess.check_output(
             ["docker", "images", "-q", image_name]

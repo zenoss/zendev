@@ -30,8 +30,8 @@ def test(args, env):
     productImageName = devImage.get_image_name()
     if not devImage.image_exists(productImageName):
         print >> sys.stderr, (
-            "You don't have the devimg built. Please run"
-            "'zendev devimg' first."
+            "You don't have the devimg built. Please run "
+            '"zendev devimg" first.'
         )
         sys.exit(1)
     envvars["PRODUCT_IMAGE_ID"] = productImageName
@@ -39,8 +39,8 @@ def test(args, env):
     mariadbImageName = devImage.get_mariadb_name()
     if not devImage.image_exists(mariadbImageName):
         print >> sys.stderr, (
-            "You don't have the mariadb image built. Please run"
-            "'zendev devimg' first."
+            "You don't have the mariadb image built. Please run "
+            '"zendev devimg" first.'
         )
         sys.exit(1)
     envvars["MARIADB_IMAGE_ID"] = mariadbImageName
@@ -67,7 +67,7 @@ def _old_test(args, env):
     if not devImage.image_exists(imageName):
         print >> sys.stderr, (
             "You don't have the devimg built. Please run "
-            "\"zendev devimg\" first."
+            '"zendev devimg" first.'
         )
         sys.exit(1)
     cmd.append(imageName)

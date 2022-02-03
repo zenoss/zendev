@@ -12,7 +12,7 @@ def impact_devimg(args, env):
     if not args.impact_image:
         error(
             'missing required resource "impact-image" argument '
-            'for building impact-devimg'
+            "for building impact-devimg"
         )
         return
     impact_src_image = args.impact_image

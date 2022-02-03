@@ -1,5 +1,3 @@
-
-
 def restore(args, env):
     env().restore(args.name, shallow=args.shallow)
 

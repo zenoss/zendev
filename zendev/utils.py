@@ -68,9 +68,7 @@ here = py.path.local(__file__).dirpath().join
 
 
 def memoize(f):
-
     class memodict(dict):
-
         def __missing__(self, key):
             ret = self[key] = f(key)
             return ret
@@ -142,7 +140,8 @@ def get_tmux_name():
     """Return the name of the current tmux window."""
     if os.environ.get("TMUX"):
         return subprocess.check_output(
-            "tmux list-panes -F '#W' 2>/dev/null", shell=True,
+            "tmux list-panes -F '#W' 2>/dev/null",
+            shell=True,
         )
 
 

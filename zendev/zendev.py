@@ -4,10 +4,9 @@ import subprocess
 import os
 import sys
 import textwrap
-from .utils import here, colored
 
-from .environment import ZenDevEnvironment
-from .environment import NotInitialized
+from .environment import ZenDevEnvironment, NotInitialized
+from .utils import here, colored
 
 from .cmd import (
     build,

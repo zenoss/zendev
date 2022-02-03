@@ -8,7 +8,8 @@ from .utils import colored
 def info(msg):
     if sys.stdout.isatty():
         print(
-            colored("ZENDEV:", "magenta"), colored(msg, "magenta"),
+            colored("ZENDEV:", "magenta"),
+            colored(msg, "magenta"),
             file=sys.stderr,
         )
     else:
@@ -25,7 +26,8 @@ def error(msg):
 def ask(msg, response):
     print(colored("ZENDEV:", "green"), colored(msg, "white"), file=sys.stderr)
     print(
-        colored("ZENDEV:", "green"), colored(response, "white"),
+        colored("ZENDEV:", "green"),
+        colored(response, "white"),
         file=sys.stderr,
     )
     return raw_input()
