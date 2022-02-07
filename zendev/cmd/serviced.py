@@ -89,11 +89,11 @@ class Serviced(object):
 
         # In serviced 1.1 and later, use subcommand 'server' to
         # request serviced be started
-        servicedVersion = subprocess.check_output(
+        servicedVersion = str(subprocess.check_output(
             "%s version | awk '/^Version:/ { print $NF; exit }'"
             % self.serviced,
             shell=True,
-        ).strip()
+        ).strip())
         if (
             not servicedVersion.startswith("1.0.")
             and servicedVersion != "1.1.0"
