@@ -1,173 +1,197 @@
 #!/usr/bin/env bash
 
-#New developer install of all system prereqs. Takes an single argument of the device to be used for the docker thinpool e.g. /dev/sdb
-#Should be run by the linux user that will be doing develop. User should be in sudo group.  If run by root set the USER env variable
-#when running the script.  e.g.  USER=jdoe newdev-installer
+set -eu
 
-#This script Installs required software, git jdk etc.... Provisions a thin pool for docker if not present, installs and configures docker.
-
-
-
-display_error() {
-    tput sgr0
-    tput setaf 1
-    echo "ERROR: $1"
-    tput sgr0
-    exit 1
+panic() {
+	tput sgr0
+	tput setaf 1
+	echo
+	echo "ERROR: $1" >&2
+	echo
+	tput sgr0
+	exit 1
 }
-#exits if user not set
-: ${USER?"USER must be set"}
 
-DEVICE=$1
-#DOCKER_VERSION=17.03.1~ce-0
-VGNAME=docker
-CREATE_THINPOOL=true
-THINPOOL=
-THINPOOL_CMD="sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings"
+trap 'panic "Script failed at line ${LINENO}"' ERR
 
-#Set by caller of script to skip thinpool creation and configuration
-CONF_THINPOOL=${CONF_THINPOOL:-true}
-
-
-if ! sudo -V  > /dev/null 2>&1  ; then
-    display_error "Please install sudo to run this script"
+if [[ $EUID -eq 0 ]]; then
+	panic "Please run this script as a non-root user"
 fi
 
-if ${CONF_THINPOOL}  ; then
-    if ! sudo lvs --help > /dev/null 2>&1 ; then
-        if [ -z "$1" ] ; then
-            display_error "Please specify device for docker thin pool, e.g. /dev/sda"
-        fi
-    else
-        #see if thin pool exists
-        THINPOOL=$(sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings | tr -d \ )
-        if [ "${THINPOOL}" = "/dev/mapper/${VGNAME}-docker--pool" ] ; then
-        CREATE_THINPOOL=false
-        else
-        if [ -z "$1" ] ; then
-                display_error "Please specify device for docker thin pool, e.g. /dev/sdb"
-            fi
-        fi
-    fi
+if ! sudo -V >/dev/null 2>&1; then
+	panic "Please install sudo before running this script"
 fi
 
-if ! lsb_release -v  >/dev/null 2>&1 ; then
-    echo "Installing lsb_release to determine version"
-    sudo apt-get update  > /dev/null2>&1
-    sudo apt-get install -y lsb-release || display_error "failed to install lsb-release"
-fi
-
-UBUNTU_VERSION=$(lsb_release -sc)
-
-echo "Configuring ${UBUNTU_VERSION} for developer environment."
-echo "Updating Repositories..."
-
-if ! add-apt-repository --help > /dev/null 2>&1 ; then
-    echo "Install software-properties-common to get add-apt-repository..."
-    apt-get update  > /dev/null 2>&1
-    sudo apt-get install -y software-properties-common || display_error "failed to install software-properties-common"
-fi
-
-sudo apt-add-repository multiverse  ||     display_error "failed to add multiverse repository"
-sudo apt-add-repository universe    ||     display_error "failed to add universe repository"
-sudo apt-add-repository restricted  ||     display_error "failed to add restricted repository"
-
-sudo apt-get update > /dev/null 2>&1
-sudo apt-get install -y apt-transport-https      || display_error "failed to install apt-transport-https"
-sudo apt-get install -y ca-certificates          || display_error "failed to install ca-certificates"
-sudo apt-get install -y thin-provisioning-tools  || display_error "failed to install thin-provisioning-tools"
-sudo apt-get install -y curl                     || display_error "failed to install curl"
-sudo apt-get install -y gnupg                    || display_error "failed to install gnupg"
-sudo apt-get install -y lsb-release              || display_error "failed to install lsb-release"
-sudo apt-get install -y python-pip               || display_error "failed to install pip"
-sudo pip2 install --upgrade pip==20.3.4          || display_error "failed to upgrade pip to version 20.3.4"
-sudo apt-get install -y nfs-kernel-server        || display_error "failed to install nfs-kernel-server"
-sudo apt-get install -y nfs-common               || display_error "failed to install nfs-common"
-sudo apt-get install -y net-tools                || display_error "failed to install net-tools"
-sudo apt-get install -y build-essential          || display_error "failed to install build-essential"
-sudo apt-get install -y bison                    || display_error "failed to install bison"
-sudo apt-get install -y libpam0g-dev             || display_error "failed to install libpam0g-dev"
-sudo apt-get install -y xfsprogs                 || display_error "failed to install xfsprogs"
-sudo apt-get install -y xfsdump                  || display_error "failed to install xfsdump"
-sudo apt-get install -y libdevmapper-dev         || display_error "failed to install libdevmapper-dev"
-sudo apt-get install -y python-dev               || display_error "failed to install python-dev"
-sudo apt-get install -y git                      || display_error "failed to install git"
-sudo apt-get install -y openjdk-8-jdk-headless   || display_error "failed to install openjdk-8-jdk-headless"
-sudo apt-get install -y lvm2                     || display_error "failed to install lvm2"
-sudo apt-get install -y sysstat                  || display_error "failed to install sysstat"
-sudo apt-get install -y screen                  || display_error "failed to install screen"
-
-echo "Install gcloud tools"
-# Create environment variable for correct distribution
-export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
-
-# Add the Cloud SDK distribution URI as a package source
-echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-
-# Import the Google Cloud Platform public key
-curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-
-# Update the package list and install the Cloud SDK
-sudo apt-get update -y && sudo apt-get install -y google-cloud-sdk
-
-
-echo "Upgrading pip..."
-sudo pip install --upgrade pip  || display_error "failed to upgrade pip"
-
-STORAGE_OPT=""
-if ${CONF_THINPOOL} ; then
-
-    if $CREATE_THINPOOL ; then
-        echo "Creating thinpool with device ${DEVICE}..."
-
-        sudo vgcreate ${VGNAME} ${DEVICE} || display_error "Failed to create volume group"
-
-        sudo lvcreate -T -l98%FREE --name ${VGNAME}/docker-pool || display_error "Failed to create logical volume"
-
-        THINPOOL=$(sudo lvs -S lv_attr=~t.\* -o lv_dmpath --noheadings | tr -d \ )
-    else
-        echo "Thinpool exists, skipping thinpool creation"
-    fi
-    STORAGE_OPT="--storage-opt dm.thinpooldev=${THINPOOL}"
-fi
-
-
-echo "Installing docker..."
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-    | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
-    || display_error "failed to add Docker’s official GPG key"
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update  > /dev/null 2>&1
-sudo apt-get install -y docker-ce     || display_error "failed to install docker-ce"
-sudo apt-get install -y docker-ce-cli || display_error "failed to install docker-ce-cli"
-sudo apt-get install -y containerd.io || display_error "failed to install containerd.io"
-sudo usermod -a -G docker ${USER}  || display_error "failed to add ${USER} to docker group"
-
-
-echo "Configuring docker..."
-sudo systemctl stop docker
-
-#comment out existing docker opts
-sudo sed -in '/DOCKER_OPTS/ s/^#*/#/' /etc/default/docker
-sudo echo "DOCKER_OPTS=\"--dns 10.87.113.13 --dns 10.88.102.13 --dns 10.88.120.84 --dns 8.8.8.8 --bip=172.17.42.1/16 -s devicemapper ${STORAGE_OPT} --userland-proxy=false --insecure-registry=$(hostname)\:5000\"" | sudo tee -a /etc/default/docker > /dev/null  || display_error "Failed to set docker opts"
-
-sudo sed -i -e 's:ExecStart=/usr/bin/docker daemon -H fd\://:TasksMax=infinity\nEnvironmentFile=/etc/default/docker\nExecStart=/usr/bin/docker daemon $DOCKER_OPTS -H fd\://:' /lib/systemd/system/docker.service || display_error "Failed to modify docker bin script"
-
-if ${CONF_THINPOOL} ; then
-    sudo rm -rf /var/lib/docker
-    echo "Docker configured to use thinpool ${THINPOOL}."
+if ! groups ${USER} | grep -q sudo; then
+	echo
+	echo "Adding ${USER} to the sudo group"
+	sudo usermod -a -G sudo ${USER}
 else
-   echo "Docker configured to use default storage. It is recommended you configure a devicemapper thinpool."
+	echo
+	echo "User ${USER} already added to the sudo group"
 fi
 
-sudo systemctl daemon-reload
-sudo systemctl start docker
+if ! sudo -nl >/dev/null 2>&1; then
+	echo
+	echo "Configuring user ${USER} for password-less sudo usage"
+	echo "${USER} ALL = (ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/${USER} >/dev/null
+else
+	echo
+	echo "User ${USER} already configured for password-less sudo"
+fi
 
+export DEBIAN_FRONTEND=noninteractive  
 
-echo "Adding ${USER} to sudo"
-sudo usermod -a -G sudo ${USER} || display_error "failed to add ${USER} to sudo group"
-echo "May need to re-login to see user group changes."
+sudo apt-get update -qq
 
-echo "Please make sure git ssh keys are set up for your user."
+if ! lsb_release >/dev/null 2>&1; then
+	sudo apt-get install -y -q lsb-release 
+fi
+
+echo
+echo "Configuring $(lsb_release -sd) for developer environment."
+
+if ! sudo add-apt-repository -h >/dev/null 2>&1; then
+	sudo apt-get install -y -q software-properties-common
+fi
+sudo apt-add-repository -y universe >/dev/null
+sudo apt-add-repository -y multiverse >/dev/null
+sudo apt-add-repository -y restricted >/dev/null
+
+echo
+echo "Installing packages"
+APT_PACKAGES=$(cat << EOF
+apt-transport-https
+ca-certificates
+curl
+gnupg
+nfs-kernel-server
+nfs-common
+net-tools
+build-essential
+bison
+libpam0g-dev
+xfsprogs
+xfsdump
+libdevmapper-dev
+python2.7
+python2.7-dev
+git
+openjdk-11-jdk-headless
+sysstat
+EOF
+)
+
+# Add package for 'python2' command on Ubuntu 20.04 systems
+if apt-cache show python2 >/dev/null 2>&1; then
+	APT_PACKAGES="${APT_PACKAGES} python2"
+fi
+
+# Add package for 'python2' command on Ubuntu 18.04 systems
+if sudo apt-get install --dry-run python-minimal >/dev/null 2>&1; then
+	APT_PACKAGES="${APT_PACKAGES} python-minimal"
+fi
+
+sudo apt-get update -qq
+sudo apt-get install -y -q ${APT_PACKAGES}
+
+echo "Done installing packages"
+
+if ! echo $PATH | grep -q "\.local/bin"; then
+	echo
+	echo "Configure ${HOME}/.local path"
+	if ! test -d ${HOME}/.local/bin; then
+		mkdir -p ${HOME}/.local/bin
+	fi
+	if ! grep -q "\.local\/bin" ${HOME}/.bashrc; then
+		echo "PATH=\${HOME}/.local/bin:\${PATH}" >> ${HOME}/.bashrc
+	fi
+	export PATH=${HOME}/.local/bin:${PATH}
+else
+	echo
+	echo "The ${HOME}/.local path is already configured"
+fi
+
+if ! test -f ${HOME}/.local/bin/pip; then
+	echo
+	echo "Install 'pip' Python package tool"
+	sudo apt-get remove -qq python-pip
+	curl -sSL https://bootstrap.pypa.io/pip/2.7/get-pip.py -o /tmp/get-pip.py
+	python2 -W ignore::Warning /tmp/get-pip.py --user --no-color --progress-bar off
+else
+	echo
+	echo "pip already installed"
+fi
+
+OBSOLETE_DOCKER_PKGS="docker docker.io containerd runc"
+
+if ! sudo dpkg-query -s docker-ce >/dev/null 2>&1; then
+	# Check whether docker-engine is a package, then add it to the list if it is.
+	if apt-cache show docker-engine >/dev/null 2>&1; then
+		OBSOLETE_DOCKER_PKGS="${OBSOLETE_DOCKER_PKGS} docker-engine"
+	fi
+	echo
+	echo "Installing docker..."
+	sudo apt-get remove -y -qq ${OBSOLETE_DOCKER_PKGS}
+	curl -sSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+	sudo apt-get update -qq
+	sudo apt-get install -y -q docker-ce docker-ce-cli containerd.io
+	sudo usermod -a -G docker ${USER}
+else
+	echo
+	echo "Docker already installed"
+fi
+
+# note: The '|| :' after EOM is prevent read returning a non-zero exit code when it hits the EOM.
+read -r -d '' DOCKER_CONFIG << EOM || :
+{
+    "dns": ["10.87.112.37", "10.88.102.37", "8.8.8.8"],
+    "insecure-registries" : ["localhost:5000"]
+}
+EOM
+
+DOCKER_CONFIG_FILE=/etc/docker/daemon.json
+
+if ! test -f ${DOCKER_CONFIG_FILE}; then
+	echo
+	echo "Configuring Docker"
+	echo -e "${DOCKER_CONFIG}" | sudo tee ${DOCKER_CONFIG_FILE} >/dev/null
+else
+	echo
+	echo "The Docker config file, ${DOCKER_CONFIG_FILE}, already exists."
+	echo "Please ensure that it contains a configuration similar to the following:"
+	echo
+	echo -e "${DOCKER_CONFIG}"
+fi
+
+if ! test -f /etc/default/docker; then
+	echo
+	echo "Add file to quiet warnings from serviced"
+	sudo touch /etc/default/docker
+fi
+
+sudo systemctl restart docker
+
+if ! sudo dpkg-query -s google-cloud-sdk >/dev/null 2>&1; then
+	echo
+	echo "Install gcloud tools"
+	# Create environment variable for correct distribution
+	export CLOUD_SDK_REPO="cloud-sdk-bionic"
+
+	# Add the Cloud SDK distribution URI as a package source
+	echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+	# Import the Google Cloud Platform public key
+	curl -sSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+	# Update the package list and install the Cloud SDK
+	sudo apt-get update -qq
+	sudo apt-get install -y -q google-cloud-sdk
+else
+	echo
+	echo "gcloud tools already installed"
+fi
+
+echo
+echo "Please re-login to make changes to your environment take effect."

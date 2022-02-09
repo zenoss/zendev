@@ -4,10 +4,8 @@
   - [Description](#description)
   - [Installation](#installation)
     - [Host Preparation](#host-preparation)
-    - [Without an existing thin pool](#without-an-existing-thin-pool)
-    - [With an existing thin pool or use loopback](#with-an-existing-thin-pool-or-use-loopback)
-  - [GitHub Setup](#github-setup)
-  - [Install zendev](#install-zendev)
+    - [GitHub Setup](#github-setup)
+    - [Install zendev](#install-zendev)
   - [Initialize a zendev environment](#initialize-a-zendev-environment)
   - [Building Images](#building-images)
     - [Building Product Images](#building-product-images)
@@ -33,38 +31,23 @@ Please feel free to fork and submit pull requests for this project.
 ## Installation
 
 These instructions are known to work with: 
-- [Ubuntu 16.04 LTS Xenial Xerus](https://releases.ubuntu.com/16.04/) 
 - [Ubuntu 18.04 LTS Bionic Beaver](https://releases.ubuntu.com/18.04/)
-
-Specifically the `newdev-installer` script is known not to work with Ubuntu 14.04 LTS Trusty Tahr.
+- [Ubuntu 20.04 LTS Focal Fossa](https://releases.ubuntu.com/20.04/)
 
 ### Host Preparation
 
-For a new developer machine the `newdev-installer` script will prepare machine by installing docker etc. and creating a
-thin pool with an existing device.
+Make sure all packages are up to date with:
 
-### Without an existing thin pool
-Start by identifying an unused device on your system. You can use `lsblk` to seek the devices on your system.
-If unsure of which device to choose, please ask for help.
+```
+sudo apt-get update
+sudo apt-get upgrade
+```
 
-Once a device has been identified run the following script as your user as long as the user has sudo privileges.
-Replace `/dev/xvdb` with an unused device to create the docker thin pool.
+Now run the newdev-installer script:
 
-`curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash -s /dev/xvdb`
-
-Alternatively you can run as root but must set the USER environment variable for the script using your desired development user. e.g.
-
-`USER=leeroy_jenkins bash -c "curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash -s /dev/xvdb"`
-
-### With an existing thin pool or use loopback
-You can run the newdev-installer if you already have an existing thin pool or just want to run docker with a loopback
-device, not recommended, by passing in `CONF_THINPOOL=false` to the script.  This will install all the tools needed for
- a developer as well as docker, but it will not configure docker to use a thinpool.
-
-`CONF_THINPOOL=false bash -c "curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash"`
-
-Note: Docker may not startup properly if you had it configured for an existing thinpool and use this option. You will
-have to modify the docker config if you want your thinpool to be used.
+```
+curl -sSL https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/newdev-installer | bash
+```
 
 ### GitHub Setup
 
@@ -74,11 +57,13 @@ installation is setup to use SSH keys. Instructions to setup github to use SSH k
 https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
 
-## Install zendev
+### Install zendev
 
 Run the following as your user (*NOTE: run from a plain shell, i.e. not within a zendev environment*):
 
-`curl -s -S -L https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/zendev-installer.sh | bash`
+```
+curl -sSL https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/zendev-installer.sh | bash
+```
 
 To use zendev immediately without logging in again - `source ~/.bashrc`
 
