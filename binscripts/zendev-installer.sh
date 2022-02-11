@@ -1,90 +1,132 @@
 #!/usr/bin/env bash
 
-display_error() {
-    tput sgr0
-    tput setaf 1
-    echo "ERROR: $1"
-    tput sgr0
-    exit 1
+set -eu
+
+panic() {
+	tput sgr0
+	tput setaf 1
+	echo
+	echo "ERROR: $1" >&2
+	echo
+	tput sgr0
+	exit 1
 }
 
-update_profile() {
-    [ -f "$1" ] || return 1
+trap 'panic "Script failed at line ${LINENO}"' ERR
 
-    grep -F "$source_line" "$1" > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-	echo -e "\n$source_line" >> "$1"
-    fi
-}
-
+# Test $# for argument count == 1 first otherwise $1 is an unset variable
+# and triggers an error.
+if [ $# -eq 1 ] && [ -n "$1" ]; then
+	SRC_ROOT="${HOME}/$1"
+else
+	SRC_ROOT="${HOME}/src"
+fi
 
 BRANCH=zendev2
-SRC_ROOT=${HOME}/src
-ZENDEV_DEST=${SRC_ROOT}/github.com/zenoss
-ZENDEV_DIR=${ZENDEV_DEST}/zendev
+ZENDEV_DIR=${SRC_ROOT}/zendev
 ZENDEV_REPO=git@github.com:zenoss/zendev.git
 
-
-#if no zendev or zendev version command fails (only v2 has version option)
-if ! zendev version > /dev/null 2>&1 ; then
-    echo "Installing zendev to ${ZENDEV_DIR}"
-
-    [ -d "${ZENDEV_DEST}" ] || mkdir -p ${ZENDEV_DEST} > /dev/null 2>&1 || display_error "Failed to create ${ZENDEV_DEST}"
-    
-    if ! git --help > /dev/null 2>&1 ; then
-	display_error "git not installed"
-    fi
-
-    if [ -d "${ZENDEV_DIR}" ]; then 
-	echo "${ZENDEV_DIR} exists. Attempting to checkout branch ${BRANCH}"
-    else
-	git clone ${ZENDEV_REPO} ${ZENDEV_DIR} > /dev/null 2>&1 || display_error "Failed to clone from ${ZENDEV_REPO} into ${ZENDEV_DIR}"
-    fi
-
-    pushd . > /dev/null
-
-    cd ${ZENDEV_DIR} && git checkout ${BRANCH} > /dev/null 2>&1
-    pip install --user -e . || display_error "Failed to pip install zendev"
-    popd > /dev/null
-	
-else
-    echo "zendev already installed"
-fi
-
-
-ENV_FILE=${HOME}/.bashrc
-
-update_profile ${HOME}/.bashrc
 if [ "$(uname)" == "Darwin" ]; then
-    ENV_FILE=${HOME}/.profile
+	ENV_FILE=${HOME}/.profile
+else
+	ENV_FILE=${HOME}/.bashrc
 fi
 
-source_line='export PATH=${HOME}/bin:${HOME}/.local/bin:$PATH'
-update_profile ${ENV_FILE}
-source_line='source $(zendev bootstrap)'
-update_profile ${ENV_FILE}
+# if no zendev or zendev version command fails (only v2 has version option)
+if ! zendev version >/dev/null 2>&1 ; then
 
-echo "Installing gvm"
-bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
+	if ! git --help >/dev/null 2>&1 ; then
+		panic "Please install git before running this script"
+	fi
+
+	echo
+	echo "Installing zendev to ${ZENDEV_DIR}"
+
+	[ -d "${SRC_ROOT}" ] || mkdir -p ${SRC_ROOT} >/dev/null 2>&1
+
+	if [ -d "${ZENDEV_DIR}" ]; then
+		echo "${ZENDEV_DIR} exists.  Assuming the zendev repo is already cloned."
+	else
+		git clone ${ZENDEV_REPO} ${ZENDEV_DIR}
+	fi
+
+	pushd . >/dev/null
+	cd ${ZENDEV_DIR}
+	git checkout ${BRANCH} >/dev/null 2>&1
+	pip install --user --no-color --progress-bar off --disable-pip-version-check --no-python-version-warning -e .
+	popd >/dev/null
+
+	cat <<EOF>> ${ENV_FILE}
+
+# Initialize zendev environment
+source $(zendev bootstrap)
+EOF
+else
+	echo
+	echo "zendev already installed"
+fi
+
+if ! gvm >/dev/null 2>&1; then
+	echo
+	echo "Installing gvm"
+	curl -sSL https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer | bash
+
+	source ${HOME}/.gvm/scripts/gvm
+	gvm install go1.10.8 --binary
+	gvm install go1.17.7 --binary
+else
+	echo
+	echo "gvm already installed"
+fi
 
 source ${HOME}/.gvm/scripts/gvm
-gvm install go1.6.3 --binary
-gvm install go1.4.3 --binary
-gvm install go1.7.1 --binary
-gvm use go1.7.1 --default
+set +u
+gvm use go1.17.7 --default >/dev/null
+set -u
 
-echo "Installing hub"
-GOPATH=${HOME} go get github.com/github/hub
+if ! hub help >/dev/null 2>&1; then
+	echo
+	echo "Installing hub"
+	GOPATH=${HOME}/.local go install github.com/github/hub@latest
 
-if ! grep -F "#Setup hub completion" ${ENV_FILE} > /dev/null 2>&1 ; then
-    cat <<EOF>> ${ENV_FILE}
-#Setup hub completion
-if [ -f ${SRC_ROOT}/github.com/github/hub/etc/hub.bash_completion.sh ]; then
-. ${SRC_ROOT}/github.com/github/hub/etc/hub.bash_completion.sh
+	cat <<EOF>> ${ENV_FILE}
+
+# Setup hub completion
+if [ -f ${HOME}/.local/pkg/mod//github.com/github/hub*/etc/hub.bash_completion.sh ]; then
+	source \${HOME}/.local/pkg/mod//github.com/github/hub*/etc/hub.bash_completion.sh
 fi
 EOF
+else
+	echo
+	echo "hub already installed"
 fi
 
-echo "Installing jig"
-GOPATH=${HOME} go get github.com/iancmcc/jig
+if ! jig >/dev/null 2>&1; then
+	echo
+	echo "Installing jig"
+	set +u
+	gvm use go1.10.8 >/dev/null
+	set -u
+	GOPATH=${HOME}/.local go get github.com/iancmcc/jig
+	set +u
+	gvm use go1.17.7 >/dev/null
+	set -u
+else
+	echo
+	echo "jig already installed"
+fi
 
+MAX_MAP_COUNT=262144
+
+if [[ $(sysctl -b vm.max_map_count) -lt ${MAX_MAP_COUNT} ]]; then
+	echo
+	echo "Setting vm.max_map_count system parameter to ${MAX_MAP_COUNT}"
+	echo "vm.max_map_count=${MAX_MAP_COUNT}" | sudo tee /etc/sysctl.d/60-serviced.conf >/dev/null
+	sudo sysctl --system >/dev/null
+else
+	echo
+	echo "The vm.max_map_count system parameter already set."
+fi
+
+echo
+echo "Please relogin or run 'source ~/.bashrc' to make changes take effect."
