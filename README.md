@@ -59,17 +59,37 @@ https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
 
 ### Install zendev
 
-Run the following as your user (*NOTE: run from a plain shell, i.e. not within a zendev environment*):
+The `zendev-intaller.sh` script accepts an optional argument to specify where to install the zendev source code.
+The optional argument should be a path relative to $HOME. By default, the zendev source code is installed under $HOME/src.
+
+To install zendev with the default source location, execute the following:
 
 ```
 curl -sSL https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/zendev-installer.sh | bash
 ```
 
+To install zendev with a custom source location, execute the following:
+
+```
+curl -sSL https://raw.githubusercontent.com/zenoss/zendev/zendev2/binscripts/zendev-installer.sh | bash -s PATH
+```
+
+where `PATH` is your desired location.  For example, if you specified `work`, then the zendev source code would
+be installed into $HOME/work.
+
 To use zendev immediately without logging in again - `source ~/.bashrc`
 
+Note: if you see this error:
+```
+sysctl: setting key "net.ipv4.conf.all.promote_secondaries": Invalid argument
+```
+you can ignore it.
+
 ## Initialize a zendev environment
-_Note: The new zendev2 environment is not compatible with the older zendev environment.  Thus, you cannot use an existing (old zendev) environment with zendev2.
-If you have an existing (old zendev) environment and you wish to continue using the same name with zendev2 you must remove/rename the existing environment's directory._
+_Note: The new zendev2 environment is not compatible with the older zendev environment.
+Thus, you cannot use an existing (old zendev) environment with zendev2.
+If you have an existing (old zendev) environment and you wish to continue using the same name with zendev2 you must
+remove/rename the existing environment's directory._
 
 1. Go to a directory for checkout.
     * `cd ~/src`
@@ -89,14 +109,9 @@ If you have an existing (old zendev) environment and you wish to continue using 
         * for CZ use: `zendev devimg -c -p cse`
     * If you have docker errors: `sudo usermod -a -G docker $USER` and relogin
 6. To build Control-Center use:
-    * `cdz serviced; make clean build`
-    * if you have an issue with Control-Center building on 6.5+ or CZ:
+    * `cdz serviced; make clean; make`
+    * If you have an issue with Control-Center building on 6.5+ or CZ:
         * do all steps from [Dev Environment section](https://github.com/control-center/serviced#dev-environment) 
-        * `sudo -- sh -c 'echo "vm.max_map_count=262144" >> /etc/sysctl.conf && sysctl --system'`
-        * `gvm install go1.14.4`
-        * `gvm use go1.14.4`
-        * `export GOPATH=/home/zenny/src/<environment_name>`
-        * `cdz serviced; make clean build`
 7. To deploy and run zenoss:
     * in Control-Center use: `zendev serviced -dxa`
     * for RM use:`zendev serviced -dxa --template Zenoss.resmgr`
