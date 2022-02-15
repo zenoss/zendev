@@ -128,5 +128,28 @@ else
 	echo "The vm.max_map_count system parameter already set."
 fi
 
+MAX_OPEN_FILES=1048576
+LIMITS_CHANGED="N"
+
+if [[ $(ulimit -Sn) -lt ${MAX_OPEN_FILES} ]]; then
+	echo
+	echo "Setting the upper limit for open files to ${MAX_OPEN_FILES}"
+	cat <<EOF | sudo tee /etc/security/limits.d/serviced.conf >/dev/null
+# Control Center requires the hard/soft limits for open files to be at least ${MAX_OPEN_FILES}.
+*     hard  nofile  ${MAX_OPEN_FILES}
+*     soft  nofile  ${MAX_OPEN_FILES}
+root  hard  nofile  ${MAX_OPEN_FILES}
+root  soft  nofile  ${MAX_OPEN_FILES}
+EOF
+	LIMITS_CHANGED="Y"
+else
+	echo
+	echo "The upper limit for open files is already set to ${MAX_OPEN_FILES}."
+fi
+
 echo
-echo "Please relogin or run 'source ~/.bashrc' to make changes take effect."
+if [ ${LIMITS_CHANGED} = "N" ]; then
+	echo "Please relogin or run 'source ~/.bashrc' to make changes take effect."
+else
+	echo "Please relogin to make changes take effect."
+fi
