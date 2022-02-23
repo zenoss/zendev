@@ -144,7 +144,7 @@ def get_tmux_name():
         return subprocess.check_output(
             "tmux list-panes -F '#W' 2>/dev/null",
             shell=True,
-        )
+        ).strip().decode("utf8")
 
 
 def rename_tmux_window(name=None):
