@@ -198,7 +198,7 @@ class Serviced(object):
                         % (hostid, host, pool)
                     )
             elif err:
-                for line in err.split("\n"):
+                for line in err.split(b"\n"):
                     match = re.match("host already exists: (\\w+)", line)
                     if match:
                         hostid = match.group(1)
