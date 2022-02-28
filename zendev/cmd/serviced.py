@@ -199,7 +199,7 @@ class Serviced(object):
                     )
             elif err:
                 for line in err.split(b"\n"):
-                    match = re.match("host already exists: (\\w+)", line)
+                    match = re.match(b"host already exists: (\\w+)", line)
                     if match:
                         hostid = match.group(1)
                         break
