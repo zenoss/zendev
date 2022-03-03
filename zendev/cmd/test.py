@@ -9,10 +9,11 @@ from ..devimage import DevImage
 
 
 def test(args, env):
+    environ = env()
+    environ.productAssembly.chdir()
+
     if not os.path.exists("test_image.sh"):
         return _old_test(args, env)
-
-    environ = env()
 
     cmd = ["./test_image.sh"]
     envvars = {}
