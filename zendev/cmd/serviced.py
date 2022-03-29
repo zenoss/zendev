@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 import time
+import urllib3
 
 import py.path
 import requests
@@ -16,15 +17,18 @@ from ..log import error, info
 from ..utils import get_ip_address, get_tmux_name, rename_tmux_window
 
 
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+
 class Serviced(object):
 
     env = None
     proc = None
 
-    def __init__(self, env):
+    def __init__(self, env, uiport=443):
         self.env = env
         self.serviced = self.env.gopath.join("bin/serviced").strpath
-        self.uiport = None
+        self.uiport = uiport
         self.dev_image = DevImage(env)
 
     def get_zenoss_image(self, zenoss_image):
@@ -48,7 +52,7 @@ class Serviced(object):
             "sudo rm -rf %s/*" % self.env.servicedhome.strpath, shell=True
         )
 
-    def start(self, root=False, uiport=443, arguments=None, image=None):
+    def start(self, root=False, arguments=None, image=None):
         devimg_name = self.get_zenoss_image(image)
         if not self.dev_image.image_exists(devimg_name):
             error(
@@ -59,7 +63,6 @@ class Serviced(object):
 
         info("Starting serviced...")
         rename_tmux_window("serviced")
-        self.uiport = uiport
         args = []
         envvars = self.env.envvars()
         envvars["TZ"] = os.getenv("TZ", "UTC")
@@ -81,7 +84,7 @@ class Serviced(object):
                 "zendev/impact-devimg,%s,/mnt/src"
                 % self.env.root.join("src/github.com/zenoss").strpath,
                 "--uiport",
-                ":%d" % uiport,
+                ":%d" % self.uiport,
             ]
         )
         if arguments:
@@ -184,7 +187,6 @@ class Serviced(object):
             )
             out, err = process.communicate()
             if out:
-                info(out)
                 ahostid = out.splitlines()[-1].strip()
                 process = subprocess.Popen(
                     [self.serviced, "host", "list", ahostid],
@@ -192,7 +194,7 @@ class Serviced(object):
                 )
                 out, err = process.communicate()
                 if ahostid in out:
-                    hostid = ahostid
+                    hostid = ahostid.decode("utf-8")
                     info(
                         "Added hostid %s for host %s  pool %s"
                         % (hostid, host, pool)
@@ -208,6 +210,28 @@ class Serviced(object):
             error(
                 "Gave up trying to add host %s due to error: %s" % (host, err)
             )
+
+    def get_hosts(self):
+        process = subprocess.Popen(
+            [
+                "sudo",
+                "-E",
+                "SERVICED_HOME=%s" % self.env.servicedhome.strpath,
+                self.serviced,
+                "host",
+                "list",
+                "-v",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        out, err = process.communicate()
+        if out:
+            return json.loads(out.strip())
+        else:
+            if not err.startswith(b"no hosts found"):
+                error(err)
+            return []
 
     def deploy(
         self, template, pool="default", svcname="HBase", noAutoAssignIpFlag=""
@@ -313,78 +337,8 @@ class Serviced(object):
     def compile_template(self, template, image):
         tplpath = self.get_template_path(template).strpath
         info("Compiling template %s" % tplpath)
-        versionsFile = self.env.productAssembly.join("versions.mk")
-        hbaseVersion = subprocess.check_output(
-            "awk -F= '/^HBASE_VERSION/ { print $NF }' %s" % versionsFile,
-            shell=True,
-        ).strip()
-        hdfsVersion = subprocess.check_output(
-            "awk -F= '/^HDFS_VERSION/ { print $NF }' %s" % versionsFile,
-            shell=True,
-        ).strip()
-        opentsdbVersion = subprocess.check_output(
-            "awk -F= '/^OPENTSDB_VERSION/ { print $NF }' %s" % versionsFile,
-            shell=True,
-        ).strip()
-        info("Detected hbase version in makefile is '%s'" % hbaseVersion)
-        info("Detected opentsdb version in makefile is '%s'" % opentsdbVersion)
-        if hbaseVersion == "" or opentsdbVersion == "":
-            raise Exception(
-                "Unable to get opentsdb/hbase tags from services makefile"
-            )
-        popenArgs = [
-            self.serviced,
-            "template",
-            "compile",
-            "--map=zenoss/zenoss5x,%s" % image,
-            "--map=zenoss/hbase:xx,zenoss/hbase:%s" % hbaseVersion,
-            "--map=zenoss/hdfs:xx,zenoss/hdfs:%s" % hdfsVersion,
-            "--map=zenoss/opentsdb:xx,zenoss/opentsdb:%s" % opentsdbVersion,
-            "--map=zenoss/mariadb:xx,zendev/mariadb:%s"
-            % self.dev_image.env.name,
-        ]
-
-        zingConnectorVersion = subprocess.check_output(
-            "awk -F= '/^ZING_CONNECTOR_VERSION/ { print $NF }' %s"
-            % versionsFile,
-            shell=True,
-        ).strip()
-        imageProject = subprocess.check_output(
-            "awk -F= '/^IMAGE_PROJECT/ { print $NF }' %s" % versionsFile,
-            shell=True,
-        ).strip()
-        info(
-            "Detected zing-connector version in makefile is '%s'"
-            % zingConnectorVersion
-        )
-        info("Detected GCR project in makefile is '%s'" % imageProject)
-        if zingConnectorVersion == "" or imageProject == "":
-            info("Skipping image ID substitution for zing-connector")
-        else:
-            popenArgs.append(
-                "--map=gcr-repo/zing-connector:xx,gcr.io/%s/zing-connector:%s"
-                % (imageProject, zingConnectorVersion)
-            )
-
-        apiProxyVersion = subprocess.check_output(
-            "awk -F= '/^ZING_API_PROXY_VERSION/ { print $NF }' %s"
-            % versionsFile,
-            shell=True,
-        ).strip()
-        info(
-            "Detected api-key-proxy version in makefile is '%s'"
-            % apiProxyVersion
-        )
-        info("Detected GCR project in makefile is '%s'" % imageProject)
-        if apiProxyVersion == "" or imageProject == "":
-            info("Skipping image ID substitution for api-key-proxy")
-        else:
-            popenArgs.append(
-                "--map=gcr-repo/api-key-proxy:xx,gcr.io/%s/api-key-proxy:%s"
-                % (imageProject, apiProxyVersion)
-            )
-
-        popenArgs.append(tplpath)
+        mk_template_cmd = self.zenoss_service_dir.join("make_template.sh")
+        popenArgs = [mk_template_cmd.strpath, tplpath]
         proc = subprocess.Popen(
             popenArgs, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
@@ -428,7 +382,7 @@ class Serviced(object):
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
         )
-        tplid, _ = addtpl.communicate(template)
+        tplid, _ = addtpl.communicate(template.encode("utf-8"))
         tplid = tplid.strip()
         info("Added template %s" % tplid)
         return tplid
@@ -493,12 +447,14 @@ def run_serviced(args, env):
     old_name = get_tmux_name()
     timeout = 600
     environ = env()
-    _serviced = Serviced(environ)
+    _serviced = Serviced(environ, args.uiport)
     if args.reset:
         _serviced.reset()
     if args.arguments and args.arguments[0] == "--":
         args.arguments = args.arguments[1:]
-    _serviced.start(not args.no_root, args.uiport, args.arguments, args.image)
+
+    if not _serviced.is_ready():
+        _serviced.start(not args.no_root, args.arguments, args.image)
     try:
         wait_for_ready = not args.skip_ready_wait
         while wait_for_ready and not _serviced.is_ready():
@@ -524,10 +480,14 @@ def run_serviced(args, env):
 
         # Add host
         if "SERVICED_HOST_IP" in os.environ:
-            _serviced.add_host(host=os.environ.get("SERVICED_HOST_IP"))
+            host = os.environ.get("SERVICED_HOST_IP")
+            ipAddr, port = host.split(":")
         else:
             ipAddr = get_ip_address() or "172.17.42.1"
-            _serviced.add_host(ipAddr + ":4979")
+            port = "4979"
+        existing_hosts = _serviced.get_hosts()
+        if all(host["IPAddr"] != ipAddr for host in existing_hosts):
+            _serviced.add_host(host="{}:{}".format(ipAddr, port))
 
         if args.deploy or args.deploy_ana:
 
