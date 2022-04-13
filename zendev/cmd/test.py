@@ -16,7 +16,8 @@ def test(args, env):
         return _old_test(args, env)
 
     cmd = ["./test_image.sh"]
-    envvars = {}
+    # PATH required for Docker integration with GCP
+    envvars = {"PATH": os.environ["PATH"]}
 
     devImage = DevImage(environ)
     mounts = devImage.get_mounts()
