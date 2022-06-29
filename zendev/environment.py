@@ -1,11 +1,17 @@
 from __future__ import absolute_import, print_function
 
-import itertools
 import json
 import os
 import py
 import subprocess
 import sys
+
+try:
+    # Python 2
+    from future_builtins import filter
+except ImportError:
+    # Python 3
+    pass
 
 from .log import info, error
 from .config import get_config
@@ -270,6 +276,6 @@ class ZenDevEnvironment(object):
         Get Repository objects for all repos in the system.
         """
         return sorted(
-            itertools.ifilter(filter_, self._repos()),
+            filter(filter_, self._repos()),
             key=key or (lambda r: r.name.count("/")),
         )
