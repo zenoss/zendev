@@ -8,7 +8,8 @@ import py
 
 from git.exc import GitCommandError
 
-from .utils import is_git_repo, memoize
+# from .utils import is_git_repo, memoize
+from .utils import memoize
 
 
 is_github = re.compile(r"^[^\/\s@]+\/[^\/\s]+$").match
@@ -104,9 +105,12 @@ class Repository(object):
         self.repo.git.fetch(all=True)
 
     def initialize(self):
-        if not self._repo and is_git_repo(self.path):
-            self._repo = gitflow.core.GitFlow(self.path.strpath)
-        if self._repo and not self._repo.is_initialized():
-            py.io.StdCaptureFD.call(self._repo.init)
-        if self._repo and not self._repo.get("include.path", ""):
-            self._repo.set("include.path", "../gitflow-branch-config")
+        pass
+        # This code attempts to initialize git flow on a repo,
+        # we'll skip doing that for now.
+        # if not self._repo and is_git_repo(self.path):
+        #     self._repo = gitflow.core.GitFlow(self.path.strpath)
+        # if self._repo and not self._repo.is_initialized():
+        #     py.io.StdCaptureFD.call(self._repo.init)
+        # if self._repo and not self._repo.get("include.path", ""):
+        #     self._repo.set("include.path", "../gitflow-branch-config")
