@@ -27,6 +27,8 @@ def devimg(args, env):
     environ = env()
     environ.generateZVersions()
 
+    devimgSrcDir = environ.productAssembly.join("devimg")
+
     cmdArgs = ["make"]
     if args.clean:
         cmdArgs.append("clean")
@@ -36,6 +38,7 @@ def devimg(args, env):
         "SRCROOT=%s" % environ.srcroot.join("github.com", "zenoss").strpath
     )
     cmdArgs.append("DEV_ENV=%s" % environ.name)
+
     if args.product:
         targetDir = environ.productAssembly.join(args.product)
         if not targetDir.check():
@@ -69,14 +72,19 @@ def devimg(args, env):
         cmdArgs.append("ZENPACK_FILE=%s" % _createZPFile(environ, zenpacks))
 
     else:
-        print("Adding default ZenPacks.zenoss.PythonCollector...")
-        cmdArgs.append(
-            "ZENPACK_FILE=%s"
-            % _createZPFile(environ, ["ZenPacks.zenoss.PythonCollector"])
-        )
+        # Use devimg's zenpacks.json, if it exists.
+        zenpackManifestFile = devimgSrcDir.join("zenpacks.json")
+        if not zenpackManifestFile.check():
+            print("Adding default ZenPacks.zenoss.PythonCollector...")
+            cmdArgs.append(
+                "ZENPACK_FILE=%s"
+                % _createZPFile(environ, ["ZenPacks.zenoss.PythonCollector"])
+            )
+        else:
+            print("Using default devimg/zenpacks.json file")
+            cmdArgs.append("ZENPACK_FILE=%s" % zenpackManifestFile.strpath)
 
     print("Building devimg ...")
-    devimgSrcDir = environ.productAssembly.join("devimg")
     print("cd %s" % devimgSrcDir.strpath)
     devimgSrcDir.chdir()
     print(" ".join(cmdArgs))
