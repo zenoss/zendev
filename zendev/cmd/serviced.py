@@ -68,6 +68,12 @@ class Serviced(object):
         envvars["TZ"] = os.getenv("TZ", "UTC")
         envvars["SERVICED_MASTER"] = os.getenv("SERVICED_MASTER", "1")
         envvars["SERVICED_AGENT"] = os.getenv("SERVICED_AGENT", "1")
+        envvars["SERVICED_ISVCS_OPENTSDB_USERNAME"] = os.getenv(
+            "SERVICED_ISVCS_OPENTSDB_USERNAME", "zenoss"
+        )
+        envvars["SERVICED_ISVCS_OPENTSDB_PASSWD"] = os.getenv(
+            "SERVICED_ISVCS_OPENTSDB_PASSWD", "zenoss"
+        )
         if root:
             args.extend(["sudo", "-E"])
             args.extend("%s=%s" % x for x in envvars.items())
