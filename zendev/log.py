@@ -11,6 +11,7 @@ def info(msg):
             colored("ZENDEV:", "magenta"),
             colored(msg, "magenta"),
             file=sys.stderr,
+            end="\r\n",
         )
     else:
         print(msg, file=sys.stderr)

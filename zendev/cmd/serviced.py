@@ -98,11 +98,13 @@ class Serviced(object):
 
         # In serviced 1.1 and later, use subcommand 'server' to
         # request serviced be started
-        servicedVersion = str(subprocess.check_output(
-            "%s version | awk '/^Version:/ { print $NF; exit }'"
-            % self.serviced,
-            shell=True,
-        ).strip())
+        servicedVersion = str(
+            subprocess.check_output(
+                "%s version | awk '/^Version:/ { print $NF; exit }'"
+                % self.serviced,
+                shell=True,
+            ).strip()
+        )
         if (
             not servicedVersion.startswith("1.0.")
             and servicedVersion != "1.1.0"
@@ -541,7 +543,7 @@ def run_serviced(args, env):
 
         # subtle hint that zenoss is ready to use
         print(
-            r"""
+            """
  __________ _   _ ____  _______     __
 |__  / ____| \ | |  _ \| ____\ \   / /
   / /|  _| |  \| | | | |  _|  \ \ / /
@@ -619,7 +621,9 @@ def devshell(args, env):
 
     devimg = Serviced(env).get_zenoss_image("zendev/devimg:%s" % env.name)
 
-    m2 = py.path.local(os.path.expanduser("~")).ensure(".m2", dir=True)
+    userhome = py.path.local(os.path.expanduser("~"))
+    m2 = userhome.ensure(".m2", dir=True)
+    ssh = userhome.ensure(".ssh", dir=True)
     if args.docker:
         cmd = (
             "docker run --privileged --rm -w /opt/zenoss "
@@ -628,6 +632,7 @@ def devshell(args, env):
             "-v {zenhome}:/opt/zenoss "
             "-v {var}:/var/zenoss "
             "-v {m2}:/home/zenoss/.m2 "
+            "-v {ssh}:/home/zenoss/.ssh "
             "-e TZ=America/Chicago "
             "-i -t {image} {command}"
         ).format(
@@ -636,6 +641,7 @@ def devshell(args, env):
             zenhome=env.root.join("zenhome").strpath,
             var=env.root.join("var_zenoss").strpath,
             m2=m2.strpath,
+            ssh=ssh.strpath,
             image=devimg,
             command=command,
         )
@@ -646,6 +652,7 @@ def devshell(args, env):
             "--mount {zenhome},/opt/zenoss "
             "--mount {var},/var/zenoss "
             "--mount {m2},/home/zenoss/.m2 "
+            "--mount {ssh},/home/zenoss/.ssh "
             "'{service}' {command}"
         ).format(
             serviced=_serviced,
@@ -653,6 +660,7 @@ def devshell(args, env):
             zenhome=env.root.join("zenhome").strpath,
             var=env.root.join("var_zenoss").strpath,
             m2=m2.strpath,
+            ssh=ssh.strpath,
             service=args.service,
             command=command,
         )
