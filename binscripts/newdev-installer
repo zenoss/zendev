@@ -62,23 +62,27 @@ echo
 echo "Installing packages"
 APT_PACKAGES=$(cat << EOF
 apt-transport-https
+binutils
+bison
+build-essential
 ca-certificates
 curl
+gcc
+git
 gnupg
-nfs-kernel-server
-nfs-common
-net-tools
-build-essential
-bison
-libpam0g-dev
-xfsprogs
-xfsdump
 libdevmapper-dev
+libpam0g-dev
+make
+mercurial
+net-tools
+nfs-common
+nfs-kernel-server
+openjdk-11-jdk-headless
 python2.7
 python2.7-dev
-git
-openjdk-11-jdk-headless
 sysstat
+xfsdump
+xfsprogs
 EOF
 )
 
