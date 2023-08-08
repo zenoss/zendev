@@ -69,7 +69,7 @@ fi
 if ! gvm >/dev/null 2>&1; then
 	echo
 	echo "Installing gvm"
-	curl -sSL https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer | bash
+	curl -sSL https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer | bash -s "1.0.21"
 
 	source ${HOME}/.gvm/scripts/gvm
 	gvm install go1.10.8 --binary
